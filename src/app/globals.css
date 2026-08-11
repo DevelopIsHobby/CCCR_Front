@@ -1,0 +1,94 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+@import "tailwindcss";
+
+@theme {
+  /* Brand — C3R 기존 아이덴티티 유지 */
+  --color-navy-950: #041b38;
+  --color-navy-900: #062a55;
+  --color-navy-800: #0a3568;
+  --color-navy-700: #0f4482;
+
+  --color-brand-700: #0f4c93;
+  --color-brand-600: #1257a5;
+  --color-brand-500: #1d6fcc;
+  --color-brand-200: #b9d3f0;
+  --color-brand-100: #dce9f8;
+  --color-brand-50: #f1f6fc;
+
+  --color-flame-700: #b8360f;
+  --color-flame-600: #d8431a;
+  --color-flame-500: #f05a28;
+  --color-flame-100: #fde7de;
+
+  --color-ink-900: #14202e;
+  --color-ink-700: #2c3a4c;
+  --color-ink-600: #4a5768;
+  --color-ink-400: #7c8798;
+  --color-line: #e2e8f0;
+  --color-surface: #f5f8fc;
+
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, "Segoe UI", "Malgun Gothic", sans-serif;
+
+  --animate-marquee: marquee 32s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: #ffffff;
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+
+  /* 국문 제목은 자간을 좁혀야 덩어리로 읽힌다 */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.03em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-flame-500);
+    outline-offset: 2px;
+  }
+}
+
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* 히어로 배경 육각 네트워크 모티브 */
+@utility hex-field {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='96' viewBox='0 0 56 96'%3E%3Cpath d='M28 0l24 14v28L28 56 4 42V14z' fill='none' stroke='%23ffffff' stroke-opacity='.07'/%3E%3Cpath d='M28 56l24 14v28L28 112 4 98V70z' fill='none' stroke='%23ffffff' stroke-opacity='.07'/%3E%3C/svg%3E");
+  background-size: 56px 96px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
