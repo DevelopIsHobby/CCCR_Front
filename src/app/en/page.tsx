@@ -24,8 +24,8 @@ export default function Page() {
         </p>
         <p className="mt-8 rounded-lg bg-surface px-6 py-5 text-md leading-relaxed text-ink-600">
           Full English pages are being prepared. For inquiries, please contact{" "}
-          <a href="mailto:info@c3r.or.kr" className="font-bold text-brand-600 hover:underline">
-            info@c3r.or.kr
+          <a href="mailto:admin@cccr.or.kr" className="font-bold text-brand-600 hover:underline">
+            admin@cccr.or.kr
           </a>
           .
         </p>

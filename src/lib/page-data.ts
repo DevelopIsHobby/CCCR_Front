@@ -60,19 +60,39 @@ export const HISTORY = [
   },
 ];
 
+/* 조직도 — 4열 격자 기준 좌표(col: 0~3)로 배치한다. */
 export const ORG_UNITS = {
-  top: "총회",
-  second: "이사회",
+  assembly: "총회",
+  chair: "이사장",
+  board: "이사회",
   audit: "감사",
+  advisory: "자문위원회",
   office: "사무국",
-  teams: ["기획운영팀", "연구협력팀", "교육사업팀", "대외협력팀"],
-  committees: [
-    { name: "인프라 분과", desc: "데이터센터·서버·네트워크" },
-    { name: "플랫폼 분과", desc: "컨테이너·오케스트레이션" },
-    { name: "서비스 분과", desc: "SaaS·공공 클라우드" },
-    { name: "AI 인프라 분과", desc: "AI반도체·GPU 자원" },
-  ],
+  teams: ["연구개발팀", "기획팀", "총무팀", "연구비관리팀"],
 };
+
+export type Department = {
+  name: string;
+  tel: string;
+  email: string;
+};
+
+export const DEPARTMENTS: Department[] = [
+  { name: "사무국", tel: "02-2052-0156", email: "admin@cccr.or.kr" },
+  { name: "연구개발팀", tel: "02-2052-0132", email: "dwkim@cccr.or.kr" },
+  { name: "기획팀", tel: "02-2052-0155", email: "mhshin@cccr.or.kr" },
+  { name: "총무팀", tel: "02-2052-0156", email: "admin@cccr.or.kr" },
+  { name: "연구비관리팀", tel: "02-2052-0156", email: "hjsong@cccr.or.kr" },
+];
+
+export const ORG_ROLES = [
+  { label: "총회", value: "조합의 최고 의결기구로 정관 변경, 사업계획 및 예산·결산 승인, 임원 선출을 의결합니다." },
+  { label: "이사회", value: "총회에서 위임한 사항과 조합 운영에 관한 주요 사항을 심의·의결합니다. 회원 가입 승인도 이사회를 거칩니다." },
+  { label: "이사장", value: "조합을 대표하고 업무를 총괄합니다. 총회와 이사회의 의장을 맡습니다." },
+  { label: "감사", value: "조합의 업무와 회계를 감사하고 그 결과를 총회에 보고합니다." },
+  { label: "자문위원회", value: "산·학·연 전문가가 참여해 연구개발 방향과 사업 추진에 관한 자문을 제공합니다." },
+  { label: "사무국", value: "조합의 일상 업무를 수행합니다. 연구개발팀·기획팀·총무팀·연구비관리팀으로 구성됩니다." },
+];
 
 export const TRANSPORT = [
   {
@@ -118,7 +138,6 @@ export const MEMBERS: Member[] = [
 export const MEMBER_STATS = [
   { label: "정회원사", value: "128", unit: "개사" },
   { label: "특별회원", value: "24", unit: "개사" },
-  { label: "운영 분과", value: "4", unit: "개" },
   { label: "설립", value: "2009", unit: "년" },
 ];
 

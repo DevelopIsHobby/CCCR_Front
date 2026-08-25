@@ -48,13 +48,12 @@ export default function Page() {
           <DefTable
             rows={[
               { label: "주소", value: "서울특별시 강남구 테헤란로 000, 00빌딩 0층 (우 00000)" },
-              { label: "대표전화", value: "02-000-0000" },
-              { label: "팩스", value: "02-000-0000" },
+              { label: "대표전화", value: "02-2052-0156 (사무국)" },
               {
                 label: "이메일",
                 value: (
-                  <a href="mailto:info@c3r.or.kr" className="text-brand-600 hover:underline">
-                    info@c3r.or.kr
+                  <a href="mailto:admin@cccr.or.kr" className="text-brand-600 hover:underline">
+                    admin@cccr.or.kr
                   </a>
                 ),
               },

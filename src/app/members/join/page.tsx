@@ -89,19 +89,19 @@ export default function Page() {
         </div>
 
         <div>
-          <SectionHeading eyebrow="사무국 기획운영팀" title="신청 및 문의" />
+          <SectionHeading eyebrow="사무국 기획팀" title="신청 및 문의" />
           <div className="mt-10">
             <DefTable
               rows={[
-                { label: "접수처", value: "한국클라우드컴퓨팅연구조합 사무국 (기획운영팀)" },
+                { label: "접수처", value: "한국클라우드컴퓨팅연구조합 사무국 기획팀" },
                 { label: "제출방법", value: "이메일 접수 또는 방문 접수" },
                 {
                   label: "문의",
                   value: (
                     <>
-                      02-000-0000 /{" "}
-                      <a href="mailto:join@c3r.or.kr" className="text-brand-600 hover:underline">
-                        join@c3r.or.kr
+                      02-2052-0155 /{" "}
+                      <a href="mailto:mhshin@cccr.or.kr" className="text-brand-600 hover:underline">
+                        mhshin@cccr.or.kr
                       </a>
                     </>
                   ),

@@ -69,7 +69,7 @@ export default function Page() {
             ],
             list: [
               "개인정보 보호책임자: 사무국장 (성명 미정)",
-              "연락처: 02-000-0000 / privacy@c3r.or.kr",
+              "연락처: 02-2052-0156 / admin@cccr.or.kr",
             ],
           },
           {

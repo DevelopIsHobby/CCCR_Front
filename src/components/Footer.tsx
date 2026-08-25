@@ -43,11 +43,9 @@ export default function Footer() {
             <address className="mt-6 space-y-1.5 text-sm not-italic leading-relaxed">
               <p>서울특별시 강남구 테헤란로 000, 00빌딩 0층</p>
               <p>
-                TEL. 02-000-0000
+                TEL. 02-2052-0156
                 <span className="mx-2 text-white/20">|</span>
-                FAX. 02-000-0000
-                <span className="mx-2 text-white/20">|</span>
-                E-MAIL. info@c3r.or.kr
+                E-MAIL. admin@cccr.or.kr
               </p>
               <p className="text-brand-100/50">
                 고유번호 000-00-00000

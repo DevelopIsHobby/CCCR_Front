@@ -1,30 +1,61 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/sub/PageShell";
 import { SectionHeading, DefTable } from "@/components/sub/Ui";
-import { ORG_UNITS } from "@/lib/page-data";
+import { ORG_UNITS, DEPARTMENTS, ORG_ROLES } from "@/lib/page-data";
 
 export const metadata: Metadata = { title: "조직도" };
+
+/* 4열 격자에서 n번째 열의 중심 (0-indexed).
+   격자가 gap-4(16px) x 3 을 쓰므로 컬럼 폭은 (100% - 48px) / 4 다.
+   gap 을 바꾸면 아래 GAP/GAPS 도 함께 바꿔야 한다. */
+const GAP = 16;
+const GAPS = GAP * 3;
+const COL_W = `((100% - ${GAPS}px) / 4)`;
+const PITCH = `(${COL_W} + ${GAP}px)`;
+const col = (n: number) => `calc(${COL_W} / 2 + ${n} * ${PITCH})`;
+const span = (from: number, to: number) => `calc(${to - from} * ${PITCH})`;
 
 function Node({
   label,
   tone = "line",
-  className = "",
 }: {
   label: string;
-  tone?: "navy" | "brand" | "line";
-  className?: string;
+  tone?: "navy" | "brand" | "line" | "soft";
 }) {
   const tones = {
     navy: "bg-navy-900 text-white",
     brand: "bg-brand-600 text-white",
     line: "bg-white text-navy-900 ring-1 ring-line",
+    soft: "bg-surface text-navy-900 ring-1 ring-line",
   };
   return (
     <div
-      className={`flex h-14 min-w-[160px] items-center justify-center rounded-lg px-6 text-md font-bold ${tones[tone]} ${className}`}
+      className={`flex h-14 items-center justify-center rounded-lg px-4 text-center text-base font-bold ${tones[tone]}`}
     >
       {label}
     </div>
+  );
+}
+
+/** 세로 연결선 */
+function VLine({ at }: { at: number }) {
+  return (
+    <span
+      className="absolute top-0 h-full w-px bg-line"
+      style={{ left: col(at) }}
+      aria-hidden
+    />
+  );
+}
+
+/** 가로 연결선 — 두 열의 중심을 정확히 잇는다 */
+function HLine({ from, to, className = "" }: { from: number; to: number; className?: string }) {
+  return (
+    <span
+      className={`absolute h-px bg-line ${className}`}
+      style={{ left: col(from), width: span(from, to) }}
+      aria-hidden
+    />
   );
 }
 
@@ -32,89 +63,124 @@ export default function Page() {
   return (
     <PageShell
       href="/about/organization"
-      desc="총회와 이사회를 중심으로 사무국과 분과위원회가 운영됩니다."
+      desc="총회와 이사회를 중심으로 이사장 아래 사무국이 실무를 수행합니다."
     >
       <section>
         <SectionHeading eyebrow="총회 · 이사회 · 사무국" title="조직 구성" />
 
-        <div className="mt-12 overflow-x-auto rounded-2xl bg-surface p-8 lg:p-14">
-          <div className="flex min-w-[720px] flex-col items-center">
-            {/* 총회 */}
-            <Node label={ORG_UNITS.top} tone="navy" />
-            <span className="h-8 w-px bg-line" aria-hidden />
+        <div className="mt-12 overflow-x-auto rounded-2xl bg-surface p-8 lg:p-12">
+          <div className="min-w-[760px]">
+            {/* 1행 — 총회 */}
+            <div className="grid grid-cols-4 gap-4">
+              <div className="col-start-2">
+                <Node label={ORG_UNITS.assembly} tone="navy" />
+              </div>
+            </div>
 
-            {/* 이사회 + 감사 */}
-            <div className="relative flex items-center">
-              <Node label={ORG_UNITS.second} tone="navy" />
-              <span className="absolute left-full h-px w-16 bg-line" aria-hidden />
-              <div className="absolute left-[calc(100%+4rem)]">
+            {/* 총회 → 이사장 */}
+            <div className="relative h-8">
+              <VLine at={1} />
+            </div>
+
+            {/* 2행 — 이사회 · 이사장 · 감사 */}
+            <div className="relative grid grid-cols-4 gap-4">
+              <HLine from={0} to={2} className="top-7" />
+              <div className="relative col-start-1">
+                <Node label={ORG_UNITS.board} />
+              </div>
+              <div className="relative col-start-2">
+                <Node label={ORG_UNITS.chair} tone="navy" />
+              </div>
+              <div className="relative col-start-3">
                 <Node label={ORG_UNITS.audit} />
               </div>
             </div>
-            <span className="h-8 w-px bg-line" aria-hidden />
 
-            {/* 사무국 */}
-            <Node label={ORG_UNITS.office} tone="brand" />
-            <span className="h-8 w-px bg-line" aria-hidden />
+            {/* 이사회 → 자문위원회, 이사장 → 사무국 */}
+            <div className="relative h-8">
+              <VLine at={0} />
+              <VLine at={1} />
+            </div>
 
-            {/* 팀 — 가로 연결선은 첫/마지막 열의 중심을 정확히 잇는다 */}
-            <div className="relative w-full">
-              <span
-                className="absolute top-0 h-px bg-line"
-                style={{
-                  left: `${50 / ORG_UNITS.teams.length}%`,
-                  width: `${100 - 100 / ORG_UNITS.teams.length}%`,
-                }}
-                aria-hidden
-              />
-              <div className="flex justify-between gap-4 pt-8">
-                {ORG_UNITS.teams.map((t) => (
-                  <div key={t} className="relative flex flex-1 justify-center">
-                    <span className="absolute -top-8 h-8 w-px bg-line" aria-hidden />
-                    <Node label={t} className="w-full" />
-                  </div>
-                ))}
+            {/* 3행 — 자문위원회 · 사무국 */}
+            <div className="relative grid grid-cols-4 gap-4">
+              <HLine from={0} to={1} className="top-7" />
+              <div className="relative col-start-1">
+                <Node label={ORG_UNITS.advisory} />
               </div>
+              <div className="relative col-start-2">
+                <Node label={ORG_UNITS.office} tone="brand" />
+              </div>
+            </div>
+
+            {/* 사무국 → 4개 팀 */}
+            <div className="relative h-10">
+              <VLine at={0} />
+              <VLine at={1} />
+              <HLine from={0} to={3} className="top-5" />
+              <span className="absolute top-5 h-5 w-px bg-line" style={{ left: col(2) }} aria-hidden />
+              <span className="absolute top-5 h-5 w-px bg-line" style={{ left: col(3) }} aria-hidden />
+            </div>
+
+            {/* 4행 — 실무 팀 */}
+            <div className="grid grid-cols-4 gap-4">
+              {ORG_UNITS.teams.map((t) => (
+                <Node key={t} label={t} tone="soft" />
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* 분과위원회 */}
+      {/* 부서 연락처 */}
       <section className="mt-20">
         <SectionHeading
-          eyebrow={`분과 ${ORG_UNITS.committees.length}개`}
-          title="분과위원회"
-          desc="기술 영역별로 분과를 두어 회원사가 관심 분야에 직접 참여할 수 있도록 운영합니다."
+          eyebrow={`부서 ${DEPARTMENTS.length}곳`}
+          title="부서별 연락처"
+          desc="문의하실 업무에 맞는 부서로 연락해 주시면 빠르게 안내해 드립니다."
         />
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {ORG_UNITS.committees.map((c) => (
-            <div
-              key={c.name}
-              className="rounded-xl border border-line bg-white p-6 transition-colors hover:border-brand-500"
-            >
-              <span className="block h-1 w-8 rounded-full bg-brand-200" />
-              <p className="mt-3 text-lg font-bold text-navy-900">{c.name}</p>
-              <p className="mt-1.5 text-base text-ink-600">{c.desc}</p>
-            </div>
-          ))}
+        <div className="mt-10 overflow-x-auto">
+          <table className="w-full min-w-[520px] border-collapse text-left">
+            <thead>
+              <tr className="border-y-2 border-navy-900 bg-surface">
+                <th className="px-5 py-4 text-base font-bold text-navy-900">부서</th>
+                <th className="px-5 py-4 text-base font-bold text-navy-900">연락처</th>
+                <th className="px-5 py-4 text-base font-bold text-navy-900">E-mail</th>
+              </tr>
+            </thead>
+            <tbody>
+              {DEPARTMENTS.map((d) => (
+                <tr key={d.name} className="border-b border-line hover:bg-brand-50/60">
+                  <td className="px-5 py-4 text-md font-bold text-navy-900">{d.name}</td>
+                  <td className="px-5 py-4">
+                    <a
+                      href={`tel:${d.tel.replace(/-/g, "")}`}
+                      className="label-mono tabular-nums text-ink-600 hover:text-brand-600"
+                    >
+                      {d.tel}
+                    </a>
+                  </td>
+                  <td className="px-5 py-4">
+                    <a
+                      href={`mailto:${d.email}`}
+                      className="label-mono text-brand-600 hover:underline"
+                    >
+                      {d.email}
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
       {/* 기구별 역할 */}
       <section className="mt-20">
-        <SectionHeading eyebrow="기구 5개" title="기구별 역할" />
+        <SectionHeading eyebrow={`기구 ${ORG_ROLES.length}개`} title="기구별 역할" />
         <div className="mt-10">
-          <DefTable
-            rows={[
-              { label: "총회", value: "조합의 최고 의결기구로 정관 변경, 사업계획 및 예산·결산 승인, 임원 선출을 의결합니다." },
-              { label: "이사회", value: "총회에서 위임한 사항과 조합 운영에 관한 주요 사항을 심의·의결합니다. 회원 가입 승인도 이사회를 거칩니다." },
-              { label: "감사", value: "조합의 업무와 회계를 감사하고 그 결과를 총회에 보고합니다." },
-              { label: "사무국", value: "조합의 일상 업무를 수행합니다. 연구개발 과제 관리, 교육사업 운영, 대외 협력, 회원 지원을 담당합니다." },
-              { label: "분과위원회", value: "기술 영역별 현안을 논의하고 공동 연구 과제를 발굴합니다. 회원사 실무자가 위원으로 참여합니다." },
-            ]}
-          />
+          <DefTable rows={ORG_ROLES} />
         </div>
       </section>
     </PageShell>
