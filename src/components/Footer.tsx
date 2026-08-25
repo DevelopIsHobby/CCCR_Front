@@ -41,9 +41,11 @@ export default function Footer() {
           <div>
             <Logo variant="light" />
             <address className="mt-6 space-y-1.5 text-sm not-italic leading-relaxed">
-              <p>서울특별시 강남구 테헤란로 000, 00빌딩 0층</p>
+              <p>서울특별시 강남구 삼성로86길 11, 거봉INC빌딩 5층</p>
               <p>
                 TEL. 02-2052-0156
+                <span className="mx-2 text-white/20">|</span>
+                FAX. 02-2052-0158
                 <span className="mx-2 text-white/20">|</span>
                 E-MAIL. admin@cccr.or.kr
               </p>
