@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/sub/PageShell";
 import { SectionHeading, InfoCard, Prose } from "@/components/sub/Ui";
-import { PURPOSES, HISTORY } from "@/lib/page-data";
+import HistoryTimeline from "@/components/sub/HistoryTimeline";
+import { PURPOSES } from "@/lib/page-data";
 
 export const metadata: Metadata = { title: "설립목적 및 연혁" };
 
@@ -49,28 +50,10 @@ export default function Page() {
 
       {/* 연혁 */}
       <section className="mt-20">
-        <SectionHeading eyebrow="2009 – 2026" title="연혁" />
+        <SectionHeading eyebrow="조합 활동" title="연혁" />
 
-        <div className="mt-12 space-y-14">
-          {HISTORY.map((block) => (
-            <div key={block.year} className="grid gap-6 lg:grid-cols-[220px_1fr] lg:gap-14">
-              <p className="label-mono text-2xl font-bold tabular-nums leading-none text-brand-200">
-                {block.year}
-              </p>
-              <ul className="relative border-l-2 border-line pl-8">
-                {block.events.map((e) => (
-                  <li key={e.date} className="relative pb-7 last:pb-0">
-                    <span
-                      className="absolute -left-[41px] top-1.5 size-3 rounded-full border-2 border-white bg-flame-500 ring-1 ring-line"
-                      aria-hidden
-                    />
-                    <p className="label-mono tabular-nums text-brand-600">{e.date}</p>
-                    <p className="mt-1.5 text-md font-medium text-ink-900">{e.text}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+        <div className="mt-12">
+          <HistoryTimeline />
         </div>
       </section>
     </PageShell>

@@ -24,38 +24,109 @@ export const PURPOSES = [
   },
 ];
 
-export const HISTORY = [
+export type HistoryEvent = { title: string; place: string };
+export type HistoryMonth = { month: string; events: HistoryEvent[] };
+export type HistoryYear = { year: string; months: HistoryMonth[] };
+
+/* 조합 제공 자료 기준. 연도별로 항목을 추가하면 탭이 자동으로 늘어난다. */
+export const HISTORY: HistoryYear[] = [
   {
-    year: "2024 – 2026",
-    events: [
-      { date: "2026.03", text: "AIDC 인프라 실무 교육과정 신설" },
-      { date: "2025.09", text: "공공부문 SaaS 이용 가이드라인 공동 연구 수행" },
-      { date: "2024.05", text: "국산 AI반도체 기반 K-클라우드 실증 과제 참여" },
-    ],
-  },
-  {
-    year: "2020 – 2023",
-    events: [
-      { date: "2023.01", text: "클라우드컴퓨팅법 시행령 개정 의견 제출" },
-      { date: "2022.07", text: "클라우드컴퓨팅 전문기술 연간교육 프로그램 개설" },
-      { date: "2021.04", text: "회원사 100개사 달성" },
-      { date: "2020.11", text: "클라우드 기술동향 리포트 정기 발간 시작" },
-    ],
-  },
-  {
-    year: "2015 – 2019",
-    events: [
-      { date: "2019.06", text: "정보통신산업진흥원 클라우드 지원사업 협력기관 지정" },
-      { date: "2017.03", text: "클라우드 컴퓨팅 인력양성 로드맵 개발" },
-      { date: "2015.09", text: "클라우드 컴퓨팅 기술 스택 개발 및 배포 사업 착수" },
-    ],
-  },
-  {
-    year: "2009 – 2014",
-    events: [
-      { date: "2013.04", text: "산업계 공통 애로기술 공동 해결 과제 수행" },
-      { date: "2011.08", text: "클라우드 컴퓨팅 핵심기술 국가 R&D 과제 참여" },
-      { date: "2009", text: "‘산업기술연구조합육성법’에 근거해 지식경제부 인가로 설립" },
+    year: "2023",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "제 7회 GEdge Platform 커뮤니티 컨퍼런스 개최", place: "동의대학교(부산)" },
+          { title: "빅데이터 분석 및 AI 처리를 위한 클라우드向 차세대 DBMS 기술 개발 과제 성과발표회 개최", place: "벡스코 1층 컨벤션홀(부산)" },
+          { title: "2023년 제3차 이사회 개최", place: "파르나스 호텔(서울)" },
+          { title: "클라우드컴퓨팅 전문인력양성기관 지원사업 1차 부트캠프 개설", place: "인하대학교" },
+          { title: "클라우드컴퓨팅 전문인력양성기관 지원사업 2차 부트캠프 개설", place: "온라인(단국대학교)" },
+        ],
+      },
+      {
+        month: "11",
+        events: [
+          { title: "2023 ICT 기기산업 페스티벌 전시부스 참가(조합 부스)", place: "코엑스 그랜드볼룸(서울)" },
+          { title: "청년취업사관학교 새싹(SeSAC) 동대문캠퍼스 1기 “AWS와 함께하는 클라우드 아키텍트 과정” 개설", place: "-" },
+          { title: "기업멤버십SW캠프 실무협의회 워크샵 개최", place: "벨포레리조트(증평)" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "CCCR TaB 2023 세미나 개최(Cloud key technology and service)", place: "코엑스 컨퍼런스룸(서울)" },
+          { title: "CCCR 아카데미 수료생 커뮤니티 제2차 운영위원회 개최", place: "CCCR 대치" },
+        ],
+      },
+      {
+        month: "09",
+        events: [
+          { title: "‘CLOUD EXPO KOREA 2023’ 전시회 참여(회원사 부스, 조합 부스)", place: "벡스코 제1전시장(부산)" },
+          { title: "캠퍼스SW아카데미 “TABA 4기’ 개설", place: "단국대학교(죽전)" },
+          { title: "청년취업사관학교 새싹(SeSAC) 동대문캠퍼스 1기 교육파트너 선정", place: "-" },
+          { title: "CCCR 아카데미 수료생 커뮤니티 제1차 운영위원회 개최", place: "CCCR 대치" },
+        ],
+      },
+      {
+        month: "08",
+        events: [{ title: "교육분과위원회 개최", place: "과학기술컨벤션센터(서울)" }],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "제 6회 GEdge Platform 커뮤니티 컨퍼런스 개최", place: "온라인" },
+          { title: "기업멤버십SW캠프 “DevOps&SRE 엔지니어 부트캠프” 개설", place: "CCCR 성수 교육장" },
+          { title: "미래내일 일경험 사업(인턴형, 프로젝트형) 오리엔테이션 개최", place: "CCCR 구로" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "5G MEC 기반 제조 특화 통신 및 SW시스템 기술 개발 과제 총괄 워크샵 개최(IITP)", place: "라마다 호텔(제주)" },
+          { title: "비대면 원격근무 환경을 고려한 워케이션 서비스 기술 개발 과제 기술 성과교류회 개최", place: "과학기술컨벤션센터(서울)" },
+          { title: "기업멤버십SW캠프 수행기관 간담회 개최", place: "과학기술정보통신부(세종)" },
+          { title: "클라우드컴퓨팅 전문인력양성기관 지원 사업 선정(과학기술정보통신부)", place: "-" },
+          { title: "캠퍼스SW아카데미 “TABA 3기” 개설", place: "단국대학교(죽전)" },
+        ],
+      },
+      {
+        month: "05",
+        events: [
+          { title: "민관협력 디지털 사회 혁신 지원체계 구축운영 사업 용역 수주(NIA)", place: "-" },
+          { title: "하이브리드 클라우드 환경에서 고부하 복합 머신러닝 워크로드의 수행 효율 극대화를 위한 고집적 연산자원 배치 최적화 기술 개발 과제 워크샵 개최", place: "유니 호텔(제주)" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "2023 World IT Show 전시 참여 : 비대면 원격근무 환경을 고려한 워케이션 서비스 기술 개발 과제 부스", place: "코엑스 전시장 A홀(서울)" },
+          { title: "이동형 맞춤 의료서비스 지원을 위한 유연의료 5G 엣지 컴퓨팅 SW 개발 과제 총괄 워크샵 개최", place: "코모도 호텔(부산)" },
+          { title: "기업멤버십SW캠프 “DevOps&SRE 엔지니어 부트캠프, MLOps 플랫폼 전문인력 부트캠프” 개설", place: "CCCR 구로" },
+          { title: "미래내일 일경험 사업 선정(인턴형, 프로젝트형)", place: "-" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "제 5대 이사장 이동기 SK텔레콤 본부장 선임", place: "-" },
+          { title: "제 15차 정기총회 개최", place: "엘타워(서울 양재)" },
+          { title: "기업멤버십SW캠프 1기 발표회 및 수료식 개최", place: "코엑스(서울)" },
+        ],
+      },
+      {
+        month: "02",
+        events: [
+          { title: "응용서비스 운영 지능화를 지원하는 마이크로서비스 개발‧운영 플랫폼 기술 개발 과제 워크샵 개최", place: "소노펠리체(홍천)" },
+          { title: "캠퍼스SW아카데미 “TABA 2기” 개설", place: "단국대학교(죽전)" },
+        ],
+      },
+      {
+        month: "01",
+        events: [
+          { title: "5G 융합서비스 공공부문 선도적용(물류) 과제 성과 확산을 위한 워크샵 개최", place: "코트야드매리어트(서울 영등포)" },
+          { title: "Technology and Business Issue Report 2022 통합 버전 발간", place: "" },
+        ],
+      },
     ],
   },
 ];
