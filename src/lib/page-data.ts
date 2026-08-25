@@ -31,7 +31,7 @@ export type HistoryYear = { year: string; months: HistoryMonth[] };
 /* 조합 제공 자료 기준. 연도별로 항목을 추가하면 탭이 자동으로 늘어난다. */
 export const HISTORY: HistoryYear[] = [
   {
-    year: "2023",
+    year: "2023년",
     months: [
       {
         month: "12",
@@ -125,6 +125,884 @@ export const HISTORY: HistoryYear[] = [
         events: [
           { title: "5G 융합서비스 공공부문 선도적용(물류) 과제 성과 확산을 위한 워크샵 개최", place: "코트야드매리어트(서울 영등포)" },
           { title: "Technology and Business Issue Report 2022 통합 버전 발간", place: "" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2022년",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "GEdge Platform 제5회 컨퍼런스 개최", place: "제주" },
+          { title: "NIA 개방형 클라우드 플랫폼 기반 서비스 개발 이이디어 공모전 후원", place: "-" },
+          { title: "NIA 디지털 기반 위기대응 아이디어 공모전 후원", place: "-" },
+          { title: "사무국 소재지 이전(강남구 삼성로 86길 11)", place: "삼성" },
+        ],
+      },
+      {
+        month: "11",
+        events: [
+          { title: "TaB 2022(멀티 클라우드, 엣지클라우드 등) 세미나 개최", place: "COEX" },
+          { title: "‘ICT기기산업페스티벌’전시부스(CCCR R&D홍보관) 참여", place: "COEX" },
+          { title: "기업멤버십 SW캠프 교육생 간담회 개최", place: "CCCR 구로" },
+          { title: "기업멤버십 SW캠프 워크샵 개최 및 2023년도 협의회 회장사(CCCR) 선출", place: "제주" },
+          { title: "워케이션 서비스 기술 개발 과제 진도점검 및 총괄 워크샵 개최", place: "엘타워" },
+          { title: "MEC 5G 특화망 사업 총괄 워크샵 개최", place: "밀레니엄힐튼 서울" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "5G 융합서비스 공공부문 선도적용(물류 분야)의 MEC구축업체 선정 및 협약", place: "-" },
+        ],
+      },
+      {
+        month: "09",
+        events: [
+          { title: "차세대 DBMS 기술 개발사업 2022년 총괄 워크샵 및 3차 운영위원회 개최", place: "부산" },
+          { title: "기업멤버십 SW캠프 “MLOps 플랫폼 전문인력 과정”개설", place: "CCCR 구로" },
+          { title: "GEdge Platform 제4회 컨퍼런스 개최", place: "온라인" },
+        ],
+      },
+      {
+        month: "08",
+        events: [
+          { title: "캠퍼스SW 아카데미 “티맥스 아카데미”오리엔테이션 개최", place: "단국대학교" },
+          { title: "교육분과 위원회 개최", place: "CCCR 역삼" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "기업멤버십 SW캠프 “DevOps & SRE 엔지니어 과정”개설", place: "CCCR 구로" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "과학기술정보통신부 “캠퍼스SW아카데미”사업 선정", place: "-" },
+          { title: "과학기술정보통신부 “기업멤버십SW캠프”사업 선정", place: "-" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "2022 정보통신·방송 연구개발 사업 신규 참여(4개 사업)", place: "-" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "임시 교육분과 위원회 개최", place: "온라인" },
+        ],
+      },
+      {
+        month: "01",
+        events: [
+          { title: "과학기술정보통신부 “SW전문인력양성기관” 지정", place: "-" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2021년",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "2021 클라우드컴퓨팅 전문인력 양성기관 지원사업 선정", place: "NIPA" },
+          { title: "제2회 CCCR TaB 2021(차세대 DB 기술 동향과 전망) 세미나 개최", place: "온라인" },
+          { title: "GEdge Platform 제3회 컨퍼런스 개최", place: "온라인" },
+        ],
+      },
+      {
+        month: "11",
+        events: [
+          { title: "혁신성장 청년인재 집중양성사업 발표회 및 수료식 개최", place: "COEX" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "제1회 CCCR TaB 2021(Future of Cloud Computing) 세미나 개최", place: "온라인" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "GEdge Platform 제2회 컨퍼런스 개최", place: "온라인" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "2021 정보통신·방송 기술 개발 사업 신규 참여", place: "IITP" },
+          { title: "2021 지식서비스 산업 핵심 기술 개발 사업 신규 참여", place: "KEIT" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "SW전문인력양성기관 지정", place: "과학기술정보통신부" },
+        ],
+      },
+      {
+        month: "02",
+        events: [
+          { title: "제13회 정기총회 개최(사업 및 예산 승인)", place: "CCCR" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2020년",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "자율지능 디지털 동반자 기술 연구 과제 성과발표회", place: "온라인" },
+          { title: "GEdge Platform 제1회 컨퍼런스 개최", place: "온라인" },
+        ],
+      },
+      {
+        month: "11",
+        events: [
+          { title: "CCCR TaB 2020(자율주행차, AI, 클라우드 기술 혁신과 미래) 세미나 개최", place: "CCCR" },
+          { title: "2020 Smart- Factory & 5G Technology 세미나 개최", place: "COEX" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "2020 서울진로직업 박람회 자율지능디지털동반자 부스 참가", place: "온라인" },
+        ],
+      },
+      {
+        month: "08",
+        events: [
+          { title: "TaB Issue Report(Technology and Business Issue Report) 발행 시작", place: "CCCR" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "2020 정보통신·방송 연구개발 사업 신규 참여", place: "IITP" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "2020 정보통신·방송 연구개발 사업 신규 참여", place: "IITP" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "제12회 정기총회 개최(사업 및 예산 승인)", place: "CCCR" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2019년",
+    months: [
+      {
+        month: "11",
+        events: [
+          { title: "CCCR TaB 2019 세미나(자율주행차, AI, 클라우드) 개최", place: "COEX" },
+          { title: "교통혼잡 문제해결을 위한 지능형 SW 포럼 개최", place: "COEX" },
+          { title: "2019 Smart-Factory & 5G Technology 세미나 개최", place: "COEX" },
+          { title: "도시교통 문제 개선을 위한 클라우드 기반 트래픽 예측 시뮬레이션 SW 기술 개발 워크샵 개최", place: "The-K호텔" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "‘제28회 코베 베이비페어’ 웰니스 서비스 체험 전시부스 참가", place: "킨텍스" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "온프레미스 스토리지와 퍼블릭 클라우드 스토리지간 데이터 통합 관리 및 신뢰성 보장 기술 개발 과제 워크샵 개최", place: "속초" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "‘제32회 정보문화의 달’ 자율주행차 체험행사 개최", place: "국립과천과학관" },
+          { title: "5G 기반 생산/물류관리 서비스 및 cloud향 제조특화 ML 플랫폼 개발 과제 워크샵 개최", place: "제주" },
+          { title: "자율지능 디지털 동반자 프레임워크 및 응용 연구 개발 총괄과제 워크샵 개최", place: "부여" },
+        ],
+      },
+      {
+        month: "05",
+        events: [
+          { title: "2019 산업기술혁신 사업 신규 참여", place: "KEIT" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "2019 정보통신·방송 연구개발 사업 신규 참여", place: "IITP" },
+          { title: "2019 혁신성장 청년인재 집중양성사업 선정", place: "IITP" },
+          { title: "‘대한민국과학축제’ 자율주행차 체험행사 개최", place: "청계광장" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "온프레미스 스토리지와 퍼블릭 클라우드 스토리지간 데이터 통합 관리 및 신뢰성 보장 기술 개발 과제 워크샵 개최", place: "제천" },
+          { title: "API 호출 단위 자원 할당 및 사용량 계량이 가능한 서버리스 클라우드 컴퓨팅 기술 개발 과제 워크샵 개최", place: "속초" },
+          { title: "제11회 정기총회 개최(사업 및 예산 승인)", place: "CCCR" },
+          { title: "제4대 이사장 홍승균 SK텔레콤 그룹장 선임", place: "CCCR" },
+        ],
+      },
+      {
+        month: "02",
+        events: [
+          { title: "자율지능 디지털 동반자 프레임워크 과제 총괄 진도점검회의 개최", place: "IITP" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2018년",
+    months: [
+      {
+        month: "11",
+        events: [
+          { title: "2018 제3차 CBI 융합 기술 세미나 개최", place: "COEX" },
+          { title: "2018 Smart-Factory & 5G Technology 세미나 개최", place: "COEX" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "5G 기반 생산/물류관리 서비스 및 Cloud향 제조특화 ML 플랫폼 개발 과제 워크샵 개최", place: "곤지암" },
+        ],
+      },
+      {
+        month: "08",
+        events: [
+          { title: "2018 혁신성장 청년인재 집중양성사업 선정", place: "IITP" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "청년취업아카데미 취업특강 개최", place: "COEX" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "자율지능 디지털 동반자 프레임워크 및 응용 연구 개발 총괄과제 워크샵 개최", place: "제주" },
+          { title: "API 호출 단위 자원 할당 및 사용량 계량이 가능한 서버리스 클라우드 컴퓨팅 기술 개발 과제 워크샵 개최", place: "곤지암" },
+        ],
+      },
+      {
+        month: "05",
+        events: [
+          { title: "연구 용역 수주 - 동남아시아국가연합(ASEAN), 지능형 교통시스템 도입관련 협력 모델 조사‧분석 정책연구", place: "한국연구재단" },
+          { title: "온프레미스 스토리지와 퍼블릭 클라우드 스토리지간 데이터 통합 관리 및 신뢰성 보장 기술 개발 과제 워크샵 개최", place: "속초" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "2018 정보통신·방송 연구개발 사업 신규 참여", place: "IITP" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "2018 청년취업아카데미 선정", place: "한국산업인력공단" },
+          { title: "제10회 정기총회 개최(사업 및 예산 승인)", place: "CCCR" },
+        ],
+      },
+      {
+        month: "02",
+        events: [
+          { title: "SW 구름타고 세계로 TF 참여", place: "과학기술정보통신부" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2017년",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "Smart City를 위한 클라우드 융합 기술/트렌드 세미나 개최", place: "COEX" },
+        ],
+      },
+      {
+        month: "11",
+        events: [
+          { title: "2017년 제2차 CBI 융합기술 세미나 개최", place: "COEX" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "청년취업아카데미사업 추가 선정", place: "한국산업인력공단" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "연구 용역 수주 - 시스템의 정량적/정성적 성능 검증을 위한 외부 평가", place: "ETRI" },
+        ],
+      },
+      {
+        month: "05",
+        events: [
+          { title: "클라우드컴퓨팅 전문인력 양성기관 지정(지정번호: 2017-01)", place: "미래창조과학부" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "클라우드컴퓨팅 기술스택 보고서 V3.0 발간", place: "CCCR" },
+          { title: "정보통신·방송 연구개발 사업 신규 참여(3개 과제)", place: "IITP" },
+          { title: "이공계전문기술연수사업 선정", place: "한국산업기술진흥협회" },
+          { title: "클라우드 인력양성을 위한 MOU 체결", place: "건국대, NIA" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "제9회 정기총회 개최(사업 및 예산 승인)", place: "파크루안" },
+          { title: "청년취업아카데미사업 선정", place: "한국산업인력공단" },
+        ],
+      },
+      {
+        month: "02",
+        events: [
+          { title: "2017년 제1차 CBI 융합기술 세미나 개최", place: "COEX" },
+          { title: "2017 국방분야 ICT 협력 강화 MOU 체결", place: "(사)국방정보통신협회" },
+        ],
+      },
+      {
+        month: "01",
+        events: [
+          { title: "ITU-T 학계회원 멤버십 획득(국제 표준 추진)", place: "ITU" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2016년",
+    months: [
+      {
+        month: "11",
+        events: [
+          { title: "2016 청년취업아카데미 취업설명회 개최", place: "COEX" },
+        ],
+      },
+      {
+        month: "09",
+        events: [
+          { title: "연구 용역 수주 - 다중 클라우드 연계 활용을 위한 한국형 클라우드 기술 스택 연구", place: "ETRI" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "방송통신 정책연구 사업 선정 - 클라우드 활성화 촉진을 위한 세부 이행방안 연구", place: "IITP" },
+          { title: "ICBMS 기술 생태계 확산을 위한 산학연 연계 워크샵 개최", place: "제주ICC" },
+          { title: "2016 클라우드 전문기술 교육사업 선정", place: "NIPA" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "제1회 창조국방 ICT 기술·장비 전시회 부스 참가", place: "COEX" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "제8회 클라우드 데이 개최", place: "The-K호텔" },
+          { title: "2016 청년취업아카데미 선정", place: "한국산업인력공단" },
+          { title: "제8회 정기총회 개최(사업 및 예산 승인)", place: "벨레상스호텔" },
+        ],
+      },
+      {
+        month: "01",
+        events: [
+          { title: "클라우드컴퓨팅 기술 스택 v2.1 발간", place: "CCCR" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2015년",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "클라우드컴퓨팅 기술 스택 v2.0 발간", place: "" },
+          { title: "CBI 세미나 개최", place: "COEX" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "제1회 공공기관 클라우드 도입 세미나 개최", place: "대전" },
+        ],
+      },
+      {
+        month: "09",
+        events: [
+          { title: "빅데이터 심포지엄 개최", place: "COEX" },
+          { title: "2015 청년취업아카데미사업 클라우드 취업설명회 개최", place: "BEXCO" },
+          { title: "클라우드 EXPO Korea 2015 참가 · 14부스 구성 참가(R&D)", place: "BEXCO" },
+        ],
+      },
+      {
+        month: "05",
+        events: [
+          { title: "클라우드컴퓨팅 기술 스택 v1.4 발간", place: "" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "클라우드 교육·홍보 TF 간사 활동", place: "" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "2015 청년취업아카데미 선정", place: "한국산업인력공단" },
+          { title: "2015 클라우드 전문인력 양성사업 수행기관 선정", place: "NIPA" },
+          { title: "2015 국가 표준개발협력기관(COSD) 지정", place: "국가기술표준원" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2014년",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "컴퓨팅 장비 경쟁력 강화전략 업체 간담회 개최", place: "미래창조과학부" },
+          { title: "클라우드컴퓨팅 육성전략 참여", place: "" },
+        ],
+      },
+      {
+        month: "11",
+        events: [
+          { title: "제7회 클라우드 데이 주관", place: "COEX" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "클라우드 EXPO Korea2014(부산) 참가", place: "NIPA" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "과제발굴연구회 선정", place: "중소기업청" },
+          { title: "2014 SW융합채용연수사업 운영기관 선정", place: "NIPA" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "2014 SW융합역량강화(재직자)과정 파트너기관 선정", place: "NIPA" },
+          { title: "CBI 세미나 개최", place: "" },
+        ],
+      },
+      {
+        month: "05",
+        events: [
+          { title: "2014 산업융합원천기술개발 과제 참여", place: "KEIT" },
+          { title: "제1회 클라우드 데이 주관", place: "미래부 주최" },
+          { title: "사용자인터페이스표준화포럼 장관상 수상", place: "미래부" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "방송통신정책연구사업 수주", place: "IITP" },
+          { title: "국가 표준개발협력기관(COSD) 지정", place: "기술표준원" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "제6회 정기총회 개최(사업 및 예산 승인)", place: "" },
+          { title: "2014 청년취업아카데미 선정", place: "한국산업인력공단" },
+        ],
+      },
+      {
+        month: "02",
+        events: [
+          { title: "2014 현장기술인력재교육사업 파트너기관 선정", place: "대한상공회의소" },
+          { title: "CBI 세미나 개최", place: "" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2013년",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "컴퓨팅 장비 경쟁력 강화전략 업체 간담회 개최", place: "미래창조과학부" },
+          { title: "클라우드컴퓨팅 육성전략 참여", place: "" },
+          { title: "클라우드컴퓨팅 인력 실태조사", place: "KISA" },
+        ],
+      },
+      {
+        month: "11",
+        events: [
+          { title: "2013 차세대컴퓨팅 전시회 및 컨퍼런스 개최", place: "COEX" },
+          { title: "2013 제2차 클라우드 핫이슈 세미나 개최", place: "" },
+          { title: "2013 제2차 사용자인터페이스 표준화 포럼 세미나 개최", place: "" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "2014 ICT 표준전략맵 공청회 참석", place: "TTA" },
+        ],
+      },
+      {
+        month: "08",
+        events: [
+          { title: "2013 차세대컴퓨팅 신규 R&D 과제 워크샵 개최", place: "KEIT" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "교육위원회 개최", place: "" },
+          { title: "연구조합연합회 간담회 참석", place: "" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "2013 SW융합역량강화(재직자)과정 파트너기관 선정", place: "NIPA" },
+          { title: "2013 제1차 클라우드 핫이슈 세미나 개최", place: "" },
+          { title: "2013 사용자인터페이스 표준화 포럼 총회 및 제1차 세미나 개최", place: "" },
+          { title: "클라우드 EXPO 2013(부산) 참가 - 클라우드 R&D관 구성(24개 부스", place: "NIPA" },
+          { title: "TR 용역 수주", place: "SK텔레콤" },
+        ],
+      },
+      {
+        month: "05",
+        events: [
+          { title: "사용자 인터페이스 표준화 포럼 선정(TTA 전략포럼)", place: "TTA" },
+          { title: "2013 산업융합원천기술개발 과제 참여(2개 과제)", place: "KEIT" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "제5회 정기총회 개최(사업 및 예산 승인)", place: "" },
+          { title: "2013 청년취업아카데미 선정", place: "한국산업인력공단" },
+        ],
+      },
+      {
+        month: "02",
+        events: [
+          { title: "2013 현장기술인력재교육사업 파트너기관 선정", place: "대한상공회의소" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2012년",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "대전대학교 MOU 체결", place: "" },
+        ],
+      },
+      {
+        month: "11",
+        events: [
+          { title: "2012년 차세대컴퓨팅 R&D 전시회 및 컨퍼런스 개최", place: "" },
+          { title: "빅 데이터 관리 및 분석기술 워크샵 개최", place: "" },
+          { title: "클라우드 컴퓨팅 비즈니스 모델 및 활용 세미나 개최", place: "" },
+          { title: "빅 데이터 관리 및 분석기술 워크샵 개최", place: "" },
+          { title: "2012년 차세대컴퓨팅 R&D 전시회 및 컨퍼런스 개최", place: "" },
+        ],
+      },
+      {
+        month: "09",
+        events: [
+          { title: "2012년 제3회 클라우드 핫이슈 세미나 개최", place: "" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "2012년 차세대컴퓨팅 신규 R&D 과제 워크샵 개최", place: "" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "2012년 제2회 클라우드 핫이슈 세미나 개최", place: "" },
+          { title: "2012년 클라우드컴퓨팅 R&D 관련 기관 워크샵 개최", place: "" },
+        ],
+      },
+      {
+        month: "05",
+        events: [
+          { title: "현장기술인력재교육 클라우드 핵심기술의 이해 과정 온라인 교육 실시", place: "" },
+          { title: "2012년 춘계 클라우드 재팬(한국관 기획) 참가", place: "KOTRA" },
+          { title: "클라우드 산업포럼 R&D 기반확충분과 간사 참여", place: "" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "ICCCSN 2012 참석", place: "인도네시아" },
+          { title: "현장기술인력재교육 Virtual Desktop 과정 온라인 교육 실시", place: "" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "제4회 정기총회 개최 (사업 및 예산 승인)", place: "" },
+          { title: "2012년 제 1회 클라우드 핫이슈 세미나 개최", place: "" },
+          { title: "현장기술인력재교육 모바일 클라우드/CTO 과정 교육 실시", place: "" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2011년",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "2011.12. 2012 해외전시 지원사업 선정 (노동부)", place: "" },
+        ],
+      },
+      {
+        month: "11",
+        events: [
+          { title: "2011년 SW·컴퓨팅 R&D 전시회 및 컨퍼런스 개최", place: "" },
+          { title: "Virtualization Workshop 2011", place: "" },
+          { title: "'클라우드 컴퓨팅 비즈니스 모델 및 활용'", place: "" },
+          { title: "현장기술인력재교육사업 선정", place: "" },
+        ],
+      },
+      {
+        month: "09",
+        events: [
+          { title: "제 8차 이사회 개최", place: "" },
+        ],
+      },
+      {
+        month: "08",
+        events: [
+          { title: "그린 IDC 국내/국제표준화 및 고전압 직류 배전 기술 상용화를 위한 표준 인터페이스 규격 개발", place: "" },
+          { title: "용역 계약 체결", place: "" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "2011 과제발굴연구회 과제 선정 (중소기업청)", place: "" },
+          { title: "2011 클라우드 컴퓨팅 R&D 과제 워크샵 개최", place: "" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "2011 법무처 (지식경제부, 행정안전부, 방송통신위원회) 클라우드 컴퓨팅 정책협의회 참석", place: "" },
+          { title: "2011 클라우드 컴퓨팅 표준 기본 계획 수립 참여 (지식경제부 기술표준원, 클라우드 컴퓨팅, 코디네이터)", place: "" },
+          { title: "제 7차 이사회 개최", place: "" },
+        ],
+      },
+      {
+        month: "05",
+        events: [
+          { title: "2011년 제1차 클라우드 컴퓨팅 전문가 양성과정 교육 실시 (5.30~6.3, 스타타워)", place: "" },
+          { title: "충북 산업단지 클라우드 컴퓨팅 테스트베드 구축사업 참여 (지식경제부)", place: "" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "2011 클라우드 컴퓨팅 산업 아웃룩 포럼 개최 (서울교육문화회관) - 지식경제부 주최", place: "" },
+          { title: "2011 차세대 컴퓨팅 R&D 워크샵 (신규과제) 개최", place: "" },
+          { title: "클라우드 컴퓨팅 포럼 협략 체결 (클라우드 기술 프레임워크 분과) - 가상화 기술 포럼 연계", place: "" },
+          { title: "연구조합 분과위원회 킥오프 미팅", place: "" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "제 3차 정기총회 및 제 7차 이사회 개최", place: "" },
+        ],
+      },
+      {
+        month: "02",
+        events: [
+          { title: "2011 MN-MATE 워크샵 개최 (코엑스) - KAIST, 한국차세대컴퓨팅학회 공동 개최", place: "" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2010년",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "Web Korea Forum Conference 2010 개최 (한국정보화진흥원 대회의실)", place: "" },
+          { title: "2010년 온라인 뉴스레터 총 23회 발간", place: "" },
+          { title: "임시총회 및 제 6차 이사회 개최", place: "" },
+        ],
+      },
+      {
+        month: "11",
+        events: [
+          { title: "2010년 지식경제부 그린/클라우드 컴퓨팅 R&D 성과발표회 개최 - ITSA, ETRI, KEA 공동개최", place: "" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "제 5차 이사회 개최", place: "" },
+        ],
+      },
+      {
+        month: "09",
+        events: [
+          { title: "2010 차세대 컴퓨팅 R&D 워크샵 (신규과제) 개최 - KEIT, 한국차세대컴퓨팅학회 공동 개최", place: "" },
+        ],
+      },
+      {
+        month: "08",
+        events: [
+          { title: "중간조직활성화 사업 선정 (지식경제부)", place: "" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "Virtualization Workshop 2010 개최 - ETRI, 한국차세대컴퓨팅학회 공동 개최", place: "" },
+        ],
+      },
+      {
+        month: "06",
+        events: [
+          { title: "2010년 과제발굴연구회 사업 선정 (중소기업청)", place: "" },
+        ],
+      },
+      {
+        month: "05",
+        events: [
+          { title: "임시총회 및 제 4차 이사회 개최", place: "" },
+          { title: "제 2대 이사장 선출 : 임종태 (SK텔레콤 기술원 원장) 취임", place: "" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "2010 차세대 컴퓨팅 R&D 워크샵 (신규과제) 개최 - KEIT, 한국차세대컴퓨팅학회 공동 개최", place: "" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "산업융합원천기술개발사업 과제 선정 (지식경제부) - 단말 독립형 퍼스널 클라우드 시스템 (2010~13)", place: "" },
+          { title: "2010 차세대 컴퓨팅 R&D 워크샵 (계속과제) 개최 - KEIT, 한국차세대컴퓨팅학회 공동 개최", place: "" },
+        ],
+      },
+      {
+        month: "02",
+        events: [
+          { title: "TTA 클라우드 컴퓨팅PG420 간사기관 선정", place: "" },
+          { title: "제 2차 총회 및 제 3차 이사회 개최", place: "" },
+        ],
+      },
+      {
+        month: "01",
+        events: [
+          { title: "법무처 (지식경제부, 행정안전부, 방송통신위원회) 클라우드 컴퓨팅 정책협의회 참여", place: "" },
+        ],
+      },
+    ],
+  },
+  {
+    year: "2009년 이전",
+    months: [
+      {
+        month: "12",
+        events: [
+          { title: "온라인 뉴스레터 서비스 개시", place: "" },
+          { title: "제 2차 이사회 개최", place: "" },
+        ],
+      },
+      {
+        month: "10",
+        events: [
+          { title: "그림 Com, Summit 개최 (JW메리어트호텔) - ITSA, 한국차세대컴퓨팅학회 공동 개최", place: "" },
+        ],
+      },
+      {
+        month: "09",
+        events: [
+          { title: "ITSA, 한국차세대컴퓨팅학회 MOU 체결", place: "" },
+        ],
+      },
+      {
+        month: "08",
+        events: [
+          { title: "국방부 대상 세미나 개최 (대전 KAIST)", place: "" },
+        ],
+      },
+      {
+        month: "07",
+        events: [
+          { title: "클라우드 컴퓨팅 R&D 테스트베드 오픈 (KAIST)", place: "" },
+          { title: "CCI:U 론칭 (서울대, KAIST 등에 무료서비스)", place: "" },
+          { title: "KAIST, (주)넥스알 MOU 체결", place: "" },
+        ],
+      },
+      {
+        month: "04",
+        events: [
+          { title: "제 1차 이사회 개최", place: "" },
+        ],
+      },
+      {
+        month: "03",
+        events: [
+          { title: "산업융합기술개발사업 과제 선정 (지식경제부)", place: "" },
+          { title: "독립형 컴포넌트 기반 서비스 지향형 페타급 컴퓨팅 플렛폼 기술개발 (2009~2012)", place: "" },
+        ],
+      },
+      {
+        month: "01",
+        events: [
+          { title: "법인 설립 인가 (지식경제부)", place: "" },
+        ],
+      },
+      {
+        month: "2008/12",
+        events: [
+          { title: "창립총회 : 초대 이사장 한재선(넥스알 대표이사) 취임", place: "" },
         ],
       },
     ],

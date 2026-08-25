@@ -11,23 +11,24 @@ export default function HistoryTimeline() {
   return (
     <div>
       {/* 연도 선택 */}
-      <div className="flex flex-wrap items-center gap-2">
+      {/* 연도가 15개라 좁은 화면에서는 줄바꿈 대신 가로 스크롤 한 줄로 둔다 */}
+      <div className="-mx-6 flex snap-x items-center gap-2 overflow-x-auto px-6 pb-1 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
         {HISTORY.map((h) => (
           <button
             key={h.year}
             type="button"
             onClick={() => setYear(h.year)}
             aria-pressed={h.year === year}
-            className={`rounded-full px-5 py-2.5 text-base font-semibold transition-colors ${
+            className={`shrink-0 snap-start whitespace-nowrap rounded-full px-5 py-2.5 text-base font-semibold transition-colors ${
               h.year === year
                 ? "bg-navy-900 text-white"
                 : "border border-line text-ink-600 hover:border-brand-500 hover:text-brand-600"
             }`}
           >
-            {h.year}년
+            {h.year}
           </button>
         ))}
-        <span className="data-line ml-1 text-ink-400">{count}건</span>
+        <span className="data-line ml-1 shrink-0 whitespace-nowrap text-ink-400">{count}건</span>
       </div>
 
       {/* 월별 활동 */}
@@ -42,9 +43,9 @@ export default function HistoryTimeline() {
             </p>
 
             <ul className="mt-4 space-y-4 lg:mt-1">
-              {m.events.map((e) => (
+              {m.events.map((e, i) => (
                 <li
-                  key={e.title}
+                  key={`${m.month}-${i}`}
                   className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
                 >
                   <span className="text-md leading-relaxed text-ink-900">{e.title}</span>
