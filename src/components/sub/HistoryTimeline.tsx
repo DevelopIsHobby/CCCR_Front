@@ -3,23 +3,45 @@
 import { useState } from "react";
 import { HISTORY } from "@/lib/page-data";
 
+const countOf = (y: (typeof HISTORY)[number]) =>
+  y.months.reduce((n, m) => n + m.events.length, 0);
+
 export default function HistoryTimeline() {
   const [year, setYear] = useState(HISTORY[0].year);
   const active = HISTORY.find((h) => h.year === year) ?? HISTORY[0];
-  const count = active.months.reduce((n, m) => n + m.events.length, 0);
 
   return (
     <div>
-      {/* 연도 선택 */}
-      {/* 연도가 15개라 좁은 화면에서는 줄바꿈 대신 가로 스크롤 한 줄로 둔다 */}
-      <div className="-mx-6 flex snap-x items-center gap-2 overflow-x-auto px-6 pb-1 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
+      {/*
+        연도가 15개다. 가로 스크롤을 쓰면 잘린 탭이 보이지 않으므로
+        좁은 화면은 드롭다운, 그 위로는 전부 펼친 알약 버튼을 쓴다.
+      */}
+      <div className="sm:hidden">
+        <label htmlFor="history-year" className="sr-only">
+          연도 선택
+        </label>
+        <select
+          id="history-year"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          className="w-full rounded-lg border border-line bg-white px-4 py-3.5 text-md font-bold text-navy-900 outline-none focus:border-brand-500"
+        >
+          {HISTORY.map((h) => (
+            <option key={h.year} value={h.year}>
+              {h.year} ({countOf(h)}건)
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="hidden flex-wrap items-center gap-2 sm:flex">
         {HISTORY.map((h) => (
           <button
             key={h.year}
             type="button"
             onClick={() => setYear(h.year)}
             aria-pressed={h.year === year}
-            className={`shrink-0 snap-start whitespace-nowrap rounded-full px-5 py-2.5 text-base font-semibold transition-colors ${
+            className={`rounded-full px-4 py-2.5 text-base font-semibold transition-colors ${
               h.year === year
                 ? "bg-navy-900 text-white"
                 : "border border-line text-ink-600 hover:border-brand-500 hover:text-brand-600"
@@ -28,11 +50,15 @@ export default function HistoryTimeline() {
             {h.year}
           </button>
         ))}
-        <span className="data-line ml-1 shrink-0 whitespace-nowrap text-ink-400">{count}건</span>
       </div>
 
-      {/* 월별 활동 */}
-      <div className="mt-10 border-t-2 border-navy-900">
+      {/* 선택한 연도의 월별 활동 */}
+      <div className="mt-10 flex items-baseline gap-3 border-b-2 border-navy-900 pb-4">
+        <h3 className="text-xl font-bold text-navy-900">{active.year}</h3>
+        <span className="data-line text-ink-400">{countOf(active)}건</span>
+      </div>
+
+      <div>
         {active.months.map((m) => (
           <div
             key={m.month}
