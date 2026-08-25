@@ -52,7 +52,7 @@ export default function Footer() {
               <p className="text-brand-100/50">
                 고유번호 000-00-00000
                 <span className="mx-2 text-white/20">|</span>
-                이사장 홍길동
+                이사장 이동기
               </p>
             </address>
 

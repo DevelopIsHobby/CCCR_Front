@@ -72,7 +72,7 @@ export function StepFlow({ steps }: { steps: { title: string; desc: string }[] }
           key={s.title}
           className="relative flex flex-col rounded-xl bg-surface p-6 ring-1 ring-line"
         >
-          <span className="label-mono text-flame-600">step {String(i + 1).padStart(2, "0")}</span>
+          <span className="data-line text-flame-600">{i + 1}단계</span>
           <p className="mt-3 text-lg font-bold text-navy-900">{s.title}</p>
           <p className="mt-2 text-base leading-relaxed text-ink-600">{s.desc}</p>
           {i < steps.length - 1 && (

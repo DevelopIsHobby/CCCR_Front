@@ -9,7 +9,7 @@ export default function NotFound() {
         aria-hidden
       />
       <div className="relative mx-auto flex min-h-[60vh] max-w-[1280px] flex-col items-center justify-center px-6 py-24 text-center">
-        <p className="label-mono text-flame-500">Error 404</p>
+        <p className="label-mono text-flame-500">404</p>
         <h1 className="mt-5 text-3xl font-bold leading-snug text-white lg:text-4xl">
           요청하신 페이지를 찾을 수 없습니다
         </h1>

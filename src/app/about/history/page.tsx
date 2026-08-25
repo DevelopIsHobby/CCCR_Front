@@ -30,13 +30,14 @@ export default function Page() {
       <section className="mt-20 rounded-2xl bg-surface p-8 lg:p-12">
         <div className="grid gap-8 lg:grid-cols-[240px_1fr] lg:gap-14">
           <div>
-            <p className="label-mono text-flame-600">Legal Basis</p>
+            <p className="data-line text-flame-600">산업기술연구조합육성법</p>
             <p className="mt-3 text-xl font-bold text-navy-900">설립근거</p>
           </div>
           <Prose>
             <p>
-              <b>산업기술연구조합 육성법</b>에 근거해 설립된 연구조합으로, 동일 산업 분야의 기업과
-              연구기관이 공동으로 연구개발을 수행할 수 있도록 하는 법적 조직입니다.
+한국클라우드컴퓨팅연구조합은 <b>2009년 ‘산업기술연구조합육성법’</b>에 근거하여 지식경제부
+              인가로 설립되었습니다. 동일 산업 분야의 기업과 연구기관이 공동으로 연구개발을 수행할
+              수 있도록 하는 법적 조직입니다.
             </p>
             <p>
               <b>클라우드컴퓨팅 발전 및 이용자 보호에 관한 법률</b>이 정한 클라우드컴퓨팅산업의 진흥
@@ -48,7 +49,7 @@ export default function Page() {
 
       {/* 연혁 */}
       <section className="mt-20">
-        <SectionHeading eyebrow="2015 – 2026" title="연혁" />
+        <SectionHeading eyebrow="2009 – 2026" title="연혁" />
 
         <div className="mt-12 space-y-14">
           {HISTORY.map((block) => (

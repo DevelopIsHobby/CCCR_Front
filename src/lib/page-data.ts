@@ -46,8 +46,16 @@ export const HISTORY = [
     year: "2015 – 2019",
     events: [
       { date: "2019.06", text: "정보통신산업진흥원 클라우드 지원사업 협력기관 지정" },
-      { date: "2017.03", text: "산업기술연구조합 등록" },
-      { date: "2015.09", text: "한국클라우드컴퓨팅연구조합 설립" },
+      { date: "2017.03", text: "클라우드 컴퓨팅 인력양성 로드맵 개발" },
+      { date: "2015.09", text: "클라우드 컴퓨팅 기술 스택 개발 및 배포 사업 착수" },
+    ],
+  },
+  {
+    year: "2009 – 2014",
+    events: [
+      { date: "2013.04", text: "산업계 공통 애로기술 공동 해결 과제 수행" },
+      { date: "2011.08", text: "클라우드 컴퓨팅 핵심기술 국가 R&D 과제 참여" },
+      { date: "2009", text: "‘산업기술연구조합육성법’에 근거해 지식경제부 인가로 설립" },
     ],
   },
 ];
@@ -111,7 +119,7 @@ export const MEMBER_STATS = [
   { label: "정회원사", value: "128", unit: "개사" },
   { label: "특별회원", value: "24", unit: "개사" },
   { label: "운영 분과", value: "4", unit: "개" },
-  { label: "설립", value: "2015", unit: "년" },
+  { label: "설립", value: "2009", unit: "년" },
 ];
 
 export const JOIN_STEPS = [

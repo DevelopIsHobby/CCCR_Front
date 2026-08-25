@@ -50,7 +50,7 @@ export default function Page() {
             >
               {/* 회원사 로고 이미지 확보 시 교체 */}
               <div className="grid h-14 place-items-center rounded-md bg-surface">
-                <span className="label-mono text-ink-400">Logo</span>
+                <span className="label-mono text-ink-400">로고</span>
               </div>
               <div>
                 <p className="text-md font-bold text-navy-900">{m.name}</p>
