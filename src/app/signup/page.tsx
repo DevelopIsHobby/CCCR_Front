@@ -18,7 +18,6 @@ export default function Page() {
       href="/signup"
       title="회원가입"
       category="회원"
-      eng="Sign Up"
       desc="홈페이지 회원가입은 조합 회원사 가입과 별개입니다."
     >
       <StepFlow steps={SIGNUP_STEPS} />
@@ -27,7 +26,7 @@ export default function Page() {
         <form className="rounded-2xl border border-line bg-white p-8 lg:p-10">
           {/* 약관 */}
           <fieldset>
-            <legend className="text-[1.05rem] font-bold text-navy-900">약관 동의</legend>
+            <legend className="text-lg font-bold text-navy-900">약관 동의</legend>
             <div className="mt-5 space-y-3">
               {[
                 { id: "terms", label: "이용약관 동의", href: "/terms", required: true },
@@ -36,7 +35,7 @@ export default function Page() {
               ].map((t) => (
                 <label
                   key={t.id}
-                  className="flex items-center gap-3 rounded-lg bg-surface px-5 py-4 text-[0.9rem] text-ink-700"
+                  className="flex items-center gap-3 rounded-lg bg-surface px-5 py-4 text-md text-ink-700"
                 >
                   <input
                     type="checkbox"
@@ -47,7 +46,7 @@ export default function Page() {
                   <span className="flex-1">
                     {t.label}
                     <span
-                      className={`ml-2 text-[0.75rem] font-bold ${
+                      className={`ml-2 text-xs font-bold ${
                         t.required ? "text-flame-600" : "text-ink-400"
                       }`}
                     >
@@ -57,7 +56,7 @@ export default function Page() {
                   {t.href && (
                     <Link
                       href={t.href}
-                      className="shrink-0 text-[0.8rem] text-brand-600 underline underline-offset-2"
+                      className="shrink-0 text-sm text-brand-600 underline underline-offset-2"
                     >
                       전문보기
                     </Link>
@@ -69,7 +68,7 @@ export default function Page() {
 
           {/* 회원 정보 */}
           <fieldset className="mt-10">
-            <legend className="text-[1.05rem] font-bold text-navy-900">회원 정보</legend>
+            <legend className="text-lg font-bold text-navy-900">회원 정보</legend>
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
               {[
                 { id: "company", label: "기관·회사명", type: "text", full: true, ac: "organization" },
@@ -81,7 +80,7 @@ export default function Page() {
                 <div key={f.id} className={f.full ? "sm:col-span-2" : ""}>
                   <label
                     htmlFor={`signup-${f.id}`}
-                    className="mb-2 block text-[0.875rem] font-bold text-navy-900"
+                    className="mb-2 block text-base font-bold text-navy-900"
                   >
                     {f.label}
                   </label>
@@ -91,7 +90,7 @@ export default function Page() {
                     type={f.type}
                     autoComplete={f.ac}
                     required
-                    className="w-full rounded-md border border-line px-4 py-3.5 text-[0.925rem] outline-none transition-colors focus:border-brand-500"
+                    className="w-full rounded-md border border-line px-4 py-3.5 text-md outline-none transition-colors focus:border-brand-500"
                   />
                 </div>
               ))}
@@ -101,20 +100,20 @@ export default function Page() {
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <button
               type="submit"
-              className="flex-1 rounded-md bg-brand-600 py-4 text-[0.95rem] font-bold text-white transition-colors hover:bg-navy-900"
+              className="flex-1 rounded-md bg-brand-600 py-4 text-md font-bold text-white transition-colors hover:bg-navy-900"
             >
               가입 신청
             </button>
             <Link
               href="/"
-              className="rounded-md px-8 py-4 text-center text-[0.95rem] font-bold text-navy-900 ring-1 ring-line transition-colors hover:bg-surface"
+              className="rounded-md px-8 py-4 text-center text-md font-bold text-navy-900 ring-1 ring-line transition-colors hover:bg-surface"
             >
               취소
             </Link>
           </div>
         </form>
 
-        <p className="mt-6 rounded-lg bg-surface px-5 py-4 text-[0.85rem] leading-relaxed text-ink-600">
+        <p className="mt-6 rounded-lg bg-surface px-5 py-4 text-base leading-relaxed text-ink-600">
           조합 회원사 가입을 원하시면{" "}
           <Link href="/members/join" className="font-bold text-brand-600 hover:underline">
             회원사 가입안내

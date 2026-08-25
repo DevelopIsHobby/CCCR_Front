@@ -17,7 +17,6 @@ export default function Page() {
   return (
     <PageShell
       href="/board/events"
-      eng="Events"
       desc="조합과 유관기관이 개최하는 세미나·컨퍼런스·전시 일정을 안내합니다."
     >
       <BoardSearch total={EVENTS.length} />
@@ -36,22 +35,22 @@ export default function Page() {
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span
-                    className={`inline-flex rounded px-2.5 py-1 text-[0.7rem] font-bold ${
+                    className={`inline-flex rounded px-2.5 py-1 text-2xs font-bold ${
                       STATUS_TONE[e.status]
                     }`}
                   >
                     {e.status}
                   </span>
-                  <span className="text-[0.8rem] text-ink-400">주최 · {e.host}</span>
+                  <span className="text-sm text-ink-400">주최 · {e.host}</span>
                 </div>
 
-                <p className="mt-3 text-[1.15rem] font-bold leading-snug text-navy-900 transition-colors group-hover:text-brand-600">
+                <p className="mt-3 text-lg font-bold leading-snug text-navy-900 transition-colors group-hover:text-brand-600">
                   {e.title}
                 </p>
 
                 <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
                   <span className="label-mono tabular-nums text-brand-600">{e.period}</span>
-                  <span className="text-[0.85rem] text-ink-600">{e.place}</span>
+                  <span className="text-base text-ink-600">{e.place}</span>
                 </div>
               </div>
 

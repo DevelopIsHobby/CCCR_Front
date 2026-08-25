@@ -10,7 +10,7 @@ export default function Partners() {
   return (
     <section className="overflow-hidden bg-white py-12">
       <div className="mx-auto max-w-[1280px] px-6">
-        <p className="label-mono text-center text-ink-400">Partners &amp; Related Organizations</p>
+        <p className="data-line text-center text-ink-400">유관기관 {PARTNERS.length}곳</p>
       </div>
 
       <div className="relative mt-8">
@@ -26,7 +26,7 @@ export default function Partners() {
           {loop.map((name, i) => (
             <span
               key={`${name}-${i}`}
-              className="flex h-16 items-center whitespace-nowrap rounded-lg border border-line bg-surface px-8 text-[0.9rem] font-semibold text-ink-600 transition-colors hover:border-brand-200 hover:text-brand-600"
+              className="flex h-16 items-center whitespace-nowrap rounded-lg border border-line bg-surface px-8 text-md font-semibold text-ink-600 transition-colors hover:border-brand-200 hover:text-brand-600"
             >
               {name}
             </span>

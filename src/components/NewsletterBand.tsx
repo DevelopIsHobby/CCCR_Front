@@ -6,19 +6,14 @@ import { IconArrow } from "./Icons";
 export default function NewsletterBand() {
   return (
     <div className="relative overflow-hidden bg-navy-950">
-      <div className="hex-field absolute inset-0 opacity-70" aria-hidden />
-      <div
-        className="absolute -left-20 top-1/2 size-72 -translate-y-1/2 rounded-full bg-brand-500/20 blur-3xl"
-        aria-hidden
-      />
 
       <div className="relative mx-auto flex max-w-[1280px] flex-col gap-7 px-6 py-12 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
         <div>
-          <p className="label-mono text-flame-500">Newsletter</p>
-          <p className="mt-3 text-[1.3rem] font-bold leading-snug text-white lg:text-[1.5rem]">
+          <p className="data-line text-flame-500">뉴스레터 · 월 1회</p>
+          <p className="mt-3 text-xl font-bold leading-snug text-white lg:text-2xl">
             조합 소식과 산업 동향을 메일로 받아보세요
           </p>
-          <p className="mt-2 text-[0.875rem] text-brand-100/60">
+          <p className="mt-2 text-base text-brand-100/60">
             공지·행사·기술동향을 월 1회 정리해 보내드립니다.
           </p>
         </div>
@@ -35,11 +30,11 @@ export default function NewsletterBand() {
             type="email"
             required
             placeholder="email@example.com"
-            className="min-w-0 rounded-md border border-white/20 bg-white/5 px-4 py-3.5 text-[0.9rem] text-white outline-none transition-colors placeholder:text-brand-100/40 focus:border-flame-500 focus:bg-white/10 sm:w-72"
+            className="min-w-0 rounded-md border border-white/20 bg-white/5 px-4 py-3.5 text-md text-white outline-none transition-colors placeholder:text-brand-100/40 focus:border-flame-500 focus:bg-white/10 sm:w-72"
           />
           <button
             type="submit"
-            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-flame-500 px-6 py-3.5 text-[0.9rem] font-bold text-white transition-colors hover:bg-flame-600"
+            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-flame-500 px-6 py-3.5 text-md font-bold text-white transition-colors hover:bg-flame-600"
           >
             구독 신청
             <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />

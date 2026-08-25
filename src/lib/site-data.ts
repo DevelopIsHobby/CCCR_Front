@@ -61,21 +61,21 @@ export type Slide = {
 
 export const SLIDES: Slide[] = [
   {
-    eyebrow: "Consortium of Cloud Computing Research",
+    eyebrow: "조합 소개",
     title: "클라우드컴퓨팅산업의\n다음 단계를 함께 설계합니다",
     body: "한국클라우드컴퓨팅연구조합은 클라우드컴퓨팅산업이 4차 산업 및 지능정보사회로의 도약에 기여할 수 있도록 노력하겠습니다.",
     caption: "한국클라우드컴퓨팅연구조합 소개",
     date: "2026-08-11",
   },
   {
-    eyebrow: "Education Program",
+    eyebrow: "교육 · 접수중",
     title: "AIDC 인프라 실무 교육\n2026년 하반기 과정 개설",
     body: "AI 데이터센터 설계·운영·최적화를 다루는 HW/SW 기반 실무 과정을 조합 회원사 대상으로 운영합니다.",
     caption: "[KCIA] AIDC 인프라를 위한 HW/SW 기반 설계 운영·최적화 실무 교육 (9/9~11)",
     date: "2026-07-30",
   },
   {
-    eyebrow: "K-Cloud Initiative",
+    eyebrow: "정책 과제",
     title: "국산 AI반도체 기반\nK-클라우드 추진방안",
     body: "국산 AI반도체를 활용한 클라우드 서비스 실증과 공공부문 SaaS 확산을 위한 정책 과제를 공유합니다.",
     caption: "『K-클라우드』 추진방안 및 공공부문 SaaS 이용 가이드라인",
@@ -183,7 +183,7 @@ export const NOTICE_BOARD = [
 ];
 
 export type Banner = {
-  no: string;
+  kind: string;
   title: string;
   sub: string;
   href: string;
@@ -191,31 +191,31 @@ export type Banner = {
 
 export const BANNERS: Banner[] = [
   {
-    no: "01",
+    kind: "법령",
     title: "클라우드컴퓨팅법 시행 개정안",
     sub: "2023. 1. 12 시행",
     href: "/info/archive",
   },
   {
-    no: "02",
+    kind: "교육",
     title: "클라우드컴퓨팅 전문기술 연간교육",
     sub: "연간 교육 과정 안내",
     href: "/education",
   },
   {
-    no: "03",
+    kind: "지침",
     title: "국가연구개발사업 연구개발비 사용기준",
     sub: "IITP · 2023 개정",
     href: "/info/archive",
   },
   {
-    no: "04",
+    kind: "가이드라인",
     title: "공공부문 SaaS 이용 가이드라인",
     sub: "가이드라인 배포",
     href: "/info/archive",
   },
   {
-    no: "05",
+    kind: "정책",
     title: "『K-클라우드』 추진방안",
     sub: "국산 AI반도체 기반 클라우드",
     href: "/info/archive",

@@ -18,13 +18,13 @@ export default function Footer() {
         <div className="mx-auto grid max-w-[1280px] gap-8 px-6 py-12 sm:grid-cols-2 lg:grid-cols-5">
           {NAV.map((item) => (
             <div key={item.label}>
-              <p className="text-[0.925rem] font-bold text-white">{item.label}</p>
+              <p className="text-md font-bold text-white">{item.label}</p>
               <ul className="mt-4 space-y-2">
                 {item.children.map((child) => (
                   <li key={child.label}>
                     <Link
                       href={child.href}
-                      className="text-[0.825rem] transition-colors hover:text-flame-500"
+                      className="text-sm transition-colors hover:text-flame-500"
                     >
                       {child.label}
                     </Link>
@@ -40,7 +40,7 @@ export default function Footer() {
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <Logo variant="light" />
-            <address className="mt-6 space-y-1.5 text-[0.825rem] not-italic leading-relaxed">
+            <address className="mt-6 space-y-1.5 text-sm not-italic leading-relaxed">
               <p>서울특별시 강남구 테헤란로 000, 00빌딩 0층</p>
               <p>
                 TEL. 02-000-0000
@@ -61,7 +61,7 @@ export default function Footer() {
                 <li key={item.label}>
                   <Link
                     href={item.href}
-                    className={`text-[0.8rem] transition-colors hover:text-flame-500 ${
+                    className={`text-sm transition-colors hover:text-flame-500 ${
                       item.strong ? "font-bold text-white" : ""
                     }`}
                   >
@@ -79,7 +79,7 @@ export default function Footer() {
             <select
               id="related-sites"
               defaultValue=""
-              className="w-full min-w-[260px] appearance-none rounded-md border border-white/20 bg-navy-950 px-4 py-3 text-[0.85rem] text-white outline-none transition-colors focus:border-flame-500 lg:w-auto"
+              className="w-full min-w-[260px] appearance-none rounded-md border border-white/20 bg-navy-950 px-4 py-3 text-base text-white outline-none transition-colors focus:border-flame-500 lg:w-auto"
             >
               <option value="" disabled>
                 관련기관 바로가기
@@ -90,7 +90,7 @@ export default function Footer() {
               <option value="keit">한국산업기술평가관리원</option>
               <option value="kaci">한국클라우드산업협회</option>
             </select>
-            <p className="mt-6 text-[0.75rem] text-brand-100/40">
+            <p className="mt-6 text-xs text-brand-100/40">
               © {new Date().getFullYear()} Consortium of Cloud Computing Research.
               <br className="hidden lg:block" /> All rights reserved.
             </p>

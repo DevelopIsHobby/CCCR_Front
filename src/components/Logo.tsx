@@ -8,12 +8,12 @@ export default function Logo({ variant = "dark", className = "" }: Props) {
   return (
     <span className={`flex items-center gap-3 ${className}`}>
       <span className="flex items-baseline font-bold tracking-tight">
-        <span className="text-[1.75rem] leading-none text-flame-600">C</span>
-        <span className="text-[1.05rem] leading-none text-flame-600 -ml-px">3</span>
-        <span className="text-[1.75rem] leading-none text-brand-600 ml-0.5">R</span>
+        <span className="text-2xl leading-none text-flame-600">C</span>
+        <span className="text-lg leading-none text-flame-600 -ml-px">3</span>
+        <span className="text-2xl leading-none text-brand-600 ml-0.5">R</span>
       </span>
       <span className="flex flex-col leading-none">
-        <span className={`text-[0.78rem] font-bold tracking-[-0.04em] sm:text-[0.95rem] ${ko}`}>
+        <span className={`text-xs font-bold tracking-[-0.04em] sm:text-md ${ko}`}>
           한국클라우드컴퓨팅연구조합
         </span>
         <span

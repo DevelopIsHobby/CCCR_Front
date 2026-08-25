@@ -19,8 +19,10 @@ export default function BannerRail() {
       <div className="mx-auto max-w-[1280px] px-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="label-mono text-flame-600">Policy &amp; Guideline</p>
-            <h2 className="mt-3 text-[1.75rem] font-bold text-navy-900 lg:text-[2rem]">
+            <p className="data-line text-flame-600">
+            자료 {BANNERS.length}건 · 최근 갱신 2026.07.30
+          </p>
+            <h2 className="mt-3 text-2xl font-bold text-navy-900 lg:text-3xl">
               주요 정책 · 자료 안내
             </h2>
           </div>
@@ -50,21 +52,21 @@ export default function BannerRail() {
         >
           {BANNERS.map((b) => (
             <Link
-              key={b.no}
+              key={b.title}
               href={b.href}
               className="group flex min-h-[190px] w-[248px] shrink-0 snap-start flex-col justify-between rounded-xl border border-line bg-white p-6 transition-all hover:-translate-y-1 hover:border-brand-500 hover:shadow-[0_16px_32px_-18px_rgba(6,42,85,0.4)] sm:w-[280px]"
             >
               <div className="flex items-start justify-between">
-                <span className="label-mono text-2xl font-bold tabular-nums leading-none text-brand-100 transition-colors group-hover:text-flame-500">
-                  {b.no}
+                <span className="inline-flex rounded bg-brand-50 px-2.5 py-1 text-2xs font-bold text-brand-700 transition-colors group-hover:bg-flame-100 group-hover:text-flame-700">
+                  {b.kind}
                 </span>
                 <span className="grid size-8 place-items-center rounded-full bg-surface text-ink-400 transition-colors group-hover:bg-flame-500 group-hover:text-white">
                   <IconArrow className="size-4" />
                 </span>
               </div>
               <div>
-                <p className="text-[1.05rem] font-bold leading-snug text-navy-900">{b.title}</p>
-                <p className="mt-2 text-[0.8rem] text-ink-400">{b.sub}</p>
+                <p className="text-lg font-bold leading-snug text-navy-900">{b.title}</p>
+                <p className="mt-2 text-sm text-ink-400">{b.sub}</p>
               </div>
             </Link>
           ))}

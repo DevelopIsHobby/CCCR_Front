@@ -24,7 +24,7 @@ export default function NewsSection() {
         {/* 새소식 */}
         <div>
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <h2 className="text-[1.75rem] font-bold text-navy-900 lg:text-[2rem]">
+            <h2 className="text-2xl font-bold text-navy-900 lg:text-3xl">
               C3R <span className="text-brand-600">새소식</span>
             </h2>
             <div className="flex items-center gap-2">
@@ -35,7 +35,7 @@ export default function NewsSection() {
                     type="button"
                     onClick={() => setTab(t)}
                     aria-pressed={tab === t}
-                    className={`rounded-full px-4 py-2 text-[0.825rem] font-semibold transition-colors ${
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                       tab === t
                         ? "bg-navy-900 text-white"
                         : "text-ink-600 hover:text-brand-600"
@@ -63,7 +63,7 @@ export default function NewsSection() {
                   className="group flex flex-col gap-2 py-5 sm:flex-row sm:items-center sm:gap-5"
                 >
                   <span
-                    className={`inline-flex w-fit shrink-0 rounded px-2.5 py-1 text-[0.7rem] font-bold ${
+                    className={`inline-flex w-fit shrink-0 rounded px-2.5 py-1 text-2xs font-bold ${
                       CATEGORY_STYLE[post.category]
                     }`}
                   >
@@ -72,7 +72,7 @@ export default function NewsSection() {
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
                       {/* 모바일은 줄바꿈, sm 이상에서만 한 줄 말줄임 */}
-                      <span className="min-w-0 text-[0.975rem] font-medium leading-relaxed text-ink-900 transition-colors group-hover:text-brand-600 sm:truncate sm:leading-normal">
+                      <span className="min-w-0 text-md font-medium leading-relaxed text-ink-900 transition-colors group-hover:text-brand-600 sm:truncate sm:leading-normal">
                         <span className="text-ink-400">[{post.agency}]</span> {post.title}
                       </span>
                       {post.isNew && (
@@ -91,7 +91,7 @@ export default function NewsSection() {
 
         {/* 알림판 — 좌측 목록 높이에 맞춰 카드가 늘어난다 */}
         <div className="flex flex-col">
-          <h2 className="text-[1.75rem] font-bold text-navy-900 lg:text-[2rem]">알림판</h2>
+          <h2 className="text-2xl font-bold text-navy-900 lg:text-3xl">알림판</h2>
           <div className="mt-7 flex flex-1 flex-col gap-4">
             {NOTICE_BOARD.map((item) => (
               <Link
@@ -99,20 +99,15 @@ export default function NewsSection() {
                 href={item.href}
                 className="group relative flex min-h-[190px] flex-1 flex-col justify-center overflow-hidden rounded-xl bg-navy-900 p-7 transition-colors hover:bg-navy-800"
               >
-                <div className="hex-field absolute inset-0 opacity-60" aria-hidden />
-                <div
-                  className="absolute -bottom-16 -right-10 size-44 rounded-full bg-brand-500/25 blur-2xl transition-transform duration-500 group-hover:scale-125"
-                  aria-hidden
-                />
                 <div className="relative">
                   <span className="label-mono text-flame-500">{item.tag}</span>
-                  <p className="mt-3 text-[1.15rem] font-bold leading-snug text-white">
+                  <p className="mt-3 text-lg font-bold leading-snug text-white">
                     {item.title}
                   </p>
-                  <p className="mt-2 text-[0.85rem] leading-relaxed text-brand-100/70">
+                  <p className="mt-2 text-base leading-relaxed text-brand-100/70">
                     {item.desc}
                   </p>
-                  <span className="mt-6 flex items-center gap-2 text-[0.825rem] font-semibold text-white">
+                  <span className="mt-6 flex items-center gap-2 text-sm font-semibold text-white">
                     바로가기
                     <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
                   </span>

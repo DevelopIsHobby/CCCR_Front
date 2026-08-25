@@ -9,7 +9,6 @@ export default function Page() {
   return (
     <PageShell
       href="/about/location"
-      eng="Location"
       desc="조합 사무국 위치와 교통편을 안내해 드립니다."
     >
       {/* 지도 — 카카오/네이버 지도 스크립트로 교체 */}
@@ -37,14 +36,14 @@ export default function Page() {
               <circle cx="12" cy="10" r="2.5" />
             </svg>
           </span>
-          <p className="mt-4 text-[1.05rem] font-bold text-navy-900">한국클라우드컴퓨팅연구조합</p>
+          <p className="mt-4 text-lg font-bold text-navy-900">한국클라우드컴퓨팅연구조합</p>
           <p className="label-mono mt-2 text-ink-400">지도 API 연동 영역</p>
         </div>
       </div>
 
       {/* 기본 정보 */}
       <section className="mt-16">
-        <SectionHeading eyebrow="Contact" title="사무국 안내" />
+        <SectionHeading eyebrow="평일 09:00 – 18:00" title="사무국 안내" />
         <div className="mt-10">
           <DefTable
             rows={[
@@ -67,18 +66,18 @@ export default function Page() {
 
       {/* 교통편 */}
       <section className="mt-20">
-        <SectionHeading eyebrow="Directions" title="교통편" />
+        <SectionHeading eyebrow="지하철 · 버스 · 자가용" title="교통편" />
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {TRANSPORT.map((t) => (
             <div key={t.type} className="rounded-xl border border-line bg-white p-7">
-              <span className="inline-flex rounded-full bg-brand-50 px-3 py-1 text-[0.8rem] font-bold text-brand-700">
+              <span className="inline-flex rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">
                 {t.type}
               </span>
               <ul className="mt-5 space-y-3">
                 {t.lines.map((line) => (
                   <li
                     key={line}
-                    className="flex gap-2.5 text-[0.9rem] leading-relaxed text-ink-600"
+                    className="flex gap-2.5 text-md leading-relaxed text-ink-600"
                   >
                     <span className="mt-2 size-1.5 shrink-0 rounded-full bg-flame-500" aria-hidden />
                     {line}

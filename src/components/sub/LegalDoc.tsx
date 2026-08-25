@@ -8,7 +8,7 @@ export function LegalDoc({ articles, notice }: { articles: Article[]; notice?: s
   return (
     <div className="mx-auto max-w-3xl">
       {notice && (
-        <p className="mb-12 rounded-lg border-l-4 border-flame-500 bg-surface px-6 py-5 text-[0.875rem] leading-relaxed text-ink-600">
+        <p className="mb-12 rounded-lg border-l-4 border-flame-500 bg-surface px-6 py-5 text-base leading-relaxed text-ink-600">
           {notice}
         </p>
       )}
@@ -16,13 +16,13 @@ export function LegalDoc({ articles, notice }: { articles: Article[]; notice?: s
       <div className="space-y-12">
         {articles.map((a) => (
           <section key={a.title}>
-            <h2 className="border-b-2 border-navy-900 pb-3 text-[1.1rem] font-bold text-navy-900">
+            <h2 className="border-b-2 border-navy-900 pb-3 text-lg font-bold text-navy-900">
               {a.title}
             </h2>
 
             <div className="mt-5 space-y-4">
               {a.paragraphs.map((p, i) => (
-                <p key={i} className="text-[0.925rem] leading-[1.85] text-ink-600">
+                <p key={i} className="text-md leading-[1.85] text-ink-600">
                   {p}
                 </p>
               ))}
@@ -33,7 +33,7 @@ export function LegalDoc({ articles, notice }: { articles: Article[]; notice?: s
                 {a.list.map((item) => (
                   <li
                     key={item}
-                    className="flex gap-3 text-[0.9rem] leading-relaxed text-ink-600"
+                    className="flex gap-3 text-md leading-relaxed text-ink-600"
                   >
                     <span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-500" aria-hidden />
                     {item}

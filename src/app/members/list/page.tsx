@@ -17,19 +17,18 @@ export default function Page() {
   return (
     <PageShell
       href="/members/list"
-      eng="Members"
       desc="클라우드 인프라부터 서비스까지, 산업 전 영역의 기업이 조합에 참여하고 있습니다."
     >
       {/* 통계 */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {MEMBER_STATS.map((s) => (
           <div key={s.label} className="rounded-xl border border-line bg-surface p-7">
-            <p className="text-[0.85rem] font-medium text-ink-600">{s.label}</p>
+            <p className="text-base font-medium text-ink-600">{s.label}</p>
             <p className="mt-3 flex items-baseline gap-1">
-              <span className="label-mono text-[2rem] font-bold tabular-nums leading-none text-navy-900">
+              <span className="label-mono text-3xl font-bold tabular-nums leading-none text-navy-900">
                 {s.value}
               </span>
-              <span className="text-[0.85rem] text-ink-400">{s.unit}</span>
+              <span className="text-base text-ink-400">{s.unit}</span>
             </p>
           </div>
         ))}
@@ -38,7 +37,7 @@ export default function Page() {
       {/* 회원사 목록 */}
       <section className="mt-16">
         <SectionHeading
-          eyebrow="Member Companies"
+          eyebrow={`정회원 ${MEMBER_STATS[0].value} · 특별회원 ${MEMBER_STATS[1].value}`}
           title="참여 회원사"
           desc="가나다순으로 표시되며, 회원사 요청에 따라 일부 기업은 표기하지 않습니다."
         />
@@ -54,9 +53,9 @@ export default function Page() {
                 <span className="label-mono text-ink-400">Logo</span>
               </div>
               <div>
-                <p className="text-[0.975rem] font-bold text-navy-900">{m.name}</p>
+                <p className="text-md font-bold text-navy-900">{m.name}</p>
                 <span
-                  className={`mt-2 inline-flex rounded px-2 py-0.5 text-[0.7rem] font-bold ${
+                  className={`mt-2 inline-flex rounded px-2 py-0.5 text-2xs font-bold ${
                     FIELD_TONE[m.field]
                   }`}
                 >
@@ -67,7 +66,7 @@ export default function Page() {
           ))}
         </div>
 
-        <p className="mt-8 rounded-lg bg-surface px-5 py-4 text-[0.85rem] text-ink-600">
+        <p className="mt-8 rounded-lg bg-surface px-5 py-4 text-base text-ink-600">
           위 목록은 화면 구성을 위한 예시입니다. 실제 회원사 명단과 로고로 교체가 필요합니다.
         </p>
       </section>

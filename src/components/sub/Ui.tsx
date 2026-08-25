@@ -15,8 +15,8 @@ export function SectionHeading({
 }) {
   return (
     <div className={className}>
-      {eyebrow && <p className="label-mono text-flame-600">{eyebrow}</p>}
-      <h2 className="mt-3 text-[1.5rem] font-bold text-navy-900 lg:text-[1.85rem]">{title}</h2>
+      {eyebrow && <p className="data-line text-flame-600">{eyebrow}</p>}
+      <h2 className="mt-3 text-2xl font-bold text-navy-900 lg:text-2xl">{title}</h2>
       {desc && <p className="mt-3 max-w-3xl leading-relaxed text-ink-600">{desc}</p>}
       <span className="mt-6 block h-1 w-12 rounded-full bg-flame-500" />
     </div>
@@ -26,31 +26,20 @@ export function SectionHeading({
 /* ── 본문 텍스트 블록 ─────────────────────────────── */
 export function Prose({ children }: { children: React.ReactNode }) {
   return (
-    <div className="space-y-5 text-[0.975rem] leading-[1.85] text-ink-600 [&_b]:font-bold [&_b]:text-navy-900 [&_strong]:font-bold [&_strong]:text-navy-900">
+    <div className="space-y-5 text-md leading-[1.85] text-ink-600 [&_b]:font-bold [&_b]:text-navy-900 [&_strong]:font-bold [&_strong]:text-navy-900">
       {children}
     </div>
   );
 }
 
 /* ── 강조 카드 ────────────────────────────────────── */
-export function InfoCard({
-  no,
-  title,
-  desc,
-}: {
-  no?: string;
-  title: string;
-  desc: string;
-}) {
+/* 병렬 항목 카드. 순서가 정보를 담지 않으므로 번호를 붙이지 않는다. */
+export function InfoCard({ title, desc }: { title: string; desc: string }) {
   return (
     <div className="group rounded-xl border border-line bg-white p-7 transition-all hover:-translate-y-1 hover:border-brand-500 hover:shadow-[0_16px_32px_-18px_rgba(6,42,85,0.35)]">
-      {no && (
-        <span className="label-mono text-xl font-bold tabular-nums text-brand-100 transition-colors group-hover:text-flame-500">
-          {no}
-        </span>
-      )}
-      <p className="mt-4 text-[1.1rem] font-bold leading-snug text-navy-900">{title}</p>
-      <p className="mt-3 text-[0.9rem] leading-relaxed text-ink-600">{desc}</p>
+      <span className="block h-1 w-8 rounded-full bg-brand-200 transition-colors group-hover:bg-flame-500" />
+      <p className="mt-5 text-lg font-bold leading-snug text-navy-900">{title}</p>
+      <p className="mt-3 text-md leading-relaxed text-ink-600">{desc}</p>
     </div>
   );
 }
@@ -64,10 +53,10 @@ export function DefTable({ rows }: { rows: { label: string; value: React.ReactNo
           key={r.label}
           className="flex flex-col gap-1 border-b border-line py-4 sm:flex-row sm:gap-6 sm:py-5"
         >
-          <dt className="w-full shrink-0 text-[0.9rem] font-bold text-navy-900 sm:w-44">
+          <dt className="w-full shrink-0 text-md font-bold text-navy-900 sm:w-44">
             {r.label}
           </dt>
-          <dd className="text-[0.925rem] leading-relaxed text-ink-600">{r.value}</dd>
+          <dd className="text-md leading-relaxed text-ink-600">{r.value}</dd>
         </div>
       ))}
     </dl>
@@ -84,8 +73,8 @@ export function StepFlow({ steps }: { steps: { title: string; desc: string }[] }
           className="relative flex flex-col rounded-xl bg-surface p-6 ring-1 ring-line"
         >
           <span className="label-mono text-flame-600">step {String(i + 1).padStart(2, "0")}</span>
-          <p className="mt-3 text-[1.05rem] font-bold text-navy-900">{s.title}</p>
-          <p className="mt-2 text-[0.85rem] leading-relaxed text-ink-600">{s.desc}</p>
+          <p className="mt-3 text-lg font-bold text-navy-900">{s.title}</p>
+          <p className="mt-2 text-base leading-relaxed text-ink-600">{s.desc}</p>
           {i < steps.length - 1 && (
             <IconChevron className="absolute -right-3 top-1/2 hidden size-5 -translate-y-1/2 text-brand-200 lg:block" />
           )}
@@ -99,7 +88,7 @@ export function StepFlow({ steps }: { steps: { title: string; desc: string }[] }
 export function BoardSearch({ total }: { total: number }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
-      <p className="text-[0.875rem] text-ink-600">
+      <p className="text-base text-ink-600">
         전체 <b className="font-bold text-brand-600">{total}</b>건
       </p>
       <form
@@ -116,11 +105,11 @@ export function BoardSearch({ total }: { total: number }) {
           name="q"
           type="search"
           placeholder="제목 또는 기관명 검색"
-          className="min-w-0 flex-1 rounded-md border border-line bg-white px-4 py-2.5 text-[0.875rem] outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500 sm:w-64"
+          className="min-w-0 flex-1 rounded-md border border-line bg-white px-4 py-2.5 text-base outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500 sm:w-64"
         />
         <button
           type="submit"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-navy-900 px-4 py-2.5 text-[0.875rem] font-semibold text-white transition-colors hover:bg-brand-600"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-navy-900 px-4 py-2.5 text-base font-semibold text-white transition-colors hover:bg-brand-600"
         >
           <IconSearch className="size-4" />
           검색
@@ -145,7 +134,7 @@ export function Pagination({ pages = 5, current = 1 }: { pages?: number; current
           key={p}
           href="#"
           aria-current={p === current ? "page" : undefined}
-          className={`label-mono grid size-10 place-items-center rounded-md text-[0.8rem] tabular-nums transition-colors ${
+          className={`label-mono grid size-10 place-items-center rounded-md text-sm tabular-nums transition-colors ${
             p === current
               ? "bg-navy-900 text-white"
               : "text-ink-600 ring-1 ring-line hover:bg-surface"
@@ -175,19 +164,14 @@ export function ContactBanner({
 }) {
   return (
     <div className="relative mt-20 overflow-hidden rounded-2xl bg-navy-900 px-8 py-10 lg:px-12">
-      <div className="hex-field absolute inset-0 opacity-60" aria-hidden />
-      <div
-        className="absolute -right-10 -top-20 size-64 rounded-full bg-brand-500/20 blur-3xl"
-        aria-hidden
-      />
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-[1.3rem] font-bold text-white">{title}</p>
-          <p className="mt-2 text-[0.9rem] text-brand-100/70">{desc}</p>
+          <p className="text-xl font-bold text-white">{title}</p>
+          <p className="mt-2 text-md text-brand-100/70">{desc}</p>
         </div>
         <Link
           href={href}
-          className="group inline-flex w-fit shrink-0 items-center gap-2 rounded-full bg-flame-500 px-6 py-3.5 text-[0.9rem] font-bold text-white transition-colors hover:bg-flame-600"
+          className="group inline-flex w-fit shrink-0 items-center gap-2 rounded-full bg-flame-500 px-6 py-3.5 text-md font-bold text-white transition-colors hover:bg-flame-600"
         >
           {cta}
           <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />

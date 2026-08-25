@@ -8,12 +8,11 @@ type Props = {
   /** NAV에 없는 페이지(로그인, 약관 등)는 직접 지정 */
   title?: string;
   category?: string;
-  eng?: string;
   desc?: string;
   children: React.ReactNode;
 };
 
-export default function PageShell({ href, title, category, eng, desc, children }: Props) {
+export default function PageShell({ href, title, category, desc, children }: Props) {
   const section = NAV.find((n) => href.startsWith(n.href));
   const child = section?.children.find((c) => c.href === href);
 
@@ -25,37 +24,33 @@ export default function PageShell({ href, title, category, eng, desc, children }
     <>
       {/* 페이지 헤더 */}
       <div className="relative overflow-hidden bg-navy-900">
-        <div className="hex-field absolute inset-0" aria-hidden />
         <div
           className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-brand-700/60"
           aria-hidden
         />
-        <div
-          className="absolute -right-16 -top-24 size-80 rounded-full bg-brand-500/20 blur-3xl"
-          aria-hidden
-        />
+        {/* 히어로의 텍스처 대신 얇은 액센트 한 줄만 둔다 */}
+        <span className="absolute inset-x-0 bottom-0 h-1 bg-flame-500" aria-hidden />
 
-        <div className="relative mx-auto max-w-[1280px] px-6 py-14 lg:py-20">
+        <div className="relative mx-auto max-w-[1280px] px-6 py-12 lg:py-16">
           <nav aria-label="현재 위치" className="flex flex-wrap items-center gap-1.5">
-            <Link href="/" className="text-[0.8rem] text-brand-100/60 hover:text-white">
+            <Link href="/" className="text-sm text-brand-100/60 hover:text-white">
               홈
             </Link>
             {pageCategory && (
               <>
                 <IconChevron className="size-3 text-brand-100/30" />
-                <span className="text-[0.8rem] text-brand-100/60">{pageCategory}</span>
+                <span className="text-sm text-brand-100/60">{pageCategory}</span>
               </>
             )}
             <IconChevron className="size-3 text-brand-100/30" />
-            <span className="text-[0.8rem] font-medium text-white">{pageTitle}</span>
+            <span className="text-sm font-medium text-white">{pageTitle}</span>
           </nav>
 
-          {eng && <p className="label-mono mt-6 text-flame-500">{eng}</p>}
-          <h1 className="mt-3 text-[2rem] font-bold leading-tight text-white lg:text-[2.6rem]">
+          <h1 className="mt-7 text-2xl font-bold leading-tight text-white lg:text-3xl">
             {pageTitle}
           </h1>
           {desc && (
-            <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-brand-100/70">
+            <p className="mt-4 max-w-2xl text-md leading-relaxed text-brand-100/70">
               {desc}
             </p>
           )}
@@ -74,7 +69,7 @@ export default function PageShell({ href, title, category, eng, desc, children }
                     <Link
                       href={s.href}
                       aria-current={active ? "page" : undefined}
-                      className={`relative flex h-14 items-center px-5 text-[0.925rem] font-semibold transition-colors ${
+                      className={`relative flex h-14 items-center px-5 text-md font-semibold transition-colors ${
                         active ? "text-navy-900" : "text-ink-400 hover:text-brand-600"
                       }`}
                     >

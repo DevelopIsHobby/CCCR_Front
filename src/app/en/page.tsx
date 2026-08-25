@@ -11,11 +11,10 @@ export default function Page() {
       href="/en"
       title="English"
       category="Language"
-      eng="English Page"
       desc="The English version of this website is under preparation."
     >
       <div className="mx-auto max-w-2xl text-center">
-        <p className="text-[1.35rem] font-bold leading-snug text-navy-900">
+        <p className="text-xl font-bold leading-snug text-navy-900">
           Consortium of Cloud Computing Research
         </p>
         <p className="mt-5 leading-relaxed text-ink-600">
@@ -23,7 +22,7 @@ export default function Page() {
           that the cloud computing industry can contribute to the fourth industrial revolution and
           the intelligent information society.
         </p>
-        <p className="mt-8 rounded-lg bg-surface px-6 py-5 text-[0.9rem] leading-relaxed text-ink-600">
+        <p className="mt-8 rounded-lg bg-surface px-6 py-5 text-md leading-relaxed text-ink-600">
           Full English pages are being prepared. For inquiries, please contact{" "}
           <a href="mailto:info@c3r.or.kr" className="font-bold text-brand-600 hover:underline">
             info@c3r.or.kr
@@ -33,7 +32,7 @@ export default function Page() {
 
         <Link
           href="/"
-          className="group mt-10 inline-flex items-center gap-2 rounded-full bg-navy-900 px-6 py-3.5 text-[0.9rem] font-bold text-white transition-colors hover:bg-brand-600"
+          className="group mt-10 inline-flex items-center gap-2 rounded-full bg-navy-900 px-6 py-3.5 text-md font-bold text-white transition-colors hover:bg-brand-600"
         >
           Go to Korean site
           <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />

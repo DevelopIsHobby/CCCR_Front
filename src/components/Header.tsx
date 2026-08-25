@@ -81,7 +81,7 @@ export default function Header() {
                     href={item.href}
                     onMouseEnter={() => setMegaOpen(true)}
                     onFocus={() => setMegaOpen(true)}
-                    className="group relative flex items-center px-6 text-[0.975rem] font-semibold text-ink-900 transition-colors hover:text-brand-600"
+                    className="group relative flex items-center px-6 text-md font-semibold text-ink-900 transition-colors hover:text-brand-600"
                   >
                     {item.label}
                     <span className="absolute inset-x-4 bottom-0 h-[3px] origin-left scale-x-0 bg-flame-500 transition-transform duration-200 group-hover:scale-x-100" />
@@ -120,8 +120,8 @@ export default function Header() {
         >
           <div className="mx-auto grid max-w-[1280px] grid-cols-[1.1fr_repeat(5,1fr)] gap-8 px-6 py-9">
             <div>
-              <p className="label-mono text-flame-600">Sitemap</p>
-              <p className="mt-3 text-[1.35rem] font-bold leading-snug text-navy-900">
+              <p className="data-line text-flame-600">전체 메뉴</p>
+              <p className="mt-3 text-xl font-bold leading-snug text-navy-900">
                 조합의 모든
                 <br />
                 정보를 한 눈에
@@ -129,7 +129,7 @@ export default function Header() {
             </div>
             {NAV.map((item) => (
               <div key={item.label}>
-                <p className="border-b-2 border-navy-900 pb-3 text-[0.95rem] font-bold text-navy-900">
+                <p className="border-b-2 border-navy-900 pb-3 text-md font-bold text-navy-900">
                   {item.label}
                 </p>
                 <ul className="mt-4 space-y-2.5">
@@ -137,7 +137,7 @@ export default function Header() {
                     <li key={child.label}>
                       <Link
                         href={child.href}
-                        className="text-[0.9rem] text-ink-600 transition-colors hover:text-flame-600"
+                        className="text-md text-ink-600 transition-colors hover:text-flame-600"
                       >
                         {child.label}
                       </Link>
@@ -181,14 +181,14 @@ export default function Header() {
           <nav className="flex-1 overflow-y-auto px-5 py-6" aria-label="모바일 메뉴">
             {NAV.map((item) => (
               <div key={item.label} className="border-b border-line py-5 first:pt-0">
-                <p className="text-[1.05rem] font-bold text-navy-900">{item.label}</p>
+                <p className="text-lg font-bold text-navy-900">{item.label}</p>
                 <ul className="mt-3 space-y-2.5">
                   {item.children.map((child) => (
                     <li key={child.label}>
                       <Link
                         href={child.href}
                         onClick={() => setDrawerOpen(false)}
-                        className="flex items-center gap-1 text-[0.925rem] text-ink-600"
+                        className="flex items-center gap-1 text-md text-ink-600"
                       >
                         {child.label}
                         <IconChevron className="size-3.5 text-ink-400" />
@@ -206,7 +206,7 @@ export default function Header() {
                 key={item.label}
                 href={item.href}
                 onClick={() => setDrawerOpen(false)}
-                className="rounded-md bg-white px-3 py-2.5 text-center text-[0.825rem] font-medium text-ink-700 ring-1 ring-line"
+                className="rounded-md bg-white px-3 py-2.5 text-center text-sm font-medium text-ink-700 ring-1 ring-line"
               >
                 {item.label}
               </Link>

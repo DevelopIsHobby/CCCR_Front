@@ -122,16 +122,20 @@ export default function Hero() {
                 }`}
                 aria-hidden={i !== index}
               >
-                <p className="label-mono text-flame-500">{s.eyebrow}</p>
-                <h1 className="mt-4 whitespace-pre-line text-[1.85rem] font-bold leading-[1.28] text-white sm:text-[2.35rem] lg:text-[2.75rem]">
+                <p className="flex items-center gap-2.5">
+                  <span className="data-line text-flame-500">{s.eyebrow}</span>
+                  <span className="h-3 w-px bg-white/20" aria-hidden />
+                  <span className="label-mono text-brand-100/60">{s.date}</span>
+                </p>
+                <h1 className="mt-4 whitespace-pre-line text-2xl font-bold leading-[1.28] text-white sm:text-4xl lg:text-4xl">
                   {s.title}
                 </h1>
-                <p className="mt-5 max-w-xl text-[0.95rem] leading-relaxed text-brand-100/80 lg:text-base">
+                <p className="mt-5 max-w-xl text-md leading-relaxed text-brand-100/80 lg:text-lg">
                   {s.body}
                 </p>
                 <Link
                   href="/about/greeting"
-                  className="mt-8 inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-3 text-sm font-semibold text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-flame-500 hover:ring-flame-500"
+                  className="mt-8 inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-3 text-base font-semibold text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-flame-500 hover:ring-flame-500"
                 >
                   자세히 보기
                   <IconArrow className="size-4" />
@@ -143,7 +147,7 @@ export default function Hero() {
           {/* 캡션 + 컨트롤 */}
           <div className="relative border-t border-white/10 bg-navy-950/70 px-6 py-4 backdrop-blur">
             <div className="flex items-center gap-4">
-              <p className="min-w-0 flex-1 truncate text-[0.85rem] text-brand-100/90">
+              <p className="min-w-0 flex-1 truncate text-base text-brand-100/90">
                 {slide.caption}
               </p>
               <div className="flex shrink-0 items-center gap-3">
@@ -200,10 +204,10 @@ export default function Hero() {
         {/* 바로가기 패널 */}
         <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_48px_-20px_rgba(4,27,56,0.55)]">
           <div className="px-7 pt-7">
-            <h2 className="text-[1.5rem] font-bold text-navy-900">
+            <h2 className="text-2xl font-bold text-navy-900">
               신청 · <span className="text-brand-600">바로가기</span>
             </h2>
-            <p className="mt-1.5 text-[0.85rem] text-ink-600">자주 찾는 서비스를 안내해드립니다.</p>
+            <p className="mt-1.5 text-base text-ink-600">자주 찾는 서비스를 안내해드립니다.</p>
           </div>
 
           <div className="grid flex-1 grid-cols-2 gap-px bg-line/70 p-7 sm:grid-cols-3 lg:grid-cols-2">
@@ -217,10 +221,10 @@ export default function Hero() {
                 >
                   <Icon className="size-6 text-brand-600 transition-colors group-hover:text-flame-500" />
                   <span>
-                    <span className="block text-[0.925rem] font-bold text-navy-900">
+                    <span className="block text-md font-bold text-navy-900">
                       {link.label}
                     </span>
-                    <span className="mt-0.5 block text-[0.75rem] text-ink-400">{link.desc}</span>
+                    <span className="mt-0.5 block text-xs text-ink-400">{link.desc}</span>
                   </span>
                 </Link>
               );
@@ -231,7 +235,7 @@ export default function Hero() {
             href="/members/join"
             className="group flex items-center justify-between gap-4 bg-brand-600 px-7 py-5 transition-colors hover:bg-navy-900"
           >
-            <span className="text-[0.925rem] font-medium text-white">
+            <span className="text-md font-medium text-white">
               <b className="font-bold">C3R 회원사</b>로 가입하고 공동 연구에 참여하세요
             </span>
             <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/15 text-white transition-transform group-hover:translate-x-1">

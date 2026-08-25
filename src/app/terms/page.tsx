@@ -10,7 +10,6 @@ export default function Page() {
       href="/terms"
       title="이용약관"
       category="이용안내"
-      eng="Terms of Use"
       desc="홈페이지 이용에 관한 조합과 이용자의 권리·의무를 규정합니다."
     >
       <LegalDoc

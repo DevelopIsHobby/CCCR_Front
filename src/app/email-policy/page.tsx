@@ -10,7 +10,6 @@ export default function Page() {
       href="/email-policy"
       title="이메일무단수집거부"
       category="이용안내"
-      eng="No Email Collection"
       desc="홈페이지에 게시된 이메일 주소의 무단 수집을 거부합니다."
     >
       <LegalDoc

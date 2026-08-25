@@ -11,7 +11,6 @@ export default function Page() {
   return (
     <PageShell
       href="/info/trends"
-      eng="Tech Trends"
       desc="조합이 정기 발간하는 기술동향 리포트의 주요 내용을 공개합니다."
     >
       <BoardSearch total={TECH_TRENDS.length} />
@@ -24,17 +23,17 @@ export default function Page() {
               className="group grid gap-4 py-7 lg:grid-cols-[160px_1fr_auto] lg:items-center lg:gap-10"
             >
               <div className="flex items-center gap-3 lg:flex-col lg:items-start lg:gap-2">
-                <span className="inline-flex rounded bg-flame-100 px-2.5 py-1 text-[0.7rem] font-bold text-flame-700">
+                <span className="inline-flex rounded bg-flame-100 px-2.5 py-1 text-2xs font-bold text-flame-700">
                   {t.category}
                 </span>
                 <span className="label-mono tabular-nums text-ink-400">{t.date}</span>
               </div>
 
               <div>
-                <p className="text-[1.1rem] font-bold leading-snug text-navy-900 transition-colors group-hover:text-brand-600">
+                <p className="text-lg font-bold leading-snug text-navy-900 transition-colors group-hover:text-brand-600">
                   {t.title}
                 </p>
-                <p className="mt-2 text-[0.9rem] leading-relaxed text-ink-600">{t.summary}</p>
+                <p className="mt-2 text-md leading-relaxed text-ink-600">{t.summary}</p>
                 <p className="label-mono mt-3 text-brand-600">{t.source}</p>
               </div>
 

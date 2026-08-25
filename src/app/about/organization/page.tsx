@@ -21,7 +21,7 @@ function Node({
   };
   return (
     <div
-      className={`flex h-14 min-w-[160px] items-center justify-center rounded-lg px-6 text-[0.95rem] font-bold ${tones[tone]} ${className}`}
+      className={`flex h-14 min-w-[160px] items-center justify-center rounded-lg px-6 text-md font-bold ${tones[tone]} ${className}`}
     >
       {label}
     </div>
@@ -32,11 +32,10 @@ export default function Page() {
   return (
     <PageShell
       href="/about/organization"
-      eng="Organization"
       desc="총회와 이사회를 중심으로 사무국과 분과위원회가 운영됩니다."
     >
       <section>
-        <SectionHeading eyebrow="Chart" title="조직 구성" />
+        <SectionHeading eyebrow="총회 · 이사회 · 사무국" title="조직 구성" />
 
         <div className="mt-12 overflow-x-auto rounded-2xl bg-surface p-8 lg:p-14">
           <div className="flex min-w-[720px] flex-col items-center">
@@ -84,22 +83,20 @@ export default function Page() {
       {/* 분과위원회 */}
       <section className="mt-20">
         <SectionHeading
-          eyebrow="Committees"
+          eyebrow={`분과 ${ORG_UNITS.committees.length}개`}
           title="분과위원회"
           desc="기술 영역별로 분과를 두어 회원사가 관심 분야에 직접 참여할 수 있도록 운영합니다."
         />
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {ORG_UNITS.committees.map((c, i) => (
+          {ORG_UNITS.committees.map((c) => (
             <div
               key={c.name}
               className="rounded-xl border border-line bg-white p-6 transition-colors hover:border-brand-500"
             >
-              <span className="label-mono text-flame-600">
-                unit {String(i + 1).padStart(2, "0")}
-              </span>
-              <p className="mt-3 text-[1.05rem] font-bold text-navy-900">{c.name}</p>
-              <p className="mt-1.5 text-[0.85rem] text-ink-600">{c.desc}</p>
+              <span className="block h-1 w-8 rounded-full bg-brand-200" />
+              <p className="mt-3 text-lg font-bold text-navy-900">{c.name}</p>
+              <p className="mt-1.5 text-base text-ink-600">{c.desc}</p>
             </div>
           ))}
         </div>
@@ -107,7 +104,7 @@ export default function Page() {
 
       {/* 기구별 역할 */}
       <section className="mt-20">
-        <SectionHeading eyebrow="Roles" title="기구별 역할" />
+        <SectionHeading eyebrow="기구 5개" title="기구별 역할" />
         <div className="mt-10">
           <DefTable
             rows={[

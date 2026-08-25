@@ -35,7 +35,6 @@ export default function Page() {
   return (
     <PageShell
       href="/info/archive"
-      eng="Archive"
       desc="법령·가이드라인·리포트 등 조합이 수집하고 발간한 자료를 제공합니다."
     >
       <BoardSearch total={ARCHIVES.length} />
@@ -44,12 +43,12 @@ export default function Page() {
         {ARCHIVES.map((a) => (
           <li key={a.title} className="border-b border-line">
             <div className="grid gap-4 py-5 sm:grid-cols-[110px_1fr_auto] sm:items-center sm:gap-6">
-              <span className="inline-flex w-fit rounded bg-surface px-2.5 py-1 text-[0.7rem] font-bold text-ink-600">
+              <span className="inline-flex w-fit rounded bg-surface px-2.5 py-1 text-2xs font-bold text-ink-600">
                 {a.category}
               </span>
 
               <div className="min-w-0">
-                <p className="text-[0.975rem] font-medium text-ink-900">{a.title}</p>
+                <p className="text-md font-medium text-ink-900">{a.title}</p>
                 <p className="label-mono mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-ink-400">
                   <span
                     className={`rounded px-1.5 py-0.5 ${TYPE_TONE[a.fileType]}`}
@@ -63,7 +62,7 @@ export default function Page() {
 
               <Link
                 href="#"
-                className="group inline-flex w-fit shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-[0.85rem] font-semibold text-navy-900 ring-1 ring-line transition-colors hover:bg-brand-600 hover:text-white hover:ring-brand-600"
+                className="group inline-flex w-fit shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-base font-semibold text-navy-900 ring-1 ring-line transition-colors hover:bg-brand-600 hover:text-white hover:ring-brand-600"
               >
                 <IconDownload className="size-4" />
                 내려받기
@@ -73,7 +72,7 @@ export default function Page() {
         ))}
       </ul>
 
-      <p className="mt-8 rounded-lg bg-surface px-5 py-4 text-[0.85rem] text-ink-600">
+      <p className="mt-8 rounded-lg bg-surface px-5 py-4 text-base text-ink-600">
         일부 자료는 회원사 로그인 후 내려받을 수 있습니다.
       </p>
 

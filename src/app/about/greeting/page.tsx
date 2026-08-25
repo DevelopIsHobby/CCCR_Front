@@ -8,25 +8,19 @@ export default function Page() {
   return (
     <PageShell
       href="/about/greeting"
-      eng="Greeting"
       desc="한국클라우드컴퓨팅연구조합을 찾아주셔서 감사합니다."
     >
       <div className="grid gap-12 lg:grid-cols-[380px_1fr] lg:gap-16">
         {/* 좌: 이사장 카드 */}
         <div>
           <div className="relative overflow-hidden rounded-2xl bg-navy-900 p-8">
-            <div className="hex-field absolute inset-0 opacity-60" aria-hidden />
-            <div
-              className="absolute -bottom-16 -right-12 size-56 rounded-full bg-brand-500/25 blur-3xl"
-              aria-hidden
-            />
             <div className="relative">
               {/* 실제 이사장 사진으로 교체 */}
               <div className="grid aspect-[4/5] place-items-center rounded-xl border border-white/15 bg-white/5">
                 <span className="label-mono text-brand-100/40">Photo</span>
               </div>
-              <p className="mt-6 text-[0.8rem] text-brand-100/60">한국클라우드컴퓨팅연구조합</p>
-              <p className="mt-1 text-[1.35rem] font-bold text-white">
+              <p className="mt-6 text-sm text-brand-100/60">한국클라우드컴퓨팅연구조합</p>
+              <p className="mt-1 text-xl font-bold text-white">
                 이사장 <span className="ml-1">홍 길 동</span>
               </p>
             </div>
@@ -35,7 +29,7 @@ export default function Page() {
 
         {/* 우: 인사말 본문 */}
         <div>
-          <p className="text-[1.5rem] font-bold leading-[1.5] text-navy-900 lg:text-[1.95rem]">
+          <p className="text-2xl font-bold leading-[1.5] text-navy-900 lg:text-3xl">
             클라우드는 이제 산업의 선택이 아니라
             <br />
             <span className="text-brand-600">모든 혁신이 놓이는 바닥</span>이 되었습니다.
@@ -71,8 +65,8 @@ export default function Page() {
           </div>
 
           <div className="mt-12 border-t border-line pt-8 text-right">
-            <p className="text-[0.9rem] text-ink-600">한국클라우드컴퓨팅연구조합</p>
-            <p className="mt-2 text-[1.15rem] font-bold text-navy-900">
+            <p className="text-md text-ink-600">한국클라우드컴퓨팅연구조합</p>
+            <p className="mt-2 text-lg font-bold text-navy-900">
               이사장 <span className="ml-2 tracking-[0.2em]">홍 길 동</span>
             </p>
           </div>

@@ -10,7 +10,6 @@ export default function Page() {
       href="/privacy"
       title="개인정보처리방침"
       category="이용안내"
-      eng="Privacy Policy"
       desc="한국클라우드컴퓨팅연구조합은 이용자의 개인정보를 소중히 다룹니다."
     >
       <LegalDoc

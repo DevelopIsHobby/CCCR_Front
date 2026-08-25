@@ -9,20 +9,19 @@ export default function Page() {
   return (
     <PageShell
       href="/about/history"
-      eng="Purpose & History"
       desc="조합이 왜 만들어졌고 어떤 길을 걸어왔는지 소개합니다."
     >
       {/* 설립목적 */}
       <section>
         <SectionHeading
-          eyebrow="Purpose"
+          eyebrow={`목적 ${PURPOSES.length}개 항`}
           title="설립목적"
           desc="한국클라우드컴퓨팅연구조합은 산업기술연구조합 육성법에 따라 설립된 비영리 연구조합입니다. 회원사가 개별적으로 수행하기 어려운 연구개발과 인력양성을 공동으로 추진합니다."
         />
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           {PURPOSES.map((p) => (
-            <InfoCard key={p.no} no={p.no} title={p.title} desc={p.desc} />
+            <InfoCard key={p.title} title={p.title} desc={p.desc} />
           ))}
         </div>
       </section>
@@ -32,7 +31,7 @@ export default function Page() {
         <div className="grid gap-8 lg:grid-cols-[240px_1fr] lg:gap-14">
           <div>
             <p className="label-mono text-flame-600">Legal Basis</p>
-            <p className="mt-3 text-[1.35rem] font-bold text-navy-900">설립근거</p>
+            <p className="mt-3 text-xl font-bold text-navy-900">설립근거</p>
           </div>
           <Prose>
             <p>
@@ -49,12 +48,12 @@ export default function Page() {
 
       {/* 연혁 */}
       <section className="mt-20">
-        <SectionHeading eyebrow="History" title="연혁" />
+        <SectionHeading eyebrow="2015 – 2026" title="연혁" />
 
         <div className="mt-12 space-y-14">
           {HISTORY.map((block) => (
             <div key={block.year} className="grid gap-6 lg:grid-cols-[220px_1fr] lg:gap-14">
-              <p className="label-mono text-[1.5rem] font-bold tabular-nums leading-none text-brand-200">
+              <p className="label-mono text-2xl font-bold tabular-nums leading-none text-brand-200">
                 {block.year}
               </p>
               <ul className="relative border-l-2 border-line pl-8">
@@ -65,7 +64,7 @@ export default function Page() {
                       aria-hidden
                     />
                     <p className="label-mono tabular-nums text-brand-600">{e.date}</p>
-                    <p className="mt-1.5 text-[1rem] font-medium text-ink-900">{e.text}</p>
+                    <p className="mt-1.5 text-md font-medium text-ink-900">{e.text}</p>
                   </li>
                 ))}
               </ul>
