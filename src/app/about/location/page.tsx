@@ -19,10 +19,31 @@ function Badge({ code }: { code: string }) {
   );
 }
 
-/* 지도 API 연동 전까지 쓰는 자리표시자 */
-function MapPlaceholder({ address }: { address: string }) {
+function IconWalk({ className }: { className?: string }) {
   return (
-    <div className="relative grid aspect-[16/6] place-items-center overflow-hidden rounded-2xl border border-line bg-surface">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="13" cy="4.5" r="1.8" />
+      <path d="M11 21l1.5-5.5L10 13l1-5 3.5 2 2.5 1" />
+      <path d="M10 13l-2 3.5M12.5 15.5L15 21" />
+    </svg>
+  );
+}
+
+/* 지도 API 연동 전까지 쓰는 자리표시자. 도보 안내는 지도에서 걸어오는
+   설명이라 별도 박스로 띄우지 않고 지도 아래 캡션으로 붙인다. */
+function MapCard({ address, note }: { address: string; note: string }) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-line">
+      <div className="relative grid aspect-[16/6] place-items-center bg-surface">
       <div
         className="absolute inset-0 opacity-70"
         style={{
@@ -48,7 +69,13 @@ function MapPlaceholder({ address }: { address: string }) {
         </span>
         <p className="mt-3 max-w-md text-md font-bold text-navy-900">{address}</p>
         <p className="label-mono mt-1.5 text-ink-400">지도 API 연동 영역</p>
+        </div>
       </div>
+
+      <p className="flex items-start gap-3 border-t border-line bg-white px-6 py-4">
+        <IconWalk className="mt-0.5 size-5 shrink-0 text-flame-500" />
+        <span className="text-md leading-relaxed text-ink-700">{note}</span>
+      </p>
     </div>
   );
 }
@@ -61,10 +88,10 @@ function OfficeSection({ office, index }: { office: Office; index: number }) {
       </h2>
 
       <div className="mt-8">
-        <MapPlaceholder address={office.address} />
+        <MapCard address={office.address} note={office.note} />
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-12">
+      <div className="mt-10">
         <DefTable
           rows={[
             { label: "주소", value: office.address },
@@ -85,11 +112,6 @@ function OfficeSection({ office, index }: { office: Office; index: number }) {
             },
           ]}
         />
-
-        <div className="h-fit rounded-xl border-l-4 border-flame-500 bg-surface px-6 py-5">
-          <p className="data-line text-flame-600">도보 안내</p>
-          <p className="mt-2.5 text-md leading-relaxed text-ink-700">{office.note}</p>
-        </div>
       </div>
 
       <h3 className="mt-14 text-xl font-bold text-navy-900">교통편</h3>
