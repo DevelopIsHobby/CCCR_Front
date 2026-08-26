@@ -85,7 +85,16 @@ export function StepFlow({ steps }: { steps: { title: string; desc?: string }[] 
 }
 
 /* ── 게시판 검색 ──────────────────────────────────── */
-export function BoardSearch({ total }: { total: number }) {
+export function BoardSearch({
+  total,
+  action,
+  q = "",
+}: {
+  total: number;
+  /** 검색 결과를 받을 경로. 예: /board/notice */
+  action: string;
+  q?: string;
+}) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <p className="text-base text-ink-600">
@@ -93,7 +102,8 @@ export function BoardSearch({ total }: { total: number }) {
       </p>
       <form
         className="flex w-full max-w-md gap-2 sm:w-auto"
-        action="#"
+        action={action}
+        method="get"
         role="search"
         aria-label="게시물 검색"
       >
@@ -104,7 +114,8 @@ export function BoardSearch({ total }: { total: number }) {
           id="board-q"
           name="q"
           type="search"
-          placeholder="제목 또는 기관명 검색"
+          defaultValue={q}
+          placeholder="제목 검색"
           className="min-w-0 flex-1 rounded-md border border-line bg-white px-4 py-2.5 text-base outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500 sm:w-64"
         />
         <button
@@ -119,23 +130,60 @@ export function BoardSearch({ total }: { total: number }) {
   );
 }
 
-/* ── 페이지네이션 (정적 UI) ───────────────────────── */
-export function Pagination({ pages = 5, current = 1 }: { pages?: number; current?: number }) {
+/* ── 페이지네이션 ─────────────────────────────────── */
+export function Pagination({
+  basePath,
+  page,
+  totalPages,
+  q = "",
+  /** 한 번에 보여줄 페이지 번호 개수 */
+  window = 5,
+}: {
+  basePath: string;
+  page: number;
+  totalPages: number;
+  q?: string;
+  window?: number;
+}) {
+  if (totalPages <= 1) return null;
+
+  const href = (p: number) => {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (p > 1) params.set("page", String(p));
+    const query = params.toString();
+    return query ? `${basePath}?${query}` : basePath;
+  };
+
+  /* 현재 페이지가 가운데 오도록 번호 구간을 자른다. */
+  const half = Math.floor(window / 2);
+  const start = Math.max(1, Math.min(page - half, totalPages - window + 1));
+  const end = Math.min(totalPages, start + window - 1);
+  const numbers = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+
+  const arrowClass =
+    "grid size-10 place-items-center rounded-md text-ink-600 ring-1 ring-line transition-colors hover:bg-surface";
+  const disabledClass = "grid size-10 place-items-center rounded-md text-ink-400 ring-1 ring-line";
+
   return (
     <nav className="mt-12 flex justify-center gap-1" aria-label="페이지 목록">
-      <span
-        aria-disabled
-        className="grid size-10 place-items-center rounded-md text-ink-400 ring-1 ring-line"
-      >
-        <IconChevron className="size-4 rotate-180" />
-      </span>
-      {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
+      {page > 1 ? (
+        <Link href={href(page - 1)} aria-label="이전 페이지" className={arrowClass}>
+          <IconChevron className="size-4 rotate-180" />
+        </Link>
+      ) : (
+        <span aria-disabled className={disabledClass}>
+          <IconChevron className="size-4 rotate-180" />
+        </span>
+      )}
+
+      {numbers.map((p) => (
         <Link
           key={p}
-          href="#"
-          aria-current={p === current ? "page" : undefined}
+          href={href(p)}
+          aria-current={p === page ? "page" : undefined}
           className={`label-mono grid size-10 place-items-center rounded-md text-sm tabular-nums transition-colors ${
-            p === current
+            p === page
               ? "bg-navy-900 text-white"
               : "text-ink-600 ring-1 ring-line hover:bg-surface"
           }`}
@@ -143,9 +191,16 @@ export function Pagination({ pages = 5, current = 1 }: { pages?: number; current
           {p}
         </Link>
       ))}
-      <span className="grid size-10 place-items-center rounded-md text-ink-600 ring-1 ring-line">
-        <IconChevron className="size-4" />
-      </span>
+
+      {page < totalPages ? (
+        <Link href={href(page + 1)} aria-label="다음 페이지" className={arrowClass}>
+          <IconChevron className="size-4" />
+        </Link>
+      ) : (
+        <span aria-disabled className={disabledClass}>
+          <IconChevron className="size-4" />
+        </span>
+      )}
     </nav>
   );
 }

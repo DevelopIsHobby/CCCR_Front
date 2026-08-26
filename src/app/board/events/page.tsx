@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageShell from "@/components/sub/PageShell";
-import { BoardSearch, Pagination } from "@/components/sub/Ui";
+import { BoardSearch } from "@/components/sub/Ui";
 import { IconArrow } from "@/components/Icons";
 import { EVENTS } from "@/lib/page-data";
 
@@ -19,7 +19,7 @@ export default function Page() {
       href="/board/events"
       desc="조합과 유관기관이 개최하는 세미나·컨퍼런스·전시 일정을 안내합니다."
     >
-      <BoardSearch total={EVENTS.length} />
+      <BoardSearch total={EVENTS.length} action="/board/events" />
 
       <ul className="mt-8 space-y-4">
         {EVENTS.map((e) => (
@@ -62,7 +62,6 @@ export default function Page() {
         ))}
       </ul>
 
-      <Pagination pages={3} />
     </PageShell>
   );
 }

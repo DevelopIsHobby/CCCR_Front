@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageShell from "@/components/sub/PageShell";
-import { BoardSearch, Pagination } from "@/components/sub/Ui";
+import { BoardSearch } from "@/components/sub/Ui";
 import { INDUSTRY_NEWS } from "@/lib/page-data";
 
 export const metadata: Metadata = { title: "산업뉴스" };
@@ -12,7 +12,7 @@ export default function Page() {
       href="/info/news"
       desc="클라우드컴퓨팅 산업의 정책·시장·기술 소식을 정리해 전합니다."
     >
-      <BoardSearch total={INDUSTRY_NEWS.length} />
+      <BoardSearch total={INDUSTRY_NEWS.length} action="/info/news" />
 
       <ul className="mt-8 grid gap-4 lg:grid-cols-2">
         {INDUSTRY_NEWS.map((n) => (
@@ -39,7 +39,6 @@ export default function Page() {
         ))}
       </ul>
 
-      <Pagination pages={4} />
     </PageShell>
   );
 }

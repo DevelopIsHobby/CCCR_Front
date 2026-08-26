@@ -141,3 +141,20 @@ export const QUICK_ICONS = {
   calendar: IconCalendar,
   mail: IconMail,
 } as const;
+
+export function IconClip({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M18 8.5 10.4 16a2.6 2.6 0 0 1-3.7-3.7l7.9-7.9a4.1 4.1 0 0 1 5.8 5.8l-7.9 7.9a5.6 5.6 0 0 1-7.9-7.9L11 3.9" />
+    </svg>
+  );
+}
+
+export function IconLock({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <rect x="4.5" y="10" width="15" height="10" rx="2" />
+      <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+    </svg>
+  );
+}

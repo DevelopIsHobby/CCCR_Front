@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageShell from "@/components/sub/PageShell";
-import { BoardSearch, Pagination } from "@/components/sub/Ui";
+import { BoardSearch } from "@/components/sub/Ui";
 import { IconArrow } from "@/components/Icons";
 import { TECH_TRENDS } from "@/lib/page-data";
 
@@ -13,7 +13,7 @@ export default function Page() {
       href="/info/trends"
       desc="조합이 정기 발간하는 기술동향 리포트의 주요 내용을 공개합니다."
     >
-      <BoardSearch total={TECH_TRENDS.length} />
+      <BoardSearch total={TECH_TRENDS.length} action="/info/trends" />
 
       <ul className="mt-8 border-t-2 border-navy-900">
         {TECH_TRENDS.map((t) => (
@@ -45,7 +45,6 @@ export default function Page() {
         ))}
       </ul>
 
-      <Pagination pages={5} />
     </PageShell>
   );
 }

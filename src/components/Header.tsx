@@ -5,16 +5,21 @@ import Link from "next/link";
 import Logo from "./Logo";
 import { IconClose, IconMenu, IconSearch, IconChevron } from "./Icons";
 import { NAV } from "@/lib/site-data";
+import { logout } from "@/lib/auth/actions";
+import type { Session } from "@/lib/auth/session";
 
+/* 로그인 여부와 무관하게 항상 보이는 항목 */
 const UTILITY = [
   { label: "교육 홈페이지", href: "/education" },
   { label: "뉴스레터 신청", href: "/info/newsletter" },
-  { label: "로그인", href: "/login" },
-  { label: "회원가입", href: "/signup" },
-  { label: "ENGLISH", href: "/en" },
 ];
 
-export default function Header() {
+const GUEST_LINKS = [
+  { label: "로그인", href: "/login" },
+  { label: "회원가입", href: "/signup" },
+];
+
+export default function Header({ session }: { session: Session | null }) {
   const [megaOpen, setMegaOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -58,6 +63,46 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
+
+          {session ? (
+            <>
+              <span className="flex items-center gap-1.5 text-xs text-ink-600">
+                {session.role === "admin" && (
+                  <span className="rounded bg-flame-100 px-1.5 py-0.5 text-2xs font-bold text-flame-700">
+                    관리자
+                  </span>
+                )}
+                <span>
+                  <b className="font-bold text-navy-900">{session.name}</b>님
+                </span>
+              </span>
+              <form action={logout}>
+                <button
+                  type="submit"
+                  className="text-xs text-ink-600 transition-colors hover:text-brand-600"
+                >
+                  로그아웃
+                </button>
+              </form>
+            </>
+          ) : (
+            GUEST_LINKS.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="text-xs text-ink-600 transition-colors hover:text-brand-600"
+              >
+                {item.label}
+              </Link>
+            ))
+          )}
+
+          <Link
+            href="/en"
+            className="text-xs text-ink-600 transition-colors hover:text-brand-600"
+          >
+            ENGLISH
+          </Link>
         </div>
       </div>
 
@@ -201,16 +246,29 @@ export default function Header() {
           </nav>
 
           <div className="grid grid-cols-2 gap-2 border-t border-line bg-surface p-5">
-            {UTILITY.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setDrawerOpen(false)}
-                className="rounded-md bg-white px-3 py-2.5 text-center text-sm font-medium text-ink-700 ring-1 ring-line"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {[...UTILITY, ...(session ? [] : GUEST_LINKS), { label: "ENGLISH", href: "/en" }].map(
+              (item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setDrawerOpen(false)}
+                  className="rounded-md bg-white px-3 py-2.5 text-center text-sm font-medium text-ink-700 ring-1 ring-line"
+                >
+                  {item.label}
+                </Link>
+              ),
+            )}
+
+            {session && (
+              <form action={logout} className="contents">
+                <button
+                  type="submit"
+                  className="rounded-md bg-white px-3 py-2.5 text-center text-sm font-medium text-ink-700 ring-1 ring-line"
+                >
+                  로그아웃
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

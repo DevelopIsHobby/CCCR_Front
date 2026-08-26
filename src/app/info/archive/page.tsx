@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageShell from "@/components/sub/PageShell";
-import { BoardSearch, Pagination } from "@/components/sub/Ui";
+import { BoardSearch } from "@/components/sub/Ui";
 import { ARCHIVES } from "@/lib/page-data";
 
 export const metadata: Metadata = { title: "자료실" };
@@ -37,7 +37,7 @@ export default function Page() {
       href="/info/archive"
       desc="법령·가이드라인·리포트 등 조합이 수집하고 발간한 자료를 제공합니다."
     >
-      <BoardSearch total={ARCHIVES.length} />
+      <BoardSearch total={ARCHIVES.length} action="/info/archive" />
 
       <ul className="mt-8 border-t-2 border-navy-900">
         {ARCHIVES.map((a) => (
@@ -76,7 +76,6 @@ export default function Page() {
         일부 자료는 회원사 로그인 후 내려받을 수 있습니다.
       </p>
 
-      <Pagination pages={4} />
     </PageShell>
   );
 }
