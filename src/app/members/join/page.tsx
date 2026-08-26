@@ -2,8 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageShell from "@/components/sub/PageShell";
 import { SectionHeading, StepFlow, DefTable } from "@/components/sub/Ui";
-import { IconArrow } from "@/components/Icons";
-import { JOIN_STEPS, JOIN_DOCS, FEE_TABLE, MEMBER_BENEFITS } from "@/lib/page-data";
+import { IconArrow, IconChevron } from "@/components/Icons";
+import {
+  JOIN_SECTIONS,
+  JOIN_TARGET,
+  JOIN_STEPS,
+  JOIN_DOCS,
+  JOIN_DOC_NOTES,
+  JOIN_ACCOUNT,
+  JOIN_CONTACT,
+  FEE_TABLE,
+  MEMBER_BENEFITS,
+} from "@/lib/page-data";
 
 export const metadata: Metadata = { title: "회원사 가입안내" };
 
@@ -11,57 +21,62 @@ export default function Page() {
   return (
     <PageShell
       href="/members/join"
-      desc="클라우드컴퓨팅 분야의 기업·기관이라면 누구나 조합에 참여할 수 있습니다."
+      desc="클라우드컴퓨팅 관련 기업·기관·단체라면 조합에 참여할 수 있습니다."
     >
-      {/* 혜택 */}
-      <section>
-        <SectionHeading eyebrow={`혜택 ${MEMBER_BENEFITS.length}가지`} title="회원사 혜택" />
-        <div className="mt-10 grid gap-4 sm:grid-cols-2">
-          {MEMBER_BENEFITS.map((b) => (
-            <div key={b.title} className="flex gap-5 rounded-xl bg-surface p-7">
-              <span className="mt-2 size-2 shrink-0 rounded-full bg-flame-500" aria-hidden />
-              <div>
-                <p className="text-lg font-bold text-navy-900">{b.title}</p>
-                <p className="mt-2 text-md leading-relaxed text-ink-600">{b.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/*
+        원본은 탭 3개였지만 서브메뉴 탭과 2단으로 겹치므로,
+        한 페이지에 펴고 같은 구분으로 건너뛰는 목차만 둔다.
+      */}
+      <nav aria-label="가입안내 목차" className="flex flex-wrap gap-2">
+        {JOIN_SECTIONS.map((sec) => (
+          <a
+            key={sec.id}
+            href={`#${sec.id}`}
+            className="group inline-flex items-center gap-1.5 rounded-full border border-line px-5 py-2.5 text-base font-semibold text-ink-600 transition-colors hover:border-brand-500 hover:text-brand-600"
+          >
+            {sec.label}
+            <IconChevron className="size-3.5 rotate-90 text-ink-400 transition-colors group-hover:text-brand-500" />
+          </a>
+        ))}
+      </nav>
 
-      {/* 가입 절차 */}
-      <section className="mt-20">
-        <SectionHeading eyebrow={`${JOIN_STEPS.length}단계`} title="가입 절차" />
-        <div className="mt-10">
-          <StepFlow steps={JOIN_STEPS} />
-        </div>
-      </section>
-
-      {/* 회비 */}
-      <section className="mt-20">
+      {/* 가입대상 · 회비 */}
+      <section id={JOIN_SECTIONS[0].id} className="mt-14 scroll-mt-28 lg:scroll-mt-36">
         <SectionHeading
-          eyebrow={`등급 ${FEE_TABLE.length}종`}
-          title="회원 등급 및 회비"
-          desc="회비는 이사회 의결에 따라 변경될 수 있습니다. 정확한 금액은 사무국으로 문의해 주세요."
+          eyebrow="회원가입 대상"
+          title="가입대상 및 회비"
+          desc="가입비와 연회비는 회원 구분에 따라 다르게 책정됩니다."
         />
 
-        <div className="mt-10 overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-left">
+        <div className="mt-10 rounded-xl border border-line bg-surface p-7 lg:p-9">
+          <p className="data-line text-flame-600">{JOIN_TARGET.grade}</p>
+          <p className="mt-3 text-lg leading-relaxed text-navy-900">{JOIN_TARGET.target}</p>
+        </div>
+
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full min-w-[560px] border-collapse text-left">
+            <caption className="sr-only">회원 구분별 가입비 및 연회비</caption>
             <thead>
               <tr className="border-y-2 border-navy-900 bg-surface">
-                <th className="px-5 py-4 text-base font-bold text-navy-900">등급</th>
-                <th className="px-5 py-4 text-base font-bold text-navy-900">가입 대상</th>
-                <th className="px-5 py-4 text-base font-bold text-navy-900">가입비</th>
-                <th className="px-5 py-4 text-base font-bold text-navy-900">연회비</th>
+                <th scope="col" className="px-5 py-4 text-base font-bold text-navy-900">
+                  구분
+                </th>
+                <th scope="col" className="px-5 py-4 text-base font-bold text-navy-900">
+                  가입비
+                </th>
+                <th scope="col" className="px-5 py-4 text-base font-bold text-navy-900">
+                  연회비
+                </th>
               </tr>
             </thead>
             <tbody>
               {FEE_TABLE.map((f) => (
                 <tr key={f.grade} className="border-b border-line">
-                  <td className="px-5 py-5 text-md font-bold text-brand-600">{f.grade}</td>
-                  <td className="px-5 py-5 text-md text-ink-600">{f.target}</td>
-                  <td className="label-mono px-5 py-5 tabular-nums text-ink-900">{f.entry}</td>
-                  <td className="label-mono px-5 py-5 tabular-nums text-ink-900">{f.annual}</td>
+                  <th scope="row" className="px-5 py-5 text-left text-md font-bold text-brand-600">
+                    {f.grade}
+                  </th>
+                  <td className="px-5 py-5 text-md text-ink-900">{f.entry}</td>
+                  <td className="px-5 py-5 text-md text-ink-900">{f.annual}</td>
                 </tr>
               ))}
             </tbody>
@@ -69,58 +84,102 @@ export default function Page() {
         </div>
       </section>
 
-      {/* 구비서류 */}
-      <section className="mt-20 grid gap-10 lg:grid-cols-2 lg:gap-14">
+      {/* 가입 특전 */}
+      <section id={JOIN_SECTIONS[1].id} className="mt-20 scroll-mt-28 lg:scroll-mt-36">
+        <SectionHeading eyebrow={`특전 ${MEMBER_BENEFITS.length}가지`} title="회원가입 특전" />
+
+        <ul className="mt-10 grid gap-3 sm:grid-cols-2">
+          {MEMBER_BENEFITS.map((b) => (
+            <li key={b} className="flex gap-4 rounded-xl bg-surface px-6 py-5">
+              <span className="mt-2.5 size-2 shrink-0 rounded-full bg-flame-500" aria-hidden />
+              <p className="text-md leading-relaxed text-ink-900">{b}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* 가입절차 */}
+      <section id={JOIN_SECTIONS[2].id} className="mt-20 scroll-mt-28 lg:scroll-mt-36">
+        <SectionHeading
+          eyebrow={`일반회원 ${JOIN_STEPS.length}단계`}
+          title="가입절차"
+          desc="관련서류를 제출하고 회비를 입금하면 조합 승인 후 회원번호가 부여됩니다."
+        />
+        <div className="mt-10">
+          <StepFlow steps={JOIN_STEPS} />
+        </div>
+      </section>
+
+      {/* 제출서류 · 입금계좌 */}
+      <section className="mt-20 grid gap-12 lg:grid-cols-2 lg:gap-14">
         <div>
-          <SectionHeading eyebrow={`서류 ${JOIN_DOCS.length}종`} title="구비서류" />
+          <SectionHeading eyebrow={`서류 ${JOIN_DOCS.length}종`} title="가입 시 제출서류" />
+
           <ul className="mt-10 space-y-3">
             {JOIN_DOCS.map((doc) => (
               <li
                 key={doc}
-                className="flex items-start gap-3 border-b border-line pb-3 text-md text-ink-600"
+                className="flex items-start gap-3 border-b border-line pb-3 text-md leading-relaxed text-ink-600"
               >
-                <span className="mt-1.5 grid size-4 shrink-0 place-items-center rounded-full bg-brand-100">
+                <span className="mt-2 grid size-4 shrink-0 place-items-center rounded-full bg-brand-100">
                   <span className="size-1.5 rounded-full bg-brand-600" />
                 </span>
                 {doc}
               </li>
             ))}
           </ul>
+
+          <ul className="mt-6 space-y-2">
+            {JOIN_DOC_NOTES.map((note) => (
+              <li key={note} className="flex gap-2 text-base leading-relaxed text-ink-400">
+                <span aria-hidden>※</span>
+                {note}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div>
-          <SectionHeading eyebrow="사무국 기획팀" title="신청 및 문의" />
+          <SectionHeading eyebrow="가입비 및 연회비" title="입금계좌 및 문의처" />
+
           <div className="mt-10">
             <DefTable
               rows={[
-                { label: "접수처", value: "한국클라우드컴퓨팅연구조합 사무국 기획팀" },
-                { label: "제출방법", value: "이메일 접수 또는 방문 접수" },
+                { label: "입금계좌", value: JOIN_ACCOUNT.bank },
+                { label: "예금주", value: JOIN_ACCOUNT.holder },
+                { label: "담당", value: JOIN_CONTACT.team },
+                { label: "주소", value: JOIN_CONTACT.address },
                 {
-                  label: "문의",
+                  label: "연락처",
                   value: (
                     <>
-                      02-2052-0155 /{" "}
-                      <a href="mailto:mhshin@cccr.or.kr" className="text-brand-600 hover:underline">
-                        mhshin@cccr.or.kr
-                      </a>
+                      TEL. {JOIN_CONTACT.tel}
+                      <span className="mx-2 text-line">|</span>
+                      FAX. {JOIN_CONTACT.fax}
                     </>
+                  ),
+                },
+                {
+                  label: "이메일",
+                  value: (
+                    <a
+                      href={`mailto:${JOIN_CONTACT.email}`}
+                      className="text-brand-600 hover:underline"
+                    >
+                      {JOIN_CONTACT.email}
+                    </a>
                   ),
                 },
               ]}
             />
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/info/archive"
-                className="group inline-flex items-center gap-2 rounded-full bg-brand-600 px-6 py-3.5 text-md font-bold text-white transition-colors hover:bg-navy-900"
-              >
-                가입신청서 내려받기
-                <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
-              </Link>
+
+            <div className="mt-8">
               <Link
                 href="/about/location"
-                className="inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-md font-bold text-navy-900 ring-1 ring-line transition-colors hover:bg-surface"
+                className="group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-md font-bold text-navy-900 ring-1 ring-line transition-colors hover:bg-surface"
               >
                 찾아오시는 길
+                <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </div>

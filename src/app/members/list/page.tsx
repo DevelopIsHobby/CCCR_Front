@@ -1,17 +1,10 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/sub/PageShell";
 import { SectionHeading, ContactBanner } from "@/components/sub/Ui";
-import { MEMBERS, MEMBER_STATS } from "@/lib/page-data";
+import MemberDirectory from "@/components/sub/MemberDirectory";
+import { MEMBER_STATS, MEMBER_TOTAL } from "@/lib/page-data";
 
 export const metadata: Metadata = { title: "회원사 현황" };
-
-const FIELD_TONE: Record<string, string> = {
-  인프라: "bg-brand-50 text-brand-700",
-  플랫폼: "bg-flame-100 text-flame-700",
-  서비스: "bg-navy-900/8 text-navy-800",
-  "AI·반도체": "bg-brand-100 text-brand-700",
-  컨설팅: "bg-surface text-ink-600",
-};
 
 export default function Page() {
   return (
@@ -34,41 +27,17 @@ export default function Page() {
         ))}
       </div>
 
-      {/* 회원사 목록 */}
+      {/* 회원사 명단 */}
       <section className="mt-16">
         <SectionHeading
-          eyebrow={`정회원 ${MEMBER_STATS[0].value} · 특별회원 ${MEMBER_STATS[1].value}`}
+          eyebrow={`전체 ${MEMBER_TOTAL}개사`}
           title="참여 회원사"
-          desc="가나다순으로 표시되며, 회원사 요청에 따라 일부 기업은 표기하지 않습니다."
+          desc="회사명을 누르면 해당 기업 홈페이지로 이동합니다."
         />
 
-        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {MEMBERS.map((m) => (
-            <div
-              key={m.name}
-              className="group flex flex-col justify-between gap-5 rounded-xl border border-line bg-white p-6 transition-all hover:-translate-y-1 hover:border-brand-500 hover:shadow-[0_14px_28px_-16px_rgba(6,42,85,0.35)]"
-            >
-              {/* 회원사 로고 이미지 확보 시 교체 */}
-              <div className="grid h-14 place-items-center rounded-md bg-surface">
-                <span className="label-mono text-ink-400">로고</span>
-              </div>
-              <div>
-                <p className="text-md font-bold text-navy-900">{m.name}</p>
-                <span
-                  className={`mt-2 inline-flex rounded px-2 py-0.5 text-2xs font-bold ${
-                    FIELD_TONE[m.field]
-                  }`}
-                >
-                  {m.field}
-                </span>
-              </div>
-            </div>
-          ))}
+        <div className="mt-10">
+          <MemberDirectory />
         </div>
-
-        <p className="mt-8 rounded-lg bg-surface px-5 py-4 text-base text-ink-600">
-          위 목록은 화면 구성을 위한 예시입니다. 실제 회원사 명단과 로고로 교체가 필요합니다.
-        </p>
       </section>
 
       <ContactBanner

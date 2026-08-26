@@ -1131,134 +1131,322 @@ export const BADGE_COLOR: Record<string, string> = {
 
 /* ── 회원사 ───────────────────────────────────────── */
 
-export type Member = {
-  name: string;
-  field: "인프라" | "플랫폼" | "서비스" | "AI·반도체" | "컨설팅";
+export type Member = { name: string; site: string };
+
+export type MemberGroup = {
+  grade: string;
+  desc: string;
+  members: Member[];
 };
 
-export const MEMBERS: Member[] = [
-  { name: "가나테크놀로지", field: "인프라" },
-  { name: "다라클라우드", field: "플랫폼" },
-  { name: "마바시스템즈", field: "서비스" },
-  { name: "사아반도체", field: "AI·반도체" },
-  { name: "자차컨설팅", field: "컨설팅" },
-  { name: "카타데이터센터", field: "인프라" },
-  { name: "파하소프트", field: "플랫폼" },
-  { name: "누리에스에이", field: "서비스" },
-  { name: "한별세미콘", field: "AI·반도체" },
-  { name: "온새미로랩", field: "플랫폼" },
-  { name: "미리내네트웍스", field: "인프라" },
-  { name: "아라솔루션", field: "서비스" },
-  { name: "라온시스템", field: "컨설팅" },
-  { name: "도담클라우드", field: "플랫폼" },
-  { name: "여울테크", field: "AI·반도체" },
-  { name: "슬기로운데이터", field: "서비스" },
+/* 조합 제공 명단 기준. site는 프로토콜 없이 표기한다. */
+export const MEMBER_GROUPS: MemberGroup[] = [
+  {
+    grade: "이사장사",
+    desc: "조합 이사장을 맡고 있는 회원사입니다.",
+    members: [{ name: "SK텔레콤(주)", site: "www.sktelecom.com" }],
+  },
+  {
+    grade: "임원사",
+    desc: "이사회를 구성해 조합 운영과 사업 방향을 결정합니다.",
+    members: [
+      { name: "(주)노브레이크", site: "www.nobreak.co.kr" },
+      { name: "(주)디노아이티", site: "www.dinnoit.com" },
+      { name: "디포커스(주)", site: "www.dfocus.net" },
+      { name: "메가존클라우드(주)", site: "www.megazone.com" },
+      { name: "(주)모비젠", site: "www.mobigen.com" },
+      { name: "(주)소프트웍스", site: "www.softworks.co.kr" },
+      { name: "슈어소프트테크(주)", site: "www.suresofttech.com" },
+      { name: "(주)어니언소프트웨어", site: "www.onionsoftware.com" },
+      { name: "(주)엔텔스", site: "www.ntels.com" },
+      { name: "(주)위즈온텍", site: "www.wizontech.com" },
+      { name: "스트라토(주)", site: "www.strato.co.kr" },
+      { name: "제스프로(주)", site: "www.zespro.co.kr" },
+      { name: "(주)투라인클라우드", site: "www.twolinecloud.com" },
+      { name: "(주)틸론", site: "www.tilon.co.kr" },
+      { name: "SK(주)", site: "cc.sk.co.kr" },
+    ],
+  },
+  {
+    grade: "일반회원사",
+    desc: "조합 사업과 공동 연구개발에 참여하는 회원사입니다.",
+    members: [
+      { name: "가이저소프트", site: "www.geysersoft.com" },
+      { name: "(주)글루시스", site: "www.gluesys.com" },
+      { name: "(주)내프터", site: "www.i-nafter.com" },
+      { name: "(주)다음커뮤니케이션", site: "www.daum.net" },
+      { name: "(주)더존비즈온", site: "www.duzon.co.kr" },
+      { name: "(주)덕산정보통신", site: "www.ducsan.co.kr" },
+      { name: "(주)디씨온", site: "www.dc-on.co.kr" },
+      { name: "(주)리눅스데이타시스템", site: "www.linuxdata.co.kr" },
+      { name: "(주)모바일리더", site: "www.mobileleader.com" },
+      { name: "(주)메트릭스리서치", site: "www.metrix.co.kr" },
+      { name: "(주)메트릭스코퍼레이션", site: "www.metrix.co.kr" },
+      { name: "(주)바이텍씨스템", site: "www.bitek.co.kr" },
+      { name: "(주)발해", site: "www.ubalhae.com" },
+      { name: "(주)스마트코어", site: "www.smcore.co.kr" },
+      { name: "(주)에즈웰", site: "www.azwell.co.kr" },
+      { name: "(주)와치텍", site: "www.watchtek.co.kr" },
+      { name: "유씨웨어", site: "www.ucware.jp" },
+      { name: "(주)유큐브", site: "www.u-cube.kr" },
+      { name: "(주)유플렉스소프트", site: "www.uplexsoft.com" },
+      { name: "(주)엔에프랩", site: "www.nflabs.com" },
+      { name: "(주)엔키아", site: "www.nkia.co.kr" },
+      { name: "(주)엠씨에스텍", site: "www.mcst.co.kr" },
+      { name: "(주)엠앤엘솔루션", site: "www.mnlsolution.com" },
+      { name: "(주)이노룰스", site: "www.innorules.com" },
+      { name: "(주)이엑스프로모션", site: "www.expromotion.co.kr" },
+      { name: "(주)커머스플래닛", site: "www.commerceplanet.co.kr" },
+      { name: "(주)코리아데이타네트워크", site: "www.kdn21.co.kr" },
+      { name: "(주)코아넷", site: "www.corenetkorea.com" },
+      { name: "코포워드", site: "www.coforward.com" },
+      { name: "(주)클라우다이크", site: "www.cloudike.co.kr" },
+      { name: "(주)클루닉스", site: "www.clunix.com" },
+      { name: "(주)케이티", site: "www.kt.com" },
+      { name: "(주)티맥스클라우드", site: "www.tmaxanc.com" },
+      { name: "(주)퓨전데이타", site: "www.fusionsys.net" },
+      { name: "(주)한위드정보기술", site: "www.hanwith.com" },
+      { name: "(주)휴버텍", site: "www.huevertech.com" },
+      { name: "메가존(주)", site: "www.mz.co.kr" },
+      { name: "멘토미디어", site: "www.mentormedia.co.kr" },
+      { name: "중앙ICS", site: "www.caics.co.kr" },
+      { name: "비비엠씨(주)", site: "www.bbmc.co.kr" },
+      { name: "세인특허법률사무소", site: "www.wpip.co.kr" },
+      { name: "오케스트로(주)", site: "www.okestro.com" },
+      { name: "청담정보기술(주)", site: "www.cdit.co.kr" },
+      { name: "케이웨어(주)", site: "www.kware.co.kr" },
+      { name: "티원소프트(주)", site: "www.tonesoft.co.kr" },
+      { name: "플랙토리(주)", site: "www.flectory.kr" },
+      { name: "한전케이디엔(주)", site: "www.kdn.com" },
+    ],
+  },
+  {
+    grade: "준회원사",
+    desc: "조합 주도 과제에 참여하는 기업·기관은 별도 가입절차와 가입비 없이 준회원으로 자동 가입됩니다.",
+    members: [
+      { name: "(주)다보링크", site: "www.davolink.co.kr" },
+      { name: "(주)데이터스트림즈", site: "www.datastreams.co.kr" },
+      { name: "(주)델타시스템", site: "www.deltago.co.kr" },
+      { name: "(주)디코스인터랙티브", site: "www.dcosi.co.kr" },
+      { name: "(주)마하넷", site: "www.maha-net.co.kr" },
+      { name: "(주)메이티", site: "www.matey.co.kr" },
+      { name: "(주)민인포", site: "www.mininfo.co.kr" },
+      { name: "(주)바오솔루션스", site: "www.baosolutions.co.kr" },
+      { name: "(주)솔박스", site: "www.solbox.com" },
+      { name: "(주)씨씨미디어", site: "www.ccmedia.co.kr" },
+      { name: "(주)아이네트호스팅", site: "www.inet.co.kr" },
+      { name: "(주)아이넷테크", site: "www.inettch.com" },
+      { name: "(주)아이티코리아", site: "www.it-korea.ne.kr" },
+      { name: "(주)아침정보기술", site: "www.morningit.com" },
+      { name: "(주)에니스", site: "enis1.modoo.at" },
+      { name: "(주)에즈웰", site: "www.azwellsys.com" },
+      { name: "(주)에트피아텍", site: "www.atpia.co.kr" },
+      { name: "(주)위더스텍", site: "www.withustech.com" },
+      { name: "(주)윈드소울", site: "www.windsoul.com" },
+      { name: "(주)인에이지", site: "www.enage.com" },
+      { name: "(주)인젠트", site: "www.inzent.com" },
+      { name: "(주)지트론정보통신", site: "www.gtron.co.kr" },
+      { name: "(주)지티솔루션", site: "www.gtsolution.co.kr" },
+      { name: "(주)컴스", site: "www.coms.co.kr" },
+      { name: "(주)케이쓰리아이", site: "www.k3i.co.kr" },
+      { name: "(주)케이엠넷", site: "www.km-net.co.kr" },
+      { name: "(주)케이티엔에프", site: "www.ktnf.co.kr" },
+      { name: "(주)크레블", site: "www.creble.com" },
+      { name: "(주)테크바일", site: "www.techbile.com" },
+      { name: "(주)트라이얼정보통신", site: "www.trialinfo.com" },
+      { name: "(주)팍스디스크", site: "www.paxdisk.com" },
+      { name: "AIS테크놀러지(주)", site: "www.aisnw.com" },
+      { name: "대신정보기술(주)", site: "www.daeshin-it.com" },
+      { name: "모비루스", site: "www.mobilus.co.kr" },
+      { name: "서울디지텍고등학교", site: "www.sdh.hs.kr" },
+      { name: "소나무미디어(주)", site: "www.sonamumedia.com" },
+      { name: "신세계INC", site: "www.sinc.co.kr" },
+      { name: "아이티뱅크", site: "www.itb21.co.kr" },
+      { name: "엔아이티(주)", site: "www.n-it.co.kr" },
+      { name: "와이즈미디어(주)", site: "www.wisemedia.co.kr" },
+      { name: "케이엘정보통신(주)", site: "www.klic.co.kr" },
+      { name: "한국 IBM", site: "www.ibm.com/kr" },
+      { name: "한국Oracle", site: "www.oracle.com/kr" },
+      { name: "한국VMware", site: "www.vmware.com/kr" },
+      { name: "한국컴퓨터(주)", site: "www.korea-computer.co.kr" },
+      { name: "한국휴렛팩커드유한회사", site: "www.hp.com" },
+    ],
+  },
 ];
 
+const memberCount = (grade: string) =>
+  MEMBER_GROUPS.find((g) => g.grade === grade)?.members.length ?? 0;
+
+export const MEMBER_TOTAL = MEMBER_GROUPS.reduce((n, g) => n + g.members.length, 0);
+
+/* 숫자는 명단에서 세므로 명단만 고치면 통계도 따라온다. */
 export const MEMBER_STATS = [
-  { label: "정회원사", value: "128", unit: "개사" },
-  { label: "특별회원", value: "24", unit: "개사" },
-  { label: "설립", value: "2009", unit: "년" },
+  { label: "전체 회원사", value: String(MEMBER_TOTAL), unit: "개사" },
+  { label: "임원사", value: String(memberCount("임원사")), unit: "개사" },
+  { label: "일반회원사", value: String(memberCount("일반회원사")), unit: "개사" },
+  { label: "준회원사", value: String(memberCount("준회원사")), unit: "개사" },
+];
+
+/* ── 회원사 가입안내 ──────────────────────────────── */
+
+/* 원본 가입안내의 등급별 회비. 연회비·가입비 두 표를 한 표로 합쳤다. */
+export const FEE_TABLE = [
+  { grade: "임원사(이사회 선임)", entry: "200만원 이상", annual: "300만원 이상" },
+  {
+    grade: "일반회원사",
+    entry: "대기업 : 100만원 / 중소기업 : 50만원",
+    annual: "대기업 : 100만원 / 중소기업 : 50만원",
+  },
+  { grade: "대학 및 연구소", entry: "0원", annual: "0원" },
+];
+
+/* 원본 가입안내의 탭 3개. 한 페이지에 펴고 목차 링크로 쓴다. */
+export const JOIN_SECTIONS = [
+  { id: "join-target", label: "회원가입 대상" },
+  { id: "join-benefits", label: "회원가입 특전" },
+  { id: "join-guide", label: "일반회원 가입안내" },
+];
+
+export const JOIN_TARGET = {
+  grade: "정회원",
+  target: "클라우드 컴퓨팅 관련 기업, 기관, 단체 등",
+};
+
+export const MEMBER_BENEFITS = [
+  "과제 참여안내 및 컨소시엄 구성 지원",
+  "기업경영 애로사항 및 건의사항 수렴",
+  "조합 관련 국내외 행사에 우선 참여 및 지원",
+  "각종 조합 주도 모임 초청",
+  "각종 조사 자료 (국내외 자료 및 통계자료) 및 간행물 무료 배포",
+  "임원사는 임원선임 및 총회 의결권 보유함",
+  "준회원사는 위의 특전과 상이할 수 있음",
 ];
 
 export const JOIN_STEPS = [
-  { title: "가입 상담", desc: "사무국에 유선 또는 이메일로 가입 요건과 회비를 문의합니다." },
-  { title: "신청서 제출", desc: "가입신청서와 구비서류를 사무국으로 제출합니다." },
-  { title: "이사회 승인", desc: "이사회 심의를 거쳐 회원 가입 여부를 결정합니다." },
-  { title: "회비 납부·등록", desc: "가입비와 연회비 납부 후 회원사로 정식 등록됩니다." },
+  { title: "관련서류 제출" },
+  { title: "가입비 및 연회비 입금" },
+  { title: "조합 승인" },
+  { title: "회원번호 부여" },
 ];
 
 export const JOIN_DOCS = [
-  "회원 가입신청서 1부 (조합 서식)",
-  "사업자등록증 사본 1부",
+  "가입신청서 (소정양식)",
   "법인등기부등본 1부",
-  "회사 소개서 1부",
-  "직전 사업연도 재무제표 1부",
+  "사업자등록증사본 1부",
+  "대표자 이력서 1부 (대표자 사진필요, 증명사진 없을 시 사진 인쇄도 가능)",
+  "회사소개 브로슈어 1부",
 ];
 
-export const FEE_TABLE = [
-  { grade: "정회원", target: "클라우드 관련 사업을 영위하는 법인", entry: "000,000원", annual: "0,000,000원" },
-  { grade: "준회원", target: "설립 3년 이내 중소·벤처기업", entry: "000,000원", annual: "000,000원" },
-  { grade: "특별회원", target: "대학·연구기관·비영리법인", entry: "면제", annual: "000,000원" },
+export const JOIN_DOC_NOTES = [
+  "우편 송부 또는 직접 방문 제출",
+  "임원사 희망기관은 연구조합 담당자에게 개별 문의 바람",
 ];
 
-export const MEMBER_BENEFITS = [
-  { title: "공동 연구개발 참여", desc: "국가 R&D 과제 기획 단계부터 참여하고 컨소시엄 구성에 우선 고려됩니다." },
-  { title: "교육과정 우대", desc: "조합이 운영하는 전 교육과정을 회원사 할인가로 수강할 수 있습니다." },
-  { title: "기술·정책 정보", desc: "기술동향 리포트와 정책 자료를 회원사 전용으로 제공합니다." },
-  { title: "네트워킹", desc: "분과위원회와 정기 세미나를 통해 산·학·연 협력 기회를 얻습니다." },
-];
+export const JOIN_ACCOUNT = {
+  bank: "우리은행 1005-901-454240",
+  holder: "한국클라우드컴퓨팅연구조합",
+};
+
+/* 주소는 사무국 이전 후 주소(찾아오시는 길·푸터와 동일)를 쓴다. */
+export const JOIN_CONTACT = {
+  team: "한국클라우드컴퓨팅연구조합 조합회원 입회 담당자",
+  address: "서울특별시 강남구 삼성로86길 11, 거봉INC빌딩 5층",
+  tel: "02-2052-0156",
+  fax: "02-2052-0158",
+  email: "admin@cccr.or.kr",
+};
 
 /* ── 사업안내 ─────────────────────────────────────── */
 
-export const NEED_STATS = [
-  { value: "4차", label: "산업혁명의 기반 인프라", desc: "AI·빅데이터·IoT 모두 클라우드 위에서 동작합니다." },
-  { value: "SaaS", label: "공공부문 전환 확대", desc: "행정·공공 서비스의 클라우드 네이티브 전환이 진행 중입니다." },
-  { value: "AI", label: "연산 자원 수요 급증", desc: "AI 학습·추론을 위한 GPU·NPU 인프라 확보가 과제입니다." },
+export type NeedItem = { text: string; sub?: string[] };
+
+export const NEEDS: { title: string; items: NeedItem[] }[] = [
+  {
+    title: "IT 신산업 및 컴퓨팅 환경에서의 컴퓨팅 수요의 급증",
+    items: [
+      {
+        text: "의료, 항공, 환경 등의 산업 분야와 IT융합 환경에서 대규모 유비쿼터스 데이터의 실시간 컴퓨팅을 위한 대용량의 컴퓨팅 수요가 증가함. 이를 충족하기 위해서는 기존의 컴퓨팅 환경보다 더욱 동적이고, 편리하고, 영리한 고성능 컴퓨팅 기술이 요구됨",
+      },
+      {
+        text: "웹2.0의 성공과 함께 앞으로 많은 애플리케이션이 웹 기반으로 서비스될 전망이며, 이러한 웹 기반 애플리케이션의 증가는 엄청난 양의 컴퓨팅 수요를 수반함. 이에 따라 웹3.0의 진화에 기반이 되는 클라우드 컴퓨팅 기술이 요구됨",
+      },
+      {
+        text: "시간과 장소에 제약을 받지 않는 컴퓨팅 서비스에 대한 기업들의 요구가 증가함에 따라 차세대 컴퓨팅 패러다임은 웹 서비스 기반의 고성능, 대용량, 중앙집중형 컴퓨팅 클라우드로 발전하고 있으며, 국내에서도 선진국과의 기술 격차를 줄이고 신기술 개발을 통한 컴퓨팅 인프라 고도화 및 신산업 창출을 위해 정부 주도의 지원이 필요함",
+      },
+      {
+        text: "특히 IPTV 관련 산업의 발전과 웹 환경에서의 미디어 컨텐츠의 폭발적인 증가에 따라 무수히 많은 미디어의 관리와 서비스 수요의 충족을 위해 클라우드 컴퓨팅 기술을 이용한 차세대 컴퓨팅 플랫폼 기술이 요구됨",
+      },
+    ],
+  },
+  {
+    title: "그리드 기술을 활용한 클라우드 컴퓨팅 고도화 기술 확보",
+    items: [
+      {
+        text: "클라우드 컴퓨팅(Cloud Computing)은 Amazon, Google, IBM 등에 의하여 도입되어 웹 기반 애플리케이션의 플랫폼으로서 서비스 되고 있으나 아직 안정성이나 가용성에 있어서 약점을 가지고 있어서 차세대 데이터 센터등의 중심 기술이 되기에는 부족함",
+      },
+      {
+        text: "그리드 기술은 과학기술 응용 분야에 있어서 페타 스케일의 고성능 컴퓨팅 능력을 제공하는 안정적인 컴퓨팅 인프라 구축 기술로서, 현재의 클라우드 컴퓨팅에 접목할 경우 가용성과 안정성이 보장되면서 기업 애플리케이션에 적합한 고성능 클라우드 컴퓨팅 환경을 구축할 수 있음",
+      },
+    ],
+  },
+  {
+    title: "클라우드 컴퓨팅 센터를 통한 대학 및 벤쳐/중소기업 경쟁력 강화",
+    items: [
+      {
+        text: "글로벌 IT 기업들은 독자적인 클라우드 컴퓨팅 센터를 구축하여 대학과 기업들에 공개함으로써 미래 컴퓨팅 기술 확보와 테스팅에서 선도적인 위치를 선점하려고 시도함",
+        sub: [
+          "IBM 클라우드 컴퓨팅 센터 (영국, 중국, 인도, 아프리카, 일본, 미국, 독일)",
+          "HP/Intel/Yahoo! 오픈 클라우드 컴퓨팅 테스트베드",
+          "Google/IBM 대학 클라우드 컴퓨팅 테스트베드",
+          "Yahoo! 대학 R&D 분산 컴퓨팅 클러스터",
+        ],
+      },
+      {
+        text: "IT 융합시대에 점점 대용량/대규모화 되어가는 데이터와 서비스를 수용하기 위해서 분산 컴퓨팅 기술이 핵심 기술로 떠오르고 있는 현실에서, 대학에 클라우드 컴퓨팅 테스트베드를 제공함으로써 학생들에게 최신 컴퓨팅 환경을 경험하게 하여 글로벌 경쟁력을 가지도록 할 필요가 있음",
+      },
+      {
+        text: "빠른 Time-to-Market이 요구되는 비즈니스 환경에서, 벤쳐 및 중소기업이 IT 융합 서비스 프로토타입을 신속히 개발하고 시험해 볼 수 있게 하기 위해 클라우드 컴퓨팅 테스트베드를 제공할 필요가 있음",
+      },
+      {
+        text: "웹 2.0의 등장과 함께 쏟아져 나오고 있는 Mashup 서비스 시장에서 국내 IT 산업의 영향력이 매우 미미한 상황인데 이를 극복하기 위해 IT 전문인력들이 쉽게 서비스를 개발하고 테스트할 수 있는 클라우드 컴퓨팅 테스트베드를 제공하여 새로운 벤쳐 기업이 활성화될 수 있는 분위기 조성이 필요함",
+      },
+    ],
+  },
 ];
 
-export const NEED_POINTS = [
+export const PROGRAMS: { title: string; items: string[] }[] = [
   {
-    tag: "기술 난이도",
-    title: "개별 기업이 감당하기 어려운 기술 난이도",
-    desc: "데이터센터 설계, 대규모 오케스트레이션, AI 가속기 최적화는 단일 기업의 연구개발 역량만으로는 대응이 어렵습니다. 공동 연구를 통한 위험 분산이 필요합니다.",
-  },
-  {
-    tag: "중복 투자",
-    title: "표준 부재로 인한 중복 투자",
-    desc: "상호운용성 기준이 정립되지 않으면 회원사마다 유사한 기술을 반복 개발하게 됩니다. 산업 차원의 표준화 논의가 중복 투자를 줄입니다.",
-  },
-  {
-    tag: "인력 수급",
-    title: "현장 인력 수급 불균형",
-    desc: "클라우드·AI 인프라 실무 인력의 수요는 빠르게 늘고 있으나 공급이 따르지 못합니다. 산업 수요에 맞춘 교육과정 운영이 필요합니다.",
-  },
-  {
-    tag: "제도 개선",
-    title: "제도 개선 창구의 필요",
-    desc: "클라우드컴퓨팅법 등 관련 제도에 산업 현장의 목소리를 전달할 통로가 필요합니다. 연구조합이 그 창구 역할을 맡습니다.",
-  },
-];
-
-export const PROGRAMS = [
-  {
-    title: "공동 연구개발 사업",
-    summary: "회원사가 함께 참여하는 클라우드 핵심기술 과제를 기획하고 수행합니다.",
+    title: "국책연구 개발사업 기획 및 수행",
     items: [
-      "국가 연구개발사업 과제 기획 및 컨소시엄 구성",
-      "클라우드 인프라·플랫폼 요소기술 공동 개발",
-      "국산 AI반도체 기반 클라우드 실증",
-      "연구 결과물의 회원사 이전 및 사업화 지원",
+      "클라우드 컴퓨팅 관련 요소 기술 분석 및 정의",
+      "클라우드 컴퓨팅 기술 수요조사 및 제안",
+      "국책연구개발사업 기획 및 수행",
     ],
   },
   {
-    title: "전문기술 교육사업",
-    summary: "산업 현장이 요구하는 실무 역량을 갖춘 인력을 양성합니다.",
+    title: "산학연 공동 기술개발 사업추진",
     items: [
-      "클라우드컴퓨팅 전문기술 연간교육 과정 운영",
-      "AIDC 인프라 설계·운영·최적화 실무 교육",
-      "GPU 프로그래밍 모델 및 최적화 교육",
-      "기업연계형 AI 서비스·클라우드 실무 과정",
+      "국책연구개발사업 참여를 위한 기술개발 수요조사 실시",
+      "대학 · 연구소를 위한 연구개발 이슈 도출",
+      "기술별 분과위원회 활성화",
     ],
   },
   {
-    title: "정책 연구 및 건의",
-    summary: "제도 개선 과제를 발굴해 정부와 유관기관에 전달합니다.",
+    title: "전문 인력양성 관련 대학교육 활성화",
     items: [
-      "클라우드컴퓨팅법 및 하위법령 개정 의견 제출",
-      "공공부문 클라우드 도입 제도 연구",
-      "산업 실태조사 및 통계 자료 생산",
-      "정부 위원회·협의체 참여",
+      "클라우드 컴퓨팅 전문가 양성계획 수립",
+      "대학의 클라우드 컴퓨팅 수업 개설 지원",
+      "클라우드 컴퓨팅 기술개발 인력 Pool DB 구축 추진",
+      "전문 인력 수급 대안 마련과 대 정부 건의",
     ],
   },
   {
-    title: "정보 제공 및 교류",
-    summary: "기술·시장 정보를 정리해 회원사의 의사결정을 돕습니다.",
+    title: "클라우드 컴퓨팅 기술 보급 및 산업 활성화",
     items: [
-      "클라우드 기술동향 리포트 정기 발간",
-      "산업뉴스 및 정책 공고 큐레이션",
-      "분과위원회 및 정기 세미나 운영",
-      "국내외 전시·컨퍼런스 참가 지원",
+      "클라우드 컴퓨팅 기반 서비스 개발 방법론 수립 및 교육",
+      "클라우드 컴퓨팅 관련 컨퍼런스 및 워크샵, 단기강좌 개설",
+      "관련 국제행사 유치 및 해외 전문기관들과의 교류",
+      "클라우드 컴퓨팅 테스트베드 운영 및 커뮤니티 활성화",
     ],
   },
 ];

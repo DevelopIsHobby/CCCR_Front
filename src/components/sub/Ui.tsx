@@ -64,7 +64,7 @@ export function DefTable({ rows }: { rows: { label: string; value: React.ReactNo
 }
 
 /* ── 진행 단계 ────────────────────────────────────── */
-export function StepFlow({ steps }: { steps: { title: string; desc: string }[] }) {
+export function StepFlow({ steps }: { steps: { title: string; desc?: string }[] }) {
   return (
     <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {steps.map((s, i) => (
@@ -74,7 +74,7 @@ export function StepFlow({ steps }: { steps: { title: string; desc: string }[] }
         >
           <span className="data-line text-flame-600">{i + 1}단계</span>
           <p className="mt-3 text-lg font-bold text-navy-900">{s.title}</p>
-          <p className="mt-2 text-base leading-relaxed text-ink-600">{s.desc}</p>
+          {s.desc && <p className="mt-2 text-base leading-relaxed text-ink-600">{s.desc}</p>}
           {i < steps.length - 1 && (
             <IconChevron className="absolute -right-3 top-1/2 hidden size-5 -translate-y-1/2 text-brand-200 lg:block" />
           )}
