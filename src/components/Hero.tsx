@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { SLIDES, QUICK_LINKS } from "@/lib/site-data";
+import { QUICK_LINKS } from "@/lib/site-data";
+import SmartLink from "./SmartLink";
+import type { HomeCard } from "@/lib/db/home-cards";
 import { QUICK_ICONS, IconArrow, IconChevron, IconPause, IconPlay } from "./Icons";
 
 const INTERVAL = 6000;
@@ -71,26 +73,39 @@ function NetworkArt() {
   );
 }
 
-export default function Hero() {
+export default function Hero({ slides }: { slides: HomeCard[] }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const go = useCallback((next: number) => {
-    setIndex((next + SLIDES.length) % SLIDES.length);
-  }, []);
+  const count = slides.length;
+
+  const go = useCallback(
+    (next: number) => {
+      if (count === 0) return;
+      setIndex((next + count) % count);
+    },
+    [count],
+  );
 
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || count < 2) return;
     timer.current = setInterval(() => {
-      setIndex((i) => (i + 1) % SLIDES.length);
+      setIndex((i) => (i + 1) % count);
     }, INTERVAL);
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
-  }, [playing]);
+  }, [playing, count]);
 
-  const slide = SLIDES[index];
+  /*
+    관리자가 슬라이드를 지워 개수가 줄면 index 가 범위를 벗어날 수 있다.
+    상태를 고치는 대신 볼 때마다 접어서 쓴다.
+  */
+  const current = count > 0 ? index % count : 0;
+
+  /* 관리자가 슬라이드를 모두 지웠을 수도 있다 */
+  const slide = slides[current] ?? null;
 
   return (
     <section className="relative overflow-hidden bg-navy-900">
@@ -112,20 +127,20 @@ export default function Hero() {
           />
 
           <div className="relative flex flex-1 flex-col justify-center px-8 py-12 lg:px-12">
-            {SLIDES.map((s, i) => (
+            {slides.map((s, i) => (
               <div
-                key={s.title}
+                key={s.id}
                 className={`transition-all duration-500 ${
-                  i === index
+                  i === current
                     ? "translate-y-0 opacity-100"
                     : "pointer-events-none absolute translate-y-3 opacity-0"
                 }`}
-                aria-hidden={i !== index}
+                aria-hidden={i !== current}
               >
                 <p className="flex items-center gap-2.5">
-                  <span className="data-line text-flame-500">{s.eyebrow}</span>
+                  <span className="data-line text-flame-500">{s.label}</span>
                   <span className="h-3 w-px bg-white/20" aria-hidden />
-                  <span className="label-mono text-brand-100/60">{s.date}</span>
+                  <span className="label-mono text-brand-100/60">{s.dateText}</span>
                 </p>
                 <h1 className="mt-4 whitespace-pre-line text-2xl font-bold leading-[1.28] text-white sm:text-4xl lg:text-4xl">
                   {s.title}
@@ -133,13 +148,15 @@ export default function Hero() {
                 <p className="mt-5 max-w-xl text-md leading-relaxed text-brand-100/80 lg:text-lg">
                   {s.body}
                 </p>
-                <Link
-                  href="/about/greeting"
-                  className="mt-8 inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-3 text-base font-semibold text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-flame-500 hover:ring-flame-500"
-                >
-                  자세히 보기
-                  <IconArrow className="size-4" />
-                </Link>
+                {s.href && (
+                  <SmartLink
+                    href={s.href}
+                    className="mt-8 inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-3 text-base font-semibold text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-flame-500 hover:ring-flame-500"
+                  >
+                    자세히 보기
+                    <IconArrow className="size-4" />
+                  </SmartLink>
+                )}
               </div>
             ))}
           </div>
@@ -148,18 +165,18 @@ export default function Hero() {
           <div className="relative border-t border-white/10 bg-navy-950/70 px-6 py-4 backdrop-blur">
             <div className="flex items-center gap-4">
               <p className="min-w-0 flex-1 truncate text-base text-brand-100/90">
-                {slide.caption}
+                {slide?.caption}
               </p>
               <div className="flex shrink-0 items-center gap-3">
                 <span className="label-mono tabular-nums text-white/70">
-                  {String(index + 1).padStart(2, "0")}
+                  {String(current + 1).padStart(2, "0")}
                   <span className="mx-1 text-white/30">/</span>
-                  {String(SLIDES.length).padStart(2, "0")}
+                  {String(slides.length).padStart(2, "0")}
                 </span>
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
-                    onClick={() => go(index - 1)}
+                    onClick={() => go(current - 1)}
                     aria-label="이전 슬라이드"
                     className="grid size-8 place-items-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white"
                   >
@@ -175,7 +192,7 @@ export default function Hero() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => go(index + 1)}
+                    onClick={() => go(current + 1)}
                     aria-label="다음 슬라이드"
                     className="grid size-8 place-items-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white"
                   >
@@ -185,15 +202,15 @@ export default function Hero() {
               </div>
             </div>
             <div className="mt-3 flex gap-1.5">
-              {SLIDES.map((s, i) => (
+              {slides.map((s, i) => (
                 <button
-                  key={s.title}
+                  key={s.id}
                   type="button"
                   onClick={() => go(i)}
                   aria-label={`${i + 1}번 슬라이드로 이동`}
-                  aria-current={i === index}
+                  aria-current={i === current}
                   className={`h-[3px] flex-1 rounded-full transition-colors ${
-                    i === index ? "bg-flame-500" : "bg-white/20 hover:bg-white/40"
+                    i === current ? "bg-flame-500" : "bg-white/20 hover:bg-white/40"
                   }`}
                 />
               ))}
@@ -214,7 +231,7 @@ export default function Hero() {
             {QUICK_LINKS.map((link) => {
               const Icon = QUICK_ICONS[link.icon];
               return (
-                <Link
+                <SmartLink
                   key={link.label}
                   href={link.href}
                   className="group flex flex-col justify-between gap-3 bg-white p-4 transition-colors hover:bg-brand-50"
@@ -226,7 +243,7 @@ export default function Hero() {
                     </span>
                     <span className="mt-0.5 block text-xs text-ink-400">{link.desc}</span>
                   </span>
-                </Link>
+                </SmartLink>
               );
             })}
           </div>

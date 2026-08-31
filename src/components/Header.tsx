@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import SmartLink from "./SmartLink";
 import Logo from "./Logo";
 import { IconClose, IconMenu, IconSearch, IconChevron } from "./Icons";
-import { NAV } from "@/lib/site-data";
+import { EDUCATION_URL, NAV } from "@/lib/site-data";
 import { logout } from "@/lib/auth/actions";
 import type { Session } from "@/lib/auth/session";
 
 /* 로그인 여부와 무관하게 항상 보이는 항목 */
 const UTILITY = [
-  { label: "교육 홈페이지", href: "/education" },
+  { label: "교육 홈페이지", href: EDUCATION_URL },
   { label: "뉴스레터 신청", href: "/info/newsletter" },
 ];
 
@@ -55,17 +56,25 @@ export default function Header({ session }: { session: Session | null }) {
       <div className="hidden border-b border-line bg-surface lg:block">
         <div className="mx-auto flex h-9 max-w-[1280px] items-center justify-end gap-5 px-6">
           {UTILITY.map((item) => (
-            <Link
+            <SmartLink
               key={item.label}
               href={item.href}
               className="text-xs text-ink-600 transition-colors hover:text-brand-600"
             >
               {item.label}
-            </Link>
+            </SmartLink>
           ))}
 
           {session ? (
             <>
+              {session.role === "admin" && (
+                <Link
+                  href="/admin"
+                  className="text-xs font-bold text-brand-600 transition-colors hover:text-flame-500"
+                >
+                  메인 화면 관리
+                </Link>
+              )}
               <span className="flex items-center gap-1.5 text-xs text-ink-600">
                 {session.role === "admin" && (
                   <span className="rounded bg-flame-100 px-1.5 py-0.5 text-2xs font-bold text-flame-700">
@@ -248,14 +257,14 @@ export default function Header({ session }: { session: Session | null }) {
           <div className="grid grid-cols-2 gap-2 border-t border-line bg-surface p-5">
             {[...UTILITY, ...(session ? [] : GUEST_LINKS), { label: "ENGLISH", href: "/en" }].map(
               (item) => (
-                <Link
+                <SmartLink
                   key={item.label}
                   href={item.href}
                   onClick={() => setDrawerOpen(false)}
                   className="rounded-md bg-white px-3 py-2.5 text-center text-sm font-medium text-ink-700 ring-1 ring-line"
                 >
                   {item.label}
-                </Link>
+                </SmartLink>
               ),
             )}
 
