@@ -7,7 +7,7 @@ export default function NewsletterBand() {
   return (
     <div className="relative overflow-hidden bg-navy-950">
 
-      <div className="relative mx-auto flex max-w-[1280px] flex-col gap-7 px-6 py-12 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
+      <div className="relative mx-auto flex max-w-[1280px] flex-col gap-6 px-6 py-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
         <div>
           <p className="data-line text-flame-500">뉴스레터 · 월 1회</p>
           <p className="mt-3 text-xl font-bold leading-snug text-white lg:text-2xl">

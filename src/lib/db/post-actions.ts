@@ -6,18 +6,50 @@ import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin, getSession } from "@/lib/auth/session";
 import { saveUpload, deleteUpload } from "@/lib/uploads";
+import { isEmptyHtml, sanitizePostBody } from "@/lib/html";
+import { boardPath as pathOf, getBoard } from "@/lib/boards";
 
 export type PostFormState = { error?: string };
 
-const BOARD_PATH: Record<string, string> = {
-  notice: "/board/notice",
-  events: "/board/events",
-};
-
 function boardPath(board: string) {
-  const path = BOARD_PATH[board];
-  if (!path) throw new Error(`알 수 없는 게시판: ${board}`);
-  return path;
+  if (!getBoard(board)) throw new Error(`알 수 없는 게시판: ${board}`);
+  return pathOf(board);
+}
+
+/*
+  게시글에 함께 보여줄 링크.
+  주소 형식이 아니면 저장하지 않는다. javascript: 같은 주소를 막기 위해서다.
+*/
+function linkFields(formData: FormData) {
+  const url = String(formData.get("linkUrl") ?? "").trim();
+  const label = String(formData.get("linkLabel") ?? "").trim();
+
+  if (!url) return [null, null] as const;
+  if (!/^https?:\/\//i.test(url)) return [null, null] as const;
+
+  return [url, label || null] as const;
+}
+
+/*
+  행사 관련 입력. 행사정보 게시판이 아니면 전부 null 로 저장한다.
+  빈 문자열은 "값 없음"이므로 null 로 눕힌다.
+*/
+function eventFields(board: string, formData: FormData) {
+  const empty = [null, null, null, null, null] as const;
+  if (!getBoard(board)?.hasEventFields) return empty;
+
+  const value = (key: string) => {
+    const raw = String(formData.get(key) ?? "").trim();
+    return raw === "" ? null : raw;
+  };
+
+  return [
+    value("eventHost"),
+    value("eventPlace"),
+    value("eventStartsOn"),
+    value("eventEndsOn"),
+    value("eventApplyBy"),
+  ] as const;
 }
 
 /** 목록·상세 어디서 글이 바뀌든 관련 경로를 함께 새로 고친다. */
@@ -35,17 +67,28 @@ export async function createPost(
 
   const board = String(formData.get("board") ?? "");
   const title = String(formData.get("title") ?? "").trim();
-  const body = String(formData.get("body") ?? "").trim();
+  /* 편집기가 보낸 HTML 은 허용 태그만 남긴다 */
+  const raw = String(formData.get("body") ?? "").trim();
+  const body = isEmptyHtml(raw) ? "" : sanitizePostBody(raw);
 
   if (!title) return { error: "제목을 입력해 주세요." };
   if (title.length > 200) return { error: "제목은 200자 이내로 입력해 주세요." };
+
+  const rawLink = String(formData.get("linkUrl") ?? "").trim();
+  if (rawLink && !/^https?:\/\//i.test(rawLink)) {
+    return { error: "링크는 http:// 또는 https:// 로 시작해야 합니다." };
+  }
+
   boardPath(board); // 알 수 없는 게시판이면 여기서 걸린다
 
   const db = await ready();
   const stamp = now();
   const inserted = await db.get<{ id: number }>(
-    `INSERT INTO posts (board, title, body, author_id, author_name, is_pinned, is_locked, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+    `INSERT INTO posts (board, title, body, author_id, author_name, is_pinned, is_locked,
+                        created_at, updated_at,
+                        event_host, event_place, event_starts_on, event_ends_on, event_apply_by,
+                        link_url, link_label)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
     [
       board,
       title,
@@ -56,6 +99,8 @@ export async function createPost(
       formData.get("isLocked") ? 1 : 0,
       stamp,
       stamp,
+      ...eventFields(board, formData),
+      ...linkFields(formData),
     ],
   );
 
@@ -80,16 +125,25 @@ export async function updatePost(
   const id = Number(formData.get("id"));
   const board = String(formData.get("board") ?? "");
   const title = String(formData.get("title") ?? "").trim();
-  const body = String(formData.get("body") ?? "").trim();
+  const raw = String(formData.get("body") ?? "").trim();
+  const body = isEmptyHtml(raw) ? "" : sanitizePostBody(raw);
 
   if (!id) return { error: "글을 찾을 수 없습니다." };
   if (!title) return { error: "제목을 입력해 주세요." };
+
+  const rawLink = String(formData.get("linkUrl") ?? "").trim();
+  if (rawLink && !/^https?:\/\//i.test(rawLink)) {
+    return { error: "링크는 http:// 또는 https:// 로 시작해야 합니다." };
+  }
+
   boardPath(board);
 
   const db = await ready();
   await db.run(
     `UPDATE posts
-        SET title = ?, body = ?, is_pinned = ?, is_locked = ?, updated_at = ?
+        SET title = ?, body = ?, is_pinned = ?, is_locked = ?, updated_at = ?,
+            event_host = ?, event_place = ?, event_starts_on = ?, event_ends_on = ?,
+            event_apply_by = ?, link_url = ?, link_label = ?
       WHERE id = ? AND board = ?`,
     [
       title,
@@ -97,6 +151,8 @@ export async function updatePost(
       formData.get("isPinned") ? 1 : 0,
       formData.get("isLocked") ? 1 : 0,
       now(),
+      ...eventFields(board, formData),
+      ...linkFields(formData),
       id,
       board,
     ],
@@ -138,9 +194,11 @@ export async function deletePost(formData: FormData): Promise<void> {
     "SELECT stored_name FROM attachments WHERE post_id = ?",
     [id],
   );
+  const post = await db.get<{ body: string }>("SELECT body FROM posts WHERE id = ?", [id]);
 
   await db.run("DELETE FROM posts WHERE id = ? AND board = ?", [id, board]);
   for (const f of files) await deleteUpload(f.stored_name);
+  if (post) await deleteOrphanImages(post.body);
 
   refreshBoard(board, id);
   redirect(boardPath(board));
@@ -156,6 +214,33 @@ export async function recordView(id: number): Promise<void> {
 /** 잠금글 본문을 볼 수 있는지 확인한다. */
 export async function canReadLocked(): Promise<boolean> {
   return (await getSession()) !== null;
+}
+
+/*
+  본문에 넣었던 이미지 정리.
+  글을 지워도 이미지 파일은 남으므로, 다른 글이 쓰고 있지 않은 것만 함께 지운다.
+*/
+async function deleteOrphanImages(body: string): Promise<void> {
+  const ids = [...body.matchAll(/\/api\/images\/(\d+)/g)].map((m) => Number(m[1]));
+  if (ids.length === 0) return;
+
+  const db = await ready();
+  for (const imageId of new Set(ids)) {
+    const stillUsed = await db.get<{ n: number }>(
+      "SELECT COUNT(*) AS n FROM posts WHERE body LIKE ?",
+      [`%/api/images/${imageId}%`],
+    );
+    if (Number(stillUsed?.n ?? 0) > 0) continue;
+
+    const image = await db.get<{ stored_name: string }>(
+      "SELECT stored_name FROM images WHERE id = ?",
+      [imageId],
+    );
+    if (!image) continue;
+
+    await db.run("DELETE FROM images WHERE id = ?", [imageId]);
+    await deleteUpload(image.stored_name);
+  }
 }
 
 async function attachFiles(postId: number, files: FormDataEntryValue[]) {

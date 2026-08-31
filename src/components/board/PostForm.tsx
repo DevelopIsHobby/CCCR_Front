@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { createPost, updatePost, type PostFormState } from "@/lib/db/post-actions";
 import { formatBytes } from "@/lib/format";
-import type { Attachment } from "@/lib/db/posts";
+import RichTextEditor from "./RichTextEditor";
+import type { Attachment, EventInfo, PostLink } from "@/lib/db/posts";
 
 type Props = {
   board: string;
   listPath: string;
+  /** 행사정보처럼 주최·장소·일시를 함께 받는 게시판인가 */
+  hasEventFields?: boolean;
   post?: {
     id: number;
     title: string;
@@ -16,13 +19,15 @@ type Props = {
     isPinned: boolean;
     isLocked: boolean;
     attachments: Attachment[];
+    event?: EventInfo;
+    link?: PostLink | null;
   };
 };
 
 const fieldClass =
   "w-full rounded-md border border-line px-4 py-3.5 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
 
-export default function PostForm({ board, listPath, post }: Props) {
+export default function PostForm({ board, listPath, hasEventFields = false, post }: Props) {
   const isEdit = Boolean(post);
   const [state, action, pending] = useActionState<PostFormState, FormData>(
     isEdit ? updatePost : createPost,
@@ -52,18 +57,126 @@ export default function PostForm({ board, listPath, post }: Props) {
         </div>
 
         <div>
-          <label htmlFor="post-body" className="mb-2 block text-base font-bold text-navy-900">
-            내용
-          </label>
-          <textarea
-            id="post-body"
-            name="body"
-            rows={16}
-            defaultValue={post?.body}
-            placeholder="내용을 입력하세요"
-            className={`${fieldClass} resize-y leading-[1.85]`}
-          />
+          <span className="mb-2 block text-base font-bold text-navy-900">내용</span>
+          <RichTextEditor name="body" defaultValue={post?.body ?? ""} />
         </div>
+
+        {/* 본문 안 하이퍼링크와 별개로, 글에 함께 걸어 두는 링크 한 줄 */}
+        <div>
+          <label htmlFor="post-link" className="mb-2 block text-base font-bold text-navy-900">
+            링크
+          </label>
+          <div className="grid gap-3 sm:grid-cols-[1fr_240px]">
+            <input
+              id="post-link"
+              name="linkUrl"
+              type="url"
+              inputMode="url"
+              defaultValue={post?.link?.url ?? ""}
+              placeholder="https://example.com/article"
+              className={fieldClass}
+            />
+            <input
+              name="linkLabel"
+              type="text"
+              maxLength={40}
+              defaultValue={post?.link?.label ?? ""}
+              placeholder="표시할 이름 (선택)"
+              className={fieldClass}
+            />
+          </div>
+          <p className="mt-2 text-sm text-ink-400">
+            입력하면 글 위에 바로가기 단추로 보입니다. 표시할 이름을 비우면 주소가 그대로 나옵니다.
+          </p>
+        </div>
+
+        {hasEventFields && (
+          <fieldset className="rounded-xl bg-surface px-6 py-6">
+            <legend className="px-1 text-base font-bold text-navy-900">행사 정보</legend>
+            <p className="mt-1 text-sm text-ink-400">
+              비워 두어도 됩니다. 접수중·예정·종료 표시는 아래 날짜에서 자동으로 계산합니다.
+            </p>
+
+            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              <div>
+                <label htmlFor="event-host" className="mb-2 block text-base font-bold text-navy-900">
+                  주최
+                </label>
+                <input
+                  id="event-host"
+                  name="eventHost"
+                  type="text"
+                  defaultValue={post?.event?.host ?? ""}
+                  placeholder="예: 정보통신산업진흥원"
+                  className={fieldClass}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="event-place" className="mb-2 block text-base font-bold text-navy-900">
+                  장소
+                </label>
+                <input
+                  id="event-place"
+                  name="eventPlace"
+                  type="text"
+                  defaultValue={post?.event?.place ?? ""}
+                  placeholder="예: 코엑스 3층"
+                  className={fieldClass}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="event-starts"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
+                  행사 시작일
+                </label>
+                <input
+                  id="event-starts"
+                  name="eventStartsOn"
+                  type="date"
+                  defaultValue={post?.event?.startsOn ?? ""}
+                  className={fieldClass}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="event-ends" className="mb-2 block text-base font-bold text-navy-900">
+                  행사 종료일
+                </label>
+                <input
+                  id="event-ends"
+                  name="eventEndsOn"
+                  type="date"
+                  defaultValue={post?.event?.endsOn ?? ""}
+                  className={fieldClass}
+                />
+                <p className="mt-2 text-sm text-ink-400">여러 날 진행할 때만 채웁니다.</p>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="event-apply"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
+                  신청 마감일
+                </label>
+                <input
+                  id="event-apply"
+                  name="eventApplyBy"
+                  type="date"
+                  defaultValue={post?.event?.applyBy ?? ""}
+                  className={fieldClass}
+                />
+                <p className="mt-2 text-sm text-ink-400">
+                  이 날짜까지는 목록에 접수중으로 표시됩니다.
+                </p>
+              </div>
+            </div>
+          </fieldset>
+        )}
 
         <div>
           <label htmlFor="post-files" className="mb-2 block text-base font-bold text-navy-900">

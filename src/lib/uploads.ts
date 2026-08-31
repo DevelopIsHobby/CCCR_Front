@@ -1,7 +1,6 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { mkdir, unlink, writeFile } from "node:fs/promises";
-import { createReadStream } from "node:fs";
 import { extname, join, resolve } from "node:path";
 
 /*
@@ -49,10 +48,6 @@ export async function deleteUpload(storedName: string): Promise<void> {
   } catch {
     /* 파일이 이미 없으면 넘어간다. */
   }
-}
-
-export function openUpload(storedName: string) {
-  return createReadStream(join(UPLOAD_DIR, safeStoredName(storedName)));
 }
 
 /** 경로 조작(../)을 막는다. stored_name 은 UUID + 확장자 형태만 허용한다. */

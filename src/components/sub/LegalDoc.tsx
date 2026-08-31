@@ -1,8 +1,17 @@
-type Article = {
-  title: string;
-  paragraphs: string[];
-  list?: string[];
-};
+import type { LegalArticle } from "@/lib/legal-data";
+
+/* 기존 약관 페이지가 쓰는 형태와 원문 블록 형태를 함께 받는다. */
+type Article =
+  | { title: string; paragraphs: string[]; list?: string[] }
+  | LegalArticle;
+
+const toBlocks = (a: Article) =>
+  "blocks" in a
+    ? a.blocks
+    : [
+        ...a.paragraphs.map((text) => ({ text })),
+        ...(a.list ? [{ items: a.list }] : []),
+      ];
 
 export function LegalDoc({ articles, notice }: { articles: Article[]; notice?: string }) {
   return (
@@ -21,26 +30,27 @@ export function LegalDoc({ articles, notice }: { articles: Article[]; notice?: s
             </h2>
 
             <div className="mt-5 space-y-4">
-              {a.paragraphs.map((p, i) => (
-                <p key={i} className="text-md leading-[1.85] text-ink-600">
-                  {p}
-                </p>
-              ))}
+              {toBlocks(a).map((block, i) =>
+                "text" in block ? (
+                  <p key={i} className="text-md leading-[1.85] text-ink-600">
+                    {block.text}
+                  </p>
+                ) : (
+                  <ul key={i} className="space-y-2.5 rounded-lg bg-surface px-6 py-5">
+                    {block.items.map((item) => (
+                      <li key={item} className="flex gap-3 text-md leading-relaxed text-ink-600">
+                        <span
+                          className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-500"
+                          aria-hidden
+                        />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                ),
+              )}
             </div>
 
-            {a.list && (
-              <ul className="mt-5 space-y-2.5 rounded-lg bg-surface px-6 py-5">
-                {a.list.map((item) => (
-                  <li
-                    key={item}
-                    className="flex gap-3 text-md leading-relaxed text-ink-600"
-                  >
-                    <span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-500" aria-hidden />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            )}
           </section>
         ))}
       </div>

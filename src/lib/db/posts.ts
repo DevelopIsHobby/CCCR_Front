@@ -13,6 +13,24 @@ export type PostRow = {
   views: number;
   createdAt: string;
   attachmentCount: number;
+  /** 본문과 별개로 게시글에 걸어 두는 링크. 없으면 null. */
+  link: PostLink | null;
+  /** 행사정보 게시판에서만 채운다. 나머지 게시판은 전부 null 이다. */
+  event: EventInfo;
+};
+
+export type PostLink = {
+  url: string;
+  /** 화면에 보여줄 이름. 비우면 주소를 그대로 보여준다. */
+  label: string | null;
+};
+
+export type EventInfo = {
+  host: string | null;
+  place: string | null;
+  startsOn: string | null;
+  endsOn: string | null;
+  applyBy: string | null;
 };
 
 export type PostDetail = PostRow & {
@@ -41,6 +59,13 @@ type RawRow = {
   views: number;
   created_at: string;
   attachment_count: number;
+  event_host: string | null;
+  event_place: string | null;
+  event_starts_on: string | null;
+  event_ends_on: string | null;
+  event_apply_by: string | null;
+  link_url: string | null;
+  link_label: string | null;
 };
 
 function toPost(r: RawRow): PostRow {
@@ -55,6 +80,14 @@ function toPost(r: RawRow): PostRow {
     views: Number(r.views),
     createdAt: r.created_at,
     attachmentCount: Number(r.attachment_count),
+    link: r.link_url ? { url: r.link_url, label: r.link_label ?? null } : null,
+    event: {
+      host: r.event_host ?? null,
+      place: r.event_place ?? null,
+      startsOn: r.event_starts_on ?? null,
+      endsOn: r.event_ends_on ?? null,
+      applyBy: r.event_apply_by ?? null,
+    },
   };
 }
 
@@ -155,4 +188,26 @@ export async function getNeighbors(board: string, id: number) {
     [board, id],
   );
   return { prev, next };
+}
+
+/*
+  메인 새소식용. 게시판별로 최신 몇 건씩 가져와 하나로 합친다.
+  전체 목록에서 상위 N 건만 뽑으면 글이 뜸한 게시판이 탭에서 통째로 비어
+  보이므로, 게시판마다 같은 수만큼 가져온다.
+*/
+export async function listRecentByBoard(boards: string[], perBoard = 6): Promise<PostRow[]> {
+  const db = await ready();
+  const collected: RawRow[] = [];
+
+  for (const board of boards) {
+    const rows = await db.all<RawRow>(
+      `SELECT * FROM (${NUMBERED}) numbered WHERE board = ? ORDER BY id DESC LIMIT ?`,
+      [board, perBoard],
+    );
+    collected.push(...rows);
+  }
+
+  return collected
+    .map(toPost)
+    .sort((a, b) => (a.createdAt === b.createdAt ? b.id - a.id : a.createdAt < b.createdAt ? 1 : -1));
 }
