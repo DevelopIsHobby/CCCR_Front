@@ -109,11 +109,15 @@ export async function saveOffice(
     value("fax"),
     value("note"),
     String(formData.get("transit") ?? "").trim(),
+    /* 좌표는 숫자만 받는다. 잘못 적으면 지도 대신 자리표시자가 나온다. */
+    /^-?\d+(\.\d+)?$/.test(value("mapLat")) ? value("mapLat") : "",
+    /^-?\d+(\.\d+)?$/.test(value("mapLng")) ? value("mapLng") : "",
   ];
 
   if (id) {
     await db.run(
-      `UPDATE offices SET name = ?, address = ?, tel = ?, fax = ?, note = ?, transit = ?, updated_at = ?
+      `UPDATE offices SET name = ?, address = ?, tel = ?, fax = ?, note = ?, transit = ?,
+              map_lat = ?, map_lng = ?, updated_at = ?
         WHERE id = ?`,
       [...fields, stamp, id],
     );
@@ -122,8 +126,9 @@ export async function saveOffice(
       "SELECT MAX(sort_order) AS max_order FROM offices",
     );
     await db.run(
-      `INSERT INTO offices (name, address, tel, fax, note, transit, sort_order, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO offices (name, address, tel, fax, note, transit, map_lat, map_lng,
+                            sort_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [...fields, Number(last?.max_order ?? 0) + 1, stamp, stamp],
     );
   }

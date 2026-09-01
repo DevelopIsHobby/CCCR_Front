@@ -49,6 +49,31 @@ async function diskFiles(): Promise<Map<string, number>> {
   return sizes;
 }
 
+type RawImageUse = {
+  used: number;
+  post_id: number | null;
+  title: string | null;
+  board: string | null;
+  company: string | null;
+  page_key: string | null;
+};
+
+/** 이미지가 어디에 걸려 있는지 한 곳만 골라 알려 준다. */
+function imageUsedIn(
+  i: RawImageUse,
+  basePath: Record<string, string>,
+): { title: string; href: string } | null {
+  if (Number(i.used) > 0 && i.post_id) {
+    return {
+      title: i.title ?? "(제목 없음)",
+      href: `${basePath[i.board ?? ""] ?? "/board"}/${i.post_id}`,
+    };
+  }
+  if (i.company) return { title: `회원사 로고 · ${i.company}`, href: "/admin/companies" };
+  if (i.page_key) return { title: "소개 페이지", href: "/admin/pages" };
+  return null;
+}
+
 export async function getFileReport(): Promise<FileReport> {
   const db = await ready();
   const sizes = await diskFiles();
@@ -80,12 +105,16 @@ export async function getFileReport(): Promise<FileReport> {
     post_id: number | null;
     title: string | null;
     board: string | null;
+    company: string | null;
+    page_key: string | null;
   }>(
     `SELECT i.id, i.filename, i.stored_name, i.byte_size, i.created_at,
             (SELECT COUNT(*) FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%') AS used,
             (SELECT p.id FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%' LIMIT 1) AS post_id,
             (SELECT p.title FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%' LIMIT 1) AS title,
-            (SELECT p.board FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%' LIMIT 1) AS board
+            (SELECT p.board FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%' LIMIT 1) AS board,
+            (SELECT c.name FROM companies c WHERE c.logo_url = '/api/images/' || i.id LIMIT 1) AS company,
+            (SELECT t.key FROM page_texts t WHERE t.value = '/api/images/' || i.id LIMIT 1) AS page_key
        FROM images i
       ORDER BY i.id DESC`,
   );
@@ -108,10 +137,8 @@ export async function getFileReport(): Promise<FileReport> {
       storedName: i.stored_name,
       byteSize: Number(i.byte_size),
       createdAt: i.created_at,
-      usedIn:
-        Number(i.used) > 0 && i.post_id
-          ? { title: i.title ?? "(제목 없음)", href: `${basePath[i.board ?? ""] ?? "/board"}/${i.post_id}` }
-          : null,
+      /* 글 본문 말고 회원사 로고·소개 페이지 사진으로도 쓰인다 */
+      usedIn: imageUsedIn(i, basePath),
       onDisk: sizes.has(i.stored_name),
     })),
   ];

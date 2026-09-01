@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
-import { JOIN_CONTACT_FIELDS, SITE_FIELDS } from "@/lib/site-settings-types";
+import { JOIN_CONTACT_FIELDS, MAP_FIELDS, SITE_FIELDS } from "@/lib/site-settings-types";
 
 export type SiteSettingsState = { error?: string; ok?: string };
 
@@ -14,7 +14,7 @@ export async function saveSiteSettings(
 ): Promise<SiteSettingsState> {
   await requireAdmin();
 
-  const values = [...SITE_FIELDS, ...JOIN_CONTACT_FIELDS].map((field) => ({
+  const values = [...SITE_FIELDS, ...JOIN_CONTACT_FIELDS, ...MAP_FIELDS].map((field) => ({
     key: field.key,
     value: String(formData.get(field.key) ?? "").trim(),
   }));

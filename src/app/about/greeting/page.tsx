@@ -29,9 +29,19 @@ export default async function Page() {
         {/* 좌: 이사장 */}
         <div>
           <div className="overflow-hidden rounded-2xl border border-line bg-surface">
-            {/* 이사장 사진으로 교체 */}
+            {/* 사진은 관리자 화면에서 올린다. 없으면 자리만 비워 둔다. */}
             <div className="grid aspect-[4/5] place-items-center bg-white">
-              <span className="label-mono text-ink-400">이사장 사진</span>
+              {texts["greeting.photo"] ? (
+                /* 크기를 미리 알 수 없는 사진이라 next/image 대신 img 를 쓴다 */
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={texts["greeting.photo"]}
+                  alt={`${site.chairman} 이사장`}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <span className="label-mono text-ink-400">이사장 사진</span>
+              )}
             </div>
             <div className="border-t border-line px-6 py-5">
               <p className="text-sm text-ink-600">한국클라우드컴퓨팅연구조합</p>

@@ -5,7 +5,12 @@ import {
   saveSiteSettings,
   type SiteSettingsState,
 } from "@/lib/db/site-settings-actions";
-import { JOIN_CONTACT_FIELDS, SITE_FIELDS, type SiteSettings } from "@/lib/site-settings-types";
+import {
+  JOIN_CONTACT_FIELDS,
+  MAP_FIELDS,
+  SITE_FIELDS,
+  type SiteSettings,
+} from "@/lib/site-settings-types";
 
 const input =
   "w-full rounded-md border border-line px-4 py-3 text-md outline-none transition-colors focus:border-brand-500";
@@ -47,6 +52,26 @@ export default function SiteSettingsForm({ settings }: { settings: SiteSettings 
               placeholder={field.placeholder}
               className={input}
             />
+          </label>
+        ))}
+      </div>
+
+      <p className="border-t border-line pt-5 text-md font-bold text-navy-900">
+        찾아오시는 길 · 지도
+      </p>
+      <div className="grid gap-5 sm:grid-cols-2">
+        {MAP_FIELDS.map((field) => (
+          <label key={field.key} className={`block ${field.wide ? "sm:col-span-2" : ""}`}>
+            <span className="mb-1.5 block text-base font-bold text-navy-900">{field.label}</span>
+            <input
+              name={field.key}
+              defaultValue={settings[field.key]}
+              placeholder={field.placeholder}
+              className={input}
+            />
+            {field.help && (
+              <span className="mt-1.5 block text-sm leading-relaxed text-ink-400">{field.help}</span>
+            )}
           </label>
         ))}
       </div>

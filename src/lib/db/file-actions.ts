@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
 import { requireAdmin } from "@/lib/auth/session";
 import { deleteUpload, safeStoredName, UPLOAD_DIR } from "@/lib/uploads";
+import { imageUsedSql, isImageUsed } from "@/lib/db/image-usage";
 
 export type FileActionState = { error?: string; ok?: string };
 
@@ -41,11 +42,7 @@ export async function deleteImageFile(formData: FormData): Promise<void> {
   if (!id) return;
 
   const db = await ready();
-  const used = await db.get<{ n: number }>(
-    "SELECT COUNT(*) AS n FROM posts WHERE body LIKE ?",
-    [`%/api/images/${id}%`],
-  );
-  if (Number(used?.n ?? 0) > 0) return;
+  if (await isImageUsed(db, id)) return;
 
   const row = await db.get<{ stored_name: string }>(
     "SELECT stored_name FROM images WHERE id = ?",
@@ -67,8 +64,7 @@ export async function deleteUnusedImages(
 
   const db = await ready();
   const rows = await db.all<{ id: number; stored_name: string }>(
-    `SELECT id, stored_name FROM images i
-      WHERE NOT EXISTS (SELECT 1 FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%')`,
+    `SELECT id, stored_name FROM images i WHERE NOT ${imageUsedSql("i.id")}`,
   );
 
   for (const row of rows) {

@@ -29,6 +29,10 @@ export async function saveCompany(
     .trim()
     .replace(/^https?:\/\//i, "");
 
+  /* 로고는 우리가 저장한 주소만 받는다 */
+  const rawLogo = String(formData.get("logoUrl") ?? "").trim();
+  const logoUrl = /^\/api\/images\/\d+$/.test(rawLogo) ? rawLogo : "";
+
   if (!GRADES.includes(grade)) return { error: "등급을 다시 선택해 주세요." };
   if (!name) return { error: "회사명을 입력해 주세요." };
   if (site && /[\s<>]/.test(site)) return { error: "홈페이지 주소를 다시 확인해 주세요." };
@@ -38,8 +42,8 @@ export async function saveCompany(
 
   if (id) {
     await db.run(
-      "UPDATE companies SET grade = ?, name = ?, site = ?, updated_at = ? WHERE id = ?",
-      [grade, name, site, stamp, id],
+      "UPDATE companies SET grade = ?, name = ?, site = ?, logo_url = ?, updated_at = ? WHERE id = ?",
+      [grade, name, site, logoUrl, stamp, id],
     );
   } else {
     const last = await db.get<{ max_order: number | null }>(
@@ -47,9 +51,9 @@ export async function saveCompany(
       [grade],
     );
     await db.run(
-      `INSERT INTO companies (grade, name, site, sort_order, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [grade, name, site, Number(last?.max_order ?? 0) + 1, stamp, stamp],
+      `INSERT INTO companies (grade, name, site, logo_url, sort_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [grade, name, site, logoUrl, Number(last?.max_order ?? 0) + 1, stamp, stamp],
     );
   }
 

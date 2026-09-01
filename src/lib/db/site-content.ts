@@ -10,6 +10,8 @@ type RawOffice = {
   fax: string;
   note: string;
   transit: string;
+  map_lat: string;
+  map_lng: string;
   sort_order: number;
   is_visible: number;
 };
@@ -22,11 +24,14 @@ const toOffice = (r: RawOffice): Office => ({
   fax: r.fax,
   note: r.note,
   transit: r.transit,
+  mapLat: r.map_lat,
+  mapLng: r.map_lng,
   sortOrder: Number(r.sort_order),
   isVisible: Number(r.is_visible) === 1,
 });
 
-const OFFICE_SELECT = `SELECT id, name, address, tel, fax, note, transit, sort_order, is_visible
+const OFFICE_SELECT = `SELECT id, name, address, tel, fax, note, transit,
+                              map_lat, map_lng, sort_order, is_visible
                        FROM offices`;
 
 export async function listOffices(includeHidden = false): Promise<Office[]> {

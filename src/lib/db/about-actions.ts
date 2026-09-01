@@ -30,7 +30,10 @@ export async function savePageTexts(_prev: AboutState, formData: FormData): Prom
       const raw = formData.get(field.key);
       if (raw === null) continue; /* 이 묶음에 없는 칸 */
 
-      const value = field.kind === "rich" ? sanitizePostBody(String(raw)) : String(raw).trim();
+      let value = field.kind === "rich" ? sanitizePostBody(String(raw)) : String(raw).trim();
+
+      /* 그림은 우리가 저장한 주소만 받는다 */
+      if (field.kind === "image" && !/^\/api\/images\/\d+$/.test(value)) value = "";
 
       /* 있으면 고치고 없으면 넣는다. 두 방언에서 같게 동작하도록 나눠 쓴다. */
       const exists = await db.get<{ key: string }>("SELECT key FROM page_texts WHERE key = ?", [

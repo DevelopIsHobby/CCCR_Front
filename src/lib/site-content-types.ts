@@ -22,6 +22,9 @@ export type Office = {
   note: string;
   /** 원본 줄글. 관리자 화면에서 그대로 고친다. */
   transit: string;
+  /** 지도 좌표. 카카오맵 키와 함께 있어야 지도가 나온다. */
+  mapLat: string;
+  mapLng: string;
   sortOrder: number;
   isVisible: boolean;
 };

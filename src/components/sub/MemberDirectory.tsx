@@ -66,6 +66,17 @@ export default function MemberDirectory({ groups }: { groups: CompanyGroup[] }) 
                   rel="noreferrer noopener"
                   className="group block h-full rounded-lg border border-line bg-white px-5 py-4 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_10px_20px_-14px_rgba(6,42,85,0.45)]"
                 >
+                  {/* 로고는 받는 대로 관리자 화면에서 올린다. 없으면 이름만 나온다. */}
+                  {m.logoUrl && (
+                    /* 크기를 미리 알 수 없는 그림이라 next/image 대신 img 를 쓴다 */
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={m.logoUrl}
+                      alt=""
+                      className="mb-3 h-9 w-auto max-w-[8rem] object-contain object-left"
+                    />
+                  )}
+
                   <span className="block text-md font-bold leading-snug text-navy-900 transition-colors group-hover:text-brand-600">
                     {m.name}
                   </span>

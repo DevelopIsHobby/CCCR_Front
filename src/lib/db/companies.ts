@@ -15,6 +15,7 @@ type RawCompany = {
   grade: string;
   name: string;
   site: string;
+  logo_url: string;
   sort_order: number;
   is_visible: number;
 };
@@ -24,11 +25,13 @@ const toCompany = (r: RawCompany): Company => ({
   grade: r.grade,
   name: r.name,
   site: r.site,
+  logoUrl: r.logo_url,
   sortOrder: Number(r.sort_order),
   isVisible: Number(r.is_visible) === 1,
 });
 
-const SELECT = "SELECT id, grade, name, site, sort_order, is_visible FROM companies";
+const SELECT =
+  "SELECT id, grade, name, site, logo_url, sort_order, is_visible FROM companies";
 
 /** 화면용. 숨긴 곳은 빼고 등급 순서대로 묶는다. */
 export async function listCompanyGroups(): Promise<CompanyGroup[]> {

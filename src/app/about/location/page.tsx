@@ -3,6 +3,8 @@ import PageShell from "@/components/sub/PageShell";
 import { DefTable } from "@/components/sub/Ui";
 import { BADGE_COLOR } from "@/lib/page-data";
 import { listOffices } from "@/lib/db/site-content";
+import { getSiteSettings } from "@/lib/db/site-settings";
+import KakaoMap from "@/components/sub/KakaoMap";
 import { parseTransit, type Office } from "@/lib/site-content-types";
 
 export const metadata: Metadata = { title: "찾아오시는 길" };
@@ -40,11 +42,28 @@ function IconWalk({ className }: { className?: string }) {
   );
 }
 
-/* 지도 API 연동 전까지 쓰는 자리표시자. 도보 안내는 지도에서 걸어오는
-   설명이라 별도 박스로 띄우지 않고 지도 아래 캡션으로 붙인다. */
-function MapCard({ address, note }: { address: string; note: string }) {
+/* 지도 키와 좌표가 모두 있으면 지도를, 없으면 자리표시자를 보여준다.
+   도보 안내는 지도에서 걸어오는 설명이라 지도 아래 캡션으로 붙인다. */
+function MapCard({
+  address,
+  note,
+  office,
+  appKey,
+}: {
+  address: string;
+  note: string;
+  office: Office;
+  appKey: string;
+}) {
+  const lat = Number(office.mapLat);
+  const lng = Number(office.mapLng);
+  const hasMap = Boolean(appKey) && Boolean(office.mapLat) && Boolean(office.mapLng);
+
   return (
     <div className="overflow-hidden rounded-2xl border border-line">
+      {hasMap ? (
+        <KakaoMap appKey={appKey} lat={lat} lng={lng} label={office.name} />
+      ) : (
       <div className="relative grid aspect-[16/6] place-items-center bg-surface">
       <div
         className="absolute inset-0 opacity-70"
@@ -73,6 +92,7 @@ function MapCard({ address, note }: { address: string; note: string }) {
         <p className="label-mono mt-1.5 text-ink-400">지도 API 연동 영역</p>
         </div>
       </div>
+      )}
 
       <p className="flex items-start gap-3 border-t border-line bg-white px-6 py-4">
         <IconWalk className="mt-0.5 size-5 shrink-0 text-flame-500" />
@@ -82,7 +102,15 @@ function MapCard({ address, note }: { address: string; note: string }) {
   );
 }
 
-function OfficeSection({ office, index }: { office: Office; index: number }) {
+function OfficeSection({
+  office,
+  index,
+  appKey,
+}: {
+  office: Office;
+  index: number;
+  appKey: string;
+}) {
   return (
     <section id={anchor(index)} className="scroll-mt-32">
       <h2 className="border-b-2 border-navy-900 pb-5 text-2xl font-bold text-navy-900">
@@ -90,7 +118,7 @@ function OfficeSection({ office, index }: { office: Office; index: number }) {
       </h2>
 
       <div className="mt-8">
-        <MapCard address={office.address} note={office.note} />
+        <MapCard address={office.address} note={office.note} office={office} appKey={appKey} />
       </div>
 
       <div className="mt-10">
@@ -148,7 +176,7 @@ function OfficeSection({ office, index }: { office: Office; index: number }) {
 }
 
 export default async function Page() {
-  const offices = await listOffices();
+  const [offices, site] = await Promise.all([listOffices(), getSiteSettings()]);
 
   return (
     <PageShell href="/about/location" desc="조합 사무실과 교육장 위치를 안내해 드립니다.">
@@ -167,7 +195,7 @@ export default async function Page() {
 
       <div className="mt-14 space-y-24">
         {offices.map((o, i) => (
-          <OfficeSection key={o.id} office={o} index={i} />
+          <OfficeSection key={o.id} office={o} index={i} appKey={site.kakaoMapKey} />
         ))}
       </div>
     </PageShell>

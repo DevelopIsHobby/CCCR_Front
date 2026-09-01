@@ -9,6 +9,7 @@ import {
   toggleCompany,
   type CompanyFormState,
 } from "@/lib/db/company-actions";
+import ImagePicker from "./ImagePicker";
 import { COMPANY_GRADES, type Company } from "@/lib/company-types";
 
 const input =
@@ -64,6 +65,17 @@ function CompanyForm({
             className={input}
           />
         </label>
+      </div>
+
+      <div>
+        <span className="mb-1.5 block text-base font-bold text-navy-900">로고</span>
+        <ImagePicker
+          name="logoUrl"
+          defaultValue={company?.logoUrl ?? ""}
+          alt="회원사 로고"
+          ratio="aspect-[3/2]"
+          width="w-40"
+        />
       </div>
 
       {state.error && (
@@ -138,6 +150,16 @@ function CompanyRow({
         ⠿
       </span>
       <span className="label-mono w-8 shrink-0 tabular-nums text-ink-400">{index + 1}</span>
+
+      {company.logoUrl && (
+        /* 크기를 미리 알 수 없는 그림이라 next/image 대신 img 를 쓴다 */
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={company.logoUrl}
+          alt=""
+          className="h-7 w-14 shrink-0 rounded border border-line bg-white object-contain"
+        />
+      )}
 
       <span className="min-w-0 flex-1">
         <span className="text-md font-bold text-navy-900">{company.name}</span>

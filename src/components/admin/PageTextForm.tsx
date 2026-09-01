@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import RichTextEditor from "@/components/board/RichTextEditor";
+import ImagePicker from "./ImagePicker";
 import { savePageTexts, type AboutState } from "@/lib/db/about-actions";
 import type { PageTexts, TextGroup } from "@/lib/about-content-types";
 
@@ -41,6 +42,12 @@ export default function PageTextForm({
 
             {field.kind === "rich" ? (
               <RichTextEditor name={field.key} defaultValue={texts[field.key] ?? ""} />
+            ) : field.kind === "image" ? (
+              <ImagePicker
+                name={field.key}
+                defaultValue={texts[field.key] ?? ""}
+                alt={field.label}
+              />
             ) : field.kind === "multiline" ? (
               <textarea
                 id={field.key}

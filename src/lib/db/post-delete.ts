@@ -1,6 +1,7 @@
 import "server-only";
 import { ready } from "./migrate";
 import { deleteUpload } from "@/lib/uploads";
+import { isImageUsed } from "./image-usage";
 
 /*
   글과 딸린 파일을 함께 지운다.
@@ -42,11 +43,7 @@ async function deleteOrphanImages(body: string): Promise<void> {
 
   const db = await ready();
   for (const imageId of new Set(ids)) {
-    const stillUsed = await db.get<{ n: number }>(
-      "SELECT COUNT(*) AS n FROM posts WHERE body LIKE ?",
-      [`%/api/images/${imageId}%`],
-    );
-    if (Number(stillUsed?.n ?? 0) > 0) continue;
+    if (await isImageUsed(db, imageId)) continue;
 
     const image = await db.get<{ stored_name: string }>(
       "SELECT stored_name FROM images WHERE id = ?",

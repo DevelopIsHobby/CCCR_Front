@@ -276,6 +276,29 @@ function OfficeForm({ office, onDone }: { office?: Office; onDone?: () => void }
           />
           <span className="mt-1.5 block text-sm text-ink-400">지도 아래에 한 줄로 표시됩니다.</span>
         </label>
+
+        <label className="block">
+          <span className="mb-1.5 block text-base font-bold text-navy-900">위도</span>
+          <input
+            name="mapLat"
+            defaultValue={office?.mapLat ?? ""}
+            placeholder="37.123456"
+            className={input}
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1.5 block text-base font-bold text-navy-900">경도</span>
+          <input
+            name="mapLng"
+            defaultValue={office?.mapLng ?? ""}
+            placeholder="127.123456"
+            className={input}
+          />
+          <span className="mt-1.5 block text-sm leading-relaxed text-ink-400">
+            카카오맵에서 장소를 찾아 우클릭하면 좌표를 볼 수 있습니다. 좌표와 지도 키가 모두
+            있어야 지도가 나옵니다.
+          </span>
+        </label>
       </div>
 
       <label className="block">

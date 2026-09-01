@@ -15,7 +15,8 @@ export type SiteSettingKey =
   | "joinAddress"
   | "joinTel"
   | "joinFax"
-  | "joinEmail";
+  | "joinEmail"
+  | "kakaoMapKey";
 
 export type SiteSettings = Record<SiteSettingKey, string>;
 
@@ -61,6 +62,23 @@ export const JOIN_CONTACT_FIELDS: {
   { key: "joinEmail", label: "이메일", placeholder: "admin@cccr.or.kr" },
 ];
 
+/** 찾아오시는 길의 지도 */
+export const MAP_FIELDS: {
+  key: SiteSettingKey;
+  label: string;
+  placeholder: string;
+  help?: string;
+  wide?: boolean;
+}[] = [
+  {
+    key: "kakaoMapKey",
+    label: "카카오맵 JavaScript 키",
+    placeholder: "발급받은 키를 붙여 넣으세요",
+    wide: true,
+    help: "카카오 개발자 사이트에서 앱을 만들고 JavaScript 키를 받아 넣습니다. 키와 사무실 좌표가 모두 있어야 지도가 나옵니다.",
+  },
+];
+
 /** DB 에 값이 없을 때 쓰는 기본값. */
 export const SITE_DEFAULTS: SiteSettings = {
   address: "",
@@ -76,4 +94,5 @@ export const SITE_DEFAULTS: SiteSettings = {
   joinTel: "",
   joinFax: "",
   joinEmail: "",
+  kakaoMapKey: "",
 };

@@ -3,8 +3,8 @@
   관리자 화면(클라이언트 컴포넌트)에서도 쓰므로 server-only 모듈과 분리한다.
 */
 
-/** line = 한 줄 입력, multiline = 여러 줄 입력, rich = 편집기 */
-export type TextKind = "line" | "multiline" | "rich";
+/** line = 한 줄 입력, multiline = 여러 줄 입력, rich = 편집기, image = 그림 한 장 */
+export type TextKind = "line" | "multiline" | "rich" | "image";
 
 export type TextField = {
   key: string;
@@ -29,6 +29,12 @@ export const TEXT_GROUPS: TextGroup[] = [
     href: "/about/greeting",
     fields: [
       { key: "greeting.desc", label: "페이지 머리 설명", kind: "line" },
+      {
+        key: "greeting.photo",
+        label: "이사장 사진",
+        kind: "image",
+        help: "세로로 긴 사진(4:5)이 잘 맞습니다. 넣지 않으면 회색 자리만 나옵니다.",
+      },
       { key: "greeting.slogan", label: "표어 앞부분", kind: "line" },
       {
         key: "greeting.sloganEm",

@@ -7,6 +7,8 @@ export type Company = {
   grade: string;
   name: string;
   site: string;
+  /** 로고 그림 주소(/api/images/N). 없으면 빈 값 */
+  logoUrl: string;
   sortOrder: number;
   isVisible: boolean;
 };
