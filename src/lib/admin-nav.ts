@@ -19,5 +19,5 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { href: "/admin/files", label: "파일 관리", desc: "첨부·이미지 정리", ready: true },
   { href: "/admin/account", label: "계정 보안", desc: "비밀번호 변경", ready: true },
   { href: "/admin/pages", label: "소개 페이지", desc: "인사말·연혁·조직도", ready: true },
-  { href: "/admin/stats", label: "접속 통계", desc: "방문자·인기 게시물", ready: false },
+  { href: "/admin/stats", label: "접속 통계", desc: "방문자·인기 게시물", ready: true },
 ];

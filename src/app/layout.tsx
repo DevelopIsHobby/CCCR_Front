@@ -3,6 +3,7 @@ import { IBM_Plex_Mono } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollTop from "@/components/ScrollTop";
+import VisitLogger from "@/components/VisitLogger";
 import { getSession } from "@/lib/auth/session";
 import "./globals.css";
 
@@ -43,6 +44,7 @@ export default async function RootLayout({
         <main id="main">{children}</main>
         <Footer />
         <ScrollTop />
+        <VisitLogger />
       </body>
     </html>
   );
