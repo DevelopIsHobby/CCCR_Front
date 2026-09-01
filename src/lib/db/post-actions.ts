@@ -6,6 +6,7 @@ import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin, getSession } from "@/lib/auth/session";
 import { saveUpload, deleteUpload } from "@/lib/uploads";
+import { deletePostsWithFiles } from "@/lib/db/post-delete";
 import { isEmptyHtml, sanitizePostBody } from "@/lib/html";
 import { boardPath as pathOf, getBoard } from "@/lib/boards";
 
@@ -189,16 +190,15 @@ export async function deletePost(formData: FormData): Promise<void> {
   if (!id) return;
   boardPath(board);
 
+  /* 이 게시판의 글이 맞는지 확인한 뒤 지운다 */
   const db = await ready();
-  const files = await db.all<{ stored_name: string }>(
-    "SELECT stored_name FROM attachments WHERE post_id = ?",
-    [id],
+  const owned = await db.get<{ id: number }>(
+    "SELECT id FROM posts WHERE id = ? AND board = ?",
+    [id, board],
   );
-  const post = await db.get<{ body: string }>("SELECT body FROM posts WHERE id = ?", [id]);
+  if (!owned) return;
 
-  await db.run("DELETE FROM posts WHERE id = ? AND board = ?", [id, board]);
-  for (const f of files) await deleteUpload(f.stored_name);
-  if (post) await deleteOrphanImages(post.body);
+  await deletePostsWithFiles([id]);
 
   refreshBoard(board, id);
   redirect(boardPath(board));
@@ -214,33 +214,6 @@ export async function recordView(id: number): Promise<void> {
 /** 잠금글 본문을 볼 수 있는지 확인한다. */
 export async function canReadLocked(): Promise<boolean> {
   return (await getSession()) !== null;
-}
-
-/*
-  본문에 넣었던 이미지 정리.
-  글을 지워도 이미지 파일은 남으므로, 다른 글이 쓰고 있지 않은 것만 함께 지운다.
-*/
-async function deleteOrphanImages(body: string): Promise<void> {
-  const ids = [...body.matchAll(/\/api\/images\/(\d+)/g)].map((m) => Number(m[1]));
-  if (ids.length === 0) return;
-
-  const db = await ready();
-  for (const imageId of new Set(ids)) {
-    const stillUsed = await db.get<{ n: number }>(
-      "SELECT COUNT(*) AS n FROM posts WHERE body LIKE ?",
-      [`%/api/images/${imageId}%`],
-    );
-    if (Number(stillUsed?.n ?? 0) > 0) continue;
-
-    const image = await db.get<{ stored_name: string }>(
-      "SELECT stored_name FROM images WHERE id = ?",
-      [imageId],
-    );
-    if (!image) continue;
-
-    await db.run("DELETE FROM images WHERE id = ?", [imageId]);
-    await deleteUpload(image.stored_name);
-  }
 }
 
 async function attachFiles(postId: number, files: FormDataEntryValue[]) {

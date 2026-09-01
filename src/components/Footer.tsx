@@ -3,9 +3,15 @@ import Logo from "./Logo";
 import NewsletterBand from "./NewsletterBand";
 import FooterPolicyLinks from "./FooterPolicyLinks";
 import { NAV } from "@/lib/site-data";
+import { getSiteSettings } from "@/lib/db/site-settings";
+import { listRelatedSites } from "@/lib/db/site-content";
+import RelatedSiteSelect from "./RelatedSiteSelect";
 
 
-export default function Footer() {
+export default async function Footer() {
+  /* 주소·연락처는 관리자 화면(/admin/site)에서 고친다 */
+  const [site, relatedSites] = await Promise.all([getSiteSettings(), listRelatedSites()]);
+
   return (
     <footer className="bg-navy-900 text-brand-100/70">
       <NewsletterBand />
@@ -43,18 +49,22 @@ export default function Footer() {
             <div>
               <Logo variant="light" />
               <address className="mt-5 space-y-1 text-sm not-italic leading-relaxed">
-                <p>서울특별시 강남구 삼성로86길 11, 거봉INC빌딩 5층</p>
+                {site.address && <p>{site.address}</p>}
                 <p>
-                  TEL. 02-2052-0156
-                  <span className="mx-2 text-white/20">|</span>
-                  FAX. 02-2052-0158
-                  <span className="mx-2 text-white/20">|</span>
-                  E-MAIL. admin@cccr.or.kr
+                  {site.tel && <>TEL. {site.tel}</>}
+                  {site.tel && site.fax && <span className="mx-2 text-white/20">|</span>}
+                  {site.fax && <>FAX. {site.fax}</>}
+                  {(site.tel || site.fax) && site.email && (
+                    <span className="mx-2 text-white/20">|</span>
+                  )}
+                  {site.email && <>E-MAIL. {site.email}</>}
                 </p>
                 <p className="text-brand-100/50">
-                  고유번호 000-00-00000
-                  <span className="mx-2 text-white/20">|</span>
-                  이사장 이동기
+                  {site.businessNo && <>고유번호 {site.businessNo}</>}
+                  {site.businessNo && site.chairman && (
+                    <span className="mx-2 text-white/20">|</span>
+                  )}
+                  {site.chairman && <>이사장 {site.chairman}</>}
                 </p>
               </address>
 
@@ -62,23 +72,7 @@ export default function Footer() {
             </div>
 
             <div className="lg:text-right">
-              <label htmlFor="related-sites" className="sr-only">
-                관련기관 바로가기
-              </label>
-              <select
-                id="related-sites"
-                defaultValue=""
-                className="w-full min-w-[260px] appearance-none rounded-md border border-white/20 bg-navy-950 px-4 py-3 text-base text-white outline-none transition-colors focus:border-flame-500 lg:w-auto"
-              >
-                <option value="" disabled>
-                  관련기관 바로가기
-                </option>
-                <option value="msit">과학기술정보통신부</option>
-                <option value="motie">산업통상자원부</option>
-                <option value="nipa">정보통신산업진흥원</option>
-                <option value="keit">한국산업기술평가관리원</option>
-                <option value="kaci">한국클라우드산업협회</option>
-              </select>
+              <RelatedSiteSelect sites={relatedSites} />
               <p className="mt-6 text-xs text-brand-100/40">
                 © {new Date().getFullYear()} Consortium of Cloud Computing Research.
                 <br className="hidden lg:block" /> All rights reserved.

@@ -69,10 +69,10 @@ export default function Header({ session }: { session: Session | null }) {
             <>
               {session.role === "admin" && (
                 <Link
-                  href="/admin"
+                  href="/admin/home"
                   className="text-xs font-bold text-brand-600 transition-colors hover:text-flame-500"
                 >
-                  메인 화면 관리
+                  관리자
                 </Link>
               )}
               <span className="flex items-center gap-1.5 text-xs text-ink-600">

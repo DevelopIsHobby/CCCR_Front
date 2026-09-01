@@ -8,6 +8,7 @@ import {
   PRIVACY_INTRO,
   type LegalArticle,
 } from "@/lib/legal-data";
+import { TERMS_ARTICLES } from "@/lib/terms-data";
 
 /*
   개인정보취급방침 · 이메일무단수집거부 팝업.
@@ -16,16 +17,28 @@ import {
   모바일에서 다루기 어렵다. 같은 두 갈래 구성을 유지하되 화면 안의 대화상자로 연다.
   <dialog> 를 써서 ESC 닫기와 초점 가두기를 브라우저에 맡긴다.
 */
-export type LegalTab = "privacy" | "email";
+export type LegalTab = "privacy" | "email" | "terms";
 
-const TABS: { id: LegalTab; label: string }[] = [
-  { id: "privacy", label: "개인정보수집방침" },
-  { id: "email", label: "이메일무단수집거부" },
-];
+const TAB_LABEL: Record<LegalTab, string> = {
+  terms: "이용약관",
+  privacy: "개인정보수집방침",
+  email: "이메일무단수집거부",
+};
+
+const ARTICLES: Record<LegalTab, LegalArticle[]> = {
+  terms: TERMS_ARTICLES,
+  privacy: PRIVACY_ARTICLES,
+  email: EMAIL_POLICY_ARTICLES,
+};
 
 function Article({ article }: { article: LegalArticle }) {
   return (
     <section>
+      {article.chapter && (
+        <p className="mb-4 rounded-md bg-navy-900 px-4 py-2 text-base font-bold text-white">
+          {article.chapter}
+        </p>
+      )}
       <h3 className="text-md font-bold text-navy-900">{article.title}</h3>
 
       <div className="mt-3 space-y-3">
@@ -36,12 +49,32 @@ function Article({ article }: { article: LegalArticle }) {
             </p>
           ) : (
             <ul key={i} className="space-y-1.5 rounded-lg bg-surface px-5 py-4">
-              {block.items.map((item) => (
-                <li key={item} className="flex gap-2.5 text-base leading-relaxed text-ink-600">
-                  <span className="mt-2 size-1 shrink-0 rounded-full bg-brand-500" aria-hidden />
-                  {item}
-                </li>
-              ))}
+              {block.items.map((item) => {
+                const text = typeof item === "string" ? item : item.text;
+                const sub = typeof item === "string" ? undefined : item.sub;
+
+                return (
+                  <li key={text} className="text-base leading-relaxed text-ink-600">
+                    <span className="flex gap-2.5">
+                      <span className="mt-2 size-1 shrink-0 rounded-full bg-brand-500" aria-hidden />
+                      {text}
+                    </span>
+                    {sub && (
+                      <ul className="ml-5 mt-1.5 space-y-1">
+                        {sub.map((line) => (
+                          <li key={line} className="flex gap-2 text-base text-ink-400">
+                            <span
+                              className="mt-2 size-1 shrink-0 rounded-full bg-ink-400"
+                              aria-hidden
+                            />
+                            {line}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           ),
         )}
@@ -53,11 +86,14 @@ function Article({ article }: { article: LegalArticle }) {
 export default function LegalDialog({
   open,
   tab,
+  tabs = ["privacy", "email"],
   onTabChange,
   onClose,
 }: {
   open: boolean;
   tab: LegalTab;
+  /** 보여줄 갈래. 푸터는 방침 두 가지, 가입 화면은 약관과 방침을 쓴다. */
+  tabs?: LegalTab[];
   onTabChange: (tab: LegalTab) => void;
   onClose: () => void;
 }) {
@@ -77,7 +113,7 @@ export default function LegalDialog({
     bodyRef.current?.scrollTo({ top: 0 });
   }, [tab]);
 
-  const articles = tab === "privacy" ? PRIVACY_ARTICLES : EMAIL_POLICY_ARTICLES;
+  const articles = ARTICLES[tab];
 
   return (
     <dialog
@@ -91,19 +127,17 @@ export default function LegalDialog({
       aria-label="이용안내"
     >
       <div className="flex shrink-0 border-b border-line">
-        {TABS.map((t) => (
+        {tabs.map((id) => (
           <button
-            key={t.id}
+            key={id}
             type="button"
-            onClick={() => onTabChange(t.id)}
-            aria-pressed={tab === t.id}
+            onClick={() => onTabChange(id)}
+            aria-pressed={tab === id}
             className={`flex-1 px-5 py-4 text-md font-bold transition-colors ${
-              tab === t.id
-                ? "bg-brand-600 text-white"
-                : "bg-surface text-ink-600 hover:text-brand-600"
+              tab === id ? "bg-brand-600 text-white" : "bg-surface text-ink-600 hover:text-brand-600"
             }`}
           >
-            {t.label}
+            {TAB_LABEL[id]}
           </button>
         ))}
 

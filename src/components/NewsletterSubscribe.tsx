@@ -1,8 +1,9 @@
-import { IconArrow } from "./Icons";
+import NewsletterForm from "./NewsletterForm";
 
 /*
   뉴스레터 구독 신청.
-  아직 폼만 있고 접수 처리는 붙어 있지 않다. (메일 발송·구독자 관리 미구현)
+  접수한 주소는 구독자 명단에 담기고 관리자 화면(/admin/newsletter)에서 관리한다.
+  발송은 명단을 내려받아 오즈메일러에서 한다.
 */
 export default function NewsletterSubscribe() {
   return (
@@ -19,25 +20,7 @@ export default function NewsletterSubscribe() {
           </p>
         </div>
 
-        <form className="flex w-full shrink-0 flex-col gap-2 sm:flex-row lg:w-auto">
-          <label htmlFor="subscribe-email" className="sr-only">
-            이메일 주소
-          </label>
-          <input
-            id="subscribe-email"
-            type="email"
-            required
-            placeholder="email@example.com"
-            className="min-w-0 rounded-md border border-white/20 bg-white/5 px-4 py-3.5 text-md text-white outline-none transition-colors placeholder:text-brand-100/40 focus:border-flame-500 focus:bg-white/10 sm:w-72"
-          />
-          <button
-            type="submit"
-            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-flame-500 px-6 py-3.5 text-md font-bold text-white transition-colors hover:bg-flame-600"
-          >
-            구독 신청
-            <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
-          </button>
-        </form>
+        <NewsletterForm source="뉴스레터 화면" tone="dark" />
       </div>
     </section>
   );

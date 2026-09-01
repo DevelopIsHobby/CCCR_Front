@@ -1,6 +1,4 @@
-"use client";
-
-import { IconArrow } from "./Icons";
+import NewsletterForm from "./NewsletterForm";
 
 /** 푸터 최상단 구독 밴드 — 페이지를 떠나기 직전의 액션 자리 */
 export default function NewsletterBand() {
@@ -18,28 +16,7 @@ export default function NewsletterBand() {
           </p>
         </div>
 
-        <form
-          className="flex w-full shrink-0 flex-col gap-2 sm:flex-row lg:w-auto"
-          onSubmit={(e) => e.preventDefault()}
-        >
-          <label htmlFor="newsletter-email" className="sr-only">
-            이메일 주소
-          </label>
-          <input
-            id="newsletter-email"
-            type="email"
-            required
-            placeholder="email@example.com"
-            className="min-w-0 rounded-md border border-white/20 bg-white/5 px-4 py-3.5 text-md text-white outline-none transition-colors placeholder:text-brand-100/40 focus:border-flame-500 focus:bg-white/10 sm:w-72"
-          />
-          <button
-            type="submit"
-            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-flame-500 px-6 py-3.5 text-md font-bold text-white transition-colors hover:bg-flame-600"
-          >
-            구독 신청
-            <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
-          </button>
-        </form>
+        <NewsletterForm source="메인 띠" tone="dark" />
       </div>
     </div>
   );

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/sub/PageShell";
 import { DefTable } from "@/components/sub/Ui";
-import { OFFICES, BADGE_COLOR, type Office } from "@/lib/page-data";
+import { BADGE_COLOR } from "@/lib/page-data";
+import { listOffices } from "@/lib/db/site-content";
+import { parseTransit, type Office } from "@/lib/site-content-types";
 
 export const metadata: Metadata = { title: "찾아오시는 길" };
 
@@ -116,7 +118,7 @@ function OfficeSection({ office, index }: { office: Office; index: number }) {
 
       <h3 className="mt-14 text-xl font-bold text-navy-900">교통편</h3>
       <dl className="mt-6 border-t-2 border-navy-900">
-        {office.transit.map((g) => (
+        {parseTransit(office.transit).map((g) => (
           <div
             key={g.group}
             className="flex flex-col gap-3 border-b border-line py-6 sm:flex-row sm:gap-10"
@@ -145,12 +147,14 @@ function OfficeSection({ office, index }: { office: Office; index: number }) {
   );
 }
 
-export default function Page() {
+export default async function Page() {
+  const offices = await listOffices();
+
   return (
     <PageShell href="/about/location" desc="조합 사무실과 교육장 위치를 안내해 드립니다.">
       {/* 사무실이 두 곳이라 위로 건너뛸 수 있게 둔다 */}
       <nav aria-label="사무실 바로가기" className="flex flex-wrap gap-2">
-        {OFFICES.map((o, i) => (
+        {offices.map((o, i) => (
           <a
             key={o.name}
             href={`#${anchor(i)}`}
@@ -162,8 +166,8 @@ export default function Page() {
       </nav>
 
       <div className="mt-14 space-y-24">
-        {OFFICES.map((o, i) => (
-          <OfficeSection key={o.name} office={o} index={i} />
+        {offices.map((o, i) => (
+          <OfficeSection key={o.id} office={o} index={i} />
         ))}
       </div>
     </PageShell>

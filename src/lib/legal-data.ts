@@ -6,9 +6,12 @@
   원문 그대로 두었다.
 */
 /** 문단과 목록이 원문 순서대로 섞여 나오므로 블록 배열로 둔다. */
-export type LegalBlock = { text: string } | { items: string[] };
+export type LegalItem = string | { text: string; sub: string[] };
+export type LegalBlock = { text: string } | { items: LegalItem[] };
 
 export type LegalArticle = {
+  /** 장 제목. 그 장이 시작되는 조항에만 넣는다. */
+  chapter?: string;
   title: string;
   blocks: LegalBlock[];
 };

@@ -3,21 +3,30 @@ import Link from "next/link";
 import PageShell from "@/components/sub/PageShell";
 import { SectionHeading, StepFlow, DefTable } from "@/components/sub/Ui";
 import { IconArrow, IconChevron } from "@/components/Icons";
+import { getSiteSettings } from "@/lib/db/site-settings";
 import {
   JOIN_SECTIONS,
   JOIN_TARGET,
   JOIN_STEPS,
   JOIN_DOCS,
   JOIN_DOC_NOTES,
-  JOIN_ACCOUNT,
-  JOIN_CONTACT,
   FEE_TABLE,
   MEMBER_BENEFITS,
 } from "@/lib/page-data";
 
 export const metadata: Metadata = { title: "회원사 가입안내" };
 
-export default function Page() {
+export default async function Page() {
+  /* 입금계좌·문의처는 관리자 화면(/admin/site)에서 고친다 */
+  const site = await getSiteSettings();
+
+  const contactRows = [
+    { label: "입금계좌", value: site.joinBank },
+    { label: "예금주", value: site.joinHolder },
+    { label: "담당", value: site.joinTeam },
+    { label: "주소", value: site.joinAddress },
+  ].filter((row) => row.value);
+
   return (
     <PageShell
       href="/members/join"
@@ -145,31 +154,38 @@ export default function Page() {
           <div className="mt-10">
             <DefTable
               rows={[
-                { label: "입금계좌", value: JOIN_ACCOUNT.bank },
-                { label: "예금주", value: JOIN_ACCOUNT.holder },
-                { label: "담당", value: JOIN_CONTACT.team },
-                { label: "주소", value: JOIN_CONTACT.address },
-                {
-                  label: "연락처",
-                  value: (
-                    <>
-                      TEL. {JOIN_CONTACT.tel}
-                      <span className="mx-2 text-line">|</span>
-                      FAX. {JOIN_CONTACT.fax}
-                    </>
-                  ),
-                },
-                {
-                  label: "이메일",
-                  value: (
-                    <a
-                      href={`mailto:${JOIN_CONTACT.email}`}
-                      className="text-brand-600 hover:underline"
-                    >
-                      {JOIN_CONTACT.email}
-                    </a>
-                  ),
-                },
+                ...contactRows,
+                ...(site.joinTel || site.joinFax
+                  ? [
+                      {
+                        label: "연락처",
+                        value: (
+                          <>
+                            {site.joinTel && <>TEL. {site.joinTel}</>}
+                            {site.joinTel && site.joinFax && (
+                              <span className="mx-2 text-line">|</span>
+                            )}
+                            {site.joinFax && <>FAX. {site.joinFax}</>}
+                          </>
+                        ),
+                      },
+                    ]
+                  : []),
+                ...(site.joinEmail
+                  ? [
+                      {
+                        label: "이메일",
+                        value: (
+                          <a
+                            href={`mailto:${site.joinEmail}`}
+                            className="text-brand-600 hover:underline"
+                          >
+                            {site.joinEmail}
+                          </a>
+                        ),
+                      },
+                    ]
+                  : []),
               ]}
             />
 

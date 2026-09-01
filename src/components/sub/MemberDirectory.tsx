@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MEMBER_GROUPS } from "@/lib/page-data";
+import type { CompanyGroup } from "@/lib/db/companies";
 
 /*
   원 사이트와 같은 3개 구분을 유지한다.
@@ -13,15 +13,13 @@ const TABS: { label: string; grades: string[] }[] = [
   { label: "준회원사", grades: ["준회원사"] },
 ];
 
-const groupsOf = (grades: string[]) =>
-  MEMBER_GROUPS.filter((g) => grades.includes(g.grade));
-
-const countOf = (grades: string[]) =>
-  groupsOf(grades).reduce((n, g) => n + g.members.length, 0);
-
-export default function MemberDirectory() {
+export default function MemberDirectory({ groups }: { groups: CompanyGroup[] }) {
   const [tab, setTab] = useState(TABS[0].label);
   const active = TABS.find((t) => t.label === tab) ?? TABS[0];
+
+  const groupsOf = (grades: string[]) => groups.filter((g) => grades.includes(g.grade));
+  const countOf = (grades: string[]) =>
+    groupsOf(grades).reduce((n, g) => n + g.members.length, 0);
 
   return (
     <div>
@@ -61,7 +59,7 @@ export default function MemberDirectory() {
 
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {g.members.map((m) => (
-              <li key={`${m.name}-${m.site}`}>
+              <li key={m.id}>
                 <a
                   href={`https://${m.site}`}
                   target="_blank"

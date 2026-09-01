@@ -25,6 +25,11 @@ export function LegalDoc({ articles, notice }: { articles: Article[]; notice?: s
       <div className="space-y-12">
         {articles.map((a) => (
           <section key={a.title}>
+            {"chapter" in a && a.chapter && (
+              <p className="mb-6 rounded-lg bg-navy-900 px-5 py-3 text-md font-bold text-white">
+                {a.chapter}
+              </p>
+            )}
             <h2 className="border-b-2 border-navy-900 pb-3 text-lg font-bold text-navy-900">
               {a.title}
             </h2>
@@ -37,15 +42,35 @@ export function LegalDoc({ articles, notice }: { articles: Article[]; notice?: s
                   </p>
                 ) : (
                   <ul key={i} className="space-y-2.5 rounded-lg bg-surface px-6 py-5">
-                    {block.items.map((item) => (
-                      <li key={item} className="flex gap-3 text-md leading-relaxed text-ink-600">
-                        <span
-                          className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-500"
-                          aria-hidden
-                        />
-                        {item}
-                      </li>
-                    ))}
+                    {block.items.map((item) => {
+                      const text = typeof item === "string" ? item : item.text;
+                      const sub = typeof item === "string" ? undefined : item.sub;
+
+                      return (
+                        <li key={text} className="text-md leading-relaxed text-ink-600">
+                          <span className="flex gap-3">
+                            <span
+                              className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-500"
+                              aria-hidden
+                            />
+                            {text}
+                          </span>
+                          {sub && (
+                            <ul className="ml-6 mt-2 space-y-1.5">
+                              {sub.map((line) => (
+                                <li key={line} className="flex gap-2.5 text-base text-ink-600">
+                                  <span
+                                    className="mt-2 size-1 shrink-0 rounded-full bg-ink-400"
+                                    aria-hidden
+                                  />
+                                  {line}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 ),
               )}
