@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { HISTORY } from "@/lib/page-data";
+import type { HistoryYearGroup } from "@/lib/about-content-types";
 
-const countOf = (y: (typeof HISTORY)[number]) =>
-  y.months.reduce((n, m) => n + m.events.length, 0);
+const countOf = (y: HistoryYearGroup) => y.months.reduce((n, m) => n + m.entries.length, 0);
 
-export default function HistoryTimeline() {
-  const [year, setYear] = useState(HISTORY[0].year);
-  const active = HISTORY.find((h) => h.year === year) ?? HISTORY[0];
+export default function HistoryTimeline({ years }: { years: HistoryYearGroup[] }) {
+  const [year, setYear] = useState(years[0]?.year ?? "");
+  const active = years.find((h) => h.year === year) ?? years[0];
+
+  if (!active) return <p className="text-md text-ink-400">등록된 연혁이 없습니다.</p>;
 
   return (
     <div>
@@ -26,7 +27,7 @@ export default function HistoryTimeline() {
           onChange={(e) => setYear(e.target.value)}
           className="w-full rounded-lg border border-line bg-white px-4 py-3.5 text-md font-bold text-navy-900 outline-none focus:border-brand-500"
         >
-          {HISTORY.map((h) => (
+          {years.map((h) => (
             <option key={h.year} value={h.year}>
               {h.year} ({countOf(h)}건)
             </option>
@@ -35,7 +36,7 @@ export default function HistoryTimeline() {
       </div>
 
       <div className="hidden flex-wrap items-center gap-2 sm:flex">
-        {HISTORY.map((h) => (
+        {years.map((h) => (
           <button
             key={h.year}
             type="button"
@@ -69,9 +70,9 @@ export default function HistoryTimeline() {
             </p>
 
             <ul className="mt-4 space-y-4 lg:mt-1">
-              {m.events.map((e, i) => (
+              {m.entries.map((e) => (
                 <li
-                  key={`${m.month}-${i}`}
+                  key={e.id}
                   className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
                 >
                   <span className="text-md leading-relaxed text-ink-900">{e.title}</span>

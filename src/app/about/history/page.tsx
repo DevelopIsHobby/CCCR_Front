@@ -2,27 +2,33 @@ import type { Metadata } from "next";
 import PageShell from "@/components/sub/PageShell";
 import { SectionHeading, InfoCard, Prose } from "@/components/sub/Ui";
 import HistoryTimeline from "@/components/sub/HistoryTimeline";
-import { PURPOSES } from "@/lib/page-data";
+import { getPageTexts, listAboutCards, listHistory } from "@/lib/db/about-content";
+import { groupHistory } from "@/lib/about-content-types";
 
 export const metadata: Metadata = { title: "설립목적 및 연혁" };
 
-export default function Page() {
+export default async function Page() {
+  const [texts, purposes, entries] = await Promise.all([
+    getPageTexts(),
+    listAboutCards("purpose"),
+    listHistory(),
+  ]);
+
+  const years = groupHistory(entries);
+
   return (
-    <PageShell
-      href="/about/history"
-      desc="조합이 왜 만들어졌고 어떤 길을 걸어왔는지 소개합니다."
-    >
+    <PageShell href="/about/history" desc={texts["history.desc"]}>
       {/* 설립목적 */}
       <section>
         <SectionHeading
-          eyebrow={`목적 ${PURPOSES.length}개 항`}
+          eyebrow={`목적 ${purposes.length}개 항`}
           title="설립목적"
-          desc="한국클라우드컴퓨팅연구조합은 산업기술연구조합 육성법에 따라 설립된 비영리 연구조합입니다. 회원사가 개별적으로 수행하기 어려운 연구개발과 인력양성을 공동으로 추진합니다."
+          desc={texts["history.purposeDesc"]}
         />
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
-          {PURPOSES.map((p) => (
-            <InfoCard key={p.title} title={p.title} desc={p.desc} />
+          {purposes.map((p) => (
+            <InfoCard key={p.id} title={p.title} desc={p.body} />
           ))}
         </div>
       </section>
@@ -34,17 +40,7 @@ export default function Page() {
             <p className="data-line text-flame-600">산업기술연구조합육성법</p>
             <p className="mt-3 text-xl font-bold text-navy-900">설립근거</p>
           </div>
-          <Prose>
-            <p>
-한국클라우드컴퓨팅연구조합은 <b>2009년 ‘산업기술연구조합육성법’</b>에 근거하여 지식경제부
-              인가로 설립되었습니다. 동일 산업 분야의 기업과 연구기관이 공동으로 연구개발을 수행할
-              수 있도록 하는 법적 조직입니다.
-            </p>
-            <p>
-              <b>클라우드컴퓨팅 발전 및 이용자 보호에 관한 법률</b>이 정한 클라우드컴퓨팅산업의 진흥
-              취지에 따라, 기술개발·표준화·인력양성 과제를 회원사와 함께 수행합니다.
-            </p>
-          </Prose>
+          <Prose html={texts["history.basis"] ?? ""} />
         </div>
       </section>
 
@@ -53,7 +49,7 @@ export default function Page() {
         <SectionHeading eyebrow="조합 활동" title="연혁" />
 
         <div className="mt-12">
-          <HistoryTimeline />
+          <HistoryTimeline years={years} />
         </div>
       </section>
     </PageShell>

@@ -24,12 +24,15 @@ export function SectionHeading({
 }
 
 /* ── 본문 텍스트 블록 ─────────────────────────────── */
-export function Prose({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="space-y-5 text-md leading-[1.85] text-ink-600 [&_b]:font-bold [&_b]:text-navy-900 [&_strong]:font-bold [&_strong]:text-navy-900">
-      {children}
-    </div>
-  );
+const PROSE =
+  "space-y-5 text-md leading-[1.85] text-ink-600 [&_b]:font-bold [&_b]:text-navy-900 [&_strong]:font-bold [&_strong]:text-navy-900";
+
+/* html 을 주면 관리자 화면에서 고친 문구를 그대로 보여준다(저장할 때 걸러 둔 것). */
+export function Prose({ children, html }: { children?: React.ReactNode; html?: string }) {
+  if (html !== undefined) {
+    return <div className={PROSE} dangerouslySetInnerHTML={{ __html: html }} />;
+  }
+  return <div className={PROSE}>{children}</div>;
 }
 
 /* ── 강조 카드 ────────────────────────────────────── */
@@ -136,6 +139,8 @@ export function Pagination({
   page,
   totalPages,
   q = "",
+  /** 함께 유지할 조건 (예: 게시판 필터) */
+  params: keep,
   /** 한 번에 보여줄 페이지 번호 개수 */
   window = 5,
 }: {
@@ -143,12 +148,16 @@ export function Pagination({
   page: number;
   totalPages: number;
   q?: string;
+  params?: Record<string, string | undefined>;
   window?: number;
 }) {
   if (totalPages <= 1) return null;
 
   const href = (p: number) => {
     const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(keep ?? {})) {
+      if (value) params.set(key, value);
+    }
     if (q) params.set("q", q);
     if (p > 1) params.set("page", String(p));
     const query = params.toString();

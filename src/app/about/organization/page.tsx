@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/sub/PageShell";
 import { SectionHeading, DefTable } from "@/components/sub/Ui";
-import { ORG_UNITS, DEPARTMENTS, ORG_ROLES } from "@/lib/page-data";
+import { ORG_UNITS } from "@/lib/page-data";
+import { getPageTexts, listAboutCards, listDepartments } from "@/lib/db/about-content";
 
 export const metadata: Metadata = { title: "조직도" };
 
@@ -59,12 +60,15 @@ function HLine({ from, to, className = "" }: { from: number; to: number; classNa
   );
 }
 
-export default function Page() {
+export default async function Page() {
+  const [texts, departments, roles] = await Promise.all([
+    getPageTexts(),
+    listDepartments(),
+    listAboutCards("role"),
+  ]);
+
   return (
-    <PageShell
-      href="/about/organization"
-      desc="총회와 이사회를 중심으로 이사장 아래 사무국이 실무를 수행합니다."
-    >
+    <PageShell href="/about/organization" desc={texts["organization.desc"]}>
       <section>
         <SectionHeading eyebrow="총회 · 이사회 · 사무국" title="조직 구성" />
 
@@ -135,9 +139,9 @@ export default function Page() {
       {/* 부서 연락처 */}
       <section className="mt-20">
         <SectionHeading
-          eyebrow={`부서 ${DEPARTMENTS.length}곳`}
+          eyebrow={`부서 ${departments.length}곳`}
           title="부서별 연락처"
-          desc="문의하실 업무에 맞는 부서로 연락해 주시면 빠르게 안내해 드립니다."
+          desc={texts["organization.deptDesc"]}
         />
 
         <div className="mt-10 overflow-x-auto">
@@ -150,24 +154,33 @@ export default function Page() {
               </tr>
             </thead>
             <tbody>
-              {DEPARTMENTS.map((d) => (
-                <tr key={d.name} className="border-b border-line hover:bg-brand-50/60">
+              {departments.map((d) => (
+                <tr key={d.id} className="border-b border-line hover:bg-brand-50/60">
                   <td className="px-5 py-4 text-md font-bold text-navy-900">{d.name}</td>
+                  {/* 비워 둔 칸은 누를 곳이 없으므로 줄표만 둔다 */}
                   <td className="px-5 py-4">
-                    <a
-                      href={`tel:${d.tel.replace(/-/g, "")}`}
-                      className="label-mono tabular-nums text-ink-600 hover:text-brand-600"
-                    >
-                      {d.tel}
-                    </a>
+                    {d.tel ? (
+                      <a
+                        href={`tel:${d.tel.replace(/-/g, "")}`}
+                        className="label-mono tabular-nums text-ink-600 hover:text-brand-600"
+                      >
+                        {d.tel}
+                      </a>
+                    ) : (
+                      <span className="text-ink-400">-</span>
+                    )}
                   </td>
                   <td className="px-5 py-4">
-                    <a
-                      href={`mailto:${d.email}`}
-                      className="label-mono text-brand-600 hover:underline"
-                    >
-                      {d.email}
-                    </a>
+                    {d.email ? (
+                      <a
+                        href={`mailto:${d.email}`}
+                        className="label-mono text-brand-600 hover:underline"
+                      >
+                        {d.email}
+                      </a>
+                    ) : (
+                      <span className="text-ink-400">-</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -178,9 +191,9 @@ export default function Page() {
 
       {/* 기구별 역할 */}
       <section className="mt-20">
-        <SectionHeading eyebrow={`기구 ${ORG_ROLES.length}개`} title="기구별 역할" />
+        <SectionHeading eyebrow={`기구 ${roles.length}개`} title="기구별 역할" />
         <div className="mt-10">
-          <DefTable rows={ORG_ROLES} />
+          <DefTable rows={roles.map((r) => ({ label: r.title, value: r.body }))} />
         </div>
       </section>
     </PageShell>
