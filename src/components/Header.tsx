@@ -20,6 +20,16 @@ const GUEST_LINKS = [
   { label: "회원가입", href: "/signup" },
 ];
 
+/*
+  유틸리티 바 항목 공통 모양.
+  12px 글자라 색만 바꾸면 마우스를 올렸는지 알아채기 어려워 밑줄을 함께 긋고,
+  누르는 동안 색이 한 단계 짙어져 눌렸다는 것도 보이게 한다.
+  높이를 바 전체로 채워 글자 위아래를 눌러도 걸린다.
+*/
+const utilItem =
+  "flex h-full items-center text-xs underline-offset-4 transition-colors hover:underline";
+const utilLink = `${utilItem} text-ink-600 hover:text-brand-600 active:text-brand-700`;
+
 export default function Header({ session }: { session: Session | null }) {
   const [megaOpen, setMegaOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -56,11 +66,7 @@ export default function Header({ session }: { session: Session | null }) {
       <div className="hidden border-b border-line bg-surface lg:block">
         <div className="mx-auto flex h-9 max-w-[1280px] items-center justify-end gap-5 px-6">
           {UTILITY.map((item) => (
-            <SmartLink
-              key={item.label}
-              href={item.href}
-              className="text-xs text-ink-600 transition-colors hover:text-brand-600"
-            >
+            <SmartLink key={item.label} href={item.href} className={utilLink}>
               {item.label}
             </SmartLink>
           ))}
@@ -70,7 +76,7 @@ export default function Header({ session }: { session: Session | null }) {
               {session.role === "admin" && (
                 <Link
                   href="/admin"
-                  className="text-xs font-bold text-brand-600 transition-colors hover:text-flame-500"
+                  className={`${utilItem} font-bold text-brand-600 hover:text-flame-500 active:text-flame-600`}
                 >
                   관리자
                 </Link>
@@ -85,31 +91,21 @@ export default function Header({ session }: { session: Session | null }) {
                   <b className="font-bold text-navy-900">{session.name}</b>님
                 </span>
               </span>
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="text-xs text-ink-600 transition-colors hover:text-brand-600"
-                >
+              <form action={logout} className="h-full">
+                <button type="submit" className={utilLink}>
                   로그아웃
                 </button>
               </form>
             </>
           ) : (
             GUEST_LINKS.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="text-xs text-ink-600 transition-colors hover:text-brand-600"
-              >
+              <Link key={item.label} href={item.href} className={utilLink}>
                 {item.label}
               </Link>
             ))
           )}
 
-          <Link
-            href="/en"
-            className="text-xs text-ink-600 transition-colors hover:text-brand-600"
-          >
+          <Link href="/en" className={utilLink}>
             ENGLISH
           </Link>
         </div>
