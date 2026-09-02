@@ -15,7 +15,7 @@ export default function NewAdminForm() {
   );
 
   return (
-    <section className="mt-14 border-t border-line pt-10">
+    <section className="mt-6 rounded-xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(6,42,85,0.04)] lg:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-navy-900">관리자 계정 추가</h2>

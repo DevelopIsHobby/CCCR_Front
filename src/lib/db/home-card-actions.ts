@@ -22,6 +22,7 @@ function readForm(formData: FormData) {
     body: value("body"),
     caption: value("caption") || null,
     dateText: value("dateText") || null,
+    icon: value("icon"),
     href: value("href"),
   };
 }
@@ -53,9 +54,9 @@ export async function saveHomeCard(
   if (id) {
     await db.run(
       `UPDATE home_cards
-          SET label = ?, title = ?, body = ?, caption = ?, date_text = ?, href = ?, updated_at = ?
+          SET label = ?, title = ?, body = ?, caption = ?, date_text = ?, href = ?, icon = ?, updated_at = ?
         WHERE id = ? AND kind = ?`,
-      [card.label, card.title, card.body, card.caption, card.dateText, card.href, stamp, id, card.kind],
+      [card.label, card.title, card.body, card.caption, card.dateText, card.href, card.icon, stamp, id, card.kind],
     );
   } else {
     /* 새 카드는 맨 뒤에 붙인다 */
@@ -64,8 +65,8 @@ export async function saveHomeCard(
       [card.kind],
     );
     await db.run(
-      `INSERT INTO home_cards (kind, sort_order, label, title, body, caption, date_text, href, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO home_cards (kind, sort_order, label, title, body, caption, date_text, href, icon, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         card.kind,
         Number(last?.max_order ?? 0) + 1,
@@ -75,6 +76,7 @@ export async function saveHomeCard(
         card.caption,
         card.dateText,
         card.href,
+        card.icon,
         stamp,
         stamp,
       ],

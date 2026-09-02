@@ -21,8 +21,8 @@ export default function PageTextForm({
   const [state, action, pending] = useActionState<AboutState, FormData>(savePageTexts, {});
 
   return (
-    <section className="mt-14 first:mt-0">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-navy-900 pb-4">
+    <section className="mt-6 first:mt-0 rounded-xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(6,42,85,0.04)] lg:p-6">
+      <div className="-mx-5 -mt-5 mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-line px-5 pb-4 pt-5 lg:-mx-6 lg:-mt-6 lg:px-6 lg:pt-6">
         <h2 className="text-xl font-bold text-navy-900">{group.title}</h2>
         <Link
           href={group.href}

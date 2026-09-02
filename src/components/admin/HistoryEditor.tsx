@@ -212,8 +212,8 @@ export default function HistoryEditor({
   };
 
   return (
-    <>
-      <div className="mt-10 flex flex-wrap items-end justify-between gap-3 border-b-2 border-navy-900 pb-4">
+    <section className="mt-6 rounded-xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(6,42,85,0.04)] lg:p-6">
+      <div className="-mx-5 -mt-5 mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-line px-5 pb-4 pt-5 lg:-mx-6 lg:-mt-6 lg:px-6 lg:pt-6">
         <h2 className="text-xl font-bold text-navy-900">{year}</h2>
         <span className="data-line text-ink-400">{entries.length}건 · 끌어서 순서 변경</span>
       </div>
@@ -249,6 +249,6 @@ export default function HistoryEditor({
           + {year} 연혁 추가
         </button>
       )}
-    </>
+    </section>
   );
 }

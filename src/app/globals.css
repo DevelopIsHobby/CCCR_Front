@@ -53,7 +53,9 @@
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     system-ui, "Segoe UI", "Malgun Gothic", sans-serif;
 
-  --animate-marquee: marquee 32s linear infinite;
+  /* 유관기관 로고 띠. 기관이 늘면 그만큼 길어지므로 흐르는 속도가 같도록 시간도 늘린다.
+     지금은 21곳 · 약 50px/초. */
+  --animate-marquee: marquee 90s linear infinite;
 }
 
 @keyframes marquee {
@@ -125,6 +127,13 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* 히어로와 같은 육각 모티브를 밝은 바탕 위에 쓸 때.
+   흰 선 대신 남색 선을 아주 옅게 깔아 무늬만 느껴지게 한다. */
+@utility hex-soft {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='96' viewBox='0 0 56 96'%3E%3Cpath d='M28 0l24 14v28L28 56 4 42V14z' fill='none' stroke='%23062a55' stroke-opacity='.05'/%3E%3Cpath d='M28 56l24 14v28L28 112 4 98V70z' fill='none' stroke='%23062a55' stroke-opacity='.05'/%3E%3C/svg%3E");
+  background-size: 56px 96px;
 }
 
 /* 게시글 본문. 편집기 화면과 실제 글 화면이 같은 규칙을 쓴다. */

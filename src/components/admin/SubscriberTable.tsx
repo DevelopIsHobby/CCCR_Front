@@ -10,17 +10,17 @@ const btn =
 export default function SubscriberTable({ subscribers }: { subscribers: Subscriber[] }) {
   if (subscribers.length === 0) {
     return (
-      <p className="border-y-2 border-navy-900 py-16 text-center text-md text-ink-400">
+      <p className="rounded-xl border border-dashed border-line bg-white py-16 text-center text-md text-ink-400">
         구독자가 없습니다.
       </p>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-xl border border-line bg-white shadow-[0_1px_2px_rgba(6,42,85,0.04)]">
       <table className="w-full min-w-[720px] border-collapse text-left">
         <thead>
-          <tr className="border-y-2 border-navy-900 bg-surface">
+          <tr className="border-b border-line bg-surface">
             <th className="px-4 py-4 text-base font-bold text-navy-900">이메일</th>
             <th className="w-28 px-4 py-4 text-center text-base font-bold text-navy-900">상태</th>
             <th className="w-32 px-4 py-4 text-center text-base font-bold text-navy-900">

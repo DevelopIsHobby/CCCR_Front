@@ -68,7 +68,7 @@ export default function FileManager({ report }: { report: FileReport }) {
           <div
             key={card.label}
             className={`rounded-xl border p-6 ${
-              card.accent ? "border-flame-500 bg-flame-100/40" : "border-line bg-surface"
+              card.accent ? "border-flame-500 bg-flame-100/40" : "border-line bg-white"
             }`}
           >
             <p className="text-base font-medium text-ink-600">{card.label}</p>
@@ -80,7 +80,7 @@ export default function FileManager({ report }: { report: FileReport }) {
       </div>
 
       {/* 정리 */}
-      <section className="mt-10 rounded-xl bg-surface p-6">
+      <section className="mt-6 rounded-xl border border-line bg-white shadow-[0_1px_2px_rgba(6,42,85,0.04)] p-5 lg:p-6">
         <h2 className="text-lg font-bold text-navy-900">정리</h2>
         <p className="mt-1.5 text-base leading-relaxed text-ink-600">
           어느 글도 쓰지 않는 이미지와, 기록 없이 디스크에만 남은 파일을 지웁니다. 글에 붙어 있는
@@ -125,10 +125,10 @@ export default function FileManager({ report }: { report: FileReport }) {
       </section>
 
       {/* 파일 목록 */}
-      <div className="mt-10 overflow-x-auto">
+      <div className="mt-6 overflow-x-auto rounded-xl border border-line bg-white shadow-[0_1px_2px_rgba(6,42,85,0.04)]">
         <table className="w-full min-w-[860px] border-collapse text-left">
           <thead>
-            <tr className="border-y-2 border-navy-900 bg-surface">
+            <tr className="border-b border-line bg-white">
               <th className="w-24 px-3 py-4 text-base font-bold text-navy-900">종류</th>
               <th className="px-3 py-4 text-base font-bold text-navy-900">파일명</th>
               <th className="px-3 py-4 text-base font-bold text-navy-900">쓰인 곳</th>

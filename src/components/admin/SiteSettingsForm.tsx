@@ -22,7 +22,7 @@ export default function SiteSettingsForm({ settings }: { settings: SiteSettings 
   );
 
   return (
-    <form action={action} className="mt-8 space-y-5 rounded-xl bg-surface p-6 lg:p-8">
+    <form action={action} className="mt-6 space-y-5 rounded-xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(6,42,85,0.04)] lg:p-6">
       <p className="text-md font-bold text-navy-900">푸터 표기</p>
       <div className="grid gap-5 sm:grid-cols-2">
         {SITE_FIELDS.map((field) => (

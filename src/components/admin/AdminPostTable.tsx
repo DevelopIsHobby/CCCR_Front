@@ -41,7 +41,7 @@ export default function AdminPostTable({
 
   if (posts.length === 0) {
     return (
-      <p className="border-y-2 border-navy-900 py-16 text-center text-md text-ink-400">
+      <p className="rounded-xl border border-dashed border-line bg-white py-16 text-center text-md text-ink-400">
         해당하는 글이 없습니다.
       </p>
     );
@@ -85,10 +85,10 @@ export default function AdminPostTable({
         </p>
       )}
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl border border-line bg-white shadow-[0_1px_2px_rgba(6,42,85,0.04)]">
         <table className="w-full min-w-[900px] border-collapse text-left">
           <thead>
-            <tr className="border-y-2 border-navy-900 bg-surface">
+            <tr className="border-b border-line bg-surface">
               <th className="w-12 px-3 py-4 text-center">
                 <input
                   type="checkbox"

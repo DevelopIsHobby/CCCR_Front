@@ -69,7 +69,7 @@ export default function Header({ session }: { session: Session | null }) {
             <>
               {session.role === "admin" && (
                 <Link
-                  href="/admin/home"
+                  href="/admin"
                   className="text-xs font-bold text-brand-600 transition-colors hover:text-flame-500"
                 >
                   관리자
@@ -255,6 +255,16 @@ export default function Header({ session }: { session: Session | null }) {
           </nav>
 
           <div className="grid grid-cols-2 gap-2 border-t border-line bg-surface p-5">
+            {session?.role === "admin" && (
+              <Link
+                href="/admin"
+                onClick={() => setDrawerOpen(false)}
+                className="col-span-2 rounded-md bg-navy-900 px-3 py-2.5 text-center text-sm font-bold text-white"
+              >
+                관리자 화면
+              </Link>
+            )}
+
             {[...UTILITY, ...(session ? [] : GUEST_LINKS), { label: "ENGLISH", href: "/en" }].map(
               (item) => (
                 <SmartLink

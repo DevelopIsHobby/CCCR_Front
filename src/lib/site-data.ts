@@ -72,13 +72,33 @@ export const QUICK_LINKS: QuickLink[] = [
 
 
 
-export const PARTNERS = [
-  "한국컴퓨팅산업협회",
-  "과학기술정보통신부",
-  "산업통상자원부",
-  "한국산업기술평가관리원",
-  "정보통신산업진흥원",
-  "한국클라우드산업협회",
-  "한국지능정보사회진흥원",
-  "정보통신기획평가원",
+/*
+  메인 하단에 흐르는 유관기관 로고 띠.
+  그림은 public/partners/ 에 있고, width·height 는 원본 크기다.
+  실제 표시 크기는 화면에서 정하고 이 값은 가로세로 비율을 알려 주는 용도로만 쓴다.
+*/
+export type Partner = { name: string; src: string; width: number; height: number };
+
+export const PARTNERS: Partner[] = [
+  { name: "한국산업기술기획평가원", src: "/partners/keit.png", width: 1428, height: 175 },
+  { name: "정보통신산업진흥원", src: "/partners/nipa.png", width: 326, height: 63 },
+  { name: "한국클라우드산업협회", src: "/partners/kcloud.png", width: 753, height: 331 },
+  { name: "한국지능정보사회진흥원", src: "/partners/nia.png", width: 510, height: 113 },
+  { name: "정보통신기획평가원", src: "/partners/iitp.png", width: 621, height: 90 },
+  { name: "한국컴퓨팅산업협회", src: "/partners/kcia.png", width: 415, height: 74 },
+  { name: "과학기술정보통신부", src: "/partners/msit.png", width: 501, height: 114 },
+  { name: "산업통상부", src: "/partners/motie.png", width: 499, height: 92 },
+  { name: "한국컴퓨팅사업협동조합", src: "/partners/kbiz-coop.png", width: 188, height: 35 },
+  { name: "공공클라우드지원센터", src: "/partners/pcsc.png", width: 300, height: 63 },
+  { name: "한국산업기술진흥원", src: "/partners/kiat.png", width: 975, height: 256 },
+  { name: "중소기업기술정보진흥원", src: "/partners/tipa.png", width: 451, height: 133 },
+  { name: "한국인터넷진흥원", src: "/partners/kisa.png", width: 1135, height: 220 },
+  { name: "한국전자통신연구원", src: "/partners/etri.png", width: 704, height: 82 },
+  { name: "한국오픈소스협회", src: "/partners/koss.png", width: 307, height: 40 },
+  { name: "한국네트워크산업협회", src: "/partners/knia.png", width: 842, height: 220 },
+  { name: "한국IT서비스산업협회", src: "/partners/itsa.png", width: 338, height: 52 },
+  { name: "SW중심사회", src: "/partners/sw-society.png", width: 196, height: 63 },
+  { name: "한국전자기술연구원", src: "/partners/keti.png", width: 983, height: 254 },
+  { name: "OpenMCP", src: "/partners/openmcp.png", width: 151, height: 44 },
+  { name: "CCCR 아카데미", src: "/partners/cccr-academy.png", width: 210, height: 48 },
 ];

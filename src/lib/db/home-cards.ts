@@ -17,6 +17,7 @@ export type HomeCard = {
   caption: string | null;
   dateText: string | null;
   href: string;
+  icon: string;
   isVisible: boolean;
 };
 
@@ -40,6 +41,7 @@ type RawCard = {
   caption: string | null;
   date_text: string | null;
   href: string;
+  icon: string;
   is_visible: number;
 };
 
@@ -53,10 +55,11 @@ const toCard = (r: RawCard): HomeCard => ({
   caption: r.caption,
   dateText: r.date_text,
   href: r.href,
+  icon: r.icon ?? "",
   isVisible: Number(r.is_visible) === 1,
 });
 
-const SELECT = `SELECT id, kind, sort_order, label, title, body, caption, date_text, href, is_visible
+const SELECT = `SELECT id, kind, sort_order, label, title, body, caption, date_text, href, icon, is_visible
                 FROM home_cards`;
 
 /** 화면에 보여줄 카드. 숨김 처리한 것은 뺀다. */
@@ -74,4 +77,14 @@ export async function listAllHomeCards(kind: HomeCardKind): Promise<HomeCard[]> 
   const db = await ready();
   const rows = await db.all<RawCard>(`${SELECT} WHERE kind = ? ORDER BY sort_order, id`, [kind]);
   return rows.map(toCard);
+}
+
+/** 배너 띠 등에 적는 '최근 갱신' 날짜. 보이는 카드 기준이고, 없으면 null 이다. */
+export async function getHomeCardsUpdatedAt(kind: HomeCardKind): Promise<string | null> {
+  const db = await ready();
+  const row = await db.get<{ latest: string | null }>(
+    "SELECT MAX(updated_at) AS latest FROM home_cards WHERE kind = ? AND is_visible = 1",
+    [kind],
+  );
+  return row?.latest ? row.latest.slice(0, 10).replace(/-/g, ".") : null;
 }

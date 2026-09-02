@@ -10,6 +10,8 @@ import {
   type HomeCardFormState,
 } from "@/lib/db/home-card-actions";
 import type { HomeCard, HomeCardKind } from "@/lib/db/home-cards";
+import CardIcon from "@/components/CardIcon";
+import { HOME_CARD_ICONS, normalizeIcon } from "@/lib/home-card-icons";
 
 /*
   메인 화면 카드 편집기.
@@ -45,6 +47,44 @@ const input =
   "w-full rounded-md border border-line px-4 py-3 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
 const smallBtn =
   "rounded px-2.5 py-1.5 text-sm font-semibold text-ink-600 ring-1 ring-line transition-colors hover:bg-surface disabled:opacity-40";
+
+/*
+  카드에 붙일 그림 고르기.
+  라디오 단추를 감춰 두고 그림 칸 자체를 눌러 고르게 한다. 고른 것만 파랗게 켜진다.
+*/
+function IconPicker({ defaultValue }: { defaultValue: string }) {
+  const selected = normalizeIcon(defaultValue);
+
+  return (
+    <fieldset>
+      <legend className="mb-1.5 block text-base font-bold text-navy-900">그림</legend>
+      <p className="mb-3 text-sm text-ink-400">
+        카드 왼쪽 위에 나옵니다. 자료 종류와 가까운 것을 고르세요.
+      </p>
+
+      <div className="flex flex-wrap gap-2">
+        {HOME_CARD_ICONS.map((icon) => (
+          <label key={icon.id} title={icon.label} className="cursor-pointer">
+            <input
+              type="radio"
+              name="icon"
+              value={icon.id}
+              defaultChecked={icon.id === selected}
+              className="peer sr-only"
+            />
+            {/* 색은 이 칸에서 정하고 그림은 currentColor 를 따라간다 */}
+            <span className="flex w-[84px] flex-col items-center gap-1.5 rounded-lg border border-line bg-white px-2 py-3 text-center text-ink-400 transition-colors hover:border-brand-500 hover:text-brand-600 peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-600 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-flame-500">
+              <CardIcon name={icon.id} className="size-6" />
+              <span className="text-2xs font-semibold leading-tight text-ink-600">
+                {icon.label}
+              </span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
 
 function CardForm({
   kind,
@@ -100,6 +140,8 @@ function CardForm({
         <span className="mb-1.5 block text-base font-bold text-navy-900">{fields.body}</span>
         <textarea name="body" rows={kind === "slide" ? 3 : 2} defaultValue={card?.body ?? ""} className={input} />
       </label>
+
+      {kind === "banner" && <IconPicker defaultValue={card?.icon ?? ""} />}
 
       {kind === "slide" && (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -194,6 +236,13 @@ function CardRow({
       >
         ⠿
       </span>
+
+      {/* 배너 띠는 카드에 그림이 붙으므로 목록에서도 함께 보여 준다 */}
+      {card.kind === "banner" && (
+        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600">
+          <CardIcon name={card.icon} className="size-5" />
+        </span>
+      )}
 
       <div className="min-w-0 flex-1">
         <p className="flex flex-wrap items-center gap-2">
@@ -314,8 +363,8 @@ export default function HomeCardEditor({
   };
 
   return (
-    <section className="mt-14 first:mt-0">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-navy-900 pb-4">
+    <section className="mt-6 first:mt-0 rounded-xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(6,42,85,0.04)] lg:p-6">
+      <div className="-mx-5 -mt-5 mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-line px-5 pb-4 pt-5 lg:-mx-6 lg:-mt-6 lg:px-6 lg:pt-6">
         <div>
           <h2 className="text-xl font-bold text-navy-900">{name}</h2>
           <p className="mt-1.5 text-base text-ink-600">{desc}</p>
