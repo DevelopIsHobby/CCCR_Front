@@ -21,6 +21,13 @@ export const metadata: Metadata = {
   },
   description:
     "한국클라우드컴퓨팅연구조합(C3R)은 클라우드컴퓨팅산업이 4차 산업 및 지능정보사회로의 도약에 기여할 수 있도록 공동 연구개발과 인력양성을 지원합니다.",
+  /*
+    미리보기 배포는 검색에 잡히면 안 된다. 정식 공개 전 주소가 색인되면
+    나중에 진짜 주소와 내용이 겹쳐 검색 순위에도 손해다.
+    SITE_NOINDEX=1 을 넣은 곳에서만 막고, 값이 없으면 평소대로 색인된다.
+  */
+  robots:
+    process.env.SITE_NOINDEX === "1" ? { index: false, follow: false } : undefined,
 };
 
 export default async function RootLayout({
