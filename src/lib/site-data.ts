@@ -21,6 +21,7 @@ export const NAV: NavItem[] = [
     children: [
       { label: "회원사 현황", href: "/members/list" },
       { label: "회원사 가입안내", href: "/members/join" },
+      { label: "사업공고 안내", href: "/members/notice" },
     ],
   },
   {
@@ -32,7 +33,8 @@ export const NAV: NavItem[] = [
     ],
   },
   {
-    label: "게시판",
+    /* 공지사항과 행사정보가 함께 있어 '게시판'보다 뜻이 분명하다. 주소(/board)는 그대로 둔다. */
+    label: "알림마당",
     href: "/board",
     children: [
       { label: "공지사항", href: "/board/notice" },

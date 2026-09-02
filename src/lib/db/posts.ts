@@ -17,6 +17,8 @@ export type PostRow = {
   link: PostLink | null;
   /** 행사정보 게시판에서만 채운다. 나머지 게시판은 전부 null 이다. */
   event: EventInfo;
+  /** 본문 맨 앞의 그림. 카드형 목록의 대표 그림으로 쓴다. 없으면 null. */
+  thumbUrl: string | null;
 };
 
 export type PostLink = {
@@ -66,7 +68,15 @@ type RawRow = {
   event_apply_by: string | null;
   link_url: string | null;
   link_label: string | null;
+  /* NUMBERED 가 p.* 를 그대로 넘기므로 본문도 함께 온다 */
+  body: string | null;
 };
+
+/** 본문에서 맨 앞 그림 주소를 뽑는다. 우리가 저장한 그림만 본다. */
+function firstImage(body: string | null): string | null {
+  const found = body?.match(/\/api\/images\/\d+/);
+  return found ? found[0] : null;
+}
 
 function toPost(r: RawRow): PostRow {
   return {
@@ -81,6 +91,7 @@ function toPost(r: RawRow): PostRow {
     createdAt: r.created_at,
     attachmentCount: Number(r.attachment_count),
     link: r.link_url ? { url: r.link_url, label: r.link_label ?? null } : null,
+    thumbUrl: firstImage(r.body),
     event: {
       host: r.event_host ?? null,
       place: r.event_place ?? null,

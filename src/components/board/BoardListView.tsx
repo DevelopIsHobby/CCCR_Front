@@ -3,6 +3,7 @@ import PageShell from "@/components/sub/PageShell";
 import { BoardSearch, Pagination } from "@/components/sub/Ui";
 import BoardTable from "@/components/board/BoardTable";
 import EventCards from "@/components/board/EventCards";
+import GalleryCards from "@/components/board/GalleryCards";
 import { listPosts } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
 import type { BoardConfig } from "@/lib/boards";
@@ -49,6 +50,8 @@ export default async function BoardListView({
 
       {board.layout === "cards" ? (
         <EventCards base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
+      ) : board.layout === "gallery" ? (
+        <GalleryCards base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
       ) : (
         <BoardTable base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
       )}

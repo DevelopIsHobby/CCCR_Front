@@ -14,8 +14,13 @@ export type BoardConfig = {
    * 예) 공지사항은 게시판 메뉴, 산업뉴스는 정보서비스 메뉴 아래에 있다.
    */
   basePath: string;
-  /** 목록 표시 방식. 공지·뉴스는 표, 행사는 카드가 읽기 좋다. */
-  layout: "table" | "cards";
+  /**
+   * 목록 표시 방식.
+   * table  — 공지·뉴스처럼 제목이 정보의 전부인 게시판
+   * cards  — 행사처럼 일시·장소를 함께 봐야 하는 게시판
+   * gallery — 뉴스레터처럼 그림이 곧 내용인 게시판
+   */
+  layout: "table" | "cards" | "gallery";
   /** 주최·장소·행사일 같은 행사 전용 입력을 쓰는가 */
   hasEventFields: boolean;
   /**
@@ -76,7 +81,7 @@ export const BOARDS: BoardConfig[] = [
     name: "뉴스레터",
     desc: "조합이 발행한 뉴스레터를 모아 두었습니다.",
     basePath: "/info/newsletter",
-    layout: "table",
+    layout: "gallery",
     hasEventFields: false,
     showOnHome: false,
   },
