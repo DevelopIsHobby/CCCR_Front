@@ -24,7 +24,14 @@ if (!email || !password) {
   process.exit(1);
 }
 
-const dialect = process.env.DB_DRIVER === "postgres" ? "postgres" : "sqlite";
+/* 앱(client.ts)과 같은 규칙: DB_DRIVER 가 없어도 DATABASE_URL 이 postgres 면 그쪽을 쓴다. */
+const explicit = process.env.DB_DRIVER?.trim().toLowerCase();
+const urlIsPostgres = /^postgres(ql)?:\/\//i.test(process.env.DATABASE_URL ?? "");
+
+let dialect;
+if (explicit === "postgres" || explicit === "postgresql") dialect = "postgres";
+else if (explicit === "sqlite") dialect = "sqlite";
+else dialect = urlIsPostgres ? "postgres" : "sqlite";
 
 /* 방언별로 같은 모양의 최소 인터페이스를 만든다. */
 const db = dialect === "postgres" ? await openPostgres() : openSqlite();

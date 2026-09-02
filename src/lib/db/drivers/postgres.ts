@@ -24,9 +24,14 @@ function getPool(): Pool {
 
   pool = new Pool({
     connectionString,
-    max: Number(process.env.DATABASE_POOL_MAX ?? 10),
+    /*
+      서버리스에서는 함수 인스턴스마다 풀을 따로 잡는다. 인스턴스가 늘면
+      커넥션이 금세 바닥나므로 기본값을 1 로 둔다. 디스크가 있는 서버는 10.
+    */
+    max: Number(process.env.DATABASE_POOL_MAX ?? (process.env.VERCEL ? 1 : 10)),
     idleTimeoutMillis: 30_000,
-    /* 관리형 DB 처럼 TLS 를 요구하는 곳을 위해 DATABASE_SSL=1 로 켠다. */
+    /* 관리형 DB 처럼 TLS 를 요구하는 곳을 위해 DATABASE_SSL=1 로 켠다.
+       값이 없어도 주소에 sslmode=require 가 있으면 pg 가 알아서 TLS 를 쓴다. */
     ssl: process.env.DATABASE_SSL === "1" ? { rejectUnauthorized: false } : undefined,
   });
 

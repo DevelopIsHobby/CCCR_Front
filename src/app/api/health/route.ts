@@ -17,7 +17,7 @@ function scrub(message: string): string {
 
 export async function GET() {
   const env = {
-    DB_DRIVER: process.env.DB_DRIVER ?? "(없음 → sqlite 로 동작)",
+    DB_DRIVER: process.env.DB_DRIVER ?? "(없음 — DATABASE_URL 을 보고 정함)",
     DATABASE_URL: process.env.DATABASE_URL ? "설정됨" : "(없음)",
     DATABASE_SSL: process.env.DATABASE_SSL ?? "(없음)",
     DATABASE_POOL_MAX: process.env.DATABASE_POOL_MAX ?? "(없음)",
