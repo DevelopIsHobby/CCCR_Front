@@ -220,14 +220,21 @@ export function ContactBanner({
   desc = "조합 사무국이 회원사 가입과 사업 참여를 안내해 드립니다.",
   href = "/about/location",
   cta = "찾아오시는 길",
+  spacing = "normal",
 }: {
   title?: string;
   desc?: string;
   href?: string;
   cta?: string;
+  /** 바로 위에 다른 띠가 있으면 tight 로 붙인다. 사이가 비어 보이지 않게. */
+  spacing?: "normal" | "tight";
 }) {
   return (
-    <div className="relative mt-20 overflow-hidden rounded-2xl bg-navy-900 px-8 py-10 lg:px-12">
+    <div
+      className={`relative overflow-hidden rounded-2xl bg-navy-900 px-8 py-10 lg:px-12 ${
+        spacing === "tight" ? "mt-5" : "mt-20"
+      }`}
+    >
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-xl font-bold text-white">{title}</p>

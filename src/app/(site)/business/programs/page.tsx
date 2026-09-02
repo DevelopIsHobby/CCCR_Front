@@ -64,6 +64,7 @@ export default function Page() {
       </section>
 
       <ContactBanner
+        spacing="tight"
         title="사업 참여를 원하시나요?"
         desc="회원사 가입 절차와 회비를 안내해 드립니다."
         href="/members/join"
