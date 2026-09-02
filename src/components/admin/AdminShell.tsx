@@ -14,7 +14,7 @@ import {
 } from "@/lib/admin-nav";
 import { logout } from "@/lib/auth/actions";
 
-export type AdminBadges = { pendingMembers: number; newProposals: number };
+export type AdminBadges = { pendingMembers: number; newProposals: number; roomRequests: number };
 
 type Props = {
   name: string;
