@@ -114,6 +114,8 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
         className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-brand-700/70"
         aria-hidden
       />
+      {/* 서브페이지 머리와 같은 얇은 액센트 한 줄. 흰 바탕과 만나는 경계를 잡아 준다. */}
+      <span className="absolute inset-x-0 bottom-0 z-10 h-1 bg-flame-500" aria-hidden />
 
       <div className="relative mx-auto grid max-w-[1280px] gap-6 px-6 py-10 lg:grid-cols-[1.55fr_1fr] lg:py-14">
         {/* 슬라이더 */}

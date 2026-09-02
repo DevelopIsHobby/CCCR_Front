@@ -14,7 +14,7 @@ export type AdminLink = {
   /** 사이드바에 따로 줄을 두지 않는 하위 화면들. 열려 있으면 부모가 켜진다. */
   children?: { href: string; label: string }[];
   /** 처리할 일 개수를 사이드바에 붙일 때 쓰는 이름 */
-  badge?: "pendingMembers" | "newProposals" | "roomRequests";
+  badge?: "pendingMembers" | "newProposals" | "roomRequests" | "newPromos";
 };
 
 export type AdminGroup = {
@@ -77,6 +77,14 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         ready: true,
         icon: "calendar",
         badge: "roomRequests",
+      },
+      {
+        href: "/admin/promos",
+        label: "홍보 신청",
+        desc: "제품·행사 홍보 요청",
+        ready: true,
+        icon: "megaphone",
+        badge: "newPromos",
       },
       {
         href: "/admin/proposals",

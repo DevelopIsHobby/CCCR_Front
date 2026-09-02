@@ -2,11 +2,12 @@ import Link from "next/link";
 import { IconArrow } from "./Icons";
 import ProposalDialog from "./ProposalDialog";
 import RoomBookingDialog from "./RoomBookingDialog";
+import PromoDialog from "./PromoDialog";
 
 /*
-  메인의 '참여하기' 세 칸.
+  메인의 '참여하기' 네 칸.
 
-  세 가지 모두 회원사안내·주요사업 화면 안에 있거나 아예 메뉴가 없어서
+  네 가지 모두 회원사안내·주요사업 화면 안에 있거나 아예 메뉴가 없어서
   그 화면까지 들어오는 사람이 아니면 있는 줄도 모른다. 메인에서 바로 하게 낸다.
 
   바로 위 알림판(BannerRail)이 옅은 회색 바탕이라 같은 색을 쓰면 두 자리가
@@ -35,7 +36,7 @@ export default function JoinUsSection() {
           <p className="text-base text-brand-100/70">조합 사업에 함께하실 분들을 기다립니다.</p>
         </div>
 
-        <div className="mt-9 grid gap-5 lg:grid-cols-3">
+        <div className="mt-9 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {/* 사업공고 — 임원사 담당자가 받아보는 주간 안내 */}
           <div className="flex flex-col rounded-2xl bg-white p-8">
             <span className="block h-1 w-10 rounded-full bg-brand-500" aria-hidden />
@@ -89,6 +90,22 @@ export default function JoinUsSection() {
 
             <div className="mt-auto pt-8">
               <ProposalDialog />
+            </div>
+          </div>
+
+          {/* 홍보 — 조합이 가진 명단으로 회원사·기관에 알린다 */}
+          <div className="flex flex-col rounded-2xl bg-white p-8">
+            <span className="block h-1 w-10 rounded-full bg-brand-200" aria-hidden />
+            <p className="data-line mt-6 text-brand-600">홍보 서비스</p>
+            <p className="mt-3 text-xl font-bold leading-snug text-navy-900">
+              제품·행사를 알려드립니다
+            </p>
+            <p className="mt-3 text-md leading-relaxed text-ink-600">
+              조합이 가진 회원사·기관 명단으로 제품과 서비스, 교육과 행사를 대신 알려드립니다.
+            </p>
+
+            <div className="mt-auto pt-8">
+              <PromoDialog />
             </div>
           </div>
         </div>

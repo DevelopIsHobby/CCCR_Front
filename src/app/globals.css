@@ -80,6 +80,17 @@
     word-break: keep-all;
   }
 
+  /*
+    Tailwind v4 는 단추의 커서를 default 로 되돌려 놓는다.
+    링크는 손가락, 단추는 화살표가 되어 같은 줄에 나란히 있으면 눌러도 되는지
+    헷갈린다. 누를 수 있는 것은 모두 손가락으로 되돌린다.
+  */
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+
   /* 국문 제목은 자간을 좁혀야 덩어리로 읽힌다 */
   h1,
   h2,

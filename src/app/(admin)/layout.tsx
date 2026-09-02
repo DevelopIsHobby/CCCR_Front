@@ -6,6 +6,7 @@ import { getSession } from "@/lib/auth/session";
 import { countUsersByStatus } from "@/lib/db/users";
 import { countNewProposals } from "@/lib/db/outreach";
 import { countRequestedReservations } from "@/lib/db/rooms";
+import { countNewPromos } from "@/lib/db/promos";
 import "../globals.css";
 
 /*
@@ -35,10 +36,11 @@ export default async function AdminRootLayout({
   if (session?.role !== "admin") redirect("/login?next=/admin");
 
   /* 사이드바에 붙는 '가입 승인 대기'·'새 제안' 숫자 */
-  const [counts, newProposals, roomRequests] = await Promise.all([
+  const [counts, newProposals, roomRequests, newPromos] = await Promise.all([
     countUsersByStatus(),
     countNewProposals(),
     countRequestedReservations(),
+    countNewPromos(),
   ]);
 
   return (
@@ -53,7 +55,7 @@ export default async function AdminRootLayout({
         <AdminShell
           name={session.name}
           email={session.email}
-          badges={{ pendingMembers: counts.pending, newProposals, roomRequests }}
+          badges={{ pendingMembers: counts.pending, newProposals, roomRequests, newPromos }}
         >
           {children}
         </AdminShell>

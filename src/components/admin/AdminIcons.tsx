@@ -124,6 +124,15 @@ function IconCalendar({ className }: IconProps) {
   );
 }
 
+function IconMegaphone({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M4 10v4a1 1 0 0 0 1 1h3l6 4V5L8 9H5a1 1 0 0 0-1 1z" />
+      <path d="M17.5 9.5a4 4 0 0 1 0 5" />
+    </svg>
+  );
+}
+
 const ICONS = {
   gauge: IconGauge,
   layout: IconLayout,
@@ -137,6 +146,7 @@ const ICONS = {
   chart: IconChart,
   shield: IconShield,
   calendar: IconCalendar,
+  megaphone: IconMegaphone,
 };
 
 export type AdminIconName = keyof typeof ICONS;
