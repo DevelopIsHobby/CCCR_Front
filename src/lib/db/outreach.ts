@@ -16,8 +16,11 @@ type RawNotice = {
   email: string;
   tel: string;
   status: string;
+  note: string;
   created_at: string;
 };
+
+const SUBSCRIBE_STATUSES = new Set(["pending", "active", "rejected", "unsubscribed"]);
 
 const toNotice = (r: RawNotice): NoticeSubscriber => ({
   id: Number(r.id),
@@ -25,7 +28,8 @@ const toNotice = (r: RawNotice): NoticeSubscriber => ({
   name: r.name,
   email: r.email,
   tel: r.tel,
-  status: r.status === "unsubscribed" ? "unsubscribed" : "active",
+  status: (SUBSCRIBE_STATUSES.has(r.status) ? r.status : "pending") as SubscribeStatus,
+  note: r.note,
   createdAt: r.created_at,
 });
 
@@ -49,7 +53,7 @@ export async function listNoticeSubscribers(
   }
 
   const rows = await db.all<RawNotice>(
-    `SELECT id, company, name, email, tel, status, created_at FROM notice_subscribers
+    `SELECT id, company, name, email, tel, status, note, created_at FROM notice_subscribers
      ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
      ORDER BY id DESC`,
     params,
@@ -57,21 +61,28 @@ export async function listNoticeSubscribers(
   return rows.map(toNotice);
 }
 
-export async function countNoticeSubscribers(): Promise<{
-  active: number;
-  unsubscribed: number;
-}> {
+export type NoticeCounts = Record<SubscribeStatus, number>;
+
+export async function countNoticeSubscribers(): Promise<NoticeCounts> {
   const db = await ready();
   const rows = await db.all<{ status: string; n: number }>(
     "SELECT status, COUNT(*) AS n FROM notice_subscribers GROUP BY status",
   );
 
-  const counts = { active: 0, unsubscribed: 0 };
+  const counts: NoticeCounts = { pending: 0, active: 0, rejected: 0, unsubscribed: 0 };
   for (const row of rows) {
-    if (row.status === "unsubscribed") counts.unsubscribed = Number(row.n);
-    else counts.active = Number(row.n);
+    if (SUBSCRIBE_STATUSES.has(row.status)) counts[row.status as SubscribeStatus] = Number(row.n);
   }
   return counts;
+}
+
+/** 사이드바 배지 — 승인을 기다리는 신청 수 */
+export async function countPendingNotices(): Promise<number> {
+  const db = await ready();
+  const row = await db.get<{ n: number }>(
+    "SELECT COUNT(*) AS n FROM notice_subscribers WHERE status = 'pending'",
+  );
+  return Number(row?.n ?? 0);
 }
 
 /* ── 교육사업 제안 ────────────────────────────────── */

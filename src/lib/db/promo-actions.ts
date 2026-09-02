@@ -5,7 +5,7 @@ import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
 import { deleteUpload, saveUpload } from "@/lib/uploads";
-import type { PromoStatus } from "@/lib/promo-types";
+import { MIN_PROMO_BODY, type PromoStatus } from "@/lib/promo-types";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -47,7 +47,9 @@ export async function submitPromo(_prev: PromoState, formData: FormData): Promis
   if (!name) return { error: "신청자 이름을 입력해 주세요." };
   if (!EMAIL.test(email)) return { error: "이메일 주소를 다시 확인해 주세요." };
   if (!subject) return { error: "홍보 제목을 입력해 주세요." };
-  if (body.length < 10) return { error: "홍보 내용을 조금 더 자세히 적어 주세요." };
+  if (body.length < MIN_PROMO_BODY) {
+    return { error: `홍보 내용을 ${MIN_PROMO_BODY}자 이상 적어 주세요. (지금 ${body.length}자)` };
+  }
   if (!DATE.test(startOn)) return { error: "홍보 희망일을 골라 주세요." };
   if (startOn < new Date().toISOString().slice(0, 10)) {
     return { error: "지난 날짜로는 신청할 수 없습니다." };

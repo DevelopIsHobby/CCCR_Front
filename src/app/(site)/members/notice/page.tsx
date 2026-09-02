@@ -14,7 +14,7 @@ const POINTS = [
   },
   {
     title: "임원사 대상",
-    desc: "이사장사와 임원사 담당자에게 보내는 안내입니다. 회사에서 여러 분이 받으시려면 각각 신청해 주세요.",
+    desc: "이사장사와 임원사 담당자에게 보내는 안내입니다. 신청하시면 사무국에서 임원사 여부를 확인한 뒤 승인해 드립니다.",
   },
   {
     title: "놓치는 공고 없이",
@@ -45,6 +45,10 @@ export default async function Page() {
       <h3 className="mt-16 border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">
         수신 신청
       </h3>
+      <p className="mt-5 rounded-lg bg-surface px-5 py-4 text-base leading-relaxed text-ink-600">
+        신청하시면 바로 발송되지 않습니다. 임원사 담당자가 맞는지 사무국에서 확인한 뒤
+        승인해 드리고, 그때부터 매주 보내드립니다.
+      </p>
       <NoticeSignupForm />
 
       <p className="mt-10 rounded-xl bg-surface px-6 py-5 text-base leading-relaxed text-ink-600">

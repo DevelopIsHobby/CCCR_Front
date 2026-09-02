@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
-import { findConflict, listDaySlots } from "@/lib/db/rooms";
+import { findBlock, findConflict, listBusySlots } from "@/lib/db/rooms";
 import {
   ROOM_LABEL,
   type ReservationStatus,
@@ -24,10 +24,10 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 export type ReservationState = { error?: string; ok?: string };
 
-/** 신청 화면에서 그 날 잡힌 시간을 보여 준다. */
-export async function getDaySlots(room: RoomSlug, useDate: string) {
+/** 신청 화면에서 그 날 쓸 수 없는 시간을 보여 준다. */
+export async function getBusySlots(room: RoomSlug, useDate: string) {
   if (!DATE.test(useDate) || (room !== "large" && room !== "small")) return [];
-  return listDaySlots(room, useDate);
+  return listBusySlots(room, useDate);
 }
 
 export async function requestReservation(
@@ -56,6 +56,16 @@ export async function requestReservation(
   if (!org) return { error: "단체·회사명을 입력해 주세요." };
   if (!name) return { error: "신청자 이름을 입력해 주세요." };
   if (!EMAIL.test(email)) return { error: "이메일 주소를 다시 확인해 주세요." };
+
+  /* 조합이 직접 쓰는 시간은 예약이 없어도 빌려줄 수 없다 */
+  const block = await findBlock(room, useDate, startTime, endTime);
+  if (block) {
+    return {
+      error: `그 시간은 조합에서 사용합니다. (${block.startTime}~${block.endTime}${
+        block.memo ? ` · ${block.memo}` : ""
+      }) 다른 시간을 골라 주세요.`,
+    };
+  }
 
   const clash = await findConflict(room, useDate, startTime, endTime);
   if (clash) {
@@ -103,6 +113,11 @@ export async function setReservationStatus(
     );
     if (!row) return;
 
+    const block = await findBlock(row.room as RoomSlug, row.use_date, row.start_time, row.end_time);
+    if (block) {
+      return { error: `조합 내부 사용과 겹칩니다. (${block.startTime}~${block.endTime})` };
+    }
+
     const clash = await findConflict(
       row.room as RoomSlug,
       row.use_date,
@@ -120,6 +135,47 @@ export async function setReservationStatus(
     now(),
     id,
   ]);
+  revalidatePath("/admin/rooms");
+}
+
+/* ── 조합 내부 사용 시간 ──────────────────────────── */
+
+export async function saveBlock(
+  _prev: ReservationState,
+  formData: FormData,
+): Promise<ReservationState> {
+  await requireAdmin();
+
+  const room = trimmed(formData, "room", 10) as RoomSlug;
+  const useDate = trimmed(formData, "useDate", 10);
+  const startTime = trimmed(formData, "startTime", 5);
+  const endTime = trimmed(formData, "endTime", 5);
+  const memo = trimmed(formData, "memo", 200);
+
+  if (room !== "large" && room !== "small") return { error: "회의실을 선택해 주세요." };
+  if (!DATE.test(useDate)) return { error: "날짜를 골라 주세요." };
+  if (!TIME.test(startTime) || !TIME.test(endTime)) return { error: "시간을 정해 주세요." };
+  if (endTime <= startTime) return { error: "종료 시간이 시작 시간보다 빨라요." };
+
+  const db = await ready();
+  await db.run(
+    `INSERT INTO room_blocks (room, use_date, start_time, end_time, memo, created_at)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [room, useDate, startTime, endTime, memo, now()],
+  );
+
+  revalidatePath("/admin/rooms");
+  return { ok: "내부 사용 시간을 잡았습니다." };
+}
+
+export async function deleteBlock(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const id = Number(formData.get("id"));
+  if (!id) return;
+
+  const db = await ready();
+  await db.run("DELETE FROM room_blocks WHERE id = ?", [id]);
   revalidatePath("/admin/rooms");
 }
 

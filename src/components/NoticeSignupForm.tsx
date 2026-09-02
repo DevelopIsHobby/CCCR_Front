@@ -70,7 +70,7 @@ export default function NoticeSignupForm() {
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm leading-relaxed text-ink-400">
-          수집한 정보는 사업공고 발송에만 씁니다. 수신 중단은 사무국으로 연락 주시면 됩니다.
+          사무국 승인 후 발송이 시작됩니다. 수집한 정보는 사업공고 발송에만 씁니다.
         </p>
         <button
           type="submit"

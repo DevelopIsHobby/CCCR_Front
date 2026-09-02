@@ -3,27 +3,32 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { IconClose } from "./Icons";
 import {
-  getDaySlots,
+  getBusySlots,
   requestReservation,
   type ReservationState,
 } from "@/lib/db/room-actions";
 import {
-  RESERVATION_STATUS_LABEL,
+  isEndBlocked,
+  isStartBlocked,
   ROOMS,
-  type ReservationStatus,
+  timeOptions,
+  type BusySlot,
   type RoomSlug,
 } from "@/lib/room-types";
 
 const input =
   "w-full rounded-md border border-line bg-white px-4 py-3 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
 
-type Slot = { startTime: string; endTime: string; status: ReservationStatus };
+const SLOTS = timeOptions();
 
 /*
   회의실 대여 예약 팝업.
   메뉴를 따로 두지 않고 메인에서 바로 연다.
-  회의실과 날짜를 고르면 그 날 이미 잡힌 시간을 먼저 보여 준다.
-  헛걸음하는 신청을 줄이려는 것이고, 겹치면 서버에서 한 번 더 막는다.
+
+  회의실과 날짜를 고르면 쓸 수 없는 시간을 목록에서 아예 빼 버린다.
+  고를 수 없는 시간을 남겨 두면 눌러 보고 나서야 안 된다는 것을 알게 된다.
+  다른 사람의 예약뿐 아니라 조합이 직접 쓰는 시간도 함께 뺀다.
+  그래도 서버에서 한 번 더 막는다.
 */
 export default function RoomBookingDialog() {
   const [open, setOpen] = useState(false);
@@ -40,8 +45,11 @@ export default function RoomBookingDialog() {
     가져온 일정은 어느 회의실·어느 날 것인지 함께 담아 둔다.
     회의실이나 날짜를 바꾸면 키가 어긋나 저절로 '확인 중'으로 돌아간다.
   */
-  const [loaded, setLoaded] = useState<{ key: string; rows: Slot[] } | null>(null);
+  const [loaded, setLoaded] = useState<{ key: string; rows: BusySlot[] } | null>(null);
   const key = `${room}|${useDate}`;
+
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
 
   useEffect(() => {
     const dialog = ref.current;
@@ -56,7 +64,7 @@ export default function RoomBookingDialog() {
     if (!open || !useDate) return;
 
     let cancelled = false;
-    getDaySlots(room, useDate).then((rows) => {
+    getBusySlots(room, useDate).then((rows) => {
       if (!cancelled) setLoaded({ key: `${room}|${useDate}`, rows });
     });
 
@@ -66,8 +74,22 @@ export default function RoomBookingDialog() {
   }, [open, room, useDate]);
 
   /* 지금 고른 회의실·날짜의 일정. 아직 못 가져왔으면 null 이다. */
-  const slots = loaded?.key === key ? loaded.rows : null;
+  const busy = loaded?.key === key ? loaded.rows : null;
   const today = new Date().toISOString().slice(0, 10);
+
+  /* 고를 수 있는 시각만 남긴다. 마지막 칸은 시작이 될 수 없다. */
+  const startChoices = SLOTS.slice(0, -1).filter((t) => !busy || !isStartBlocked(t, busy));
+  const endChoices = startTime
+    ? SLOTS.filter((t) => t > startTime && (!busy || !isEndBlocked(startTime, t, busy)))
+    : [];
+
+  /* 회의실·날짜를 바꾸면 못 쓰게 된 시간이 남아 있을 수 있다 */
+  if (startTime && busy && !startChoices.includes(startTime)) {
+    setStartTime("");
+    setEndTime("");
+  } else if (endTime && startTime && busy && !endChoices.includes(endTime)) {
+    setEndTime("");
+  }
 
   return (
     <>
@@ -158,31 +180,42 @@ export default function RoomBookingDialog() {
                 </label>
               </div>
 
-              {/* 고른 날에 이미 잡힌 시간 */}
+              {/* 고른 날에 쓸 수 없는 시간 */}
               {useDate && (
                 <div className="rounded-lg bg-surface px-5 py-4">
-                  {slots === null ? (
+                  {busy === null ? (
                     <p className="text-base text-ink-400">잡힌 일정을 확인하는 중…</p>
-                  ) : slots.length === 0 ? (
+                  ) : busy.length === 0 ? (
                     <p className="text-base font-medium text-brand-700">
-                      이 날은 아직 잡힌 일정이 없습니다.
+                      이 날은 하루 종일 비어 있습니다.
                     </p>
                   ) : (
                     <>
-                      <p className="text-base font-bold text-navy-900">이미 잡힌 시간</p>
+                      <p className="text-base font-bold text-navy-900">쓸 수 없는 시간</p>
                       <ul className="mt-2 flex flex-wrap gap-2">
-                        {slots.map((s) => (
+                        {busy.map((s) => (
                           <li
-                            key={`${s.startTime}-${s.endTime}`}
-                            className="label-mono rounded bg-white px-2.5 py-1 text-sm tabular-nums text-ink-600 ring-1 ring-line"
+                            key={`${s.kind}-${s.startTime}-${s.endTime}`}
+                            className={`label-mono rounded px-2.5 py-1 text-sm tabular-nums ring-1 ${
+                              s.kind === "internal"
+                                ? "bg-navy-900 text-white ring-navy-900"
+                                : "bg-white text-ink-600 ring-line"
+                            }`}
                           >
                             {s.startTime}~{s.endTime}
-                            <span className="ml-1.5 text-ink-400">
-                              {RESERVATION_STATUS_LABEL[s.status]}
+                            <span
+                              className={`ml-1.5 ${
+                                s.kind === "internal" ? "text-brand-200" : "text-ink-400"
+                              }`}
+                            >
+                              {s.kind === "internal" ? `조합 사용 · ${s.label}` : s.label}
                             </span>
                           </li>
                         ))}
                       </ul>
+                      <p className="mt-2.5 text-sm text-ink-400">
+                        아래 시간 목록에서는 이 시간대가 빠져 있습니다.
+                      </p>
                     </>
                   )}
                 </div>
@@ -191,11 +224,42 @@ export default function RoomBookingDialog() {
               <div className="grid gap-4 sm:grid-cols-3">
                 <label className="block">
                   <span className="mb-1.5 block text-base font-bold text-navy-900">시작</span>
-                  <input name="startTime" type="time" required step={600} className={input} />
+                  <select
+                    name="startTime"
+                    required
+                    value={startTime}
+                    onChange={(e) => {
+                      setStartTime(e.target.value);
+                      setEndTime("");
+                    }}
+                    disabled={!useDate}
+                    className={`${input} disabled:bg-surface disabled:text-ink-400`}
+                  >
+                    <option value="">{useDate ? "고르기" : "날짜 먼저"}</option>
+                    {startChoices.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-base font-bold text-navy-900">종료</span>
-                  <input name="endTime" type="time" required step={600} className={input} />
+                  <select
+                    name="endTime"
+                    required
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    disabled={!startTime}
+                    className={`${input} disabled:bg-surface disabled:text-ink-400`}
+                  >
+                    <option value="">{startTime ? "고르기" : "시작 먼저"}</option>
+                    {endChoices.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-base font-bold text-navy-900">인원</span>

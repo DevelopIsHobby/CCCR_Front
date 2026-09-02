@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { IconClose } from "./Icons";
 import { submitPromo, type PromoState } from "@/lib/db/promo-actions";
-import { CADENCES } from "@/lib/promo-types";
+import { CADENCES, MIN_PROMO_BODY } from "@/lib/promo-types";
 
 const input =
   "w-full rounded-md border border-line bg-white px-4 py-3 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
@@ -20,6 +20,8 @@ export default function PromoDialog() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDialogElement>(null);
   const [state, action, pending] = useActionState<PromoState, FormData>(submitPromo, {});
+  /* 몇 자를 더 써야 하는지 적어 준다. 다 쓰고 나서 퇴짜 맞지 않도록. */
+  const [bodyLength, setBodyLength] = useState(0);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -138,14 +140,23 @@ export default function PromoDialog() {
               </label>
 
               <label className="block">
-                <span className="mb-1.5 block text-base font-bold text-navy-900">홍보 내용</span>
+                <span className="mb-1.5 block text-base font-bold text-navy-900">
+                  홍보 내용 <span className="font-medium text-ink-400">({MIN_PROMO_BODY}자 이상)</span>
+                </span>
                 <textarea
                   name="body"
                   rows={6}
                   required
+                  minLength={MIN_PROMO_BODY}
+                  onChange={(e) => setBodyLength(e.target.value.trim().length)}
                   placeholder="알리고 싶은 제품·서비스·교육·행사의 내용을 적어 주세요."
                   className={`${input} leading-relaxed`}
                 />
+                <span className="mt-1.5 block text-sm text-ink-400">
+                  {bodyLength >= MIN_PROMO_BODY
+                    ? `${bodyLength}자`
+                    : `${bodyLength}자 · ${MIN_PROMO_BODY - bodyLength}자 더 필요합니다`}
+                </span>
               </label>
 
               <label className="block">

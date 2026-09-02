@@ -18,6 +18,9 @@ export const CADENCE_LABEL: Record<PromoCadence, string> = {
   monthly: "월 1회",
 };
 
+/** 홍보 내용의 최소 길이. 화면 안내와 서버 검사가 같은 수를 쓴다. */
+export const MIN_PROMO_BODY = 20;
+
 export type PromoStatus = "new" | "reading" | "running" | "done";
 
 export const PROMO_STATUS_LABEL: Record<PromoStatus, string> = {

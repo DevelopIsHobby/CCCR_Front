@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { IconClose } from "./Icons";
 import { submitProposal, type ProposalState } from "@/lib/db/outreach-actions";
+import { MIN_PROPOSAL_BODY } from "@/lib/outreach-types";
 
 const input =
   "w-full rounded-md border border-line bg-white px-4 py-3 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
@@ -23,6 +24,8 @@ export default function ProposalDialog({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDialogElement>(null);
   const [state, action, pending] = useActionState<ProposalState, FormData>(submitProposal, {});
+  /* 몇 자를 더 써야 하는지 적어 준다. 다 쓰고 나서 퇴짜 맞지 않도록. */
+  const [bodyLength, setBodyLength] = useState(0);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -131,14 +134,24 @@ export default function ProposalDialog({
               </label>
 
               <label className="block">
-                <span className="mb-1.5 block text-base font-bold text-navy-900">제안 내용</span>
+                <span className="mb-1.5 block text-base font-bold text-navy-900">
+                  제안 내용{" "}
+                  <span className="font-medium text-ink-400">({MIN_PROPOSAL_BODY}자 이상)</span>
+                </span>
                 <textarea
                   name="body"
                   rows={7}
                   required
+                  minLength={MIN_PROPOSAL_BODY}
+                  onChange={(e) => setBodyLength(e.target.value.trim().length)}
                   placeholder="과정 주제, 대상, 기간, 협력 형태 등을 적어 주세요."
                   className={`${input} leading-relaxed`}
                 />
+                <span className="mt-1.5 block text-sm text-ink-400">
+                  {bodyLength >= MIN_PROPOSAL_BODY
+                    ? `${bodyLength}자`
+                    : `${bodyLength}자 · ${MIN_PROPOSAL_BODY - bodyLength}자 더 필요합니다`}
+                </span>
               </label>
 
               {state.error && (

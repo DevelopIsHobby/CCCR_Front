@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ReservationList from "@/components/admin/ReservationList";
-import { listReservations } from "@/lib/db/rooms";
+import RoomBlockEditor from "@/components/admin/RoomBlockEditor";
+import { listBlocks, listReservations } from "@/lib/db/rooms";
 import { RESERVATION_STATUS_LABEL, type ReservationStatus } from "@/lib/room-types";
 
 export const metadata: Metadata = { title: "회의실 예약" };
@@ -25,9 +26,10 @@ export default async function Page({
   /* 기본은 앞으로의 예약만. 지난 것까지 보려면 range=all */
   const upcomingOnly = sp.range !== "all";
 
-  const [reservations, all] = await Promise.all([
+  const [reservations, all, blocks] = await Promise.all([
     listReservations({ status, upcomingOnly }),
     listReservations({ upcomingOnly }),
+    listBlocks({ upcomingOnly: true }),
   ]);
 
   const counts = {
@@ -78,6 +80,8 @@ export default async function Page({
       </Link>
 
       <ReservationList reservations={reservations} />
+
+      <RoomBlockEditor blocks={blocks} />
     </>
   );
 }
