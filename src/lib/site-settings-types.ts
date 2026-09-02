@@ -41,7 +41,6 @@ export const SITE_FIELDS: {
     key: "businessNo",
     label: "고유번호",
     placeholder: "000-00-00000",
-    help: "아직 실제 번호를 받지 못해 자리표시자가 들어 있습니다.",
   },
   { key: "chairman", label: "이사장", placeholder: "이동기" },
 ];
