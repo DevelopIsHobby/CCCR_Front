@@ -59,13 +59,10 @@ export default async function Footer() {
                   )}
                   {site.email && <>E-MAIL. {site.email}</>}
                 </p>
-                <p className="text-brand-100/50">
-                  {site.businessNo && <>고유번호 {site.businessNo}</>}
-                  {site.businessNo && site.chairman && (
-                    <span className="mx-2 text-white/20">|</span>
-                  )}
-                  {site.chairman && <>이사장 {site.chairman}</>}
-                </p>
+                {/* 이사장 이름은 인사말·조직도에서만 밝힌다 */}
+                {site.businessNo && (
+                  <p className="text-brand-100/50">고유번호 {site.businessNo}</p>
+                )}
               </address>
 
               <FooterPolicyLinks />

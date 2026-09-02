@@ -77,28 +77,34 @@ export const QUICK_LINKS: QuickLink[] = [
   그림은 public/partners/ 에 있고, width·height 는 원본 크기다.
   실제 표시 크기는 화면에서 정하고 이 값은 가로세로 비율을 알려 주는 용도로만 쓴다.
 */
-export type Partner = { name: string; src: string; width: number; height: number };
+export type Partner = {
+  name: string;
+  src: string;
+  width: number;
+  height: number;
+  href: string;
+};
 
 export const PARTNERS: Partner[] = [
-  { name: "한국산업기술기획평가원", src: "/partners/keit.png", width: 1428, height: 175 },
-  { name: "정보통신산업진흥원", src: "/partners/nipa.png", width: 326, height: 63 },
-  { name: "한국클라우드산업협회", src: "/partners/kcloud.png", width: 753, height: 331 },
-  { name: "한국지능정보사회진흥원", src: "/partners/nia.png", width: 510, height: 113 },
-  { name: "정보통신기획평가원", src: "/partners/iitp.png", width: 621, height: 90 },
-  { name: "한국컴퓨팅산업협회", src: "/partners/kcia.png", width: 415, height: 74 },
-  { name: "과학기술정보통신부", src: "/partners/msit.png", width: 501, height: 114 },
-  { name: "산업통상부", src: "/partners/motie.png", width: 499, height: 92 },
-  { name: "한국컴퓨팅사업협동조합", src: "/partners/kbiz-coop.png", width: 188, height: 35 },
-  { name: "공공클라우드지원센터", src: "/partners/pcsc.png", width: 300, height: 63 },
-  { name: "한국산업기술진흥원", src: "/partners/kiat.png", width: 975, height: 256 },
-  { name: "중소기업기술정보진흥원", src: "/partners/tipa.png", width: 451, height: 133 },
-  { name: "한국인터넷진흥원", src: "/partners/kisa.png", width: 1135, height: 220 },
-  { name: "한국전자통신연구원", src: "/partners/etri.png", width: 704, height: 82 },
-  { name: "한국오픈소스협회", src: "/partners/koss.png", width: 307, height: 40 },
-  { name: "한국네트워크산업협회", src: "/partners/knia.png", width: 842, height: 220 },
-  { name: "한국IT서비스산업협회", src: "/partners/itsa.png", width: 338, height: 52 },
-  { name: "SW중심사회", src: "/partners/sw-society.png", width: 196, height: 63 },
-  { name: "한국전자기술연구원", src: "/partners/keti.png", width: 983, height: 254 },
-  { name: "OpenMCP", src: "/partners/openmcp.png", width: 151, height: 44 },
-  { name: "CCCR 아카데미", src: "/partners/cccr-academy.png", width: 210, height: 48 },
+  { name: "한국산업기술기획평가원", src: "/partners/keit.png", width: 1428, height: 175, href: "https://www.keit.re.kr/" },
+  { name: "정보통신산업진흥원", src: "/partners/nipa.png", width: 326, height: 63, href: "https://www.nipa.kr/" },
+  { name: "한국클라우드산업협회", src: "/partners/kcloud.png", width: 753, height: 331, href: "https://kcloud.or.kr/" },
+  { name: "한국지능정보사회진흥원", src: "/partners/nia.png", width: 510, height: 113, href: "https://www.nia.or.kr/site/nia_kor/main.do" },
+  { name: "정보통신기획평가원", src: "/partners/iitp.png", width: 621, height: 90, href: "https://www.iitp.kr/web/index.do" },
+  { name: "한국컴퓨팅산업협회", src: "/partners/kcia.png", width: 415, height: 74, href: "https://k-cia.or.kr/" },
+  { name: "과학기술정보통신부", src: "/partners/msit.png", width: 501, height: 114, href: "https://www.msit.go.kr/index.do" },
+  { name: "산업통상부", src: "/partners/motie.png", width: 499, height: 92, href: "https://www.motir.go.kr/" },
+  { name: "한국컴퓨팅사업협동조합", src: "/partners/kbiz-coop.png", width: 188, height: 35, href: "http://www.kcb.or.kr/" },
+  { name: "공공클라우드지원센터", src: "/partners/pcsc.png", width: 300, height: 63, href: "https://m.digitalmarket.kr/m/cpcpCloud/cpcpCenterInfo.do" },
+  { name: "한국산업기술진흥원", src: "/partners/kiat.png", width: 975, height: 256, href: "https://www.kiat.or.kr/front/user/main.do" },
+  { name: "중소기업기술정보진흥원", src: "/partners/tipa.png", width: 451, height: 133, href: "https://www.tipa.or.kr/" },
+  { name: "한국인터넷진흥원", src: "/partners/kisa.png", width: 1135, height: 220, href: "https://www.kisa.or.kr/" },
+  { name: "한국전자통신연구원", src: "/partners/etri.png", width: 704, height: 82, href: "https://www.etri.re.kr/kor/main/main.etri" },
+  { name: "한국오픈소스협회", src: "/partners/koss.png", width: 307, height: 40, href: "https://www.kossa.kr/" },
+  { name: "한국네트워크산업협회", src: "/partners/knia.png", width: 842, height: 220, href: "http://kani.or.kr/" },
+  { name: "한국IT서비스산업협회", src: "/partners/itsa.png", width: 338, height: 52, href: "https://www.itsa.or.kr/layout/res/home.php?go=main" },
+  { name: "SW중심사회", src: "/partners/sw-society.png", width: 196, height: 63, href: "https://software.kr/home/kor/main.do" },
+  { name: "한국전자기술연구원", src: "/partners/keti.png", width: 983, height: 254, href: "https://www.keti.re.kr/main/main.php" },
+  { name: "OpenMCP", src: "/partners/openmcp.png", width: 151, height: 44, href: "https://www.open-mcp.org/" },
+  { name: "CCCR 아카데미", src: "/partners/cccr-academy.png", width: 210, height: 48, href: "https://www.cccr-edu.or.kr/main/index.jsp" },
 ];
