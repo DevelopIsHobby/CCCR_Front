@@ -2,6 +2,7 @@ import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
+import { fromHeader } from "./address";
 
 /*
   메일 보내기.
@@ -53,12 +54,6 @@ function transport(): Transporter | null {
     socketTimeout: 20_000,
   });
   return cached;
-}
-
-/** 보내는 사람. 표시 이름을 붙여 스팸으로 덜 보이게 한다. */
-function from(): string {
-  const address = process.env.MAIL_FROM || process.env.SMTP_USER || "support@cccr.or.kr";
-  return `한국클라우드컴퓨팅연구조합 <${address}>`;
 }
 
 /** 메일 안의 조회 링크에 쓸 사이트 주소. */
@@ -118,7 +113,7 @@ export async function sendMail(input: SendInput): Promise<MailResult> {
 
   try {
     await tx.sendMail({
-      from: from(),
+      from: fromHeader(),
       to: input.to,
       subject: input.subject,
       text: input.text,

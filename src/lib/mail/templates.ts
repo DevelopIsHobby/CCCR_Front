@@ -1,5 +1,6 @@
 import "server-only";
 import { siteUrl } from "./send";
+import { mailFrom } from "./address";
 
 /*
   알림 메일 문안.
@@ -20,7 +21,7 @@ function footer(ref: string, token: string): string {
     `진행 상황  ${siteUrl()}/participate/status/${token}`,
     "",
     "이 메일은 신청하신 분께 자동으로 보내드립니다.",
-    "문의: support@cccr.or.kr",
+    `문의: ${mailFrom()}`,
     OFFICE,
   ].join("\n");
 }

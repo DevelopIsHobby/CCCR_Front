@@ -6,6 +6,7 @@ import RequestLookupForm from "@/components/RequestLookupForm";
 import RequestStatusCard from "@/components/RequestStatusCard";
 import { getSession } from "@/lib/auth/session";
 import { listRequestsByEmail } from "@/lib/db/requests";
+import { mailFrom } from "@/lib/mail/address";
 
 export const metadata: Metadata = {
   title: "신청 현황 조회",
@@ -79,8 +80,8 @@ export default async function Page() {
       </section>
 
       <p className="mt-12 rounded-xl border border-line bg-surface px-5 py-4 text-base leading-relaxed text-ink-600 lg:px-6">
-        접수 확인 메일을 못 받으셨거나 접수번호를 잊으셨으면 사무국(support@cccr.or.kr)으로
-        연락해 주세요.
+        접수 확인 메일을 못 받으셨거나 접수번호를 잊으셨으면 사무국({mailFrom()})으로 연락해
+        주세요.
       </p>
     </PageShell>
   );

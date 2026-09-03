@@ -4,6 +4,7 @@ import PageShell from "@/components/sub/PageShell";
 import { SectionHeading } from "@/components/sub/Ui";
 import RequestStatusCard from "@/components/RequestStatusCard";
 import { findRequestByToken } from "@/lib/db/requests";
+import { mailFrom } from "@/lib/mail/address";
 
 /* 남의 신청을 들여다볼 수 있는 주소라 검색에 잡히면 안 된다. */
 export const metadata: Metadata = {
@@ -67,7 +68,7 @@ export default async function Page({ params }: { params: Promise<{ token: string
       </div>
 
       <p className="mt-12 rounded-xl border border-line bg-surface px-5 py-4 text-base leading-relaxed text-ink-600 lg:px-6">
-        궁금한 점은 사무국(support@cccr.or.kr)으로 연락해 주세요.
+        궁금한 점은 사무국({mailFrom()})으로 연락해 주세요.
       </p>
     </PageShell>
   );
