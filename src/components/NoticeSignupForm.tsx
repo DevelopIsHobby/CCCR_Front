@@ -9,6 +9,7 @@ import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
 import { useActionState } from "react";
 import { signUpForNotices, type NoticeSignupState } from "@/lib/db/outreach-actions";
 import ConsentCheck from "./ConsentCheck";
+import { keepValues } from "@/lib/keep-values";
 
 const input =
   "w-full rounded-md border border-line bg-white px-4 py-3 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
@@ -25,7 +26,7 @@ export default function NoticeSignupForm({ me = EMPTY_APPLICANT }: { me?: Applic
   );
 
   return (
-    <form action={action} className="mt-8 rounded-2xl bg-surface p-6 lg:p-8">
+    <form onSubmit={keepValues(action)} className="mt-8 rounded-2xl bg-surface p-6 lg:p-8">
       {/* 사람은 보지 못하는 칸. 자동 입력을 거르는 데 쓴다. */}
       <input
         type="text"

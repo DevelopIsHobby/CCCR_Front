@@ -187,3 +187,27 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 | `SITE_URL` | 메일 안의 링크 주소 | `https://cccr.or.kr` |
 
 `MAIL_OFFICE` 는 담당자가 바뀌거나 여럿이 함께 받아야 할 때 이 값만 바꾸면 됩니다.
+
+---
+
+## 7. 보관 기간 지난 자료 자동 파기
+
+개인정보처리방침 제4조에 적은 기간이 지난 자료를 지웁니다.
+적어 놓고 지키지 않으면 그 자체가 문제가 되므로 반드시 걸어 두세요.
+
+`.env.production` 에 아무나 못 부르게 할 비밀값을 넣습니다.
+
+```bash
+CLEANUP_SECRET=$(openssl rand -hex 24)
+```
+
+cron 에 하루 한 번 등록합니다.
+
+```bash
+sudo crontab -e
+# 매일 새벽 4시 30분 — 백업(4시) 다음에 돈다
+30 4 * * * curl -fsS -H "Authorization: Bearer 비밀값" https://cccr.or.kr/api/cleanup >> /var/log/c3r-cleanup.log 2>&1
+```
+
+지운 개수가 로그에 남습니다. 기간을 바꾸려면 `src/lib/retention.ts` 와
+개인정보처리방침 제4조를 **함께** 고쳐야 합니다.

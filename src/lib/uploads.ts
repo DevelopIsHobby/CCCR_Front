@@ -17,6 +17,30 @@ const BLOCKED_EXT = new Set([
   ".scr", ".sh", ".vb", ".vbs", ".wsf", ".jar", ".php", ".asp", ".aspx", ".jsp",
 ]);
 
+/*
+  파일 앞부분을 보고 정말 그 형식인지 확인한다.
+
+  확장자와 브라우저가 알려주는 형식은 보내는 쪽이 마음대로 적을 수 있다.
+  그림이라고 하면서 다른 것을 올리면 /api/images 가 image/* 로 내보내게 된다.
+  형식마다 앞머리에 정해진 바이트가 있으므로 그것을 견준다.
+*/
+const IMAGE_SIGNATURES: { mime: string; test: (b: Buffer) => boolean }[] = [
+  { mime: "image/png", test: (b) => b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) },
+  { mime: "image/jpeg", test: (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  { mime: "image/gif", test: (b) => b.subarray(0, 6).toString("latin1").startsWith("GIF8") },
+  {
+    mime: "image/webp",
+    test: (b) =>
+      b.subarray(0, 4).toString("latin1") === "RIFF" &&
+      b.subarray(8, 12).toString("latin1") === "WEBP",
+  },
+];
+
+/** 그림이라고 내민 파일이 정말 그림인지. 그림이 아니면 null. */
+export function sniffImage(buffer: Buffer): string | null {
+  return IMAGE_SIGNATURES.find((sig) => sig.test(buffer))?.mime ?? null;
+}
+
 export async function saveUpload(file: File) {
   if (file.size > MAX_UPLOAD_BYTES) {
     throw new Error(`첨부파일은 ${MAX_UPLOAD_BYTES / 1024 / 1024}MB 이하만 올릴 수 있습니다.`);
@@ -30,6 +54,14 @@ export async function saveUpload(file: File) {
   /* 저장 이름은 서버가 정한다. 원본 이름은 DB 에만 남긴다. */
   const storedName = `${randomUUID()}${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  /*
+    그림으로 올린 것은 앞머리를 보고 정말 그림인지 확인한다.
+    브라우저가 알려주는 형식만 믿으면 아무 파일이나 image/png 라고 적어 보낼 수 있다.
+  */
+  if ((file.type || "").startsWith("image/") && !sniffImage(buffer)) {
+    throw new Error("그림 파일이 아닙니다. JPG · PNG · GIF · WEBP 만 올릴 수 있습니다.");
+  }
 
   try {
     await mkdir(UPLOAD_DIR, { recursive: true });
@@ -54,7 +86,8 @@ export async function saveUpload(file: File) {
     filename: file.name,
     storedName,
     byteSize: file.size,
-    mimeType: file.type || "application/octet-stream",
+    /* 그림은 앞머리에서 알아낸 형식을 쓴다. 보낸 쪽 말보다 파일 자체가 정확하다. */
+    mimeType: sniffImage(buffer) ?? file.type ?? "application/octet-stream",
   };
 }
 

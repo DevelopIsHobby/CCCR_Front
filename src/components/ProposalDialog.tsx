@@ -11,6 +11,7 @@ import { IconClose } from "./Icons";
 import ConsentCheck from "./ConsentCheck";
 import { submitProposal, type ProposalState } from "@/lib/db/outreach-actions";
 import { MIN_PROPOSAL_BODY } from "@/lib/outreach-types";
+import { keepValues } from "@/lib/keep-values";
 
 const input =
   "w-full rounded-md border border-line bg-white px-4 py-3 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
@@ -105,7 +106,7 @@ export default function ProposalDialog({
               </button>
             </div>
           ) : (
-            <form action={action} className="space-y-4">
+            <form onSubmit={keepValues(action)} className="space-y-4">
               <p className="text-base leading-relaxed text-ink-600">
                 조합은 클라우드·AI 인프라 분야의 교육과정을 회원사·대학·교육기관과 함께
                 운영하고 있습니다. 함께 하실 과정이나 협력 방안을 알려 주시면 사무국에서 검토 후

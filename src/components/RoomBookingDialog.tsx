@@ -22,6 +22,7 @@ import {
   type BusySlot,
   type RoomSlug,
 } from "@/lib/room-types";
+import { keepValues } from "@/lib/keep-values";
 
 const input =
   "w-full rounded-md border border-line bg-white px-4 py-3 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
@@ -158,7 +159,7 @@ export default function RoomBookingDialog({ me = EMPTY_APPLICANT }: { me?: Appli
               </button>
             </div>
           ) : (
-            <form action={action} className="space-y-4">
+            <form onSubmit={keepValues(action)} className="space-y-4">
               {/* 사람은 보지 못하는 칸. 자동 입력을 거르는 데 쓴다. */}
               <input
                 type="text"

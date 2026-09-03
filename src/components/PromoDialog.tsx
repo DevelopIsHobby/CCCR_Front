@@ -11,6 +11,7 @@ import { IconClose } from "./Icons";
 import ConsentCheck from "./ConsentCheck";
 import { submitPromo, type PromoState } from "@/lib/db/promo-actions";
 import { CADENCES, MIN_PROMO_BODY } from "@/lib/promo-types";
+import { keepValues } from "@/lib/keep-values";
 
 const input =
   "w-full rounded-md border border-line bg-white px-4 py-3 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
@@ -102,7 +103,7 @@ export default function PromoDialog({ me = EMPTY_APPLICANT }: { me?: Applicant }
               </button>
             </div>
           ) : (
-            <form action={action} className="space-y-4">
+            <form onSubmit={keepValues(action)} className="space-y-4">
               <p className="text-base leading-relaxed text-ink-600">
                 조합이 가진 회원사·기관 명단으로 제품·서비스·교육·행사를 알려드립니다. 아래
                 내용을 남겨 주시면 사무국에서 검토한 뒤 일정과 방식을 안내해 드립니다.

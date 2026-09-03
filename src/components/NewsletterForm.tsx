@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { subscribeNewsletter, type SubscribeState } from "@/lib/db/newsletter-actions";
 import { IconArrow } from "./Icons";
 import ConsentCheck from "./ConsentCheck";
+import { keepValues } from "@/lib/keep-values";
 
 /*
   뉴스레터 구독 신청 폼.
@@ -29,7 +30,7 @@ export default function NewsletterForm({
 
   return (
     <div className="w-full shrink-0 lg:w-auto">
-      <form action={action} className="flex w-full flex-col gap-2 sm:flex-row">
+      <form onSubmit={keepValues(action)} className="flex w-full flex-col gap-2 sm:flex-row">
         <input type="hidden" name="source" value={source} />
         <label htmlFor={`newsletter-email-${source}`} className="sr-only">
           이메일 주소

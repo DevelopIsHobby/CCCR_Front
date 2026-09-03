@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
+import { clientKey, record, SUBMIT, tooMany } from "@/lib/db/rate-limit";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
 
@@ -18,6 +19,12 @@ export async function subscribeNewsletter(
   /* 브라우저 검사만 믿지 않는다. 동의 없이 들어온 신청은 받지 않는다. */
   if (!formData.get("agreePrivacy")) {
     return { error: "개인정보 수집·이용에 동의해 주셔야 신청할 수 있습니다." };
+  }
+
+  /* 스크립트로 쏟아붓는 것을 막는다. 빈 칸 덫만으로는 사람 흉내를 거르지 못한다. */
+  const from = await clientKey();
+  if (await tooMany("submit", from, SUBMIT.limit, SUBMIT.windowSec)) {
+    return { error: "신청이 너무 잦습니다. 잠시 뒤에 다시 해 주세요." };
   }
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -52,6 +59,7 @@ export async function subscribeNewsletter(
   }
 
   revalidatePath("/admin/newsletter");
+  await record("submit", from);
   return { ok: "구독 신청이 접수되었습니다." };
 }
 
