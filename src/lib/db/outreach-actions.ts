@@ -7,8 +7,10 @@ import { getSession, requireAdmin } from "@/lib/auth/session";
 import { MIN_PROPOSAL_BODY, type ProposalStatus } from "@/lib/outreach-types";
 import { makeRef, newLookupToken } from "@/lib/db/refs";
 import { sendMail } from "@/lib/mail/send";
+import { officeTo } from "@/lib/mail/address";
 import {
   noticeApproved,
+  officeNotice,
   noticeReceived,
   noticeRejected,
   proposalDone,
@@ -112,6 +114,22 @@ export async function signUpForNotices(
       ref,
       ...noticeReceived({ name, ref, token }),
     })) === "sent";
+
+  /* 사무국이 승인해야 발송이 시작되므로, 기다리는 신청이 있다는 것을 바로 알린다. */
+  await sendMail({
+    kind: "notice.office",
+    to: officeTo(),
+    ref,
+    ...officeNotice({
+      channel: "사업공고 수신신청",
+      ref,
+      adminPath: "/admin/notices",
+      org: company,
+      name,
+      email,
+      lines: ["승인해야 발송이 시작됩니다."],
+    }),
+  });
 
   return {
     ok: "신청을 받았습니다. 사업공고는 임원사에 보내드리는 것이라, 사무국에서 확인한 뒤 알려드리겠습니다.",
@@ -223,6 +241,22 @@ export async function submitProposal(
       ref,
       ...proposalReceived({ name, ref, token }),
     })) === "sent";
+
+  /* 사무국도 알아야 한다. 밤이나 주말에 들어온 제안을 다음 날에야 알면 늦다. */
+  await sendMail({
+    kind: "proposal.office",
+    to: officeTo(),
+    ref,
+    ...officeNotice({
+      channel: "교육사업 제안",
+      ref,
+      adminPath: "/admin/proposals",
+      org,
+      name,
+      email,
+      lines: [`제목  ${subject}`],
+    }),
+  });
 
   return { ok: "제안을 접수했습니다. 사무국에서 검토 후 연락드리겠습니다.", ref, mailed };
 }

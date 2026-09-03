@@ -8,7 +8,8 @@ import { deleteUpload, saveUpload } from "@/lib/uploads";
 import { MIN_PROMO_BODY, type PromoStatus } from "@/lib/promo-types";
 import { makeRef, newLookupToken } from "@/lib/db/refs";
 import { sendMail } from "@/lib/mail/send";
-import { promoDone, promoReceived, promoRunning } from "@/lib/mail/templates";
+import { officeTo } from "@/lib/mail/address";
+import { officeNotice, promoDone, promoReceived, promoRunning } from "@/lib/mail/templates";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -147,6 +148,22 @@ export async function submitPromo(_prev: PromoState, formData: FormData): Promis
       ref,
       ...promoReceived({ name, ref, token }),
     })) === "sent";
+
+  /* 사무국도 알아야 한다. 밤이나 주말에 들어온 신청을 다음 날에야 알면 늦다. */
+  await sendMail({
+    kind: "promo.office",
+    to: officeTo(),
+    ref,
+    ...officeNotice({
+      channel: "홍보 서비스",
+      ref,
+      adminPath: "/admin/promos",
+      org,
+      name,
+      email,
+      lines: [`제목  ${subject}`, `희망일  ${startOn} · ${cadence}`],
+    }),
+  });
 
   return { ok: "신청을 받았습니다. 사무국에서 검토한 뒤 연락드리겠습니다.", ref, mailed };
 }

@@ -12,7 +12,13 @@ import {
 } from "@/lib/room-types";
 import { makeRef, newLookupToken } from "@/lib/db/refs";
 import { sendMail } from "@/lib/mail/send";
-import { roomCancelled, roomConfirmed, roomReceived } from "@/lib/mail/templates";
+import { officeTo } from "@/lib/mail/address";
+import {
+  officeNotice,
+  roomCancelled,
+  roomConfirmed,
+  roomReceived,
+} from "@/lib/mail/templates";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -115,6 +121,22 @@ export async function requestReservation(
       endTime,
     }),
     })) === "sent";
+
+  /* 사무국도 알아야 한다. 밤이나 주말에 들어온 신청을 다음 날에야 알면 늦다. */
+  await sendMail({
+    kind: "room.office",
+    to: officeTo(),
+    ref,
+    ...officeNotice({
+      channel: "회의실 예약",
+      ref,
+      adminPath: "/admin/rooms",
+      org,
+      name,
+      email,
+      lines: [`회의실  ${ROOM_LABEL[room]}`, `일시  ${useDate} ${startTime}~${endTime}`],
+    }),
+  });
 
   return {
     ok: "신청을 받았습니다. 사무국에서 확인한 뒤 확정 여부를 연락드립니다.",

@@ -170,3 +170,44 @@ export function promoDone({ name, ref, token }: Base): MailBody {
       footer(ref, token),
   };
 }
+
+/* ── 사무국이 받는 알림 ──────────────────────────── */
+
+/**
+ * 새 신청이 들어왔을 때 사무국에 보내는 알림.
+ *
+ * 신청자에게 가는 메일과 달리 조회 링크를 붙이지 않는다. 대신 바로 처리할 수
+ * 있도록 관리자 화면으로 이어 준다. 밤이나 주말에 들어온 신청을 다음 날에야
+ * 아는 일을 막으려는 것이다.
+ */
+export function officeNotice(input: {
+  /** 어느 창구인가. 예) "회의실 예약" */
+  channel: string;
+  ref: string;
+  /** 관리자 화면 주소. 예) "/admin/rooms" */
+  adminPath: string;
+  org: string;
+  name: string;
+  email: string;
+  /** 한눈에 보이면 좋은 요약 몇 줄. 예) 회의실·일시 */
+  lines?: string[];
+}): MailBody {
+  const { channel, ref, adminPath, org, name, email, lines = [] } = input;
+
+  return {
+    subject: `[신청] ${channel} · ${org}`,
+    text:
+      `${channel} 신청이 들어왔습니다.\n\n` +
+      `신청자  ${org} ${name}\n` +
+      `연락처  ${email}\n` +
+      (lines.length > 0 ? `${lines.join("\n")}\n` : "") +
+      "\n" +
+      `처리하기  ${siteUrl()}${adminPath}\n` +
+      "\n" +
+      "─────────────────────\n" +
+      `접수번호  ${ref}\n` +
+      "\n" +
+      "이 메일은 새 신청이 들어올 때 자동으로 보내드립니다.\n" +
+      OFFICE,
+  };
+}

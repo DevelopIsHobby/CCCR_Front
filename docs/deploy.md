@@ -169,3 +169,21 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 - [ ] 백업 파일이 실제로 쌓이는지 (`ls -lh /srv/c3r/backup`)
 - [ ] 백업을 서버 밖으로도 복사하고 있는지
 - [ ] `sudo apt update && sudo apt upgrade`를 주기적으로 하는지
+
+---
+
+## 6. 메일 환경변수
+
+`.env.production` 에 아래를 넣습니다. 값은 조합 메일 계정 기준입니다.
+
+| 변수 | 뜻 | 예 |
+| --- | --- | --- |
+| `SMTP_HOST` | 발송 서버 | 메일 사업자가 알려 줍니다 |
+| `SMTP_PORT` | 포트 | 465 또는 587 |
+| `SMTP_USER` | 로그인 계정 | `rnd@cccr.or.kr` |
+| `SMTP_PASS` | 비밀번호 | |
+| `MAIL_FROM` | 보내는 주소 | `rnd@cccr.or.kr` |
+| `MAIL_OFFICE` | **새 신청 알림을 받을 주소** | 비우면 `MAIL_FROM` 으로 갑니다. 쉼표로 여럿 가능 |
+| `SITE_URL` | 메일 안의 링크 주소 | `https://cccr.or.kr` |
+
+`MAIL_OFFICE` 는 담당자가 바뀌거나 여럿이 함께 받아야 할 때 이 값만 바꾸면 됩니다.
