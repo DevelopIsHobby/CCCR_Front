@@ -87,9 +87,13 @@ export default function Header({ session }: { session: Session | null }) {
                     관리자
                   </span>
                 )}
-                <span>
+                {/* 이름을 누르면 내 신청 현황과 계정 정보로 간다 */}
+                <Link
+                  href="/mypage"
+                  className="underline-offset-4 transition-colors hover:text-brand-600 hover:underline"
+                >
                   <b className="font-bold text-navy-900">{session.name}</b>님
-                </span>
+                </Link>
               </span>
               <form action={logout} className="h-full">
                 <button type="submit" className={utilLink}>
@@ -251,6 +255,16 @@ export default function Header({ session }: { session: Session | null }) {
           </nav>
 
           <div className="grid grid-cols-2 gap-2 border-t border-line bg-surface p-5">
+            {session && (
+              <Link
+                href="/mypage"
+                onClick={() => setDrawerOpen(false)}
+                className="col-span-2 rounded-md bg-white px-3 py-2.5 text-center text-sm font-bold text-navy-900 ring-1 ring-line"
+              >
+                마이페이지
+              </Link>
+            )}
+
             {session?.role === "admin" && (
               <Link
                 href="/admin"

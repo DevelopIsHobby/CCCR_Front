@@ -1,16 +1,21 @@
 "use server";
 
-import { findRequestByRef, type RequestSummary } from "@/lib/db/requests";
+import { redirect } from "next/navigation";
+import { findRequestByRef } from "@/lib/db/requests";
 
 /*
   접수번호로 신청 한 건을 찾는다.
 
-  주소에 붙이지 않고 폼으로 받는다. 이메일이 주소창과 방문 기록에 남지 않게 하려는 것이다.
-  찾지 못한 이유(번호가 틀렸는지 이메일이 틀렸는지)는 알려 주지 않는다.
+  찾으면 그 신청의 조회 주소로 보낸다. 결과를 화면 상태로만 들고 있으면
+  뒤로 갔다 오거나 새로고침할 때 사라지고, 돌아올 주소도 없다.
+  주소가 생기면 즐겨찾기에 두거나 다시 열어 볼 수 있다.
+
+  접수번호와 이메일은 폼으로 받는다. 주소창과 방문 기록에 이메일이 남지 않게 하려는 것이다.
+  못 찾은 이유(번호가 틀렸는지 이메일이 틀렸는지)는 알려 주지 않는다.
   알려 주면 접수번호만 바꿔 가며 남의 신청이 있는지 떠볼 수 있다.
 */
 
-export type LookupState = { error?: string; found?: RequestSummary };
+export type LookupState = { error?: string };
 
 export async function lookupRequest(
   _prev: LookupState,
@@ -31,5 +36,5 @@ export async function lookupRequest(
     };
   }
 
-  return { found };
+  redirect(`/participate/status/${found.token}`);
 }

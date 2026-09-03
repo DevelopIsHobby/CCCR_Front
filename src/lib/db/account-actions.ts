@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { createHash } from "node:crypto";
 import { ready } from "@/lib/db/migrate";
-import { getSession, requireAdmin } from "@/lib/auth/session";
+import { getSession, requireUser } from "@/lib/auth/session";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 
 export type AccountState = { error?: string; ok?: string };
@@ -19,7 +19,7 @@ export async function changeMyPassword(
   _prev: AccountState,
   formData: FormData,
 ): Promise<AccountState> {
-  const session = await requireAdmin();
+  const session = await requireUser();
 
   const current = String(formData.get("currentPassword") ?? "");
   const next = String(formData.get("newPassword") ?? "");
@@ -52,6 +52,7 @@ export async function changeMyPassword(
   );
 
   revalidatePath("/admin/account");
+  revalidatePath("/mypage");
   return { ok: "비밀번호를 바꿨습니다. 다른 기기의 로그인은 모두 끊었습니다." };
 }
 
@@ -59,7 +60,7 @@ export async function changeMyName(
   _prev: AccountState,
   formData: FormData,
 ): Promise<AccountState> {
-  const session = await requireAdmin();
+  const session = await requireUser();
 
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "이름을 입력해 주세요." };

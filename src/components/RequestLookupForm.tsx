@@ -2,12 +2,14 @@
 
 import { useActionState } from "react";
 import { lookupRequest, type LookupState } from "@/lib/db/request-actions";
-import RequestStatusCard from "./RequestStatusCard";
 
 /*
   접수번호로 신청을 찾는 칸.
   로그인하지 않은 사람이 자기 신청을 확인하는 유일한 길이라, 접수 확인 메일에
   적힌 두 가지(접수번호·이메일)만 있으면 되게 한다.
+
+  찾으면 그 신청의 주소로 넘어간다. 여기서 결과를 그리면 뒤로 갔다 왔을 때
+  사라져 버리고, 다시 볼 방법이 없다.
 */
 
 const input =
@@ -66,12 +68,6 @@ export default function RequestLookupForm({ defaultEmail = "" }: { defaultEmail?
           </p>
         )}
       </form>
-
-      {state.found && (
-        <div className="mt-6">
-          <RequestStatusCard req={state.found} />
-        </div>
-      )}
     </>
   );
 }

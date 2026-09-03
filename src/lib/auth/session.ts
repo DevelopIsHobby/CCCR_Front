@@ -80,6 +80,16 @@ export async function destroySession(): Promise<void> {
   store.delete(COOKIE);
 }
 
+/**
+ * 로그인이 있어야 하는 동작 앞에서 호출한다.
+ * 자기 자신만 고치는 동작(이름·비밀번호 변경 등)은 관리자일 필요가 없다.
+ */
+export async function requireUser(): Promise<Session> {
+  const session = await getSession();
+  if (!session) throw new Error("로그인이 필요합니다.");
+  return session;
+}
+
 /** 관리자 전용 동작 앞에서 호출한다. 아니면 예외를 던진다. */
 export async function requireAdmin(): Promise<Session> {
   const session = await getSession();
