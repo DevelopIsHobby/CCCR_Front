@@ -33,6 +33,7 @@ const utilLink = `${utilItem} text-ink-600 hover:text-brand-600 active:text-bran
 export default function Header({ session }: { session: Session | null }) {
   const [megaOpen, setMegaOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -146,12 +147,18 @@ export default function Header({ session }: { session: Session | null }) {
           </nav>
 
           <div className="flex items-center gap-1">
+            {/*
+              눌러도 아무 일이 없던 자리다. 좁은 화면에서 입력칸을 늘 펼쳐 두면
+              메뉴를 밀어내므로, 눌렀을 때 그 자리에서 펼친다.
+            */}
             <button
               type="button"
               aria-label="통합검색"
+              aria-expanded={searchOpen}
+              onClick={() => setSearchOpen((v) => !v)}
               className="grid size-10 place-items-center rounded-full text-ink-700 transition-colors hover:bg-brand-50 hover:text-brand-600"
             >
-              <IconSearch className="size-[22px]" />
+              {searchOpen ? <IconClose className="size-[22px]" /> : <IconSearch className="size-[22px]" />}
             </button>
             <button
               type="button"
@@ -164,6 +171,36 @@ export default function Header({ session }: { session: Session | null }) {
             </button>
           </div>
         </div>
+
+        {/* 검색 — 돋보기를 누르면 펼쳐진다. 보낼 곳은 /search 한 곳이다. */}
+        {searchOpen && (
+          <div className="border-t border-line bg-surface">
+            <form
+              method="get"
+              action="/search"
+              onSubmit={() => setSearchOpen(false)}
+              className="mx-auto flex max-w-[1280px] gap-2 px-6 py-4"
+            >
+              <label htmlFor="header-q" className="sr-only">
+                검색어
+              </label>
+              <input
+                id="header-q"
+                name="q"
+                type="search"
+                autoFocus
+                placeholder="게시글과 안내 화면을 찾습니다"
+                className="w-full rounded-md border border-line bg-white px-4 py-3 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500"
+              />
+              <button
+                type="submit"
+                className="shrink-0 rounded-md bg-navy-900 px-6 py-3 text-base font-bold text-white transition-colors hover:bg-brand-600"
+              >
+                검색
+              </button>
+            </form>
+          </div>
+        )}
 
         {/* 메가 메뉴 — 5개 컬럼을 한 번에 펼친다 */}
         <div
