@@ -103,6 +103,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     links: [
       { href: "/admin/site", label: "사이트 정보", desc: "주소·연락처·대표자", ready: true, icon: "globe" },
       { href: "/admin/files", label: "파일 관리", desc: "첨부·이미지 정리", ready: true, icon: "folder" },
+      { href: "/admin/mail", label: "알림 메일 기록", desc: "신청자에게 보낸 메일", ready: true, icon: "mail" },
       { href: "/admin/stats", label: "접속 통계", desc: "방문자·인기 게시물", ready: true, icon: "chart" },
     ],
   },

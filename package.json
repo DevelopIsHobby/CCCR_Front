@@ -19,6 +19,7 @@
     "@tiptap/react": "^3.30.5",
     "@tiptap/starter-kit": "^3.30.5",
     "next": "16.3.0",
+    "nodemailer": "^9.1.1",
     "pg": "^8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.13.3",
+    "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",

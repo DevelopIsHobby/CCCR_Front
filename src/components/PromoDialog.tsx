@@ -1,5 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
+import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
+
 import { useActionState, useEffect, useRef, useState } from "react";
 import { IconClose } from "./Icons";
 import { submitPromo, type PromoState } from "@/lib/db/promo-actions";
@@ -16,7 +20,7 @@ const fileInput =
   그림과 첨부는 미리 올리지 않고 이 폼과 함께 한 번에 보낸다.
   로그인 없이 쓰는 창구라 파일만 따로 받는 자리를 열어 두지 않으려는 것이다.
 */
-export default function PromoDialog() {
+export default function PromoDialog({ me = EMPTY_APPLICANT }: { me?: Applicant }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDialogElement>(null);
   const [state, action, pending] = useActionState<PromoState, FormData>(submitPromo, {});
@@ -73,6 +77,19 @@ export default function PromoDialog() {
           {state.ok ? (
             <div className="py-10 text-center">
               <p className="text-lg font-bold text-navy-900">{state.ok}</p>
+              {state.ref && (
+                <div className="mt-5 rounded-lg border border-line bg-surface px-4 py-3 text-left">
+                  <p className="text-sm text-ink-400">접수번호</p>
+                  <p className="label-mono mt-0.5 text-lg font-bold text-navy-900">{state.ref}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-600">
+                    확인 메일을 보내드렸습니다. 이 번호로{" "}
+                    <Link href="/participate/status" className="font-bold text-brand-600 underline underline-offset-2">
+                      신청 현황
+                    </Link>
+                    을 확인하실 수 있습니다.
+                  </p>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -104,11 +121,11 @@ export default function PromoDialog() {
                   <span className="mb-1.5 block text-base font-bold text-navy-900">
                     기관 · 회사명
                   </span>
-                  <input name="org" required className={input} />
+                  <input name="org" required defaultValue={me.org} className={input} />
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-base font-bold text-navy-900">신청자</span>
-                  <input name="name" required className={input} />
+                  <input name="name" required defaultValue={me.name} className={input} />
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-base font-bold text-navy-900">
@@ -118,7 +135,7 @@ export default function PromoDialog() {
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-base font-bold text-navy-900">이메일</span>
-                  <input name="email" type="email" required className={input} />
+                  <input name="email" type="email" required defaultValue={me.email} className={input} />
                 </label>
                 <label className="block sm:col-span-2">
                   <span className="mb-1.5 block text-base font-bold text-navy-900">

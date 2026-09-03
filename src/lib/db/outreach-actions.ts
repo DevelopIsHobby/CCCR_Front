@@ -5,6 +5,15 @@ import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
 import { MIN_PROPOSAL_BODY, type ProposalStatus } from "@/lib/outreach-types";
+import { makeRef, newLookupToken } from "@/lib/db/refs";
+import { sendMail } from "@/lib/mail/send";
+import {
+  noticeApproved,
+  noticeReceived,
+  noticeRejected,
+  proposalDone,
+  proposalReceived,
+} from "@/lib/mail/templates";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,7 +26,7 @@ const trimmed = (formData: FormData, key: string, max: number) =>
 
 /* ── 사업공고 수신 신청 ───────────────────────────── */
 
-export type NoticeSignupState = { error?: string; ok?: string };
+export type NoticeSignupState = { error?: string; ok?: string; ref?: string };
 
 export async function signUpForNotices(
   _prev: NoticeSignupState,
@@ -38,8 +47,8 @@ export async function signUpForNotices(
   const db = await ready();
   const stamp = now();
 
-  const exists = await db.get<{ id: number; status: string }>(
-    "SELECT id, status FROM notice_subscribers WHERE email = ?",
+  const exists = await db.get<{ id: number; status: string; ref: string; lookup_token: string }>(
+    "SELECT id, status, ref, lookup_token FROM notice_subscribers WHERE email = ?",
     [email],
   );
 
@@ -53,23 +62,49 @@ export async function signUpForNotices(
         WHERE id = ?`,
       [company, name, tel, keep ? "active" : "pending", stamp, exists.id],
     );
+    revalidatePath("/admin/notices");
+
+    /* 다시 승인 대기로 들어간 경우에만 접수 안내를 보낸다 */
+    if (!keep) {
+      await sendMail({
+        kind: "notice.received",
+        to: email,
+        ref: exists.ref,
+        ...noticeReceived({ name, ref: exists.ref, token: exists.lookup_token }),
+      });
+    }
 
     return {
       ok: keep
         ? "이미 받아보고 계신 주소라 담당자 정보만 새로 고쳤습니다."
         : "신청을 받았습니다. 사무국에서 임원사 여부를 확인한 뒤 알려드리겠습니다.",
+      ref: exists.ref,
     };
   }
 
-  await db.run(
-    `INSERT INTO notice_subscribers (company, name, email, tel, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [company, name, email, tel, stamp, stamp],
+  const token = newLookupToken();
+  const created = await db.get<{ id: number }>(
+    `INSERT INTO notice_subscribers (company, name, email, tel, lookup_token, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+    [company, name, email, tel, token, stamp, stamp],
   );
 
+  /* 접수번호는 id 를 써서 만들므로 넣은 뒤에 채운다 */
+  const ref = makeRef("notice", Number(created?.id ?? 0), stamp);
+  await db.run("UPDATE notice_subscribers SET ref = ? WHERE id = ?", [ref, created?.id ?? 0]);
+
   revalidatePath("/admin/notices");
+
+  await sendMail({
+    kind: "notice.received",
+    to: email,
+    ref,
+    ...noticeReceived({ name, ref, token }),
+  });
+
   return {
     ok: "신청을 받았습니다. 사업공고는 임원사에 보내드리는 것이라, 사무국에서 확인한 뒤 알려드리겠습니다.",
+    ref,
   };
 }
 
@@ -91,6 +126,23 @@ export async function setNoticeSubscriberStatus(formData: FormData): Promise<voi
     [status, note, now(), id],
   );
   revalidatePath("/admin/notices");
+
+  /* 승인·반려는 신청자가 기다리는 결과라 바로 알린다. 그 밖의 상태는 알리지 않는다. */
+  if (status !== "active" && status !== "rejected") return;
+
+  const row = await db.get<{ name: string; email: string; ref: string; lookup_token: string }>(
+    "SELECT name, email, ref, lookup_token FROM notice_subscribers WHERE id = ?",
+    [id],
+  );
+  if (!row) return;
+
+  const base = { name: row.name, ref: row.ref, token: row.lookup_token };
+  await sendMail({
+    kind: status === "active" ? "notice.approved" : "notice.rejected",
+    to: row.email,
+    ref: row.ref,
+    ...(status === "active" ? noticeApproved(base) : noticeRejected({ ...base, note })),
+  });
 }
 
 export async function deleteNoticeSubscriber(formData: FormData): Promise<void> {
@@ -106,7 +158,7 @@ export async function deleteNoticeSubscriber(formData: FormData): Promise<void> 
 
 /* ── 교육사업 제안 ────────────────────────────────── */
 
-export type ProposalState = { error?: string; ok?: string };
+export type ProposalState = { error?: string; ok?: string; ref?: string };
 
 export async function submitProposal(
   _prev: ProposalState,
@@ -133,15 +185,27 @@ export async function submitProposal(
 
   const db = await ready();
   const stamp = now();
+  const token = newLookupToken();
 
-  await db.run(
-    `INSERT INTO education_proposals (org, name, email, tel, subject, body, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [org, name, email, tel, subject, body, stamp, stamp],
+  const created = await db.get<{ id: number }>(
+    `INSERT INTO education_proposals (org, name, email, tel, subject, body, lookup_token, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+    [org, name, email, tel, subject, body, token, stamp, stamp],
   );
 
+  const ref = makeRef("proposal", Number(created?.id ?? 0), stamp);
+  await db.run("UPDATE education_proposals SET ref = ? WHERE id = ?", [ref, created?.id ?? 0]);
+
   revalidatePath("/admin/proposals");
-  return { ok: "제안을 접수했습니다. 사무국에서 검토 후 연락드리겠습니다." };
+
+  await sendMail({
+    kind: "proposal.received",
+    to: email,
+    ref,
+    ...proposalReceived({ name, ref, token }),
+  });
+
+  return { ok: "제안을 접수했습니다. 사무국에서 검토 후 연락드리겠습니다.", ref };
 }
 
 export async function setProposalStatus(id: number, status: ProposalStatus): Promise<void> {
@@ -155,6 +219,22 @@ export async function setProposalStatus(id: number, status: ProposalStatus): Pro
     id,
   ]);
   revalidatePath("/admin/proposals");
+
+  /* '검토중'은 사무국 안에서만 쓰는 표시라 알리지 않는다. 끝났을 때만 알린다. */
+  if (status !== "done") return;
+
+  const row = await db.get<{ name: string; email: string; ref: string; lookup_token: string }>(
+    "SELECT name, email, ref, lookup_token FROM education_proposals WHERE id = ?",
+    [id],
+  );
+  if (!row) return;
+
+  await sendMail({
+    kind: "proposal.done",
+    to: row.email,
+    ref: row.ref,
+    ...proposalDone({ name: row.name, ref: row.ref, token: row.lookup_token }),
+  });
 }
 
 export async function deleteProposal(formData: FormData): Promise<void> {

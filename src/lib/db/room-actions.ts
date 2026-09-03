@@ -10,6 +10,9 @@ import {
   type ReservationStatus,
   type RoomSlug,
 } from "@/lib/room-types";
+import { makeRef, newLookupToken } from "@/lib/db/refs";
+import { sendMail } from "@/lib/mail/send";
+import { roomCancelled, roomConfirmed, roomReceived } from "@/lib/mail/templates";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -22,7 +25,7 @@ const trimmed = (formData: FormData, key: string, max: number) =>
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export type ReservationState = { error?: string; ok?: string };
+export type ReservationState = { error?: string; ok?: string; ref?: string };
 
 /** 신청 화면에서 그 날 쓸 수 없는 시간을 보여 준다. */
 export async function getBusySlots(room: RoomSlug, useDate: string) {
@@ -77,17 +80,38 @@ export async function requestReservation(
   const db = await ready();
   const stamp = now();
 
-  await db.run(
+  const token = newLookupToken();
+  const created = await db.get<{ id: number }>(
     `INSERT INTO room_reservations
        (room, use_date, start_time, end_time, headcount, org, name, email, tel, purpose,
-        created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [room, useDate, startTime, endTime, headcount, org, name, email, tel, purpose, stamp, stamp],
+        lookup_token, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+    [room, useDate, startTime, endTime, headcount, org, name, email, tel, purpose, token, stamp, stamp],
   );
 
+  const ref = makeRef("room", Number(created?.id ?? 0), stamp);
+  await db.run("UPDATE room_reservations SET ref = ? WHERE id = ?", [ref, created?.id ?? 0]);
+
   revalidatePath("/admin/rooms");
+
+  await sendMail({
+    kind: "room.received",
+    to: email,
+    ref,
+    ...roomReceived({
+      name,
+      ref,
+      token,
+      room: ROOM_LABEL[room],
+      useDate,
+      startTime,
+      endTime,
+    }),
+  });
+
   return {
     ok: "신청을 받았습니다. 사무국에서 확인한 뒤 확정 여부를 연락드립니다.",
+    ref,
   };
 }
 
@@ -136,6 +160,42 @@ export async function setReservationStatus(
     id,
   ]);
   revalidatePath("/admin/rooms");
+
+  /* 신청자가 기다리는 것은 확정과 취소다. '신청' 으로 되돌리는 경우는 알리지 않는다. */
+  if (status !== "confirmed" && status !== "cancelled") return;
+
+  const row = await db.get<{
+    name: string;
+    email: string;
+    ref: string;
+    lookup_token: string;
+    room: string;
+    use_date: string;
+    start_time: string;
+    end_time: string;
+  }>(
+    `SELECT name, email, ref, lookup_token, room, use_date, start_time, end_time
+       FROM room_reservations WHERE id = ?`,
+    [id],
+  );
+  if (!row) return;
+
+  const info = {
+    name: row.name,
+    ref: row.ref,
+    token: row.lookup_token,
+    room: ROOM_LABEL[row.room as RoomSlug] ?? row.room,
+    useDate: row.use_date,
+    startTime: row.start_time,
+    endTime: row.end_time,
+  };
+
+  await sendMail({
+    kind: status === "confirmed" ? "room.confirmed" : "room.cancelled",
+    to: row.email,
+    ref: row.ref,
+    ...(status === "confirmed" ? roomConfirmed(info) : roomCancelled(info)),
+  });
 }
 
 /* ── 조합 내부 사용 시간 ──────────────────────────── */

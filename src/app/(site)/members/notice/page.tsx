@@ -4,6 +4,7 @@ import PageShell from "@/components/sub/PageShell";
 import { SectionHeading, InfoCard } from "@/components/sub/Ui";
 import NoticeSignupForm from "@/components/NoticeSignupForm";
 import { getSiteSettings } from "@/lib/db/site-settings";
+import { getApplicant } from "@/lib/db/me";
 
 export const metadata: Metadata = { title: "사업공고 안내" };
 
@@ -49,7 +50,7 @@ export default async function Page() {
         신청하시면 바로 발송되지 않습니다. 임원사 담당자가 맞는지 사무국에서 확인한 뒤
         승인해 드리고, 그때부터 매주 보내드립니다.
       </p>
-      <NoticeSignupForm />
+      <NoticeSignupForm me={await getApplicant()} />
 
       <p className="mt-10 rounded-xl bg-surface px-6 py-5 text-base leading-relaxed text-ink-600">
         아직 조합 회원사가 아니신가요?{" "}

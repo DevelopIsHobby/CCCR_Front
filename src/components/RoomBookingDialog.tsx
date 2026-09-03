@@ -1,5 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
+import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
+
 import { useActionState, useEffect, useRef, useState } from "react";
 import { IconClose } from "./Icons";
 import {
@@ -30,7 +34,7 @@ const SLOTS = timeOptions();
   다른 사람의 예약뿐 아니라 조합이 직접 쓰는 시간도 함께 뺀다.
   그래도 서버에서 한 번 더 막는다.
 */
-export default function RoomBookingDialog() {
+export default function RoomBookingDialog({ me = EMPTY_APPLICANT }: { me?: Applicant }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDialogElement>(null);
   const [state, action, pending] = useActionState<ReservationState, FormData>(
@@ -129,6 +133,19 @@ export default function RoomBookingDialog() {
           {state.ok ? (
             <div className="py-10 text-center">
               <p className="text-lg font-bold text-navy-900">{state.ok}</p>
+              {state.ref && (
+                <div className="mt-5 rounded-lg border border-line bg-surface px-4 py-3 text-left">
+                  <p className="text-sm text-ink-400">접수번호</p>
+                  <p className="label-mono mt-0.5 text-lg font-bold text-navy-900">{state.ref}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-600">
+                    확인 메일을 보내드렸습니다. 이 번호로{" "}
+                    <Link href="/participate/status" className="font-bold text-brand-600 underline underline-offset-2">
+                      신청 현황
+                    </Link>
+                    을 확인하실 수 있습니다.
+                  </p>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -279,15 +296,15 @@ export default function RoomBookingDialog() {
                   <span className="mb-1.5 block text-base font-bold text-navy-900">
                     단체 · 회사명
                   </span>
-                  <input name="org" required className={input} />
+                  <input name="org" required defaultValue={me.org} className={input} />
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-base font-bold text-navy-900">신청자</span>
-                  <input name="name" required className={input} />
+                  <input name="name" required defaultValue={me.name} className={input} />
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-base font-bold text-navy-900">이메일</span>
-                  <input name="email" type="email" required className={input} />
+                  <input name="email" type="email" required defaultValue={me.email} className={input} />
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-base font-bold text-navy-900">

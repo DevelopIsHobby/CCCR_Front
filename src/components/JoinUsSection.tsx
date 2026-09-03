@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
 import { IconArrow } from "./Icons";
 import ProposalDialog from "./ProposalDialog";
 import RoomBookingDialog from "./RoomBookingDialog";
@@ -13,7 +14,7 @@ import PromoDialog from "./PromoDialog";
   바로 위 알림판(BannerRail)이 옅은 회색 바탕이라 같은 색을 쓰면 두 자리가
   한 덩어리로 보인다. 어두운 바탕으로 갈라 놓는다.
 */
-export default function JoinUsSection() {
+export default function JoinUsSection({ me = EMPTY_APPLICANT }: { me?: Applicant }) {
   return (
     <section className="relative overflow-hidden bg-navy-900 py-16 lg:py-20">
       <div className="hex-field absolute inset-0" aria-hidden />
@@ -72,7 +73,7 @@ export default function JoinUsSection() {
             </p>
 
             <div className="mt-auto pt-8">
-              <RoomBookingDialog />
+              <RoomBookingDialog me={me} />
             </div>
           </div>
 
@@ -89,7 +90,7 @@ export default function JoinUsSection() {
             </p>
 
             <div className="mt-auto pt-8">
-              <ProposalDialog />
+              <ProposalDialog me={me} />
             </div>
           </div>
 
@@ -105,7 +106,7 @@ export default function JoinUsSection() {
             </p>
 
             <div className="mt-auto pt-8">
-              <PromoDialog />
+              <PromoDialog me={me} />
             </div>
           </div>
         </div>

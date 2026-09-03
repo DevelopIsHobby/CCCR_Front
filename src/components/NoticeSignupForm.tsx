@@ -1,5 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
+import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
+
 import { useActionState } from "react";
 import { signUpForNotices, type NoticeSignupState } from "@/lib/db/outreach-actions";
 
@@ -11,7 +15,7 @@ const input =
   뉴스레터와 달리 받는 사람이 임원사 담당자로 정해져 있어 회사·담당자를 함께 받는다.
   발송은 모은 명단으로 사무국이 따로 한다.
 */
-export default function NoticeSignupForm() {
+export default function NoticeSignupForm({ me = EMPTY_APPLICANT }: { me?: Applicant }) {
   const [state, action, pending] = useActionState<NoticeSignupState, FormData>(
     signUpForNotices,
     {},
@@ -32,16 +36,17 @@ export default function NoticeSignupForm() {
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="mb-1.5 block text-base font-bold text-navy-900">회사명</span>
-          <input name="company" required placeholder="(주)○○○" className={input} />
+          <input name="company" required defaultValue={me.org} placeholder="(주)○○○" className={input} />
         </label>
         <label className="block">
           <span className="mb-1.5 block text-base font-bold text-navy-900">담당자</span>
-          <input name="name" required placeholder="홍길동" className={input} />
+          <input name="name" required defaultValue={me.name} placeholder="홍길동" className={input} />
         </label>
         <label className="block">
           <span className="mb-1.5 block text-base font-bold text-navy-900">이메일</span>
           <input
             name="email"
+            defaultValue={me.email}
             type="email"
             required
             placeholder="name@company.co.kr"
@@ -63,9 +68,24 @@ export default function NoticeSignupForm() {
         </p>
       )}
       {state.ok && (
-        <p className="mt-5 rounded-md bg-brand-50 px-4 py-3 text-base font-medium text-brand-700">
-          {state.ok}
-        </p>
+        <>
+          <p className="mt-5 rounded-md bg-brand-50 px-4 py-3 text-base font-medium text-brand-700">
+            {state.ok}
+          </p>
+          {state.ref && (
+            <div className="mt-5 rounded-lg border border-line bg-surface px-4 py-3 text-left">
+              <p className="text-sm text-ink-400">접수번호</p>
+              <p className="label-mono mt-0.5 text-lg font-bold text-navy-900">{state.ref}</p>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600">
+                확인 메일을 보내드렸습니다. 이 번호로{" "}
+                <Link href="/participate/status" className="font-bold text-brand-600 underline underline-offset-2">
+                  신청 현황
+                </Link>
+                을 확인하실 수 있습니다.
+              </p>
+            </div>
+          )}
+        </>
       )}
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">

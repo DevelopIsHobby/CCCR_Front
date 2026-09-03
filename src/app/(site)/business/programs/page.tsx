@@ -3,10 +3,14 @@ import PageShell from "@/components/sub/PageShell";
 import { ContactBanner } from "@/components/sub/Ui";
 import { PROGRAMS } from "@/lib/page-data";
 import ProposalDialog from "@/components/ProposalDialog";
+import { getApplicant } from "@/lib/db/me";
 
 export const metadata: Metadata = { title: "주요사업" };
 
-export default function Page() {
+export default async function Page() {
+  /* 로그인해 두었으면 제안 폼을 미리 채운다 */
+  const me = await getApplicant();
+
   return (
     <PageShell
       href="/business/programs"
@@ -58,7 +62,7 @@ export default function Page() {
           </div>
 
           <div className="shrink-0">
-            <ProposalDialog tone="dark" />
+            <ProposalDialog tone="dark" me={me} />
           </div>
         </div>
       </section>

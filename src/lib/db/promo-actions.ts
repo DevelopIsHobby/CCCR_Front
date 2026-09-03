@@ -6,6 +6,9 @@ import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
 import { deleteUpload, saveUpload } from "@/lib/uploads";
 import { MIN_PROMO_BODY, type PromoStatus } from "@/lib/promo-types";
+import { makeRef, newLookupToken } from "@/lib/db/refs";
+import { sendMail } from "@/lib/mail/send";
+import { promoDone, promoReceived, promoRunning } from "@/lib/mail/templates";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -19,7 +22,7 @@ const trimmed = (formData: FormData, key: string, max: number) =>
     .trim()
     .slice(0, max);
 
-export type PromoState = { error?: string; ok?: string };
+export type PromoState = { error?: string; ok?: string; ref?: string };
 
 /*
   홍보 신청.
@@ -97,11 +100,12 @@ export async function submitPromo(_prev: PromoState, formData: FormData): Promis
     return { error: err instanceof Error ? err.message : "파일을 저장하지 못했습니다." };
   }
 
-  await db.run(
+  const token = newLookupToken();
+  const created = await db.get<{ id: number }>(
     `INSERT INTO promo_requests
        (org, name, position, email, tel, subject, body, tagline, start_on, cadence,
-        image_id, file_name, file_stored, file_bytes, file_mime, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        image_id, file_name, file_stored, file_bytes, file_mime, lookup_token, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
     [
       org,
       name,
@@ -118,13 +122,25 @@ export async function submitPromo(_prev: PromoState, formData: FormData): Promis
       saved?.storedName ?? "",
       saved?.byteSize ?? 0,
       saved?.mimeType ?? "",
+      token,
       stamp,
       stamp,
     ],
   );
 
+  const ref = makeRef("promo", Number(created?.id ?? 0), stamp);
+  await db.run("UPDATE promo_requests SET ref = ? WHERE id = ?", [ref, created?.id ?? 0]);
+
   revalidatePath("/admin/promos");
-  return { ok: "신청을 받았습니다. 사무국에서 검토한 뒤 연락드리겠습니다." };
+
+  await sendMail({
+    kind: "promo.received",
+    to: email,
+    ref,
+    ...promoReceived({ name, ref, token }),
+  });
+
+  return { ok: "신청을 받았습니다. 사무국에서 검토한 뒤 연락드리겠습니다.", ref };
 }
 
 export async function setPromoStatus(id: number, status: PromoStatus): Promise<void> {
@@ -138,6 +154,23 @@ export async function setPromoStatus(id: number, status: PromoStatus): Promise<v
     id,
   ]);
   revalidatePath("/admin/promos");
+
+  /* '검토중'은 사무국 안에서만 쓰는 표시라 알리지 않는다. */
+  if (status !== "running" && status !== "done") return;
+
+  const row = await db.get<{ name: string; email: string; ref: string; lookup_token: string }>(
+    "SELECT name, email, ref, lookup_token FROM promo_requests WHERE id = ?",
+    [id],
+  );
+  if (!row) return;
+
+  const base = { name: row.name, ref: row.ref, token: row.lookup_token };
+  await sendMail({
+    kind: status === "running" ? "promo.running" : "promo.done",
+    to: row.email,
+    ref: row.ref,
+    ...(status === "running" ? promoRunning(base) : promoDone(base)),
+  });
 }
 
 export async function deletePromo(formData: FormData): Promise<void> {
