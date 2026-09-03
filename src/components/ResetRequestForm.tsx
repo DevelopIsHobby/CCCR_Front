@@ -47,7 +47,7 @@ export default function ResetRequestForm() {
       </button>
 
       <p className="text-sm leading-relaxed text-ink-400">
-        링크는 한 시간 동안만 쓸 수 있습니다. 메일이 오지 않으면 스팸함도 확인해 주세요.
+        링크는 세 시간 동안만 쓸 수 있습니다. 메일이 오지 않으면 스팸함도 확인해 주세요.
       </p>
     </form>
   );
