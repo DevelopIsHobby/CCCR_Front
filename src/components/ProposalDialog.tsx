@@ -1,5 +1,7 @@
 "use client";
 
+import PrefilledNote from "./PrefilledNote";
+
 import Link from "next/link";
 
 import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
@@ -118,6 +120,8 @@ export default function ProposalDialog({
                 aria-hidden
                 className="hidden"
               />
+
+              <PrefilledNote me={me} />
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">

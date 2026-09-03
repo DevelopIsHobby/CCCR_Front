@@ -56,6 +56,18 @@ function transport(): Transporter | null {
   */
   const insecure = process.env.SMTP_INSECURE === "1";
 
+  /*
+    인증 방식.
+
+    암호화가 없을 때는 CRAM-MD5 를 먼저 쓴다. 비밀번호를 그대로 보내지 않고
+    서버가 준 값으로 계산한 답만 보내기 때문이다. 다만 서버가 목록에 올려 두고도
+    실제로는 못 하는 경우가 많다(비밀번호를 되돌릴 수 있는 형태로 갖고 있어야 한다).
+    그때는 535 로 거절당하므로 SMTP_AUTH=login 으로 바꿔 쓴다.
+    LOGIN·PLAIN 은 비밀번호가 그대로 지나간다.
+  */
+  const authMethod = process.env.SMTP_AUTH?.trim().toUpperCase();
+  const method = authMethod || (insecure ? "CRAM-MD5" : undefined);
+
   cached = nodemailer.createTransport({
     host,
     port,
@@ -64,7 +76,7 @@ function transport(): Transporter | null {
     requireTLS: !insecure && port !== 465,
     /* 서버가 STARTTLS 를 못 하므로 시도조차 하지 않는다 */
     ignoreTLS: insecure,
-    auth: insecure ? { user, pass, method: "CRAM-MD5" } : { user, pass },
+    auth: method ? { user, pass, method } : { user, pass },
     /* 서버리스에서 함수가 끝나기 전에 매달리지 않도록 짧게 끊는다. */
     connectionTimeout: 10_000,
     greetingTimeout: 10_000,
