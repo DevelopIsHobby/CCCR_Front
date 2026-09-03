@@ -130,20 +130,59 @@ async function log(
   }
 }
 
-/** 평문을 그대로 감싼 간단한 HTML. 본문을 두 벌로 관리하지 않으려는 것이다. */
-function toHtml(text: string): string {
-  const escaped = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+const FONT = "'Malgun Gothic','맑은 고딕',AppleSDGothicNeo-Regular,sans-serif";
 
-  /* 주소는 눌러서 열 수 있게 한다 */
-  const linked = escaped.replace(
+function escape(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/** 주소는 눌러서 열 수 있게 한다. */
+function linkify(html: string): string {
+  return html.replace(
     /(https?:\/\/[^\s<]+)/g,
-    '<a href="$1" style="color:#1257a5">$1</a>',
+    '<a href="$1" style="color:#1257a5;word-break:break-all">$1</a>',
   );
+}
 
-  return `<div style="font-family:'Malgun Gothic',AppleGothic,sans-serif;font-size:15px;line-height:1.8;color:#14202e;white-space:pre-wrap">${linked}</div>`;
+/** 빈 줄로 나뉜 덩어리는 문단, 그 안의 줄바꿈은 <br> 로 만든다. */
+function paragraphs(text: string, style: string): string {
+  return text
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => `<p style="${style}">${linkify(escape(block)).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+
+/*
+  평문 본문을 메일용 HTML 로 바꾼다.
+
+  white-space:pre-wrap 으로 줄바꿈을 살리려 했으나 아웃룩이 그 속성을 무시해
+  본문이 한 덩어리로 뭉쳐 보였다. 문단과 <br> 로 실제 구조를 만들어야 한다.
+  바깥을 표로 감싸는 것도 같은 이유다. 아웃룩은 div 의 폭·여백을 자주 흘린다.
+
+  본문은 평문 한 벌만 관리하고(templates.ts) 여기서 모양을 입힌다.
+*/
+function toHtml(text: string): string {
+  /* 구분선 아래는 접수번호·문의처 같은 꼬리말이라 따로 담는다 */
+  const [bodyPart, footPart = ""] = text.split(/\n─+\n/);
+
+  const body = paragraphs(bodyPart, `margin:0 0 16px;font-size:15px;line-height:1.8;color:#14202e`);
+  const foot = footPart
+    ? `<div style="margin-top:28px;padding-top:18px;border-top:1px solid #e2e8f0">
+         ${paragraphs(footPart, "margin:0 0 10px;font-size:13px;line-height:1.7;color:#4a5768")}
+       </div>`
+    : "";
+
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f8fc;padding:24px 0">
+  <tr><td align="center">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px">
+      <tr><td style="padding:32px 32px 28px;font-family:${FONT}">
+        ${body}${foot}
+      </td></tr>
+    </table>
+  </td></tr>
+</table>`;
 }
 
 /**

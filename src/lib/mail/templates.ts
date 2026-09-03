@@ -38,7 +38,7 @@ export function noticeReceived({ name, ref, token }: Base): MailBody {
     text:
       `${name}님, 안녕하세요.\n\n` +
       "사업공고 수신신청을 접수했습니다.\n\n" +
-      "사업공고는 임원사 담당자께 보내드리는 자료라, 사무국에서 회원사 여부를 확인한 뒤\n" +
+      "사업공고는 임원사 담당자께 보내드리는 자료라, 사무국에서 회원사 여부를 확인한 뒤 " +
       "승인해 드립니다. 확인이 끝나면 결과를 이 주소로 다시 알려드리겠습니다.\n" +
       footer(ref, token),
   };
@@ -82,7 +82,7 @@ export function roomReceived(info: RoomInfo): MailBody {
       `${info.name}님, 안녕하세요.\n\n` +
       "회의실 예약 신청을 접수했습니다.\n\n" +
       `${slot(info)}\n\n` +
-      "아직 예약이 확정된 것은 아닙니다. 사무국에서 일정을 확인한 뒤 확정 여부를\n" +
+      "아직 예약이 확정된 것은 아닙니다. 사무국에서 일정을 확인한 뒤 확정 여부를 " +
       "이 주소로 알려드립니다. 확정 전에는 다른 신청이 먼저 잡힐 수 있습니다." +
       footer(info.ref, info.token),
   };

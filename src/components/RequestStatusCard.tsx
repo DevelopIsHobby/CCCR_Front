@@ -57,6 +57,11 @@ export default function RequestStatusCard({ req }: { req: RequestSummary }) {
           <dt className="shrink-0 text-ink-400">신청자</dt>
           <dd className="text-ink-700">{req.name}</dd>
         </div>
+        {/* 신청서에 적은 주소. 계정 주소와 다를 수 있어 어디로 안내가 가는지 밝힌다. */}
+        <div className="flex gap-2">
+          <dt className="shrink-0 text-ink-400">안내받을 주소</dt>
+          <dd className="min-w-0 break-all text-ink-700">{req.email}</dd>
+        </div>
         <div className="flex gap-2">
           <dt className="shrink-0 text-ink-400">접수일</dt>
           <dd className="text-ink-700">{formatDateTime(req.createdAt)}</dd>
