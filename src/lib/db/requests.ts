@@ -169,16 +169,28 @@ export async function findRequestByRef(
   return null;
 }
 
-/** 로그인한 사람의 신청 전부. 계정 이메일과 같은 주소로 넣은 것을 모은다. */
-export async function listRequestsByEmail(emailInput: string): Promise<RequestSummary[]> {
+/**
+  로그인한 사람의 신청 전부.
+
+  연락받을 주소를 계정 주소와 다르게 적는 경우가 흔하다(회사 대표 주소로 받는다거나).
+  그래서 두 가지를 모두 본다.
+   - 로그인한 채로 넣어 user_id 가 남은 것
+   - 신청서에 계정 주소를 적은 것 (로그인 전에 넣었거나 다른 기기에서 넣은 경우)
+*/
+export async function listMyRequests(
+  userId: number,
+  emailInput: string,
+): Promise<RequestSummary[]> {
   const email = emailInput.trim().toLowerCase();
-  if (!email) return [];
 
   const db = await ready();
   const all: RequestSummary[] = [];
 
   for (const kind of KINDS) {
-    const rows = await db.all<Row>(`${SELECT[kind]} WHERE email = ?`, [email]);
+    const rows = await db.all<Row>(
+      `${SELECT[kind]} WHERE user_id = ? OR email = ?`,
+      [userId, email],
+    );
     all.push(...rows.map((row) => toSummary(kind, row)));
   }
 

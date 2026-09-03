@@ -42,6 +42,17 @@ export const NAV: NavItem[] = [
     ],
   },
   {
+    /* 네 창구 모두 다른 화면 안에 숨어 있어 메뉴가 없으면 있는 줄도 모른다. */
+    label: "참여하기",
+    href: "/participate",
+    children: [
+      { label: "회의실 예약", href: "/participate/room" },
+      { label: "교육사업 제안", href: "/participate/proposal" },
+      { label: "홍보 서비스 신청", href: "/participate/promo" },
+      { label: "신청 현황 조회", href: "/participate/status" },
+    ],
+  },
+  {
     label: "정보서비스",
     href: "/info",
     children: [

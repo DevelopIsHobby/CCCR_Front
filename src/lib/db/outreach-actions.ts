@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
-import { requireAdmin } from "@/lib/auth/session";
+import { getSession, requireAdmin } from "@/lib/auth/session";
 import { MIN_PROPOSAL_BODY, type ProposalStatus } from "@/lib/outreach-types";
 import { makeRef, newLookupToken } from "@/lib/db/refs";
 import { sendMail } from "@/lib/mail/send";
@@ -46,6 +46,8 @@ export async function signUpForNotices(
 
   const db = await ready();
   const stamp = now();
+  /* 로그인한 채로 넣었으면 누가 넣었는지 남긴다. 연락처 주소가 계정 주소와 달라도 마이페이지에 보이게 하려는 것이다. */
+  const userId = (await getSession())?.userId ?? null;
 
   const exists = await db.get<{ id: number; status: string; ref: string; lookup_token: string }>(
     "SELECT id, status, ref, lookup_token FROM notice_subscribers WHERE email = ?",
@@ -58,9 +60,9 @@ export async function signUpForNotices(
 
     await db.run(
       `UPDATE notice_subscribers
-          SET company = ?, name = ?, tel = ?, status = ?, updated_at = ?
+          SET company = ?, name = ?, tel = ?, status = ?, user_id = COALESCE(?, user_id), updated_at = ?
         WHERE id = ?`,
-      [company, name, tel, keep ? "active" : "pending", stamp, exists.id],
+      [company, name, tel, keep ? "active" : "pending", userId, stamp, exists.id],
     );
     revalidatePath("/admin/notices");
 
@@ -87,9 +89,9 @@ export async function signUpForNotices(
 
   const token = newLookupToken();
   const created = await db.get<{ id: number }>(
-    `INSERT INTO notice_subscribers (company, name, email, tel, lookup_token, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id`,
-    [company, name, email, tel, token, stamp, stamp],
+    `INSERT INTO notice_subscribers (company, name, email, tel, lookup_token, user_id, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+    [company, name, email, tel, token, userId, stamp, stamp],
   );
 
   /* 접수번호는 id 를 써서 만들므로 넣은 뒤에 채운다 */
@@ -191,11 +193,12 @@ export async function submitProposal(
   const db = await ready();
   const stamp = now();
   const token = newLookupToken();
+  const userId = (await getSession())?.userId ?? null;
 
   const created = await db.get<{ id: number }>(
-    `INSERT INTO education_proposals (org, name, email, tel, subject, body, lookup_token, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
-    [org, name, email, tel, subject, body, token, stamp, stamp],
+    `INSERT INTO education_proposals (org, name, email, tel, subject, body, lookup_token, user_id, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+    [org, name, email, tel, subject, body, token, userId, stamp, stamp],
   );
 
   const ref = makeRef("proposal", Number(created?.id ?? 0), stamp);

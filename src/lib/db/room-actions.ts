@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
-import { requireAdmin } from "@/lib/auth/session";
+import { getSession, requireAdmin } from "@/lib/auth/session";
 import { findBlock, findConflict, listBusySlots } from "@/lib/db/rooms";
 import {
   ROOM_LABEL,
@@ -81,12 +81,13 @@ export async function requestReservation(
   const stamp = now();
 
   const token = newLookupToken();
+  const userId = (await getSession())?.userId ?? null;
   const created = await db.get<{ id: number }>(
     `INSERT INTO room_reservations
        (room, use_date, start_time, end_time, headcount, org, name, email, tel, purpose,
-        lookup_token, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
-    [room, useDate, startTime, endTime, headcount, org, name, email, tel, purpose, token, stamp, stamp],
+        lookup_token, user_id, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+    [room, useDate, startTime, endTime, headcount, org, name, email, tel, purpose, token, userId, stamp, stamp],
   );
 
   const ref = makeRef("room", Number(created?.id ?? 0), stamp);

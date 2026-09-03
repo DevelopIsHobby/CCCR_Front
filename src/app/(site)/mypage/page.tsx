@@ -7,7 +7,7 @@ import RequestStatusCard from "@/components/RequestStatusCard";
 import { NameForm, OtherDevicesForm, PasswordForm } from "@/components/admin/AccountForms";
 import { getSession } from "@/lib/auth/session";
 import { countMySessions } from "@/lib/db/account-actions";
-import { listRequestsByEmail } from "@/lib/db/requests";
+import { listMyRequests } from "@/lib/db/requests";
 import { USER_STATUS_LABEL, type UserStatus } from "@/lib/user-types";
 import { ready } from "@/lib/db/migrate";
 
@@ -33,7 +33,7 @@ export default async function Page() {
       "SELECT company, department, status FROM users WHERE id = ?",
       [session.userId],
     ),
-    listRequestsByEmail(session.email),
+    listMyRequests(session.userId, session.email),
     countMySessions(),
   ]);
 

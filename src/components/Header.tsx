@@ -172,7 +172,11 @@ export default function Header({ session }: { session: Session | null }) {
           }`}
           onMouseEnter={() => setMegaOpen(true)}
         >
-          <div className="mx-auto grid max-w-[1280px] grid-cols-[1.1fr_repeat(5,1fr)] gap-8 px-6 py-9">
+          {/* 칸 수를 NAV 길이에서 가져온다. 숫자를 박아 두면 메뉴가 늘 때 깨진다. */}
+          <div
+            className="mx-auto grid max-w-[1280px] gap-8 px-6 py-9"
+            style={{ gridTemplateColumns: `1.1fr repeat(${NAV.length}, 1fr)` }}
+          >
             <div>
               <p className="data-line text-flame-600">전체 메뉴</p>
               <p className="mt-3 text-xl font-bold leading-snug text-navy-900">

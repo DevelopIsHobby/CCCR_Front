@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
-import { requireAdmin } from "@/lib/auth/session";
+import { getSession, requireAdmin } from "@/lib/auth/session";
 import { deleteUpload, saveUpload } from "@/lib/uploads";
 import { MIN_PROMO_BODY, type PromoStatus } from "@/lib/promo-types";
 import { makeRef, newLookupToken } from "@/lib/db/refs";
@@ -101,11 +101,12 @@ export async function submitPromo(_prev: PromoState, formData: FormData): Promis
   }
 
   const token = newLookupToken();
+  const userId = (await getSession())?.userId ?? null;
   const created = await db.get<{ id: number }>(
     `INSERT INTO promo_requests
        (org, name, position, email, tel, subject, body, tagline, start_on, cadence,
-        image_id, file_name, file_stored, file_bytes, file_mime, lookup_token, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+        image_id, file_name, file_stored, file_bytes, file_mime, lookup_token, user_id, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
     [
       org,
       name,
@@ -123,6 +124,7 @@ export async function submitPromo(_prev: PromoState, formData: FormData): Promis
       saved?.byteSize ?? 0,
       saved?.mimeType ?? "",
       token,
+      userId,
       stamp,
       stamp,
     ],

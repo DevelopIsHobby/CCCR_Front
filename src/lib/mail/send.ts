@@ -41,13 +41,30 @@ function transport(): Transporter | null {
   if (!host || !user || !pass) return null;
 
   const port = Number(process.env.SMTP_PORT ?? 587);
+
+  /*
+    SMTP_INSECURE=1 이면 암호화 없이 보낸다.
+
+    지금 조합 메일 서버(카페24)에 SSL 인증서가 없어 STARTTLS 가 안 된다.
+      454 TLS missing certificate ... fopen: No such file or directory
+    EHLO 응답에 STARTTLS 자체가 없고 465 포트도 닫혀 있다. 홈페이지에도
+    인증서가 없는 것과 같은 뿌리다. 카페24에서 인증서를 발급받으면 이 값을
+    빼는 것만으로 원래대로 돌아간다.
+
+    켜 두는 동안 메일 내용은 평문으로 지나간다. 다만 비밀번호만은 CRAM-MD5
+    (주고받는 값으로 맞춰 보는 방식)로 인증해 평문으로 흘리지 않는다.
+  */
+  const insecure = process.env.SMTP_INSECURE === "1";
+
   cached = nodemailer.createTransport({
     host,
     port,
     /* 587 은 평문으로 열고 STARTTLS 로 올린다. 465 는 처음부터 TLS 다. */
-    secure: port === 465,
-    requireTLS: port !== 465,
-    auth: { user, pass },
+    secure: !insecure && port === 465,
+    requireTLS: !insecure && port !== 465,
+    /* 서버가 STARTTLS 를 못 하므로 시도조차 하지 않는다 */
+    ignoreTLS: insecure,
+    auth: insecure ? { user, pass, method: "CRAM-MD5" } : { user, pass },
     /* 서버리스에서 함수가 끝나기 전에 매달리지 않도록 짧게 끊는다. */
     connectionTimeout: 10_000,
     greetingTimeout: 10_000,

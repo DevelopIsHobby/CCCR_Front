@@ -22,6 +22,11 @@ export async function GET() {
     DATABASE_SSL: process.env.DATABASE_SSL ?? "(없음)",
     DATABASE_POOL_MAX: process.env.DATABASE_POOL_MAX ?? "(없음)",
     SITE_NOINDEX: process.env.SITE_NOINDEX ?? "(없음)",
+    SMTP_HOST: process.env.SMTP_HOST ?? "(없음 → 메일 보내지 않음)",
+    SMTP_USER: process.env.SMTP_USER ?? "(없음)",
+    SMTP_PASS: process.env.SMTP_PASS ? "설정됨" : "(없음)",
+    SMTP_INSECURE: process.env.SMTP_INSECURE ?? "(없음 → 암호화 요구)",
+    SITE_URL: process.env.SITE_URL ?? "(없음)",
     VERCEL_REGION: process.env.VERCEL_REGION ?? "(없음)",
   };
 
