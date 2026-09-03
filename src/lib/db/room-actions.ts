@@ -25,7 +25,7 @@ const trimmed = (formData: FormData, key: string, max: number) =>
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export type ReservationState = { error?: string; ok?: string; ref?: string };
+export type ReservationState = { error?: string; ok?: string; ref?: string; mailed?: boolean };
 
 /** 신청 화면에서 그 날 쓸 수 없는 시간을 보여 준다. */
 export async function getBusySlots(room: RoomSlug, useDate: string) {
@@ -94,7 +94,8 @@ export async function requestReservation(
 
   revalidatePath("/admin/rooms");
 
-  await sendMail({
+  const mailed =
+    (await sendMail({
     kind: "room.received",
     to: email,
     ref,
@@ -107,11 +108,12 @@ export async function requestReservation(
       startTime,
       endTime,
     }),
-  });
+    })) === "sent";
 
   return {
     ok: "신청을 받았습니다. 사무국에서 확인한 뒤 확정 여부를 연락드립니다.",
     ref,
+    mailed,
   };
 }
 

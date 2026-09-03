@@ -22,7 +22,7 @@ const trimmed = (formData: FormData, key: string, max: number) =>
     .trim()
     .slice(0, max);
 
-export type PromoState = { error?: string; ok?: string; ref?: string };
+export type PromoState = { error?: string; ok?: string; ref?: string; mailed?: boolean };
 
 /*
   홍보 신청.
@@ -133,14 +133,15 @@ export async function submitPromo(_prev: PromoState, formData: FormData): Promis
 
   revalidatePath("/admin/promos");
 
-  await sendMail({
-    kind: "promo.received",
-    to: email,
-    ref,
-    ...promoReceived({ name, ref, token }),
-  });
+  const mailed =
+    (await sendMail({
+      kind: "promo.received",
+      to: email,
+      ref,
+      ...promoReceived({ name, ref, token }),
+    })) === "sent";
 
-  return { ok: "신청을 받았습니다. 사무국에서 검토한 뒤 연락드리겠습니다.", ref };
+  return { ok: "신청을 받았습니다. 사무국에서 검토한 뒤 연락드리겠습니다.", ref, mailed };
 }
 
 export async function setPromoStatus(id: number, status: PromoStatus): Promise<void> {

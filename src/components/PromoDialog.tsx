@@ -82,7 +82,7 @@ export default function PromoDialog({ me = EMPTY_APPLICANT }: { me?: Applicant }
                   <p className="text-sm text-ink-400">접수번호</p>
                   <p className="label-mono mt-0.5 text-lg font-bold text-navy-900">{state.ref}</p>
                   <p className="mt-2 text-sm leading-relaxed text-ink-600">
-                    확인 메일을 보내드렸습니다. 이 번호로{" "}
+                    {state.mailed && "확인 메일을 보내드렸습니다. "}이 번호로{" "}
                     <Link href="/participate/status" className="font-bold text-brand-600 underline underline-offset-2">
                       신청 현황
                     </Link>

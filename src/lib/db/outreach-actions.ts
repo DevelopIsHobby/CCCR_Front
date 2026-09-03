@@ -26,7 +26,7 @@ const trimmed = (formData: FormData, key: string, max: number) =>
 
 /* ── 사업공고 수신 신청 ───────────────────────────── */
 
-export type NoticeSignupState = { error?: string; ok?: string; ref?: string };
+export type NoticeSignupState = { error?: string; ok?: string; ref?: string; mailed?: boolean };
 
 export async function signUpForNotices(
   _prev: NoticeSignupState,
@@ -65,13 +65,15 @@ export async function signUpForNotices(
     revalidatePath("/admin/notices");
 
     /* 다시 승인 대기로 들어간 경우에만 접수 안내를 보낸다 */
+    let mailed = false;
     if (!keep) {
-      await sendMail({
-        kind: "notice.received",
-        to: email,
-        ref: exists.ref,
-        ...noticeReceived({ name, ref: exists.ref, token: exists.lookup_token }),
-      });
+      mailed =
+        (await sendMail({
+          kind: "notice.received",
+          to: email,
+          ref: exists.ref,
+          ...noticeReceived({ name, ref: exists.ref, token: exists.lookup_token }),
+        })) === "sent";
     }
 
     return {
@@ -79,6 +81,7 @@ export async function signUpForNotices(
         ? "이미 받아보고 계신 주소라 담당자 정보만 새로 고쳤습니다."
         : "신청을 받았습니다. 사무국에서 임원사 여부를 확인한 뒤 알려드리겠습니다.",
       ref: exists.ref,
+      mailed,
     };
   }
 
@@ -95,16 +98,18 @@ export async function signUpForNotices(
 
   revalidatePath("/admin/notices");
 
-  await sendMail({
-    kind: "notice.received",
-    to: email,
-    ref,
-    ...noticeReceived({ name, ref, token }),
-  });
+  const mailed =
+    (await sendMail({
+      kind: "notice.received",
+      to: email,
+      ref,
+      ...noticeReceived({ name, ref, token }),
+    })) === "sent";
 
   return {
     ok: "신청을 받았습니다. 사업공고는 임원사에 보내드리는 것이라, 사무국에서 확인한 뒤 알려드리겠습니다.",
     ref,
+    mailed,
   };
 }
 
@@ -158,7 +163,7 @@ export async function deleteNoticeSubscriber(formData: FormData): Promise<void> 
 
 /* ── 교육사업 제안 ────────────────────────────────── */
 
-export type ProposalState = { error?: string; ok?: string; ref?: string };
+export type ProposalState = { error?: string; ok?: string; ref?: string; mailed?: boolean };
 
 export async function submitProposal(
   _prev: ProposalState,
@@ -198,14 +203,15 @@ export async function submitProposal(
 
   revalidatePath("/admin/proposals");
 
-  await sendMail({
-    kind: "proposal.received",
-    to: email,
-    ref,
-    ...proposalReceived({ name, ref, token }),
-  });
+  const mailed =
+    (await sendMail({
+      kind: "proposal.received",
+      to: email,
+      ref,
+      ...proposalReceived({ name, ref, token }),
+    })) === "sent";
 
-  return { ok: "제안을 접수했습니다. 사무국에서 검토 후 연락드리겠습니다.", ref };
+  return { ok: "제안을 접수했습니다. 사무국에서 검토 후 연락드리겠습니다.", ref, mailed };
 }
 
 export async function setProposalStatus(id: number, status: ProposalStatus): Promise<void> {
