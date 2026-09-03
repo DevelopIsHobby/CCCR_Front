@@ -104,14 +104,7 @@ function transport(): Transporter | null {
 }
 
 /** 메일 안의 조회 링크에 쓸 사이트 주소. */
-export function siteUrl(): string {
-  const explicit = process.env.SITE_URL;
-  if (explicit) return explicit.replace(/\/$/, "");
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
-  }
-  return "http://localhost:3000";
-}
+export { siteUrl } from "@/lib/site-url";
 
 async function log(
   input: SendInput,
