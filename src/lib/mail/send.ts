@@ -1,5 +1,6 @@
 import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
+import { constants as sslConstants } from "node:crypto";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { fromHeader } from "./address";
@@ -7,8 +8,10 @@ import { fromHeader } from "./address";
 /*
   메일 보내기.
 
-  조합 메일은 카페24(smtp.cccr.or.kr:587 STARTTLS)를 쓴다. 도메인 SPF 에 카페24가
-  들어 있어 이 서버로 보내야 발신 인증이 통과한다.
+  조합 메일은 카페24를 쓴다. 보내는 서버는 smtp.cafe24.com:587 (STARTTLS)이다.
+  받는 쪽 주소(webmail.cccr.or.kr)와 다르므로 헷갈리지 않게 한다. 웹메일의
+  '환경설정 > POP3/SMTP 사용설정'에 적힌 값이 기준이다.
+  도메인 SPF 에 카페24가 들어 있어 이 서버로 보내야 발신 인증이 통과한다.
 
   설정이 없으면 보내지 않고 기록만 남긴다(skipped). 로컬 개발과 미리보기 배포에서
   실제 메일이 나가지 않도록, 그러면서도 흐름은 그대로 확인할 수 있도록 하기 위함이다.
@@ -45,14 +48,10 @@ function transport(): Transporter | null {
   /*
     SMTP_INSECURE=1 이면 암호화 없이 보낸다.
 
-    지금 조합 메일 서버(카페24)에 SSL 인증서가 없어 STARTTLS 가 안 된다.
-      454 TLS missing certificate ... fopen: No such file or directory
-    EHLO 응답에 STARTTLS 자체가 없고 465 포트도 닫혀 있다. 홈페이지에도
-    인증서가 없는 것과 같은 뿌리다. 카페24에서 인증서를 발급받으면 이 값을
-    빼는 것만으로 원래대로 돌아간다.
-
-    켜 두는 동안 메일 내용은 평문으로 지나간다. 다만 비밀번호만은 CRAM-MD5
-    (주고받는 값으로 맞춰 보는 방식)로 인증해 평문으로 흘리지 않는다.
+    smtp.cafe24.com 은 STARTTLS 가 되므로 평소에는 쓸 일이 없다.
+    (도메인 주소 smtp.cccr.or.kr 로 붙으면 그 서버에는 인증서가 없어 막힌다.
+     그때 쓰려고 만들었던 갈래다.)
+    켜면 메일 내용이 평문으로 지나가므로 다른 방법이 없을 때만 쓴다.
   */
   const insecure = process.env.SMTP_INSECURE === "1";
 
@@ -68,6 +67,18 @@ function transport(): Transporter | null {
   const authMethod = process.env.SMTP_AUTH?.trim().toUpperCase();
   const method = authMethod || (insecure ? "CRAM-MD5" : undefined);
 
+  /*
+    SMTP_LEGACY_TLS=1 이면 낡은 TLS 도 받아들인다.
+
+    카페24 발송 서버(smtp.cafe24.com)는 STARTTLS 를 제대로 하고 인증서도
+    진짜다(*.cafe24.com, Sectigo). 다만 TLS 1.0 까지만 하고 재협상 방식도 옛것이라
+    요즘 Node 가 기본값으로 연결을 끊는다.
+
+    낮춰 주는 것은 프로토콜 판(版)뿐이고 인증서 검증은 그대로 한다.
+    암호화 자체는 AES-256 으로 걸린다. 평문으로 보내는 것보다 훨씬 낫다.
+  */
+  const legacyTls = process.env.SMTP_LEGACY_TLS === "1";
+
   cached = nodemailer.createTransport({
     host,
     port,
@@ -76,6 +87,13 @@ function transport(): Transporter | null {
     requireTLS: !insecure && port !== 465,
     /* 서버가 STARTTLS 를 못 하므로 시도조차 하지 않는다 */
     ignoreTLS: insecure,
+    tls: legacyTls
+      ? {
+          minVersion: "TLSv1",
+          ciphers: "DEFAULT:@SECLEVEL=0",
+          secureOptions: sslConstants.SSL_OP_LEGACY_SERVER_CONNECT,
+        }
+      : undefined,
     auth: method ? { user, pass, method } : { user, pass },
     /* 서버리스에서 함수가 끝나기 전에 매달리지 않도록 짧게 끊는다. */
     connectionTimeout: 10_000,

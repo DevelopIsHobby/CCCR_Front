@@ -27,6 +27,7 @@ export async function GET() {
     SMTP_PASS: process.env.SMTP_PASS ? "설정됨" : "(없음)",
     SMTP_INSECURE: process.env.SMTP_INSECURE ?? "(없음 → 암호화 요구)",
     SMTP_AUTH: process.env.SMTP_AUTH ?? "(없음 → 암호화 없을 때 CRAM-MD5)",
+    SMTP_LEGACY_TLS: process.env.SMTP_LEGACY_TLS ?? "(없음 → 최신 TLS 만)",
     SITE_URL: process.env.SITE_URL ?? "(없음)",
     VERCEL_REGION: process.env.VERCEL_REGION ?? "(없음)",
   };
