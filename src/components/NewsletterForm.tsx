@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { subscribeNewsletter, type SubscribeState } from "@/lib/db/newsletter-actions";
 import { IconArrow } from "./Icons";
+import ConsentCheck from "./ConsentCheck";
 
 /*
   뉴스레터 구독 신청 폼.
@@ -49,7 +50,18 @@ export default function NewsletterForm({
           {pending ? "신청 중…" : "구독 신청"}
           <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
         </button>
-      </form>
+        </form>
+
+      {/* 좁은 띠에 들어가므로 한 줄로 줄이고, 자세한 내용은 전문에서 본다 */}
+      <div className="mt-3">
+        <ConsentCheck
+          items="이메일주소"
+          purpose="뉴스레터 발송"
+          keep="구독 해지 시까지"
+          compact
+          tone={tone}
+        />
+      </div>
 
       {(state.error || state.ok) && (
         <p

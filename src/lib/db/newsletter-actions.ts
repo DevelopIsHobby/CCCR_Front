@@ -15,6 +15,11 @@ export async function subscribeNewsletter(
   _prev: SubscribeState,
   formData: FormData,
 ): Promise<SubscribeState> {
+  /* 브라우저 검사만 믿지 않는다. 동의 없이 들어온 신청은 받지 않는다. */
+  if (!formData.get("agreePrivacy")) {
+    return { error: "개인정보 수집·이용에 동의해 주셔야 신청할 수 있습니다." };
+  }
+
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const source = String(formData.get("source") ?? "").trim().slice(0, 40);
 

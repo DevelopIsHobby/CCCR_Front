@@ -8,6 +8,7 @@ import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
 
 import { useActionState } from "react";
 import { signUpForNotices, type NoticeSignupState } from "@/lib/db/outreach-actions";
+import ConsentCheck from "./ConsentCheck";
 
 const input =
   "w-full rounded-md border border-line bg-white px-4 py-3 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
@@ -64,6 +65,14 @@ export default function NoticeSignupForm({ me = EMPTY_APPLICANT }: { me?: Applic
           </span>
           <input name="tel" placeholder="02-0000-0000" className={input} />
         </label>
+      </div>
+
+      <div className="mt-5">
+        <ConsentCheck
+          items="기관·회사명, 담당자 성명, 이메일주소 (선택: 연락처)"
+          purpose="임원사 여부 확인, 주간 사업공고 발송"
+          keep="수신 중단 요청 시까지 (반려 시 6개월 이내 파기)"
+        />
       </div>
 
       {state.error && (

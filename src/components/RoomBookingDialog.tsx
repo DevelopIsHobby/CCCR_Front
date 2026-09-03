@@ -1,6 +1,7 @@
 "use client";
 
 import PrefilledNote from "./PrefilledNote";
+import ConsentCheck from "./ConsentCheck";
 
 import Link from "next/link";
 
@@ -329,6 +330,12 @@ export default function RoomBookingDialog({ me = EMPTY_APPLICANT }: { me?: Appli
                   className={`${input} leading-relaxed`}
                 />
               </label>
+
+              <ConsentCheck
+                items="단체·회사명, 신청자 성명, 이메일주소, 이용일시 (선택: 연락처, 이용 인원, 사용 목적)"
+                purpose="회의실 예약 접수와 확정 안내, 이용 당일 연락"
+                keep="이용일부터 1년"
+              />
 
               {state.error && (
                 <p role="alert" className="rounded-md bg-flame-100 px-4 py-3 text-base font-medium text-flame-700">

@@ -8,6 +8,7 @@ import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { IconClose } from "./Icons";
+import ConsentCheck from "./ConsentCheck";
 import { submitPromo, type PromoState } from "@/lib/db/promo-actions";
 import { CADENCES, MIN_PROMO_BODY } from "@/lib/promo-types";
 
@@ -235,6 +236,12 @@ export default function PromoDialog({ me = EMPTY_APPLICANT }: { me?: Applicant }
                   </span>
                 </label>
               </div>
+
+              <ConsentCheck
+                items="기관·회사명, 신청자 성명, 이메일주소, 홍보 제목 및 내용, 홍보 희망일 (선택: 직급, 연락처, 홍보 문구, 이미지, 첨부파일)"
+                purpose="홍보 진행 여부 검토, 일정·방식 안내"
+                keep="처리 완료일부터 1년"
+              />
 
               {state.error && (
                 <p role="alert" className="rounded-md bg-flame-100 px-4 py-3 text-base font-medium text-flame-700">

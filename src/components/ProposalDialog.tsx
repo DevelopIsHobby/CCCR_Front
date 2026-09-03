@@ -8,6 +8,7 @@ import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { IconClose } from "./Icons";
+import ConsentCheck from "./ConsentCheck";
 import { submitProposal, type ProposalState } from "@/lib/db/outreach-actions";
 import { MIN_PROPOSAL_BODY } from "@/lib/outreach-types";
 
@@ -176,6 +177,12 @@ export default function ProposalDialog({
                     : `${bodyLength}자 · ${MIN_PROPOSAL_BODY - bodyLength}자 더 필요합니다`}
                 </span>
               </label>
+
+              <ConsentCheck
+                items="기관·기업명, 담당자 성명, 이메일주소, 제안 제목 및 내용 (선택: 연락처)"
+                purpose="제안 내용 검토 및 회신"
+                keep="처리 완료일부터 1년"
+              />
 
               {state.error && (
                 <p role="alert" className="rounded-md bg-flame-100 px-4 py-3 text-base font-medium text-flame-700">

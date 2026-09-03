@@ -39,6 +39,11 @@ export async function requestReservation(
 ): Promise<ReservationState> {
   /* 사람이 채우지 않는 칸. 채워져 있으면 자동 입력이다. */
   if (String(formData.get("website") ?? "")) return { ok: "신청을 받았습니다." };
+  /* 브라우저 검사만 믿지 않는다. 동의 없이 들어온 신청은 받지 않는다. */
+  if (!formData.get("agreePrivacy")) {
+    return { error: "개인정보 수집·이용에 동의해 주셔야 신청할 수 있습니다." };
+  }
+
 
   const room = trimmed(formData, "room", 10) as RoomSlug;
   const useDate = trimmed(formData, "useDate", 10);
