@@ -5,14 +5,17 @@ import Partners from "@/components/Partners";
 import JoinUsSection from "@/components/JoinUsSection";
 import { getHomeCardsUpdatedAt, listHomeCards } from "@/lib/db/home-cards";
 import { getApplicant } from "@/lib/db/me";
+import PopupLayer from "@/components/PopupLayer";
+import { listLivePopups } from "@/lib/db/popups";
 
 /* 슬라이드·배너·알림판은 관리자 화면(/admin)에서 고친다. */
 export default async function Home() {
-  const [slides, banners, bannersUpdatedAt, me] = await Promise.all([
+  const [slides, banners, bannersUpdatedAt, me, popups] = await Promise.all([
     listHomeCards("slide"),
     listHomeCards("banner"),
     getHomeCardsUpdatedAt("banner"),
     getApplicant(),
+    listLivePopups(),
   ]);
 
   return (
@@ -22,6 +25,9 @@ export default async function Home() {
       {banners.length > 0 && <BannerRail banners={banners} updatedAt={bannersUpdatedAt} />}
       <JoinUsSection me={me} />
       <Partners />
+
+      {/* 공지 팝업. 기간이 지난 것은 저절로 빠진다. */}
+      <PopupLayer popups={popups} />
     </>
   );
 }

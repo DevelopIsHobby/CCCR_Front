@@ -14,6 +14,7 @@ export const imageUsedSql = (idExpr: string) => `(
   OR EXISTS (SELECT 1 FROM page_texts t WHERE t.value = '/api/images/' || ${idExpr})
   OR EXISTS (SELECT 1 FROM companies c WHERE c.logo_url = '/api/images/' || ${idExpr})
   OR EXISTS (SELECT 1 FROM promo_requests r WHERE r.image_id = ${idExpr})
+  OR EXISTS (SELECT 1 FROM popups pu WHERE pu.image_url = '/api/images/' || ${idExpr})
 )`;
 
 /** 지우기 전에 확인할 때 쓴다. */
@@ -24,8 +25,9 @@ export async function isImageUsed(db: Driver, id: number): Promise<boolean> {
        (SELECT COUNT(*) FROM posts WHERE body LIKE ?)
        + (SELECT COUNT(*) FROM page_texts WHERE value = ?)
        + (SELECT COUNT(*) FROM companies WHERE logo_url = ?)
-       + (SELECT COUNT(*) FROM promo_requests WHERE image_id = ?) AS n`,
-    [`%${url}%`, url, url, id],
+       + (SELECT COUNT(*) FROM promo_requests WHERE image_id = ?)
+       + (SELECT COUNT(*) FROM popups WHERE image_url = ?) AS n`,
+    [`%${url}%`, url, url, id, url],
   );
   return Number(row?.n ?? 0) > 0;
 }

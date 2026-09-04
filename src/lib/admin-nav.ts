@@ -39,6 +39,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     links: [
       { href: "/admin/home", label: "메인 화면", desc: "슬라이드·배너·알림판", ready: true, icon: "layout" },
       { href: "/admin/posts", label: "게시글 관리", desc: "전체 게시판 글 모아보기", ready: true, icon: "doc" },
+      { href: "/admin/popups", label: "공지 팝업", desc: "메인에 뜨는 안내창", ready: true, icon: "layout" },
       {
         href: "/admin/pages",
         label: "소개 페이지",
