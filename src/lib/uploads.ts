@@ -2,6 +2,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { mkdir, unlink, writeFile } from "node:fs/promises";
 import { extname, join, resolve } from "node:path";
+import { readImageSize } from "@/lib/image-size";
 
 /*
   첨부파일은 public/ 이 아니라 서버 디렉터리에 둔다.
@@ -82,12 +83,18 @@ export async function saveUpload(file: File) {
     throw err;
   }
 
+  /* 그림은 앞머리에서 알아낸 형식을 쓴다. 보낸 쪽 말보다 파일 자체가 정확하다. */
+  const sniffed = sniffImage(buffer);
+  /* 크기는 화면이 자리를 미리 잡는 데 쓴다. 못 읽어도 올리기를 막지 않는다. */
+  const size = sniffed ? readImageSize(buffer, sniffed) : null;
+
   return {
     filename: file.name,
     storedName,
     byteSize: file.size,
-    /* 그림은 앞머리에서 알아낸 형식을 쓴다. 보낸 쪽 말보다 파일 자체가 정확하다. */
-    mimeType: sniffImage(buffer) ?? file.type ?? "application/octet-stream",
+    mimeType: sniffed ?? file.type ?? "application/octet-stream",
+    width: size?.width ?? 0,
+    height: size?.height ?? 0,
   };
 }
 

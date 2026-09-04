@@ -35,9 +35,18 @@ export async function uploadImage(formData: FormData): Promise<ImageUploadResult
     const saved = await saveUpload(file);
     const db = await ready();
     const row = await db.get<{ id: number }>(
-      `INSERT INTO images (filename, stored_name, byte_size, mime_type, uploaded_by, created_at)
-       VALUES (?, ?, ?, ?, ?, ?) RETURNING id`,
-      [saved.filename, saved.storedName, saved.byteSize, saved.mimeType, session.userId, now()],
+      `INSERT INTO images (filename, stored_name, byte_size, mime_type, width, height, uploaded_by, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+      [
+        saved.filename,
+        saved.storedName,
+        saved.byteSize,
+        saved.mimeType,
+        saved.width,
+        saved.height,
+        session.userId,
+        now(),
+      ],
     );
     return { url: `/api/images/${Number(row?.id)}` };
   } catch (err) {

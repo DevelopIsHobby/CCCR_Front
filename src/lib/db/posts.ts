@@ -19,6 +19,12 @@ export type PostRow = {
   event: EventInfo;
   /** 본문 맨 앞의 그림. 카드형 목록의 대표 그림으로 쓴다. 없으면 null. */
   thumbUrl: string | null;
+  /**
+   * 그 그림의 가로·세로. 화면이 자리를 미리 잡는 데 쓴다.
+   * 크기를 읽지 못한 옛 그림은 0 이고, 그때는 자리를 잡지 않고 그린다.
+   */
+  thumbWidth: number;
+  thumbHeight: number;
 };
 
 export type PostLink = {
@@ -78,6 +84,37 @@ function firstImage(body: string | null): string | null {
   return found ? found[0] : null;
 }
 
+/**
+ * 대표 그림의 가로·세로를 한 번에 채운다.
+ *
+ * 본문에서 뽑은 주소라 SQL 로는 이을 수 없다. 주소에서 id 만 모아 한 번 더
+ * 물어본다. 글마다 물어보면 목록 한 쪽에 열다섯 번을 묻게 된다.
+ */
+async function fillThumbSize(posts: PostRow[]): Promise<PostRow[]> {
+  const ids = [
+    ...new Set(
+      posts
+        .map((p) => Number(p.thumbUrl?.split("/").at(-1)))
+        .filter((n) => Number.isInteger(n) && n > 0),
+    ),
+  ];
+  if (ids.length === 0) return posts;
+
+  const db = await ready();
+  const rows = await db.all<{ id: number; width: number; height: number }>(
+    `SELECT id, width, height FROM images WHERE id IN (${ids.map(() => "?").join(",")})`,
+    ids,
+  );
+  const size = new Map(rows.map((r) => [Number(r.id), r]));
+
+  return posts.map((p) => {
+    const found = size.get(Number(p.thumbUrl?.split("/").at(-1)));
+    return found
+      ? { ...p, thumbWidth: Number(found.width), thumbHeight: Number(found.height) }
+      : p;
+  });
+}
+
 function toPost(r: RawRow): PostRow {
   return {
     id: r.id,
@@ -92,6 +129,8 @@ function toPost(r: RawRow): PostRow {
     attachmentCount: Number(r.attachment_count),
     link: r.link_url ? { url: r.link_url, label: r.link_label ?? null } : null,
     thumbUrl: firstImage(r.body),
+    thumbWidth: 0,
+    thumbHeight: 0,
     event: {
       host: r.event_host ?? null,
       place: r.event_place ?? null,
@@ -146,8 +185,8 @@ export async function listPosts(opts: { board: string; page?: number; q?: string
       );
 
   return {
-    pinned: pinned.map(toPost),
-    rows: rows.map(toPost),
+    pinned: await fillThumbSize(pinned.map(toPost)),
+    rows: await fillThumbSize(rows.map(toPost)),
     total,
     page: current,
     totalPages,

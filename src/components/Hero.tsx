@@ -144,9 +144,14 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
                   <span className="h-3 w-px bg-white/20" aria-hidden />
                   <span className="label-mono text-brand-100/60">{s.dateText}</span>
                 </p>
-                <h1 className="mt-4 whitespace-pre-line text-2xl font-bold leading-[1.28] text-white sm:text-4xl lg:text-4xl">
+                {/*
+                  슬라이드마다 h1 을 달면 한 화면에 페이지 제목이 셋이 된다.
+                  화면 낭독기는 무엇이 이 쪽의 제목인지 알 수 없고 검색도 마찬가지다.
+                  제목 자리는 홈 화면이 따로 하나 둔다(page.tsx).
+                */}
+                <p className="mt-4 whitespace-pre-line text-2xl font-bold leading-[1.28] text-white sm:text-4xl lg:text-4xl">
                   {s.title}
-                </h1>
+                </p>
                 <p className="mt-5 max-w-xl text-md leading-relaxed text-brand-100/80 lg:text-lg">
                   {s.body}
                 </p>

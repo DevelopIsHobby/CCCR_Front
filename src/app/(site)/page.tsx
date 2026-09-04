@@ -20,6 +20,12 @@ export default async function Home() {
 
   return (
     <>
+      {/*
+        화면에는 로고가 제목 노릇을 하므로 글자로는 두지 않는다. 다만 낱장마다
+        제목이 하나는 있어야 화면 낭독기와 검색이 무엇을 보는 쪽인지 안다.
+      */}
+      <h1 className="sr-only">한국클라우드컴퓨팅연구조합</h1>
+
       <Hero slides={slides} />
       <NewsSection />
       {banners.length > 0 && <BannerRail banners={banners} updatedAt={bannersUpdatedAt} />}

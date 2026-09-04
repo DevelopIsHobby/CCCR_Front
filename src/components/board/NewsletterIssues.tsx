@@ -13,6 +13,11 @@ import { formatDate } from "@/lib/format";
 
   그림이 없는 호(첨부만 있는 경우)는 펼칠 것이 없으므로 제목 줄로만 둔다.
   아래로 길어지므로 화면에 들어올 때 받도록(lazy) 두었다.
+
+  그림 크기를 아는 호는 자리를 미리 잡아 둔다. 크기를 모르면 브라우저가 자리를
+  못 잡아, 그림이 뜰 때마다 아래 내용이 밀린다. 세로로 긴 뉴스레터를 여러 장
+  늘어놓는 화면이라 밀림이 특히 크게 느껴진다.
+  (크기는 올릴 때 파일 앞머리에서 읽어 둔다. 옛 그림은 0 이라 종전대로 그린다.)
 */
 export default function NewsletterIssues({
   base,
@@ -71,14 +76,26 @@ export default function NewsletterIssues({
 
           {post.thumbUrl ? (
             <Link href={`${base}/${post.id}`} className="block bg-surface">
-              {/* 크기를 미리 알 수 없는 그림이라 next/image 대신 img 를 쓴다 */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={post.thumbUrl}
-                alt={post.title}
-                loading="lazy"
-                className="mx-auto block h-auto w-full max-w-[720px]"
-              />
+              <div
+                className="mx-auto w-full max-w-[720px]"
+                /* 가로세로 비율만 알려 주면 브라우저가 폭에 맞춰 자리를 잡는다 */
+                style={
+                  post.thumbWidth > 0 && post.thumbHeight > 0
+                    ? { aspectRatio: `${post.thumbWidth} / ${post.thumbHeight}` }
+                    : undefined
+                }
+              >
+                {/* 크기가 제각각인 그림이라 next/image 대신 img 를 쓴다 */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={post.thumbUrl}
+                  alt={post.title}
+                  loading="lazy"
+                  width={post.thumbWidth || undefined}
+                  height={post.thumbHeight || undefined}
+                  className="block h-auto w-full"
+                />
+              </div>
             </Link>
           ) : (
             <p className="px-5 py-8 text-center text-md text-ink-400 lg:px-6">
