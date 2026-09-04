@@ -27,27 +27,32 @@
   --color-line: #e2e8f0;
   --color-surface: #f5f8fc;
 
-  /* Type scale — 1.2 비율. 국문 본문 15px 기준.
-     공고·마감일·회차가 많은 문서형 사이트라 데이터 단은 tabular로 쓴다. */
-  --text-2xs: 0.6875rem;   /* 11px 데이터 라벨 */
+  /* Type scale — 국문 본문 17px 기준.
+     공고·마감일·회차가 많은 문서형 사이트라 데이터 단은 tabular로 쓴다.
+
+     처음에는 본문 15px 로 잡았는데 "글자가 작다"는 이야기를 들었다.
+     회원사 담당자와 기관 실무자가 주로 보는 곳이라 눈이 편한 쪽이 맞다.
+     한 단씩 올리되 이름(md·base…)은 그대로 두어 화면 코드를 건드리지 않는다.
+     작은 단(2xs·xs)은 데이터 라벨이라 조금만 올린다. */
+  --text-2xs: 0.75rem;     /* 12px 데이터 라벨 */
   --text-2xs--line-height: 1.45;
-  --text-xs: 0.75rem;      /* 12px 캡션 */
+  --text-xs: 0.8125rem;    /* 13px 캡션 */
   --text-xs--line-height: 1.5;
-  --text-sm: 0.8125rem;    /* 13px 보조 */
+  --text-sm: 0.875rem;     /* 14px 보조 */
   --text-sm--line-height: 1.6;
-  --text-base: 0.875rem;   /* 14px UI 기본 */
+  --text-base: 0.9375rem;  /* 15px UI 기본 */
   --text-base--line-height: 1.6;
-  --text-md: 0.9375rem;    /* 15px 본문 */
-  --text-md--line-height: 1.75;
-  --text-lg: 1.0625rem;    /* 17px 카드 제목 */
+  --text-md: 1.0625rem;    /* 17px 본문 */
+  --text-md--line-height: 1.8;
+  --text-lg: 1.1875rem;    /* 19px 카드 제목 */
   --text-lg--line-height: 1.45;
-  --text-xl: 1.25rem;      /* 20px 소제목 */
+  --text-xl: 1.375rem;     /* 22px 소제목 */
   --text-xl--line-height: 1.4;
-  --text-2xl: 1.5rem;      /* 24px 섹션 제목 */
+  --text-2xl: 1.625rem;    /* 26px 섹션 제목 */
   --text-2xl--line-height: 1.3;
-  --text-3xl: 2rem;        /* 32px 페이지 제목 */
+  --text-3xl: 2.125rem;    /* 34px 페이지 제목 */
   --text-3xl--line-height: 1.25;
-  --text-4xl: 2.75rem;     /* 44px 히어로 */
+  --text-4xl: 2.875rem;    /* 46px 히어로 */
   --text-4xl--line-height: 1.15;
 
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
