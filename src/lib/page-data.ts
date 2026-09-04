@@ -183,28 +183,6 @@ export const PROGRAMS: { title: string; items: string[] }[] = [
 
 /* ── 게시판 · 정보서비스 ──────────────────────────── */
 
-export type BoardRow = {
-  no: number;
-  category: string;
-  agency: string;
-  title: string;
-  date: string;
-  views: number;
-  isNew?: boolean;
-};
-
-export const NOTICES: BoardRow[] = [
-  { no: 148, category: "교육", agency: "KCIA", title: "AIDC 인프라를 위한 HW/SW 기반 설계 운영·최적화 실무 교육 (9/9~11)", date: "2026-08-07", views: 342, isNew: true },
-  { no: 147, category: "모집", agency: "CCCR/KCIA", title: "새싹 동대문 4기 기업연계형 AI 서비스·클라우드 실무 과정 교육생 모집", date: "2026-08-01", views: 511, isNew: true },
-  { no: 146, category: "공고", agency: "과기정통부", title: "2026년도 소프트웨어 산업발전 유공자 포상계획 공고 (~7/24)", date: "2026-07-03", views: 288 },
-  { no: 145, category: "교육", agency: "KCIA", title: "GPU 프로그래밍 모델 및 최적화 교육 접수 안내 (5/18~7/8)", date: "2026-06-30", views: 623 },
-  { no: 144, category: "공고", agency: "KEIT", title: "2026년도 K-온디바이스 AI반도체 기술개발사업 신규 지원대상 연구개발과제 공고", date: "2026-06-20", views: 754 },
-  { no: 143, category: "조사", agency: "IITP", title: "(소프트웨어분야) 정보통신·방송 연구개발사업 신규과제 기술수요조사 안내", date: "2026-06-12", views: 402 },
-  { no: 142, category: "조합", agency: "C3R", title: "2026년 상반기 정기총회 개최 결과 안내", date: "2026-05-28", views: 197 },
-  { no: 141, category: "조합", agency: "C3R", title: "제4기 분과위원회 위원 모집 안내", date: "2026-05-14", views: 265 },
-  { no: 140, category: "공고", agency: "NIPA", title: "2026년 AI컴퓨팅자원 활용기반 강화사업 참여기업 모집 공고", date: "2026-04-30", views: 889 },
-  { no: 139, category: "조합", agency: "C3R", title: "조합 사무국 이전 안내", date: "2026-04-11", views: 154 },
-];
 
 /* ── 교육 ─────────────────────────────────────────── */
 

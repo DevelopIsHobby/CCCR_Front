@@ -110,9 +110,6 @@ export default function Header({ session }: { session: Session | null }) {
             ))
           )}
 
-          <Link href="/en" className={utilLink}>
-            ENGLISH
-          </Link>
         </div>
       </div>
 
@@ -316,7 +313,7 @@ export default function Header({ session }: { session: Session | null }) {
               </Link>
             )}
 
-            {[...UTILITY, ...(session ? [] : GUEST_LINKS), { label: "ENGLISH", href: "/en" }].map(
+            {[...UTILITY, ...(session ? [] : GUEST_LINKS)].map(
               (item) => (
                 <SmartLink
                   key={item.label}

@@ -42,6 +42,25 @@ export default function LoginForm({ next }: { next: string }) {
         </div>
       </div>
 
+      {/*
+        기본은 하루면 풀린다. 개인 기기에서 매번 다시 넣기 번거로운 분을 위해 둔다.
+        관리자 계정은 골라도 여덟 시간이다(session.ts).
+      */}
+      <label className="mt-5 flex cursor-pointer items-start gap-2.5">
+        <input
+          type="checkbox"
+          name="remember"
+          value="1"
+          className="mt-0.5 size-4 shrink-0 accent-brand-600"
+        />
+        <span className="text-base leading-relaxed text-ink-600">
+          로그인 유지
+          <span className="ml-1.5 text-sm text-ink-400">
+            여러 사람이 쓰는 컴퓨터에서는 켜지 마세요
+          </span>
+        </span>
+      </label>
+
       {state.error && (
         <p
           role="alert"
