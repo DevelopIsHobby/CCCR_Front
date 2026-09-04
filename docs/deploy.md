@@ -185,8 +185,17 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 | `MAIL_FROM` | 보내는 주소 | `rnd@cccr.or.kr` |
 | `MAIL_OFFICE` | **새 신청 알림을 받을 주소** | 비우면 `MAIL_FROM` 으로 갑니다. 쉼표로 여럿 가능 |
 | `SITE_URL` | 메일 안의 링크 주소 | `https://cccr.or.kr` |
+| `SMTP_LEGACY_TLS` | 낡은 TLS 를 받아들일지 | 카페24처럼 TLS 1.0 까지만 하는 서버에 `1`. 인증서 검증은 그대로 합니다 |
 
 `MAIL_OFFICE` 는 담당자가 바뀌거나 여럿이 함께 받아야 할 때 이 값만 바꾸면 됩니다.
+
+---
+
+### 정식 공개 전 미리보기
+
+아직 공개 전이라면 `SITE_NOINDEX=1` 을 넣으세요. 검색엔진이 임시 주소를
+색인하면 나중에 진짜 주소와 내용이 겹쳐 검색 순위에 손해입니다.
+관리자 화면은 이 값과 상관없이 늘 색인에서 빠집니다.
 
 ---
 
@@ -211,3 +220,7 @@ sudo crontab -e
 
 지운 개수가 로그에 남습니다. 기간을 바꾸려면 `src/lib/retention.ts` 와
 개인정보처리방침 제4조를 **함께** 고쳐야 합니다.
+
+Vercel 에 올린 경우에는 `vercel.json` 의 `crons` 가 대신 부릅니다.
+환경변수에 `CRON_SECRET` 을 정해 두면 Vercel 이 그 값을 헤더에 붙여 보냅니다.
+`CLEANUP_SECRET` 과 `CRON_SECRET` 중 하나만 맞으면 실행됩니다.
