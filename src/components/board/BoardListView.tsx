@@ -3,7 +3,7 @@ import PageShell from "@/components/sub/PageShell";
 import { BoardSearch, Pagination } from "@/components/sub/Ui";
 import BoardTable from "@/components/board/BoardTable";
 import EventCards from "@/components/board/EventCards";
-import GalleryCards from "@/components/board/GalleryCards";
+import NewsletterIssues from "@/components/board/NewsletterIssues";
 import { listPosts } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
 import type { BoardConfig } from "@/lib/boards";
@@ -36,8 +36,10 @@ export default async function BoardListView({
 
   const base = board.basePath;
 
+  /* 게시판 이름은 NAV 가 아니라 게시판 설정에서 가져온다.
+     메뉴에서 자리를 옮겨도 제목이 흔들리지 않아야 한다. */
   return (
-    <PageShell href={base} desc={board.desc}>
+    <PageShell href={base} title={board.name} desc={board.desc}>
       {intro}
 
       <BoardSearch total={total} action={base} q={q} />
@@ -50,8 +52,8 @@ export default async function BoardListView({
 
       {board.layout === "cards" ? (
         <EventCards base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
-      ) : board.layout === "gallery" ? (
-        <GalleryCards base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
+      ) : board.layout === "issues" ? (
+        <NewsletterIssues base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
       ) : (
         <BoardTable base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
       )}

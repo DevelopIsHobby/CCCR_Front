@@ -59,7 +59,7 @@ export default async function PostDetailView({
     : [];
 
   return (
-    <PageShell href={base}>
+    <PageShell href={base} title={board.name}>
       <ViewCounter postId={post.id} />
 
       <article>
