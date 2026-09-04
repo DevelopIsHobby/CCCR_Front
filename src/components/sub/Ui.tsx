@@ -232,7 +232,7 @@ export function ContactBanner({
   return (
     <div
       className={`relative overflow-hidden rounded-2xl bg-navy-900 px-8 py-10 lg:px-12 ${
-        spacing === "tight" ? "mt-5" : "mt-20"
+        spacing === "tight" ? "mt-5" : "mt-11"
       }`}
     >
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">

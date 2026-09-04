@@ -23,7 +23,7 @@ export default function BannerRail({
   };
 
   return (
-    <section className="relative overflow-hidden border-y border-line bg-surface py-16 lg:py-20">
+    <section className="relative overflow-hidden border-y border-line bg-surface py-12 lg:py-14">
       {/* 히어로와 같은 육각 무늬를 옅게 깔아 밋밋한 회색 띠가 되지 않게 한다 */}
       <div className="hex-soft absolute inset-0" aria-hidden />
       <div

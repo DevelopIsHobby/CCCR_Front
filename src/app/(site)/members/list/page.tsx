@@ -38,7 +38,7 @@ export default async function Page() {
       </div>
 
       {/* 회원사 명단 */}
-      <section className="mt-16">
+      <section className="mt-12">
         <SectionHeading
           eyebrow={`전체 ${counts.total}개사`}
           title="참여 회원사"

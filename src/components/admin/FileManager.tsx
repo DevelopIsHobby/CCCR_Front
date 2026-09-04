@@ -142,7 +142,7 @@ export default function FileManager({ report }: { report: FileReport }) {
           <tbody>
             {files.length === 0 && (
               <tr className="border-b border-line">
-                <td colSpan={6} className="px-3 py-16 text-center text-md text-ink-400">
+                <td colSpan={6} className="px-3 py-12 text-center text-md text-ink-400">
                   올라온 파일이 없습니다.
                 </td>
               </tr>

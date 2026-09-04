@@ -145,7 +145,7 @@ export default function ReservationList({
 }) {
   if (reservations.length === 0) {
     return (
-      <p className="mt-8 rounded-xl border border-line bg-surface px-6 py-20 text-center text-md text-ink-400">
+      <p className="mt-8 rounded-xl border border-line bg-surface px-6 py-11 text-center text-md text-ink-400">
         해당하는 예약이 없습니다.
       </p>
     );

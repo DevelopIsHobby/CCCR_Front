@@ -39,7 +39,7 @@ export default async function Page() {
         action={<PromoDialog me={me} />}
       />
 
-      <p className="mt-14 rounded-xl border border-line bg-surface px-5 py-4 text-base leading-relaxed text-ink-600 lg:px-6">
+      <p className="mt-11 rounded-xl border border-line bg-surface px-5 py-4 text-base leading-relaxed text-ink-600 lg:px-6">
         넣으신 신청이 어떻게 되고 있는지는{" "}
         <Link href="/participate/status" className="font-bold text-brand-600 hover:underline">
           신청 현황 조회

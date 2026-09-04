@@ -161,7 +161,7 @@ function PromoCard({ promo }: { promo: PromoRequest }) {
 export default function PromoList({ promos }: { promos: PromoRequest[] }) {
   if (promos.length === 0) {
     return (
-      <p className="mt-8 rounded-xl border border-line bg-surface px-6 py-20 text-center text-md text-ink-400">
+      <p className="mt-8 rounded-xl border border-line bg-surface px-6 py-11 text-center text-md text-ink-400">
         들어온 신청이 없습니다.
       </p>
     );

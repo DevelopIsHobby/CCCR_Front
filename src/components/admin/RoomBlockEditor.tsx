@@ -29,7 +29,7 @@ export default function RoomBlockEditor({ blocks }: { blocks: RoomBlock[] }) {
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <section className="mt-14">
+    <section className="mt-11">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-navy-900 pb-4">
         <div>
           <h2 className="text-xl font-bold text-navy-900">조합 내부 사용</h2>

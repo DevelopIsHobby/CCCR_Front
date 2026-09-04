@@ -28,7 +28,7 @@ function StatusButton({ id, status, label }: { id: number; status: string; label
 export default function MemberTable({ users }: { users: UserRow[] }) {
   if (users.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-line bg-white py-16 text-center text-md text-ink-400">
+      <p className="rounded-xl border border-dashed border-line bg-white py-12 text-center text-md text-ink-400">
         해당하는 회원이 없습니다.
       </p>
     );

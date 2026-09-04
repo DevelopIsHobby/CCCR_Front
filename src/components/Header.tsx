@@ -8,12 +8,12 @@ import { IconClose, IconMenu, IconSearch, IconChevron } from "./Icons";
 import { EDUCATION_URL, NAV } from "@/lib/site-data";
 import { logout } from "@/lib/auth/actions";
 import type { Session } from "@/lib/auth/session";
+import SnsLinks from "./SnsLinks";
+import type { SiteSettings } from "@/lib/site-settings-types";
 
 /* 로그인 여부와 무관하게 항상 보이는 항목 */
-const UTILITY = [
-  { label: "교육 홈페이지", href: EDUCATION_URL },
-  { label: "뉴스레터 신청", href: "/info/newsletter" },
-];
+/* 뉴스레터는 참여하기 메뉴와 푸터 띠에 있다. 여기까지 두면 세 군데가 된다. */
+const UTILITY = [{ label: "교육 홈페이지", href: EDUCATION_URL }];
 
 const GUEST_LINKS = [
   { label: "로그인", href: "/login" },
@@ -30,7 +30,13 @@ const utilItem =
   "flex h-full items-center text-xs underline-offset-4 transition-colors hover:underline";
 const utilLink = `${utilItem} text-ink-600 hover:text-brand-600 active:text-brand-700`;
 
-export default function Header({ session }: { session: Session | null }) {
+export default function Header({
+  session,
+  site,
+}: {
+  session: Session | null;
+  site: SiteSettings;
+}) {
   const [megaOpen, setMegaOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -66,6 +72,9 @@ export default function Header({ session }: { session: Session | null }) {
       {/* 유틸리티 바 */}
       <div className="hidden border-b border-line bg-surface lg:block">
         <div className="mx-auto flex h-9 max-w-[1280px] items-center justify-end gap-5 px-6">
+          {/* SNS 는 링크 글자들 왼쪽에 둔다. 글자 사이에 섞으면 눈이 걸린다. */}
+          <SnsLinks site={site} tone="light" className="-my-1 mr-1" />
+
           {UTILITY.map((item) => (
             <SmartLink key={item.label} href={item.href} className={utilLink}>
               {item.label}

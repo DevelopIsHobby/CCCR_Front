@@ -180,7 +180,7 @@ export default async function PostDetailView({
             )}
           </>
         ) : (
-          <div className="my-10 rounded-xl bg-surface px-8 py-14 text-center">
+          <div className="my-10 rounded-xl bg-surface px-8 py-11 text-center">
             <IconLock className="mx-auto size-7 text-ink-400" />
             <p className="mt-4 text-md font-bold text-navy-900">회원 전용 게시물입니다.</p>
             <p className="mt-2 text-base text-ink-600">

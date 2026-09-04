@@ -117,7 +117,7 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
       {/* 서브페이지 머리와 같은 얇은 액센트 한 줄. 흰 바탕과 만나는 경계를 잡아 준다. */}
       <span className="absolute inset-x-0 bottom-0 z-10 h-1 bg-flame-500" aria-hidden />
 
-      <div className="relative mx-auto grid max-w-[1280px] gap-6 px-6 py-10 lg:grid-cols-[1.55fr_1fr] lg:py-14">
+      <div className="relative mx-auto grid max-w-[1280px] gap-6 px-6 py-10 lg:grid-cols-[1.55fr_1fr] lg:py-11">
         {/* 슬라이더 */}
         <div className="relative flex min-h-[380px] flex-col overflow-hidden rounded-2xl bg-navy-950/60 ring-1 ring-white/10 lg:min-h-[460px]">
           <div className="absolute inset-0 opacity-70">

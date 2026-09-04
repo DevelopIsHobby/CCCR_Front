@@ -41,7 +41,7 @@ export default function AdminPostTable({
 
   if (posts.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-line bg-white py-16 text-center text-md text-ink-400">
+      <p className="rounded-xl border border-dashed border-line bg-white py-12 text-center text-md text-ink-400">
         해당하는 글이 없습니다.
       </p>
     );

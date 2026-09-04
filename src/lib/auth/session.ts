@@ -7,20 +7,16 @@ import { now } from "@/lib/db/driver";
 const COOKIE = "c3r_session";
 
 /*
-  로그인 유지 기간.
+  로그인 유지 기간 — 누구든 여덟 시간.
 
-  예전에는 누구든 이레였다. 활동과 상관없는 절대 기간이라 집에서 로그인하고
-  다음 날 회사에서 열어도 그대로 들어가졌다.
+  예전에는 이레였다. 활동과 상관없는 절대 기간이라 집에서 로그인하고 다음 날
+  회사에서 열어도 그대로 들어가졌다.
 
-  관리자는 짧게 둔다. 회원 개인정보와 모든 글을 볼 수 있어, 공용 PC 에 열어 둔
-  채 자리를 뜨면 그대로 남는 것이 위험하다.
-  '로그인 유지'는 본인이 고른 개인 기기에만 쓴다. 관리자에게는 주지 않는다.
+  관리자와 회원을 나누지 않는다. 회원도 자기 신청 내역과 개인정보를 보고,
+  조합 사람들은 사무실 공용 PC 를 함께 쓴다. 하루를 넘겨 남아 있을 이유가 없다.
+  쓰는 동안에는 아래에서 다시 채우므로 일하다 끊기지는 않는다.
 */
-const WINDOW_SEC = {
-  admin: 60 * 60 * 8, //  8시간
-  member: 60 * 60 * 24, // 24시간
-  remember: 60 * 60 * 24 * 14, // 14일
-} as const;
+const WINDOW_SEC = 60 * 60 * 8;
 
 export type Session = {
   userId: number;
@@ -32,25 +28,16 @@ export type Session = {
 /* 쿠키에는 원문 토큰을, DB 에는 해시만 둔다. DB 가 새도 세션을 만들 수 없다. */
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
-export async function createSession(userId: number, remember = false): Promise<void> {
+export async function createSession(userId: number): Promise<void> {
   const db = await ready();
 
-  /* 권한에 따라 기간이 다르므로 여기서 확인한다. 관리자는 '유지'를 골라도 짧게 둔다. */
-  const user = await db.get<{ role: string }>("SELECT role FROM users WHERE id = ?", [userId]);
-  const maxAge =
-    user?.role === "admin"
-      ? WINDOW_SEC.admin
-      : remember
-        ? WINDOW_SEC.remember
-        : WINDOW_SEC.member;
-
   const token = randomBytes(32).toString("base64url");
-  const expiresAt = new Date(Date.now() + maxAge * 1000);
+  const expiresAt = new Date(Date.now() + WINDOW_SEC * 1000);
 
   await db.run(
     `INSERT INTO sessions (token_hash, user_id, expires_at, max_age_sec, created_at)
      VALUES (?, ?, ?, ?, ?)`,
-    [hashToken(token), userId, expiresAt.toISOString(), maxAge, now()],
+    [hashToken(token), userId, expiresAt.toISOString(), WINDOW_SEC, now()],
   );
 
   const store = await cookies();
@@ -60,11 +47,11 @@ export async function createSession(userId: number, remember = false): Promise<v
     secure: process.env.NODE_ENV === "production",
     path: "/",
     /*
-      쿠키는 가장 긴 기간으로 넉넉히 둔다. 실제 만료는 sessions 표가 정하고
-      쓰는 동안 늘어나는데, 쿠키가 먼저 죽으면 그 연장이 소용없어진다.
-      쿠키가 남아 있어도 표에서 지나면 로그인은 풀린다.
+      쿠키가 먼저 죽으면 표에서 늘려 둔 기간이 소용없어진다. 넉넉히 두고
+      실제 만료는 sessions 표가 정한다. 쿠키가 남아 있어도 표에서 지나면
+      로그인은 풀린다. 이어 쓰는 동안에는 아래에서 표를 다시 채운다.
     */
-    maxAge: WINDOW_SEC.remember,
+    maxAge: WINDOW_SEC,
   });
 }
 
@@ -102,7 +89,7 @@ export async function getSession(): Promise<Session | null> {
     쓸데없이 DB 에 쓴다. 남은 시간이 절반 아래로 내려갔을 때만 채운다.
     안 쓰면 그대로 만료되므로 자리를 뜬 채 남아 있는 일이 없다.
   */
-  const maxAge = Number(row.max_age_sec) || WINDOW_SEC.member;
+  const maxAge = Number(row.max_age_sec) || WINDOW_SEC;
   if (expiresAt - Date.now() < (maxAge * 1000) / 2) {
     /*
       쿠키는 건드리지 않는다. 화면을 그리는 중에 쿠키를 고치면 Next 가 막는다.

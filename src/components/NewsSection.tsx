@@ -27,7 +27,7 @@ export default async function NewsSection() {
   }));
 
   return (
-    <section className="mx-auto max-w-[1280px] px-6 py-16 lg:py-24">
+    <section className="mx-auto max-w-[1280px] px-6 py-10 lg:py-12">
       <div className="grid gap-12 lg:grid-cols-[1.7fr_1fr] lg:gap-14">
         {/* 새소식 */}
         <div>

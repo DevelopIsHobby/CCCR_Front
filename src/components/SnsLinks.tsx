@@ -27,9 +27,12 @@ const SERVICES = [
 
 export default function SnsLinks({
   site,
+  tone = "dark",
   className = "",
 }: {
   site: SiteSettings;
+  /** dark: 짙은 푸터 위 · light: 밝은 유틸리티 바 위 */
+  tone?: "dark" | "light";
   className?: string;
 }) {
   const links = SERVICES.filter((s) => site[s.key]?.trim());
@@ -44,9 +47,18 @@ export default function SnsLinks({
             target="_blank"
             rel="noreferrer"
             title={`조합 ${s.label} 새 창으로 열기`}
-            className="grid size-10 place-items-center rounded-full text-brand-100/70 ring-1 ring-white/15 transition-colors hover:bg-white/10 hover:text-white"
+            className={
+              tone === "light"
+                ? "grid size-7 place-items-center rounded-full text-ink-400 transition-colors hover:bg-white hover:text-brand-600"
+                : "grid size-10 place-items-center rounded-full text-brand-100/70 ring-1 ring-white/15 transition-colors hover:bg-white/10 hover:text-white"
+            }
           >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="size-[18px]" aria-hidden>
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className={tone === "light" ? "size-[15px]" : "size-[18px]"}
+              aria-hidden
+            >
               <path d={ICON_PATHS[s.icon]} />
             </svg>
             <span className="sr-only">{s.label}</span>

@@ -78,7 +78,7 @@ export default function BoardTable({
           <tbody>
             {all.length === 0 && (
               <tr className="border-b border-line">
-                <td colSpan={5} className="px-5 py-16 text-center text-md text-ink-400">
+                <td colSpan={5} className="px-5 py-12 text-center text-md text-ink-400">
                   {emptyMessage(searching)}
                 </td>
               </tr>
@@ -117,7 +117,7 @@ export default function BoardTable({
       {/* 모바일: 카드 */}
       <ul className="mt-6 border-t-2 border-navy-900 lg:hidden">
         {all.length === 0 && (
-          <li className="border-b border-line py-16 text-center text-md text-ink-400">
+          <li className="border-b border-line py-12 text-center text-md text-ink-400">
             {emptyMessage(searching)}
           </li>
         )}

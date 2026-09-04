@@ -62,7 +62,7 @@ export default async function Page({
       )}
 
       {q && !short && total === 0 && (
-        <div className="py-20 text-center">
+        <div className="py-11 text-center">
           <p className="text-md text-ink-600">찾으시는 내용이 없습니다.</p>
           <p className="mt-2 text-base text-ink-400">
             낱말을 줄이거나 다른 말로 바꿔서 다시 찾아보세요.

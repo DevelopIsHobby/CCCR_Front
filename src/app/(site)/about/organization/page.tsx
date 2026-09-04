@@ -137,7 +137,7 @@ export default async function Page() {
       </section>
 
       {/* 부서 연락처 */}
-      <section className="mt-20">
+      <section className="mt-11">
         <SectionHeading
           eyebrow={`부서 ${departments.length}곳`}
           title="부서별 연락처"
@@ -190,7 +190,7 @@ export default async function Page() {
       </section>
 
       {/* 기구별 역할 */}
-      <section className="mt-20">
+      <section className="mt-11">
         <SectionHeading eyebrow={`기구 ${roles.length}개`} title="기구별 역할" />
         <div className="mt-10">
           <DefTable rows={roles.map((r) => ({ label: r.title, value: r.body }))} />

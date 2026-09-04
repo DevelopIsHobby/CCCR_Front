@@ -30,7 +30,7 @@ export default function EventCards({
 
   if (all.length === 0) {
     return (
-      <p className="mt-6 border-y-2 border-navy-900 py-20 text-center text-md text-ink-400">
+      <p className="mt-6 border-y-2 border-navy-900 py-11 text-center text-md text-ink-400">
         {emptyMessage(searching)}
       </p>
     );

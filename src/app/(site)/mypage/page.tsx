@@ -77,7 +77,7 @@ export default async function Page() {
       )}
 
       {/* 신청 현황 */}
-      <section className="mt-14">
+      <section className="mt-11">
         <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-navy-900 pb-4">
           <h3 className="text-xl font-bold text-navy-900">내 신청 현황</h3>
           {/* 어느 주소를 기준으로 모은 것인지 밝힌다. 안 보이면 왜 없는지 알 수 없다. */}
@@ -115,14 +115,14 @@ export default async function Page() {
       </section>
 
       {/* 계정 정보 */}
-      <section className="mt-16">
+      <section className="mt-12">
         <h3 className="border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">
           표시 이름
         </h3>
         <NameForm name={session.name} />
       </section>
 
-      <section className="mt-14">
+      <section className="mt-11">
         <h3 className="border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">
           비밀번호 변경
         </h3>
@@ -132,14 +132,14 @@ export default async function Page() {
         <PasswordForm />
       </section>
 
-      <section className="mt-14">
+      <section className="mt-11">
         <h3 className="border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">
           로그인한 기기
         </h3>
         <OtherDevicesForm count={sessionCount} />
       </section>
 
-      <p className="mt-14 rounded-xl border border-line bg-surface px-5 py-4 text-base leading-relaxed text-ink-600 lg:px-6">
+      <p className="mt-11 rounded-xl border border-line bg-surface px-5 py-4 text-base leading-relaxed text-ink-600 lg:px-6">
         소속·부서·이메일을 바꾸시려면 사무국으로 알려 주세요. 회원 정보는 사무국에서
         확인한 뒤 고쳐 드립니다.
       </p>

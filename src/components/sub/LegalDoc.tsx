@@ -80,7 +80,7 @@ export function LegalDoc({ articles, notice }: { articles: Article[]; notice?: s
         ))}
       </div>
 
-      <p className="label-mono mt-14 border-t border-line pt-6 text-ink-400">
+      <p className="label-mono mt-11 border-t border-line pt-6 text-ink-400">
         시행일자 · 2026-01-01
       </p>
     </div>

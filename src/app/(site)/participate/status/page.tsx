@@ -41,7 +41,7 @@ export default async function Page() {
       </div>
 
       {session && (
-        <section className="mt-14">
+        <section className="mt-11">
           <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-navy-900 pb-4">
             <h3 className="text-xl font-bold text-navy-900">내 신청 내역</h3>
             <p className="data-line text-ink-400">{mine.length}건</p>

@@ -32,7 +32,7 @@ export default function NoticeSubscriberTable({
         <tbody>
           {subscribers.length === 0 && (
             <tr className="border-b border-line">
-              <td colSpan={7} className="px-3 py-16 text-center text-md text-ink-400">
+              <td colSpan={7} className="px-3 py-12 text-center text-md text-ink-400">
                 신청한 곳이 없습니다.
               </td>
             </tr>

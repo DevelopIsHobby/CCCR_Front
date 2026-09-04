@@ -34,7 +34,7 @@ export default async function Page() {
       </section>
 
       {/* 설립근거 */}
-      <section className="mt-20 rounded-2xl bg-surface p-8 lg:p-12">
+      <section className="mt-11 rounded-2xl bg-surface p-8 lg:p-12">
         <div className="grid gap-8 lg:grid-cols-[240px_1fr] lg:gap-14">
           <div>
             <p className="data-line text-flame-600">산업기술연구조합육성법</p>
@@ -45,7 +45,7 @@ export default async function Page() {
       </section>
 
       {/* 연혁 */}
-      <section className="mt-20">
+      <section className="mt-11">
         <SectionHeading eyebrow="조합 활동" title="연혁" />
 
         <div className="mt-12">

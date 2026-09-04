@@ -26,6 +26,12 @@ const SERVICES = [
     desc: "함께 열고 싶은 교육과정이나 협력 방안을 제안해 주세요.",
   },
   {
+    href: "/info/newsletter",
+    eyebrow: "월 1회",
+    title: "뉴스레터 신청",
+    desc: "공지·행사·기술동향을 한 달에 한 번 정리해 보내드립니다.",
+  },
+  {
     href: "/participate/promo",
     eyebrow: "회원사 · 유관기관",
     title: "홍보 서비스 신청",
@@ -60,7 +66,7 @@ export default function Page() {
         ))}
       </div>
 
-      <section className="mt-14 rounded-xl border border-line bg-surface p-6 lg:p-8">
+      <section className="mt-11 rounded-xl border border-line bg-surface p-6 lg:p-8">
         <h3 className="text-xl font-bold text-navy-900">이미 신청하셨나요?</h3>
         <p className="mt-2 text-md leading-relaxed text-ink-600">
           접수 확인 메일에 적힌 접수번호로 진행 상황을 확인하실 수 있습니다. 로그인하시면

@@ -57,7 +57,7 @@ export default function ServiceIntro({
         </div>
       </div>
 
-      <section className="mt-14">
+      <section className="mt-11">
         <h3 className="border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">
           진행 절차
         </h3>
@@ -71,7 +71,7 @@ export default function ServiceIntro({
         </ol>
       </section>
 
-      <section className="mt-14">
+      <section className="mt-11">
         <h3 className="border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">
           신청 전 확인해 주세요
         </h3>

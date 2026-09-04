@@ -49,6 +49,7 @@ export const NAV: NavItem[] = [
       { label: "회의실 예약", href: "/participate/room" },
       { label: "교육사업 제안", href: "/participate/proposal" },
       { label: "홍보 서비스 신청", href: "/participate/promo" },
+      { label: "뉴스레터 신청", href: "/info/newsletter" },
       { label: "신청 현황 조회", href: "/participate/status" },
     ],
   },
@@ -59,7 +60,6 @@ export const NAV: NavItem[] = [
       { label: "산업뉴스", href: "/info/news" },
       { label: "기술동향", href: "/info/trends" },
       { label: "자료실", href: "/info/archive" },
-      { label: "뉴스레터", href: "/info/newsletter" },
     ],
   },
 ];

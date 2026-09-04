@@ -13,7 +13,7 @@ import "./globals.css";
 export default function NotFound() {
   return (
     <html lang="ko">
-      <body className="grid min-h-screen place-items-center bg-white px-6 py-20">
+      <body className="grid min-h-screen place-items-center bg-white px-6 py-11">
         <main className="w-full max-w-lg text-center">
           <p className="label-mono text-6xl font-bold leading-none text-brand-200">404</p>
 

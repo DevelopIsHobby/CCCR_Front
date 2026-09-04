@@ -29,7 +29,7 @@ export default function SignUpForm() {
 
   if (state.ok) {
     return (
-      <div className="mx-auto mt-14 max-w-2xl rounded-2xl border border-line bg-white p-10 text-center">
+      <div className="mx-auto mt-11 max-w-2xl rounded-2xl border border-line bg-white p-10 text-center">
         <p className="text-xl font-bold text-navy-900">가입 신청이 접수되었습니다</p>
         <p className="mt-4 text-md leading-relaxed text-ink-600">
           사무국 확인 후 이용할 수 있습니다. 승인되면 입력하신 이메일로 로그인해 주세요.
@@ -48,7 +48,7 @@ export default function SignUpForm() {
 
   return (
     <>
-      <form action={action} className="mx-auto mt-14 max-w-2xl rounded-2xl border border-line bg-white p-8 lg:p-10">
+      <form action={action} className="mx-auto mt-11 max-w-2xl rounded-2xl border border-line bg-white p-8 lg:p-10">
       <fieldset>
         <legend className="text-lg font-bold text-navy-900">약관 동의</legend>
         <div className="mt-5 space-y-3">

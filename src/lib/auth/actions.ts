@@ -53,8 +53,7 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   await clear("login", `email:${email}`);
   await clear("login", `ip:${from}`);
 
-  /* 개인 기기에서 본인이 고른 경우만 오래 유지한다. 관리자는 고르든 말든 짧다. */
-  await createSession(user.id, formData.get("remember") === "1");
+  await createSession(user.id);
   /* 열린 리다이렉트를 막기 위해 사이트 내부 경로만 허용한다. */
   redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/");
 }

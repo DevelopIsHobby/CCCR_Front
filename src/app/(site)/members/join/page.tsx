@@ -50,7 +50,7 @@ export default async function Page() {
       </nav>
 
       {/* 가입대상 · 회비 */}
-      <section id={JOIN_SECTIONS[0].id} className="mt-14 scroll-mt-28 lg:scroll-mt-36">
+      <section id={JOIN_SECTIONS[0].id} className="mt-11 scroll-mt-28 lg:scroll-mt-36">
         <SectionHeading
           eyebrow="회원가입 대상"
           title="가입대상 및 회비"
@@ -94,7 +94,7 @@ export default async function Page() {
       </section>
 
       {/* 가입 특전 */}
-      <section id={JOIN_SECTIONS[1].id} className="mt-20 scroll-mt-28 lg:scroll-mt-36">
+      <section id={JOIN_SECTIONS[1].id} className="mt-11 scroll-mt-28 lg:scroll-mt-36">
         <SectionHeading eyebrow={`특전 ${MEMBER_BENEFITS.length}가지`} title="회원가입 특전" />
 
         <ul className="mt-10 grid gap-3 sm:grid-cols-2">
@@ -108,7 +108,7 @@ export default async function Page() {
       </section>
 
       {/* 가입절차 */}
-      <section id={JOIN_SECTIONS[2].id} className="mt-20 scroll-mt-28 lg:scroll-mt-36">
+      <section id={JOIN_SECTIONS[2].id} className="mt-11 scroll-mt-28 lg:scroll-mt-36">
         <SectionHeading
           eyebrow={`일반회원 ${JOIN_STEPS.length}단계`}
           title="가입절차"
@@ -120,7 +120,7 @@ export default async function Page() {
       </section>
 
       {/* 제출서류 · 입금계좌 */}
-      <section className="mt-20 grid gap-12 lg:grid-cols-2 lg:gap-14">
+      <section className="mt-11 grid gap-12 lg:grid-cols-2 lg:gap-14">
         <div>
           <SectionHeading eyebrow={`서류 ${JOIN_DOCS.length}종`} title="가입 시 제출서류" />
 

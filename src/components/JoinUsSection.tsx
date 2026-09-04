@@ -16,7 +16,7 @@ import PromoDialog from "./PromoDialog";
 */
 export default function JoinUsSection({ me = EMPTY_APPLICANT }: { me?: Applicant }) {
   return (
-    <section className="relative overflow-hidden bg-navy-900 py-16 lg:py-20">
+    <section className="relative overflow-hidden bg-navy-900 py-12 lg:py-14">
       <div className="hex-field absolute inset-0" aria-hidden />
       <div
         className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-brand-700/55"

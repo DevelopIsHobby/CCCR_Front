@@ -48,7 +48,7 @@ export default async function Page() {
       </ol>
 
       {/* 교육사업은 밖에서 함께 하자는 제안이 들어오는 창구가 필요하다 */}
-      <section className="mt-16 overflow-hidden rounded-2xl bg-navy-900 px-8 py-12 lg:px-14">
+      <section className="mt-12 overflow-hidden rounded-2xl bg-navy-900 px-8 py-12 lg:px-14">
         <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-16">
           <div>
             <p className="data-line text-flame-500">교육사업 협력</p>

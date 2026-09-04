@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import ScrollTop from "@/components/ScrollTop";
 import VisitLogger from "@/components/VisitLogger";
 import { getSession } from "@/lib/auth/session";
+import { getSiteSettings } from "@/lib/db/site-settings";
 import { siteUrl } from "@/lib/site-url";
 import "../globals.css";
 
@@ -55,7 +56,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   /* 헤더가 로그인 상태를 보여줘야 하므로 여기서 세션을 한 번 읽는다. */
-  const session = await getSession();
+  const [session, site] = await Promise.all([getSession(), getSiteSettings()]);
 
   return (
     <html lang="ko" className={plexMono.variable}>
@@ -66,7 +67,7 @@ export default async function RootLayout({
         >
           본문 바로가기
         </a>
-        <Header session={session} />
+        <Header session={session} site={site} />
         <main id="main">{children}</main>
         <Footer />
         <ScrollTop />

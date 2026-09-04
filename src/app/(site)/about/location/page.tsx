@@ -144,7 +144,7 @@ function OfficeSection({
         />
       </div>
 
-      <h3 className="mt-14 text-xl font-bold text-navy-900">교통편</h3>
+      <h3 className="mt-11 text-xl font-bold text-navy-900">교통편</h3>
       <dl className="mt-6 border-t-2 border-navy-900">
         {parseTransit(office.transit).map((g) => (
           <div
@@ -193,7 +193,7 @@ export default async function Page() {
         ))}
       </nav>
 
-      <div className="mt-14 space-y-24">
+      <div className="mt-11 space-y-24">
         {offices.map((o, i) => (
           <OfficeSection key={o.id} office={o} index={i} appKey={site.kakaoMapKey} />
         ))}

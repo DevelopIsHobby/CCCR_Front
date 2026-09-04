@@ -43,7 +43,7 @@ export default async function Page() {
         ))}
       </div>
 
-      <h3 className="mt-16 border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">
+      <h3 className="mt-12 border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">
         수신 신청
       </h3>
       <p className="mt-5 rounded-lg bg-surface px-5 py-4 text-base leading-relaxed text-ink-600">

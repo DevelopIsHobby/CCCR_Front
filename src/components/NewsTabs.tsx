@@ -77,7 +77,7 @@ export default function NewsTabs({
 
       <ul className="mt-7 border-t-2 border-navy-900">
         {list.length === 0 && (
-          <li className="border-b border-line py-14 text-center text-md text-ink-400">
+          <li className="border-b border-line py-11 text-center text-md text-ink-400">
             등록된 소식이 없습니다.
           </li>
         )}

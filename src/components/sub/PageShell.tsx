@@ -31,7 +31,7 @@ export default function PageShell({ href, title, category, desc, children }: Pro
         {/* 히어로의 텍스처 대신 얇은 액센트 한 줄만 둔다 */}
         <span className="absolute inset-x-0 bottom-0 h-1 bg-flame-500" aria-hidden />
 
-        <div className="relative mx-auto max-w-[1280px] px-6 py-12 lg:py-16">
+        <div className="relative mx-auto max-w-[1280px] px-6 py-10 lg:py-12">
           <nav aria-label="현재 위치" className="flex flex-wrap items-center gap-1.5">
             <Link href="/" className="text-sm text-brand-100/60 hover:text-white">
               홈
@@ -86,7 +86,7 @@ export default function PageShell({ href, title, category, desc, children }: Pro
         </div>
       )}
 
-      <div className="mx-auto max-w-[1280px] px-6 py-16 lg:py-20">{children}</div>
+      <div className="mx-auto max-w-[1280px] px-6 py-12 lg:py-14">{children}</div>
     </>
   );
 }
