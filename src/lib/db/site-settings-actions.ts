@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
-import { JOIN_CONTACT_FIELDS, MAP_FIELDS, SITE_FIELDS } from "@/lib/site-settings-types";
+import { JOIN_CONTACT_FIELDS, MAP_FIELDS, SITE_FIELDS, SNS_FIELDS } from "@/lib/site-settings-types";
 
 export type SiteSettingsState = { error?: string; ok?: string };
 
@@ -14,7 +14,7 @@ export async function saveSiteSettings(
 ): Promise<SiteSettingsState> {
   await requireAdmin();
 
-  const values = [...SITE_FIELDS, ...JOIN_CONTACT_FIELDS, ...MAP_FIELDS].map((field) => ({
+  const values = [...SITE_FIELDS, ...JOIN_CONTACT_FIELDS, ...MAP_FIELDS, ...SNS_FIELDS].map((field) => ({
     key: field.key,
     value: String(formData.get(field.key) ?? "").trim(),
   }));
@@ -23,6 +23,15 @@ export async function saveSiteSettings(
     const email = values.find((v) => v.key === key)?.value ?? "";
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return { error: "이메일 주소를 다시 확인해 주세요." };
+    }
+  }
+
+  /* SNS 주소는 그대로 링크가 되므로 http(s) 만 받는다. javascript: 같은 것을 막는다. */
+  for (const field of SNS_FIELDS) {
+    const url = values.find((v) => v.key === field.key)?.value ?? "";
+    const scheme = url.slice(0, 8).toLowerCase();
+    if (url && !scheme.startsWith("http://") && !scheme.startsWith("https://")) {
+      return { error: `${field.label} 주소는 http:// 또는 https:// 로 시작해야 합니다.` };
     }
   }
 

@@ -9,6 +9,7 @@ import {
   JOIN_CONTACT_FIELDS,
   MAP_FIELDS,
   SITE_FIELDS,
+  SNS_FIELDS,
   type SiteSettings,
 } from "@/lib/site-settings-types";
 
@@ -75,6 +76,26 @@ export default function SiteSettingsForm({ settings }: { settings: SiteSettings 
           </label>
         ))}
       </div>
+
+      <p className="border-t border-line pt-5 text-md font-bold text-navy-900">
+        SNS
+      </p>
+      <div className="grid gap-5 sm:grid-cols-2">
+        {SNS_FIELDS.map((field) => (
+          <label key={field.key} className="block">
+            <span className="mb-1.5 block text-base font-bold text-navy-900">{field.label}</span>
+            <input
+              name={field.key}
+              defaultValue={settings[field.key]}
+              placeholder={field.placeholder}
+              className={input}
+            />
+          </label>
+        ))}
+      </div>
+      <p className="text-sm leading-relaxed text-ink-400">
+        푸터에 아이콘으로 나옵니다. 비워 두면 그 아이콘은 나오지 않습니다.
+      </p>
 
       {state.error && (
         <p role="alert" className="rounded-md bg-flame-100 px-4 py-3 text-base font-medium text-flame-700">

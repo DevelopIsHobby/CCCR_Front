@@ -1,6 +1,7 @@
 import Logo from "./Logo";
 import NewsletterBand from "./NewsletterBand";
 import FooterPolicyLinks from "./FooterPolicyLinks";
+import SnsLinks from "./SnsLinks";
 import { getSiteSettings } from "@/lib/db/site-settings";
 import { listRelatedSites } from "@/lib/db/site-content";
 import RelatedSiteSelect from "./RelatedSiteSelect";
@@ -37,6 +38,9 @@ export default async function Footer() {
             </address>
 
             <FooterPolicyLinks />
+
+            {/* 조합 SNS. 주소는 사이트 정보에서 오고, 비어 있으면 나오지 않는다. */}
+            <SnsLinks site={site} className="mt-6" />
           </div>
 
           <div className="lg:text-right">

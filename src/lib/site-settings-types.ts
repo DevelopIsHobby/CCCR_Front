@@ -16,7 +16,10 @@ export type SiteSettingKey =
   | "joinTel"
   | "joinFax"
   | "joinEmail"
-  | "kakaoMapKey";
+  | "kakaoMapKey"
+  | "snsLinkedin"
+  | "snsInstagram"
+  | "snsFacebook";
 
 export type SiteSettings = Record<SiteSettingKey, string>;
 
@@ -61,6 +64,13 @@ export const JOIN_CONTACT_FIELDS: {
   { key: "joinEmail", label: "이메일", placeholder: "admin@cccr.or.kr" },
 ];
 
+/** 조합 SNS. 비워 두면 그 아이콘은 화면에 나오지 않는다. */
+export const SNS_FIELDS: { key: SiteSettingKey; label: string; placeholder: string }[] = [
+  { key: "snsLinkedin", label: "링크드인", placeholder: "https://www.linkedin.com/company/..." },
+  { key: "snsInstagram", label: "인스타그램", placeholder: "https://www.instagram.com/..." },
+  { key: "snsFacebook", label: "페이스북", placeholder: "https://www.facebook.com/..." },
+];
+
 /** 찾아오시는 길의 지도 */
 export const MAP_FIELDS: {
   key: SiteSettingKey;
@@ -94,4 +104,7 @@ export const SITE_DEFAULTS: SiteSettings = {
   joinFax: "",
   joinEmail: "",
   kakaoMapKey: "",
+  snsLinkedin: "",
+  snsInstagram: "",
+  snsFacebook: "",
 };
