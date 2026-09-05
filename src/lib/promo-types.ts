@@ -32,6 +32,8 @@ export const PROMO_STATUS_LABEL: Record<PromoStatus, string> = {
 
 export type PromoRequest = {
   id: number;
+  /** 접수번호. 신청자가 전화로 부르고 메일에 적혀 있는 값. */
+  ref: string;
   org: string;
   name: string;
   position: string;

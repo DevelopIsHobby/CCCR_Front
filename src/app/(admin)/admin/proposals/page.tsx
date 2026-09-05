@@ -43,6 +43,13 @@ export default async function Page({
           </p>
         </div>
 
+        <a
+          href={`/admin/proposals/export?status=${status}`}
+          className="shrink-0 rounded-full bg-navy-900 px-5 py-2.5 text-base font-bold text-white transition-colors hover:bg-brand-600"
+        >
+          엑셀(CSV) 내려받기
+        </a>
+
         <Link
           href="/business/programs"
           target="_blank"

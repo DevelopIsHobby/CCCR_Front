@@ -92,6 +92,7 @@ export async function countPendingNotices(): Promise<number> {
 
 type RawProposal = {
   id: number;
+  ref: string;
   org: string;
   name: string;
   email: string;
@@ -106,6 +107,7 @@ const PROPOSAL_STATUSES = new Set(["new", "reading", "done"]);
 
 const toProposal = (r: RawProposal): EducationProposal => ({
   id: Number(r.id),
+  ref: r.ref ?? "",
   org: r.org,
   name: r.name,
   email: r.email,
@@ -123,7 +125,7 @@ export async function listProposals(
   const status = opts.status ?? "all";
 
   const rows = await db.all<RawProposal>(
-    `SELECT id, org, name, email, tel, subject, body, status, created_at
+    `SELECT id, ref, org, name, email, tel, subject, body, status, created_at
        FROM education_proposals
       WHERE deleted_at = ''${status === "all" ? "" : " AND status = ?"}
       ORDER BY id DESC`,

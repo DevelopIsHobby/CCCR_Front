@@ -11,6 +11,7 @@ import { RESERVATION_STATUS_LABEL } from "@/lib/room-types";
 
 type RawReservation = {
   id: number;
+  ref: string;
   room: string;
   use_date: string;
   start_time: string;
@@ -29,6 +30,7 @@ const STATUSES = new Set(["requested", "confirmed", "cancelled"]);
 
 const toReservation = (r: RawReservation): RoomReservation => ({
   id: Number(r.id),
+  ref: r.ref ?? "",
   room: (r.room === "small" ? "small" : "large") as RoomSlug,
   useDate: r.use_date,
   startTime: r.start_time,
@@ -43,7 +45,7 @@ const toReservation = (r: RawReservation): RoomReservation => ({
   createdAt: r.created_at,
 });
 
-const SELECT = `SELECT id, room, use_date, start_time, end_time, headcount,
+const SELECT = `SELECT id, ref, room, use_date, start_time, end_time, headcount,
                        org, name, email, tel, purpose, status, created_at
                   FROM room_reservations`;
 

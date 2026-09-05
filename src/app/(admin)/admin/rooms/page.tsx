@@ -32,6 +32,9 @@ export default async function Page({
     listBlocks({ upcomingOnly: true }),
   ]);
 
+  /* 지금 화면에서 고른 갈래와 기간을 그대로 담는다 */
+  const exportHref = `/admin/rooms/export?status=${status}${upcomingOnly ? "" : "&range=all"}`;
+
   const counts = {
     all: all.length,
     requested: all.filter((r) => r.status === "requested").length,
@@ -41,12 +44,21 @@ export default async function Page({
 
   return (
     <>
-      <div>
-        <h1 className="text-2xl font-bold text-navy-900">회의실 예약</h1>
-        <p className="mt-2 text-md text-ink-600">
-          메인 화면에서 들어온 대회의실·소회의실 대여 신청입니다. 확정을 누르면 같은 시간에 다른
-          신청이 들어오지 않습니다.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-navy-900">회의실 예약</h1>
+          <p className="mt-2 text-md text-ink-600">
+            메인 화면에서 들어온 대회의실·소회의실 대여 신청입니다. 확정을 누르면 같은 시간에
+            다른 신청이 들어오지 않습니다.
+          </p>
+        </div>
+
+        <a
+          href={exportHref}
+          className="shrink-0 rounded-full bg-navy-900 px-5 py-2.5 text-base font-bold text-white transition-colors hover:bg-brand-600"
+        >
+          엑셀(CSV) 내려받기
+        </a>
       </div>
 
       <form method="get" className="mt-8 flex flex-wrap items-center gap-3">

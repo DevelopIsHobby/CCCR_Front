@@ -35,12 +35,21 @@ export default async function Page({
 
   return (
     <>
-      <div>
-        <h1 className="text-2xl font-bold text-navy-900">홍보 신청</h1>
-        <p className="mt-2 text-md text-ink-600">
-          메인 화면에서 들어온 홍보 서비스 신청입니다. 올린 그림과 첨부는 내용을 펼치면 볼 수
-          있습니다.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-navy-900">홍보 신청</h1>
+          <p className="mt-2 text-md text-ink-600">
+            메인 화면에서 들어온 홍보 서비스 신청입니다. 올린 그림과 첨부는 내용을 펼치면 볼 수
+            있습니다.
+          </p>
+        </div>
+
+        <a
+          href={`/admin/promos/export?status=${status}`}
+          className="shrink-0 rounded-full bg-navy-900 px-5 py-2.5 text-base font-bold text-white transition-colors hover:bg-brand-600"
+        >
+          엑셀(CSV) 내려받기
+        </a>
       </div>
 
       <form method="get" className="mt-8 flex flex-wrap gap-1 rounded-full bg-surface p-1 sm:w-fit">

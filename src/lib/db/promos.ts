@@ -8,6 +8,7 @@ import {
 
 type RawPromo = {
   id: number;
+  ref: string;
   org: string;
   name: string;
   position: string;
@@ -29,6 +30,7 @@ const STATUSES = new Set(["new", "reading", "running", "done"]);
 
 const toPromo = (r: RawPromo & { created_at: string }): PromoRequest => ({
   id: Number(r.id),
+  ref: r.ref ?? "",
   org: r.org,
   name: r.name,
   position: r.position,
@@ -45,7 +47,7 @@ const toPromo = (r: RawPromo & { created_at: string }): PromoRequest => ({
   createdAt: r.created_at,
 });
 
-const SELECT = `SELECT id, org, name, position, email, tel, subject, body, tagline,
+const SELECT = `SELECT id, ref, org, name, position, email, tel, subject, body, tagline,
                        start_on, cadence, image_id, file_name, file_bytes, status, created_at
                   FROM promo_requests`;
 
