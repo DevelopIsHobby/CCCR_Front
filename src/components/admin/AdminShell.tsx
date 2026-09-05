@@ -20,6 +20,7 @@ export type AdminBadges = {
   roomRequests: number;
   newPromos: number;
   pendingNotices: number;
+  trash: number;
 };
 
 type Props = {

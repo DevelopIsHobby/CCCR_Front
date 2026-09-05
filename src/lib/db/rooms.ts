@@ -53,7 +53,8 @@ export async function listReservations(
   const db = await ready();
   const status = opts.status ?? "all";
 
-  const where: string[] = [];
+  /* 휴지통에 있는 것은 목록에 내지 않는다 */
+  const where: string[] = ["deleted_at = ''"];
   const params: string[] = [];
 
   if (status !== "all") {
@@ -66,8 +67,8 @@ export async function listReservations(
   }
 
   const rows = await db.all<RawReservation>(
-    `${SELECT} ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
-     ORDER BY use_date DESC, start_time DESC, id DESC`,
+    `${SELECT} WHERE ${where.join(" AND ")}
+      ORDER BY use_date DESC, start_time DESC, id DESC`,
     params,
   );
   return rows.map(toReservation);
@@ -77,7 +78,7 @@ export async function listReservations(
 export async function countRequestedReservations(): Promise<number> {
   const db = await ready();
   const row = await db.get<{ n: number }>(
-    "SELECT COUNT(*) AS n FROM room_reservations WHERE status = 'requested'",
+    "SELECT COUNT(*) AS n FROM room_reservations WHERE deleted_at = '' AND status = 'requested'",
   );
   return Number(row?.n ?? 0);
 }
@@ -144,7 +145,7 @@ export async function findConflict(
   const db = await ready();
   const row = await db.get<RawReservation>(
     `${SELECT}
-      WHERE room = ? AND use_date = ? AND status <> 'cancelled'
+      WHERE deleted_at = '' AND room = ? AND use_date = ? AND status <> 'cancelled'
         AND start_time < ? AND end_time > ?
         AND id <> ?
       ORDER BY start_time LIMIT 1`,
@@ -163,7 +164,7 @@ export async function listBusySlots(room: RoomSlug, useDate: string): Promise<Bu
   const [reserved, blocked] = await Promise.all([
     db.all<{ start_time: string; end_time: string; status: string }>(
       `SELECT start_time, end_time, status FROM room_reservations
-        WHERE room = ? AND use_date = ? AND status <> 'cancelled'
+        WHERE deleted_at = '' AND room = ? AND use_date = ? AND status <> 'cancelled'
         ORDER BY start_time`,
       [room, useDate],
     ),

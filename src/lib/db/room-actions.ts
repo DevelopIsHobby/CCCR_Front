@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
+import { softDelete } from "@/lib/db/trash";
 import { clientKey, record, SUBMIT, tooMany } from "@/lib/db/rate-limit";
 import { now } from "@/lib/db/driver";
 import { getSession, requireAdmin } from "@/lib/auth/session";
@@ -283,7 +284,6 @@ export async function deleteReservation(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   if (!id) return;
 
-  const db = await ready();
-  await db.run("DELETE FROM room_reservations WHERE id = ?", [id]);
+  await softDelete("room", id);
   revalidatePath("/admin/rooms");
 }

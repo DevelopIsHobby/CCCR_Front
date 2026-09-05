@@ -58,7 +58,9 @@ export async function listAdminPosts(opts: { board?: string; q?: string; page?: 
     where.push("(title LIKE ? OR body LIKE ?)");
     params.push(`%${q}%`, `%${q}%`);
   }
-  const whereSql = where.length ? ` WHERE ${where.join(" AND ")}` : "";
+  /* 휴지통에 있는 글은 목록에 내지 않는다 */
+  where.unshift("deleted_at = ''");
+  const whereSql = ` WHERE ${where.join(" AND ")}`;
 
   const countRow = await db.get<{ n: number }>(
     `SELECT COUNT(*) AS n FROM posts${whereSql}`,
@@ -84,7 +86,7 @@ export async function listAdminPosts(opts: { board?: string; q?: string; page?: 
 export async function countPostsByBoard(): Promise<Record<string, number>> {
   const db = await ready();
   const rows = await db.all<{ board: string; n: number }>(
-    "SELECT board, COUNT(*) AS n FROM posts GROUP BY board",
+    "SELECT board, COUNT(*) AS n FROM posts WHERE deleted_at = '' GROUP BY board",
   );
 
   const counts: Record<string, number> = {};

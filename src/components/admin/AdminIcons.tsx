@@ -133,6 +133,15 @@ function IconMegaphone({ className }: IconProps) {
   );
 }
 
+function IconTrash({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M4 7h16M9.5 7V5h5v2M6.5 7l.8 12.2A1.8 1.8 0 0 0 9.1 21h5.8a1.8 1.8 0 0 0 1.8-1.8L17.5 7" />
+      <path d="M10.5 11v6M13.5 11v6" />
+    </svg>
+  );
+}
+
 const ICONS = {
   gauge: IconGauge,
   layout: IconLayout,
@@ -147,6 +156,7 @@ const ICONS = {
   shield: IconShield,
   calendar: IconCalendar,
   megaphone: IconMegaphone,
+  trash: IconTrash,
 };
 
 export type AdminIconName = keyof typeof ICONS;

@@ -10,10 +10,10 @@ import type { Driver } from "./driver";
 
 /** SQL 안에서 쓰는 조건. idExpr 은 이미지 id 를 가리키는 식이다. */
 export const imageUsedSql = (idExpr: string) => `(
-  EXISTS (SELECT 1 FROM posts p WHERE p.body LIKE '%/api/images/' || ${idExpr} || '%')
+  EXISTS (SELECT 1 FROM posts p WHERE p.deleted_at = '' AND p.body LIKE '%/api/images/' || ${idExpr} || '%')
   OR EXISTS (SELECT 1 FROM page_texts t WHERE t.value = '/api/images/' || ${idExpr})
   OR EXISTS (SELECT 1 FROM companies c WHERE c.logo_url = '/api/images/' || ${idExpr})
-  OR EXISTS (SELECT 1 FROM promo_requests r WHERE r.image_id = ${idExpr})
+  OR EXISTS (SELECT 1 FROM promo_requests r WHERE r.deleted_at = '' AND r.image_id = ${idExpr})
   OR EXISTS (SELECT 1 FROM popups pu WHERE pu.image_url = '/api/images/' || ${idExpr})
 )`;
 

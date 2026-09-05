@@ -24,7 +24,7 @@ export async function listAboutCards(section: CardSection): Promise<AboutCard[]>
   const db = await ready();
   const rows = await db.all<RawCard>(
     `SELECT id, section, title, body, sort_order FROM about_cards
-     WHERE section = ? ORDER BY sort_order, id`,
+     WHERE deleted_at = '' AND section = ? ORDER BY sort_order, id`,
     [section],
   );
   return rows.map((r) => ({
@@ -41,7 +41,7 @@ type RawDepartment = { id: number; name: string; tel: string; email: string; sor
 export async function listDepartments(): Promise<Department[]> {
   const db = await ready();
   const rows = await db.all<RawDepartment>(
-    "SELECT id, name, tel, email, sort_order FROM departments ORDER BY sort_order, id",
+    "SELECT id, name, tel, email, sort_order FROM departments WHERE deleted_at = '' ORDER BY sort_order, id",
   );
   return rows.map((r) => ({
     id: Number(r.id),
@@ -74,7 +74,7 @@ export async function listHistory(year?: string): Promise<HistoryEntry[]> {
   const db = await ready();
   const rows = await db.all<RawHistory>(
     `SELECT id, year, month, title, place, sort_order FROM history_entries
-     ${year ? "WHERE year = ?" : ""} ORDER BY sort_order, id`,
+      WHERE deleted_at = ''${year ? " AND year = ?" : ""} ORDER BY sort_order, id`,
     year ? [year] : [],
   );
   return rows.map(toHistory);
@@ -85,7 +85,7 @@ export async function listHistoryYears(): Promise<{ year: string; count: number 
   const db = await ready();
   const rows = await db.all<{ year: string; n: number; first: number }>(
     `SELECT year, COUNT(*) AS n, MIN(sort_order) AS first FROM history_entries
-     GROUP BY year ORDER BY first`,
+      WHERE deleted_at = '' GROUP BY year ORDER BY first`,
   );
   return rows.map((r) => ({ year: r.year, count: Number(r.n) }));
 }

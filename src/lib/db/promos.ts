@@ -56,7 +56,7 @@ export async function listPromos(
   const status = opts.status ?? "all";
 
   const rows = await db.all<RawPromo & { created_at: string }>(
-    `${SELECT} ${status === "all" ? "" : "WHERE status = ?"} ORDER BY id DESC`,
+    `${SELECT} WHERE deleted_at = ''${status === "all" ? "" : " AND status = ?"} ORDER BY id DESC`,
     status === "all" ? [] : [status],
   );
   return rows.map(toPromo);
@@ -66,7 +66,7 @@ export async function listPromos(
 export async function countNewPromos(): Promise<number> {
   const db = await ready();
   const row = await db.get<{ n: number }>(
-    "SELECT COUNT(*) AS n FROM promo_requests WHERE status = 'new'",
+    "SELECT COUNT(*) AS n FROM promo_requests WHERE deleted_at = '' AND status = 'new'",
   );
   return Number(row?.n ?? 0);
 }

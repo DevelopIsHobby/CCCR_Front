@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
+import { softDelete } from "@/lib/db/trash";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
 import { sanitizePostBody } from "@/lib/html";
@@ -96,8 +97,7 @@ export async function deleteAboutCard(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   if (!id) return;
 
-  const db = await ready();
-  await db.run("DELETE FROM about_cards WHERE id = ?", [id]);
+  await softDelete("aboutCard", id);
   refresh();
 }
 
@@ -163,8 +163,7 @@ export async function deleteDepartment(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   if (!id) return;
 
-  const db = await ready();
-  await db.run("DELETE FROM departments WHERE id = ?", [id]);
+  await softDelete("department", id);
   refresh();
 }
 
@@ -232,8 +231,7 @@ export async function deleteHistoryEntry(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   if (!id) return;
 
-  const db = await ready();
-  await db.run("DELETE FROM history_entries WHERE id = ?", [id]);
+  await softDelete("history", id);
   refresh();
 }
 

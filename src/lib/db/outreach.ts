@@ -52,10 +52,13 @@ export async function listNoticeSubscribers(
     params.push(`%${q}%`, `%${q}%`, `%${q}%`);
   }
 
+  /* 휴지통에 있는 것은 목록에 내지 않는다 */
+  where.unshift("deleted_at = ''");
+
   const rows = await db.all<RawNotice>(
     `SELECT id, company, name, email, tel, status, note, created_at FROM notice_subscribers
-     ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
-     ORDER BY id DESC`,
+      WHERE ${where.join(" AND ")}
+      ORDER BY id DESC`,
     params,
   );
   return rows.map(toNotice);
@@ -66,7 +69,7 @@ export type NoticeCounts = Record<SubscribeStatus, number>;
 export async function countNoticeSubscribers(): Promise<NoticeCounts> {
   const db = await ready();
   const rows = await db.all<{ status: string; n: number }>(
-    "SELECT status, COUNT(*) AS n FROM notice_subscribers GROUP BY status",
+    "SELECT status, COUNT(*) AS n FROM notice_subscribers WHERE deleted_at = '' GROUP BY status",
   );
 
   const counts: NoticeCounts = { pending: 0, active: 0, rejected: 0, unsubscribed: 0 };
@@ -80,7 +83,7 @@ export async function countNoticeSubscribers(): Promise<NoticeCounts> {
 export async function countPendingNotices(): Promise<number> {
   const db = await ready();
   const row = await db.get<{ n: number }>(
-    "SELECT COUNT(*) AS n FROM notice_subscribers WHERE status = 'pending'",
+    "SELECT COUNT(*) AS n FROM notice_subscribers WHERE deleted_at = '' AND status = 'pending'",
   );
   return Number(row?.n ?? 0);
 }
@@ -122,7 +125,7 @@ export async function listProposals(
   const rows = await db.all<RawProposal>(
     `SELECT id, org, name, email, tel, subject, body, status, created_at
        FROM education_proposals
-      ${status === "all" ? "" : "WHERE status = ?"}
+      WHERE deleted_at = ''${status === "all" ? "" : " AND status = ?"}
       ORDER BY id DESC`,
     status === "all" ? [] : [status],
   );
@@ -133,7 +136,7 @@ export async function listProposals(
 export async function countNewProposals(): Promise<number> {
   const db = await ready();
   const row = await db.get<{ n: number }>(
-    "SELECT COUNT(*) AS n FROM education_proposals WHERE status = 'new'",
+    "SELECT COUNT(*) AS n FROM education_proposals WHERE deleted_at = '' AND status = 'new'",
   );
   return Number(row?.n ?? 0);
 }

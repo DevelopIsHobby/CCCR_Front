@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
+import { softDelete } from "@/lib/db/trash";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
 import { COMPANY_GRADES } from "@/lib/company-types";
@@ -66,8 +67,8 @@ export async function deleteCompany(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   if (!id) return;
 
-  const db = await ready();
-  await db.run("DELETE FROM companies WHERE id = ?", [id]);
+  /* 진짜로 지우지 않는다. 30일 동안 휴지통에서 되돌릴 수 있다. */
+  await softDelete("company", id);
   refresh();
 }
 

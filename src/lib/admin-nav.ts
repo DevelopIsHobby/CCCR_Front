@@ -14,7 +14,7 @@ export type AdminLink = {
   /** 사이드바에 따로 줄을 두지 않는 하위 화면들. 열려 있으면 부모가 켜진다. */
   children?: { href: string; label: string }[];
   /** 처리할 일 개수를 사이드바에 붙일 때 쓰는 이름 */
-  badge?: "pendingMembers" | "newProposals" | "roomRequests" | "newPromos" | "pendingNotices";
+  badge?: "trash" | "pendingMembers" | "newProposals" | "roomRequests" | "newPromos" | "pendingNotices";
 };
 
 export type AdminGroup = {
@@ -104,6 +104,14 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     links: [
       { href: "/admin/site", label: "사이트 정보", desc: "주소·연락처·대표자", ready: true, icon: "globe" },
       { href: "/admin/files", label: "파일 관리", desc: "첨부·이미지 정리", ready: true, icon: "folder" },
+      {
+        href: "/admin/trash",
+        label: "휴지통",
+        desc: "지운 것 되돌리기",
+        ready: true,
+        icon: "trash",
+        badge: "trash",
+      },
       { href: "/admin/mail", label: "알림 메일 기록", desc: "신청자에게 보낸 메일", ready: true, icon: "mail" },
       { href: "/admin/stats", label: "접속 통계", desc: "방문자·인기 게시물", ready: true, icon: "chart" },
     ],

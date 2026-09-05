@@ -3,6 +3,7 @@ import { ready } from "./migrate";
 import type { SqlValue } from "./driver";
 import { RETENTION_DAYS } from "@/lib/retention";
 import { deleteUpload } from "@/lib/uploads";
+import { purgeExpired } from "./trash";
 
 /*
   보관 기간이 지난 자료를 지운다.
@@ -121,6 +122,9 @@ export async function runCleanup(): Promise<CleanupReport> {
   await db.run("DELETE FROM notice_subscribers WHERE status = 'rejected' AND updated_at < ?", [
     rejectedCut,
   ]);
+
+  /* 휴지통에서 30일이 지난 것을 진짜로 지운다 */
+  report.trash = await purgeExpired();
 
   return report;
 }

@@ -42,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const db = await ready();
     const rows = await db.all<{ id: number; board: string; updated_at: string }>(
-      `SELECT id, board, updated_at FROM posts ORDER BY id DESC LIMIT ?`,
+      `SELECT id, board, updated_at FROM posts WHERE deleted_at = '' ORDER BY id DESC LIMIT ?`,
       [MAX_POSTS],
     );
 

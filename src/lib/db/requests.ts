@@ -143,7 +143,7 @@ export async function findRequestByToken(token: string): Promise<RequestSummary 
 
   const db = await ready();
   for (const kind of KINDS) {
-    const row = await db.get<Row>(`${SELECT[kind]} WHERE lookup_token = ?`, [token]);
+    const row = await db.get<Row>(`${SELECT[kind]} WHERE deleted_at = '' AND lookup_token = ?`, [token]);
     if (row) return toSummary(kind, row);
   }
   return null;
@@ -163,7 +163,7 @@ export async function findRequestByRef(
 
   const db = await ready();
   for (const kind of KINDS) {
-    const row = await db.get<Row>(`${SELECT[kind]} WHERE ref = ? AND email = ?`, [ref, email]);
+    const row = await db.get<Row>(`${SELECT[kind]} WHERE deleted_at = '' AND ref = ? AND email = ?`, [ref, email]);
     if (row) return toSummary(kind, row);
   }
   return null;
@@ -188,7 +188,7 @@ export async function listMyRequests(
 
   for (const kind of KINDS) {
     const rows = await db.all<Row>(
-      `${SELECT[kind]} WHERE user_id = ? OR email = ?`,
+      `${SELECT[kind]} WHERE deleted_at = '' AND (user_id = ? OR email = ?)`,
       [userId, email],
     );
     all.push(...rows.map((row) => toSummary(kind, row)));

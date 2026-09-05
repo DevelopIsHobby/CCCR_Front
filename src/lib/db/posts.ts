@@ -151,6 +151,7 @@ const NUMBERED = `
     ROW_NUMBER() OVER (PARTITION BY p.board ORDER BY p.id ASC) AS seq,
     (SELECT COUNT(*) FROM attachments a WHERE a.post_id = p.id) AS attachment_count
   FROM posts p
+  WHERE p.deleted_at = ''
 `;
 
 export async function listPosts(opts: { board: string; page?: number; q?: string }) {

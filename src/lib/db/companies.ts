@@ -31,7 +31,7 @@ const toCompany = (r: RawCompany): Company => ({
 });
 
 const SELECT =
-  "SELECT id, grade, name, site, logo_url, sort_order, is_visible FROM companies";
+  "SELECT id, grade, name, site, logo_url, sort_order, is_visible FROM companies WHERE deleted_at = ''";
 
 /** 화면용. 숨긴 곳은 빼고 등급 순서대로 묶는다. */
 export async function listCompanyGroups(): Promise<CompanyGroup[]> {
@@ -61,7 +61,7 @@ export async function listCompaniesByGrade(grade: string): Promise<Company[]> {
 export async function countCompanies(): Promise<{ total: number; byGrade: Record<string, number> }> {
   const db = await ready();
   const rows = await db.all<{ grade: string; n: number }>(
-    "SELECT grade, COUNT(*) AS n FROM companies WHERE is_visible = 1 GROUP BY grade",
+    "SELECT grade, COUNT(*) AS n FROM companies WHERE is_visible = 1 AND deleted_at = '' GROUP BY grade",
   );
 
   const byGrade: Record<string, number> = {};

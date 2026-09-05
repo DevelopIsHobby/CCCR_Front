@@ -68,7 +68,7 @@ export async function search(q: string): Promise<SearchResult> {
     created_at: string;
   }>(
     `SELECT id, board, title, body, created_at FROM posts
-      WHERE title LIKE ? OR body LIKE ?
+      WHERE deleted_at = '' AND (title LIKE ? OR body LIKE ?)
       ORDER BY id DESC LIMIT ?`,
     [like, like, PER_PAGE],
   );

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
+import { softDelete } from "@/lib/db/trash";
 import { clientKey, record, SUBMIT, tooMany } from "@/lib/db/rate-limit";
 import { now } from "@/lib/db/driver";
 import { getSession, requireAdmin } from "@/lib/auth/session";
@@ -221,7 +222,7 @@ export async function deletePromo(formData: FormData): Promise<void> {
   );
   if (!row) return;
 
-  await db.run("DELETE FROM promo_requests WHERE id = ?", [id]);
+  await softDelete("promo", id);
 
   if (row.image_id) {
     const image = await db.get<{ stored_name: string }>(
