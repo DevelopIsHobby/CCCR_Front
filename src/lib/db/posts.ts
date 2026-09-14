@@ -161,7 +161,7 @@ export async function listPosts(opts: { board: string; page?: number; q?: string
   const like = `%${q}%`;
 
   const countRow = await db.get<{ n: number }>(
-    `SELECT COUNT(*) AS n FROM posts WHERE board = ?${q ? " AND title LIKE ?" : ""}`,
+    `SELECT COUNT(*) AS n FROM posts WHERE deleted_at = '' AND board = ?${q ? " AND title LIKE ?" : ""}`,
     q ? [opts.board, like] : [opts.board],
   );
   const total = Number(countRow?.n ?? 0);
@@ -227,15 +227,15 @@ export async function getPost(board: string, id: number): Promise<PostDetail | n
   };
 }
 
-/** 같은 게시판의 이전 글(더 최신)·다음 글(더 예전). */
+/** 같은 게시판의 이전 글(더 최신)·다음 글(더 예전). 휴지통 글로는 잇지 않는다. */
 export async function getNeighbors(board: string, id: number) {
   const db = await ready();
   const prev = await db.get<{ id: number; title: string }>(
-    "SELECT id, title FROM posts WHERE board = ? AND id > ? ORDER BY id ASC LIMIT 1",
+    "SELECT id, title FROM posts WHERE deleted_at = '' AND board = ? AND id > ? ORDER BY id ASC LIMIT 1",
     [board, id],
   );
   const next = await db.get<{ id: number; title: string }>(
-    "SELECT id, title FROM posts WHERE board = ? AND id < ? ORDER BY id DESC LIMIT 1",
+    "SELECT id, title FROM posts WHERE deleted_at = '' AND board = ? AND id < ? ORDER BY id DESC LIMIT 1",
     [board, id],
   );
   return { prev, next };

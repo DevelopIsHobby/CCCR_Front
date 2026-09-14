@@ -30,6 +30,7 @@ const toCompany = (r: RawCompany): Company => ({
   isVisible: Number(r.is_visible) === 1,
 });
 
+/* 휴지통에 있는 곳은 늘 뺀다. 조건을 더 붙일 때는 WHERE 가 아니라 AND 로 잇는다. */
 const SELECT =
   "SELECT id, grade, name, site, logo_url, sort_order, is_visible FROM companies WHERE deleted_at = ''";
 
@@ -37,7 +38,7 @@ const SELECT =
 export async function listCompanyGroups(): Promise<CompanyGroup[]> {
   const db = await ready();
   const rows = await db.all<RawCompany>(
-    `${SELECT} WHERE is_visible = 1 ORDER BY sort_order, id`,
+    `${SELECT} AND is_visible = 1 ORDER BY sort_order, id`,
   );
   const companies = rows.map(toCompany);
 
@@ -51,7 +52,7 @@ export async function listCompanyGroups(): Promise<CompanyGroup[]> {
 /** 관리자용. 숨긴 것까지 등급별로 가져온다. */
 export async function listCompaniesByGrade(grade: string): Promise<Company[]> {
   const db = await ready();
-  const rows = await db.all<RawCompany>(`${SELECT} WHERE grade = ? ORDER BY sort_order, id`, [
+  const rows = await db.all<RawCompany>(`${SELECT} AND grade = ? ORDER BY sort_order, id`, [
     grade,
   ]);
   return rows.map(toCompany);

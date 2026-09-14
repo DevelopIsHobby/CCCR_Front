@@ -72,10 +72,15 @@ export async function signUpForNotices(
   if (exists) {
     /* 이미 받아보고 있는 사람은 다시 승인받게 하지 않는다 */
     const keep = exists.status === "active";
+    /*
+      휴지통에 들어간 신청이라도 같은 주소로 다시 넣으면 새 신청으로 본다.
+      휴지통 표시를 지우지 않으면 접수 메일은 가는데 관리자 목록에는 안 보인다.
+    */
 
     await db.run(
       `UPDATE notice_subscribers
-          SET company = ?, name = ?, tel = ?, status = ?, user_id = COALESCE(?, user_id), updated_at = ?
+          SET company = ?, name = ?, tel = ?, status = ?, user_id = COALESCE(?, user_id), updated_at = ?,
+              deleted_at = ''
         WHERE id = ?`,
       [company, name, tel, keep ? "active" : "pending", userId, stamp, exists.id],
     );

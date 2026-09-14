@@ -22,9 +22,10 @@ export async function GET(
     mime_type: string;
     is_locked: number;
   }>(
+    /* 휴지통에 넣은 글의 첨부는 주소를 알아도 내려받지 못하게 한다 */
     `SELECT a.filename, a.stored_name, a.mime_type, p.is_locked
        FROM attachments a JOIN posts p ON p.id = a.post_id
-      WHERE a.id = ?`,
+      WHERE a.id = ? AND p.deleted_at = ''`,
     [Number(id)],
   );
 

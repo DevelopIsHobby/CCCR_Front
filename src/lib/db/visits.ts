@@ -128,6 +128,7 @@ export async function getPopularPosts(limit = 10): Promise<PopularPost[]> {
     created_at: string;
   }>(
     `SELECT id, title, board, views, created_at FROM posts
+      WHERE deleted_at = ''
       ORDER BY views DESC, id DESC LIMIT ${limit}`,
   );
 
