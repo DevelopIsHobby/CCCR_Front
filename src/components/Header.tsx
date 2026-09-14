@@ -135,7 +135,8 @@ export default function Header({
         */}
         <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between gap-3 px-4 sm:gap-6 sm:px-6 lg:h-20">
           <Link href="/" aria-label="한국클라우드컴퓨팅연구조합 홈" className="block min-w-0 flex-1 sm:flex-none">
-            <Logo eager className="h-auto w-full max-w-[251px] sm:h-8 sm:w-auto sm:max-w-none lg:h-9" />
+            {/* PC 에서도 32px 에 멈춘다. 36px 이면 옆 메뉴 글자보다 로고가 훨씬 무거워 보였다. */}
+            <Logo eager className="h-auto w-full max-w-[251px] sm:h-8 sm:w-auto sm:max-w-none" />
           </Link>
 
           <nav className="hidden h-full lg:block" aria-label="주 메뉴">
@@ -146,7 +147,7 @@ export default function Header({
                     href={item.href}
                     onMouseEnter={() => setMegaOpen(true)}
                     onFocus={() => setMegaOpen(true)}
-                    className="group relative flex items-center px-6 text-md font-semibold text-ink-900 transition-colors hover:text-brand-600"
+                    className="group relative flex items-center px-5 text-lg font-semibold text-ink-900 transition-colors hover:text-brand-600 xl:px-6"
                   >
                     {item.label}
                     <span className="absolute inset-x-4 bottom-0 h-[3px] origin-left scale-x-0 bg-flame-500 transition-transform duration-200 group-hover:scale-x-100" />
