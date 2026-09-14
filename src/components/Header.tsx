@@ -135,7 +135,7 @@ export default function Header({
         */}
         <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between gap-3 px-4 sm:gap-6 sm:px-6 lg:h-20">
           <Link href="/" aria-label="한국클라우드컴퓨팅연구조합 홈" className="block min-w-0 flex-1 sm:flex-none">
-            <Logo className="h-auto w-full max-w-[251px] sm:h-8 sm:w-auto sm:max-w-none lg:h-9" />
+            <Logo eager className="h-auto w-full max-w-[251px] sm:h-8 sm:w-auto sm:max-w-none lg:h-9" />
           </Link>
 
           <nav className="hidden h-full lg:block" aria-label="주 메뉴">

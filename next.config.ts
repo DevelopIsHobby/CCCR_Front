@@ -55,9 +55,61 @@ const securityHeaders = [
   ...(isProd ? [{ key: "Content-Security-Policy", value: csp }] : []),
 ];
 
+/*
+  옛 홈페이지(cccr.or.kr/home, 그누보드) 주소를 새 주소로 넘겨준다.
+
+  도메인을 새 사이트로 옮기면 즐겨찾기·검색 결과·메일에 남은 옛 주소가 모두 404 가 된다.
+  화면은 같은 자리로, 게시판은 같은 게시판으로 보낸다. 옛 글은 옮기지 않았으므로
+  글 상세(detailview.php)는 그 게시판 목록으로 보낸다.
+  포토갤러리(sub12)는 새 사이트에 없어 가장 가까운 행사정보로 보낸다.
+  옛 주소의 쿼리(bo_table 등)는 따라붙지만 새 화면은 쓰지 않는다.
+*/
+const OLD_PAGES: [string, string][] = [
+  ["/home", "/"],
+  ["/home/index.php", "/"],
+  ["/home/sub01/sub01_greeting.php", "/about/greeting"],
+  ["/home/sub01/sub01_history.php", "/about/history"],
+  ["/home/sub01/sub01_organization.php", "/about/organization"],
+  ["/home/sub01/sub01_location.php", "/about/location"],
+  ["/home/sub02/sub02_member.php", "/members/list"],
+  ["/home/sub02/sub02_register.php", "/members/join"],
+  ["/home/sub03/sub03_business.php", "/business/why"],
+  ["/home/sub03/sub03_mainjob.php", "/business/programs"],
+  ["/home/member/login.php", "/login"],
+  ["/home/member/join.php", "/signup"],
+];
+
+const OLD_BOARDS: Record<string, string> = {
+  sub10: "/board/notice",
+  sub11: "/board/events",
+  sub12: "/board/events",
+  sub13: "/info/news",
+  sub14: "/info/trends",
+  sub15: "/info/archive",
+  sub16: "/info/newsletter",
+};
+
+const oldSiteRedirects = [
+  ...OLD_PAGES.map(([source, destination]) => ({ source, destination, permanent: true })),
+  ...Object.entries(OLD_BOARDS).flatMap(([table, destination]) =>
+    ["/home/board/board.php", "/home/board/detailview.php"].map((source) => ({
+      source,
+      has: [{ type: "query" as const, key: "bo_table", value: table }],
+      destination,
+      permanent: true,
+    })),
+  ),
+  /* 모르는 게시판 코드는 첫 화면으로 */
+  { source: "/home/board/:file(board|detailview).php", destination: "/", permanent: true },
+];
+
 const nextConfig: NextConfig = {
   // 상위 폴더의 package-lock.json을 루트로 오인하지 않도록 고정
   turbopack: { root: __dirname },
+
+  async redirects() {
+    return oldSiteRedirects;
+  },
 
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

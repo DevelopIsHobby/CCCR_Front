@@ -6,6 +6,8 @@ type Props = {
   variant?: "dark" | "light";
   /** 크기. 높이만 정하고 너비는 비율대로 따라가게 두는 것이 기본이다. */
   className?: string;
+  /** 첫 화면 맨 위(헤더)에 있어 늦게 뜨면 빈자리가 보인다. 그런 곳만 바로 불러온다. */
+  eager?: boolean;
 };
 
 /*
@@ -20,6 +22,7 @@ type Props = {
 export default function Logo({
   variant = "dark",
   className = "h-7 w-auto sm:h-8 lg:h-9",
+  eager = false,
 }: Props) {
   return (
     <Image
@@ -28,6 +31,7 @@ export default function Logo({
       width={284}
       height={36}
       className={className}
+      loading={eager ? "eager" : undefined}
     />
   );
 }
