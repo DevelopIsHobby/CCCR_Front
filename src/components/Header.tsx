@@ -129,9 +129,13 @@ export default function Header({
         }`}
         onMouseLeave={() => setMegaOpen(false)}
       >
-        <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between gap-6 px-6 lg:h-20">
-          <Link href="/" aria-label="한국클라우드컴퓨팅연구조합 홈">
-            <Logo />
+        {/*
+          휴대폰에서는 로고 영문 줄이 아주 작아진다. 좌우 여백과 틈을 줄여 생긴 자리를
+          로고가 채우게 한다(폭에 맞춰 커지되 251px, 높이 32px 을 넘지 않는다).
+        */}
+        <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between gap-3 px-4 sm:gap-6 sm:px-6 lg:h-20">
+          <Link href="/" aria-label="한국클라우드컴퓨팅연구조합 홈" className="block min-w-0 flex-1 sm:flex-none">
+            <Logo className="h-auto w-full max-w-[251px] sm:h-8 sm:w-auto sm:max-w-none lg:h-9" />
           </Link>
 
           <nav className="hidden h-full lg:block" aria-label="주 메뉴">

@@ -19,7 +19,13 @@ export default async function Footer() {
       <div className="mx-auto max-w-[1280px] px-6 py-12">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <Logo variant="light" />
+            {/*
+              흰 글씨판은 C 가 남색이라 짙은 푸터 바탕에 묻힌다.
+              공식 색을 바꾸지 않고 살리려고 흰 판 위에 기본 로고를 올린다.
+            */}
+            <span className="inline-block rounded-lg bg-white px-4 py-3">
+              <Logo />
+            </span>
             <address className="mt-5 space-y-1 text-sm not-italic leading-relaxed">
               {site.address && <p>{site.address}</p>}
               <p>
