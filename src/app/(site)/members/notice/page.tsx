@@ -7,7 +7,7 @@ import { getSiteSettings } from "@/lib/db/site-settings";
 import { getApplicant } from "@/lib/db/me";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("사업공고 안내", "/members/notice", "임원사 담당자에게 매주 보내드리는 사업공고 안내입니다.");
+export const metadata: Metadata = pageMeta("사업공고 안내", "/members/notice", "조합이 매주 모아 보내드리는 사업공고 안내입니다.");
 
 const POINTS = [
   {
@@ -15,12 +15,12 @@ const POINTS = [
     desc: "국가 연구개발과제, 정부·유관기관 공모, 조합 참여사업 공고를 한 주 단위로 모아 보내드립니다.",
   },
   {
-    title: "임원사 대상",
-    desc: "이사장사와 임원사 담당자에게 보내는 안내입니다. 신청하시면 사무국에서 임원사 여부를 확인한 뒤 승인해 드립니다.",
-  },
-  {
     title: "놓치는 공고 없이",
     desc: "부처별로 흩어진 공고를 사무국이 조합 사업과 관련된 것만 골라 정리합니다.",
+  },
+  {
+    title: "담당자 메일함으로",
+    desc: "따로 찾아보지 않으셔도 등록하신 주소로 갑니다. 받는 주소를 바꾸거나 그만 받고 싶으시면 사무국으로 알려주세요.",
   },
 ];
 
@@ -30,12 +30,12 @@ export default async function Page() {
   return (
     <PageShell
       href="/members/notice"
-      desc="임원사 담당자에게 매주 보내드리는 사업공고 안내입니다."
+      desc="조합이 매주 모아 보내드리는 사업공고 안내입니다."
     >
       <SectionHeading
         eyebrow="주 1회 발송"
         title="사업공고 안내"
-        desc="조합은 회원사가 참여할 수 있는 국가 연구개발과제와 정부·유관기관 공모 공고를 모아 매주 임원사에 보내드리고 있습니다. 받아보실 담당자를 등록해 주세요."
+        desc="조합은 회원사가 참여할 수 있는 국가 연구개발과제와 정부·유관기관 공모 공고를 모아 매주 보내드리고 있습니다. 받아보실 담당자를 등록해 주세요."
       />
 
       <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -48,8 +48,8 @@ export default async function Page() {
         수신 신청
       </h3>
       <p className="mt-5 rounded-lg bg-surface px-5 py-4 text-base leading-relaxed text-ink-600">
-        신청하시면 바로 발송되지 않습니다. 임원사 담당자가 맞는지 사무국에서 확인한 뒤
-        승인해 드리고, 그때부터 매주 보내드립니다.
+        신청하시면 바로 발송되지 않습니다. 사무국에서 확인한 뒤 승인해 드리고, 그때부터
+        매주 보내드립니다. 확인에는 며칠이 걸릴 수 있습니다.
       </p>
       <NoticeSignupForm me={await getApplicant()} />
 

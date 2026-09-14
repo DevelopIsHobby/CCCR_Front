@@ -52,14 +52,14 @@ export default function JoinUsSection({ me = EMPTY_APPLICANT }: { me?: Applicant
 
         {/* 칸이 좁아지면 그림 옆 글자리가 모자라므로 넓은 화면에서만 두 칸으로 나눈다 */}
         <div className="mt-8 grid gap-4 lg:grid-cols-2">
-          {/* 사업공고 — 임원사 담당자가 받아보는 주간 안내 */}
+          {/* 사업공고 — 신청한 담당자가 받아보는 주간 안내 */}
           <div className="flex rounded-xl bg-white p-6 lg:p-7">
             <span className="grid size-14 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
               <CardIcon name="notice" className="size-7" />
             </span>
 
             <div className="ml-4 flex min-w-0 flex-1 flex-col lg:ml-5">
-              <p className="data-line text-brand-600">임원사 · 주 1회</p>
+              <p className="data-line text-brand-600">주 1회 발송</p>
               <p className="mt-2 text-lg font-bold leading-snug text-navy-900">
                 사업공고를 메일로 받아보세요
               </p>

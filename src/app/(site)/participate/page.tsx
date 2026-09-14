@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMeta("참여 안내", "/participate", "조
 const SERVICES = [
   {
     href: "/members/notice",
-    eyebrow: "임원사 · 주 1회",
+    eyebrow: "주 1회 발송",
     title: "사업공고 수신신청",
     desc: "국가 연구개발과제와 정부·유관기관 공모 공고를 사무국이 정리해 매주 보내드립니다.",
   },

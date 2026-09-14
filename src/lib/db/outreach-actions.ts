@@ -101,7 +101,7 @@ export async function signUpForNotices(
     return {
       ok: keep
         ? "이미 받아보고 계신 주소라 담당자 정보만 새로 고쳤습니다."
-        : "신청을 받았습니다. 사무국에서 임원사 여부를 확인한 뒤 알려드리겠습니다.",
+        : "신청을 받았습니다. 사무국에서 확인한 뒤 알려드리겠습니다.",
       ref: exists.ref,
       mailed,
     };
@@ -146,7 +146,7 @@ export async function signUpForNotices(
   });
 
   return {
-    ok: "신청을 받았습니다. 사업공고는 임원사에 보내드리는 것이라, 사무국에서 확인한 뒤 알려드리겠습니다.",
+    ok: "신청을 받았습니다. 사무국에서 확인한 뒤 알려드리겠습니다.",
     ref,
     mailed,
   };
