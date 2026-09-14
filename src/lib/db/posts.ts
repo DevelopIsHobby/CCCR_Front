@@ -144,6 +144,13 @@ function toPost(r: RawRow): PostRow {
 /*
   번호(seq)는 등록 순서로 매기므로 목록·상세 어디서 조회하든 같은 값이 나오도록
   공통 서브쿼리 하나에서 계산한다.
+
+  게시판은 여기 안에서 거른다. 밖에서 거르면 번호와 첨부 수를 모든 게시판의
+  글에 대해 먼저 구하고 나서 버리게 된다. 공지 한 장을 여는 데 산업뉴스까지
+  훑는 셈이라, 옛 글을 옮기고 나면 그 값이 그대로 드러난다.
+  번호는 게시판별로 매기므로(PARTITION BY board) 안에서 걸러도 값은 같다.
+
+  첫 번째 물음표가 게시판이다. 부르는 쪽은 board 를 맨 앞에 넘긴다.
 */
 const NUMBERED = `
   SELECT
@@ -151,7 +158,7 @@ const NUMBERED = `
     ROW_NUMBER() OVER (PARTITION BY p.board ORDER BY p.id ASC) AS seq,
     (SELECT COUNT(*) FROM attachments a WHERE a.post_id = p.id) AS attachment_count
   FROM posts p
-  WHERE p.deleted_at = ''
+  WHERE p.deleted_at = '' AND p.board = ?
 `;
 
 export async function listPosts(opts: { board: string; page?: number; q?: string }) {
@@ -170,7 +177,7 @@ export async function listPosts(opts: { board: string; page?: number; q?: string
   const current = Math.min(page, totalPages);
 
   const rows = await db.all<RawRow>(
-    `SELECT * FROM (${NUMBERED}) numbered WHERE board = ?${q ? " AND title LIKE ?" : ""}
+    `SELECT * FROM (${NUMBERED}) numbered${q ? " WHERE title LIKE ?" : ""}
      ORDER BY id DESC LIMIT ? OFFSET ?`,
     q
       ? [opts.board, like, PER_PAGE, (current - 1) * PER_PAGE]
@@ -181,7 +188,7 @@ export async function listPosts(opts: { board: string; page?: number; q?: string
   const pinned = q
     ? []
     : await db.all<RawRow>(
-        `SELECT * FROM (${NUMBERED}) numbered WHERE board = ? AND is_pinned = 1 ORDER BY id DESC`,
+        `SELECT * FROM (${NUMBERED}) numbered WHERE is_pinned = 1 ORDER BY id DESC`,
         [opts.board],
       );
 
@@ -199,7 +206,7 @@ export async function getPost(board: string, id: number): Promise<PostDetail | n
 
   const db = await ready();
   const row = await db.get<RawRow & { body: string; updated_at: string }>(
-    `SELECT * FROM (${NUMBERED}) numbered WHERE board = ? AND id = ?`,
+    `SELECT * FROM (${NUMBERED}) numbered WHERE id = ?`,
     [board, id],
   );
   if (!row) return null;
@@ -248,15 +255,17 @@ export async function getNeighbors(board: string, id: number) {
 */
 export async function listRecentByBoard(boards: string[], perBoard = 6): Promise<PostRow[]> {
   const db = await ready();
-  const collected: RawRow[] = [];
 
-  for (const board of boards) {
-    const rows = await db.all<RawRow>(
-      `SELECT * FROM (${NUMBERED}) numbered WHERE board = ? ORDER BY id DESC LIMIT ?`,
-      [board, perBoard],
-    );
-    collected.push(...rows);
-  }
+  /* 게시판끼리 기다릴 일이 없다. 줄 세우면 게시판 수만큼 왕복한다. */
+  const perBoardRows = await Promise.all(
+    boards.map((board) =>
+      db.all<RawRow>(
+        `SELECT * FROM (${NUMBERED}) numbered ORDER BY id DESC LIMIT ?`,
+        [board, perBoard],
+      ),
+    ),
+  );
+  const collected: RawRow[] = perBoardRows.flat();
 
   return collected
     .map(toPost)
