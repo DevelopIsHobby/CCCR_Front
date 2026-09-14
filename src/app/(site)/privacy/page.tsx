@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import PageShell from "@/components/sub/PageShell";
 import { LegalDoc } from "@/components/sub/LegalDoc";
 import { PRIVACY_ARTICLES, PRIVACY_INTRO } from "@/lib/legal-data";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "개인정보처리방침" };
+export const metadata: Metadata = pageMeta("개인정보처리방침", "/privacy", PRIVACY_INTRO);
 
 /* 푸터 팝업과 같은 원문을 쓴다. 주소로 직접 들어온 경우를 위한 페이지다. */
 export default function Page() {

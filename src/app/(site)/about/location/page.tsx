@@ -6,8 +6,9 @@ import { listOffices } from "@/lib/db/site-content";
 import { getSiteSettings } from "@/lib/db/site-settings";
 import KakaoMap from "@/components/sub/KakaoMap";
 import { parseTransit, type Office } from "@/lib/site-content-types";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "찾아오시는 길" };
+export const metadata: Metadata = pageMeta("찾아오시는 길", "/about/location", "조합 사무실과 교육장 위치를 안내해 드립니다.");
 
 const anchor = (i: number) => `office-${i + 1}`;
 

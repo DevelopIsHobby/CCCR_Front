@@ -4,8 +4,9 @@ import PageShell from "@/components/sub/PageShell";
 import ServiceIntro from "@/components/sub/ServiceIntro";
 import PromoDialog from "@/components/PromoDialog";
 import { getApplicant } from "@/lib/db/me";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "홍보 서비스 신청" };
+export const metadata: Metadata = pageMeta("홍보 서비스 신청", "/participate/promo", "회원사·기관의 제품과 행사를 조합 명단으로 알려드립니다.");
 
 export default async function Page() {
   const me = await getApplicant();

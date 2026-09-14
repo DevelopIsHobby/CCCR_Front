@@ -3,8 +3,9 @@ import Link from "next/link";
 import PageShell from "@/components/sub/PageShell";
 import { search } from "@/lib/db/search";
 import { formatDate } from "@/lib/format";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "통합검색" };
+export const metadata: Metadata = pageMeta("통합검색", "/search", "게시판 글과 안내 화면을 한 번에 찾습니다.");
 
 const input =
   "w-full rounded-md border border-line bg-white px-5 py-3.5 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";

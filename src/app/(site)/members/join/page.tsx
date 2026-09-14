@@ -4,6 +4,7 @@ import PageShell from "@/components/sub/PageShell";
 import { SectionHeading, StepFlow, DefTable } from "@/components/sub/Ui";
 import { IconArrow, IconChevron } from "@/components/Icons";
 import { getSiteSettings } from "@/lib/db/site-settings";
+import { pageMeta } from "@/lib/page-meta";
 import {
   JOIN_SECTIONS,
   JOIN_TARGET,
@@ -14,7 +15,7 @@ import {
   MEMBER_BENEFITS,
 } from "@/lib/page-data";
 
-export const metadata: Metadata = { title: "회원사 가입안내" };
+export const metadata: Metadata = pageMeta("회원사 가입안내", "/members/join", "클라우드컴퓨팅 관련 기업·기관·단체라면 조합에 참여할 수 있습니다.");
 
 export default async function Page() {
   /* 입금계좌·문의처는 관리자 화면(/admin/site)에서 고친다 */

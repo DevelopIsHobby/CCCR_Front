@@ -64,3 +64,18 @@ export function isEmptyHtml(html: string): boolean {
   return sanitizeHtml(html, { allowedTags: [], allowedAttributes: {} }).trim() === "" &&
     !/<img\b/i.test(html);
 }
+
+/** 본문을 글자만 남긴다. 검색 결과에 보일 글 요약에 쓴다. */
+export function htmlToText(html: string): string {
+  /* 문단이 붙어 한 낱말이 되지 않게, 닫는 문단 태그와 줄바꿈 자리에 빈칸을 둔다 */
+  const spaced = html.replace(/<\/(p|div|li|h2|h3|h4|tr)>|<br\s*\/?>/gi, " ");
+  return sanitizeHtml(spaced, { allowedTags: [], allowedAttributes: {} })
+    .replace(/&nbsp;/g, " ")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}

@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import PageShell from "@/components/sub/PageShell";
 import { ContactBanner } from "@/components/sub/Ui";
 import { NEEDS } from "@/lib/page-data";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "사업의 필요성" };
+export const metadata: Metadata = pageMeta("사업의 필요성", "/business/why", "컴퓨팅 수요의 급증, 클라우드 고도화 기술 확보, 대학·벤쳐 경쟁력 강화 — 세 가지 배경에서 조합의 사업이 출발합니다.");
 
 export default function Page() {
   return (

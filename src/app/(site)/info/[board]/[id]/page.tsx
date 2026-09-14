@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import PostDetailView from "@/components/board/PostDetailView";
 import { getBoardAt } from "@/lib/boards";
 import { getPost } from "@/lib/db/posts";
+import { htmlToText } from "@/lib/html";
+import { pageMeta } from "@/lib/page-meta";
 
 export async function generateMetadata({
   params,
@@ -12,7 +14,9 @@ export async function generateMetadata({
   const { board: slug, id } = await params;
   const board = getBoardAt(`/info/${slug}`);
   const post = board ? await getPost(board.slug, Number(id)) : null;
-  return { title: post ? post.title : (board?.name ?? "정보서비스") };
+  if (!board || !post) return { title: board?.name ?? "정보서비스" };
+  /* 그림만 있는 글(뉴스레터 등)은 본문 글자가 없으니 게시판 설명으로 대신한다 */
+  return pageMeta(post.title, `${board.basePath}/${Number(id)}`, htmlToText(post.body) || board.desc);
 }
 
 export default async function Page({

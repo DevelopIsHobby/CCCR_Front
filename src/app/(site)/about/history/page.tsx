@@ -4,8 +4,13 @@ import { SectionHeading, InfoCard, Prose } from "@/components/sub/Ui";
 import HistoryTimeline from "@/components/sub/HistoryTimeline";
 import { getPageTexts, listAboutCards, listHistory } from "@/lib/db/about-content";
 import { groupHistory } from "@/lib/about-content-types";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "설립목적 및 연혁" };
+/* 머리 설명은 관리자 화면에서 고치는 글이라 그때그때 읽는다 */
+export async function generateMetadata(): Promise<Metadata> {
+  const texts = await getPageTexts();
+  return pageMeta("설립목적 및 연혁", "/about/history", texts["history.desc"]);
+}
 
 export default async function Page() {
   const [texts, purposes, entries] = await Promise.all([

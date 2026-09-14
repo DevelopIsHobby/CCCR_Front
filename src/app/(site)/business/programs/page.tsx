@@ -4,8 +4,9 @@ import { ContactBanner } from "@/components/sub/Ui";
 import { PROGRAMS } from "@/lib/page-data";
 import ProposalDialog from "@/components/ProposalDialog";
 import { getApplicant } from "@/lib/db/me";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "주요사업" };
+export const metadata: Metadata = pageMeta("주요사업", "/business/programs", "조합은 네 갈래로 사업을 추진합니다.");
 
 export default async function Page() {
   /* 로그인해 두었으면 제안 폼을 미리 채운다 */

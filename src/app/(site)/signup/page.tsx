@@ -5,8 +5,9 @@ import PageShell from "@/components/sub/PageShell";
 import { StepFlow } from "@/components/sub/Ui";
 import SignUpForm from "./SignUpForm";
 import { getSession } from "@/lib/auth/session";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "회원가입" };
+export const metadata: Metadata = pageMeta("회원가입", "/signup", "홈페이지 회원가입은 조합 회원사 가입과 별개입니다.");
 
 const SIGNUP_STEPS = [
   { title: "약관 동의", desc: "이용약관과 개인정보 수집·이용에 동의합니다." },

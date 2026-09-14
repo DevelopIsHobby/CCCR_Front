@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Hero from "@/components/Hero";
 import NewsSection from "@/components/NewsSection";
 import BannerRail from "@/components/BannerRail";
@@ -7,6 +8,9 @@ import { getHomeCardsUpdatedAt, listHomeCards } from "@/lib/db/home-cards";
 import { getApplicant } from "@/lib/db/me";
 import PopupLayer from "@/components/PopupLayer";
 import { listLivePopups } from "@/lib/db/popups";
+
+/* 제목·설명은 사이트 기본값을 쓰고, 정식 주소만 알린다 */
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 /* 슬라이드·배너·알림판은 관리자 화면(/admin)에서 고친다. */
 export default async function Home() {

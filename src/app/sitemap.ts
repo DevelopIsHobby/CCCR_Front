@@ -17,6 +17,15 @@ export const dynamic = "force-dynamic";
 
 const MAX_POSTS = 1000;
 
+/*
+  화면이 없고 첫 하위 화면으로 넘겨 보내기만 하는 묶음 주소.
+
+  검색 로봇에게 알려 줘 봐야 넘어간 곳을 한 번 더 받을 뿐이고, 색인에는
+  '넘겨 보내는 쪽'으로 남아 실린 보람이 없다.
+  참여하기(/participate)는 제 화면이 있으므로 여기 넣지 않는다.
+*/
+const REDIRECT_ONLY = new Set(["/about", "/members", "/business", "/board", "/info"]);
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
   const now = new Date();
@@ -25,7 +34,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: MetadataRoute.Sitemap = [
     { url: base, lastModified: now, changeFrequency: "daily", priority: 1 },
     ...NAV.flatMap((section) => [
-      { url: `${base}${section.href}`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.7 },
+      ...(REDIRECT_ONLY.has(section.href)
+        ? []
+        : [
+            {
+              url: `${base}${section.href}`,
+              lastModified: now,
+              changeFrequency: "monthly" as const,
+              priority: 0.7,
+            },
+          ]),
       ...section.children.map((child) => ({
         url: `${base}${child.href}`,
         lastModified: now,

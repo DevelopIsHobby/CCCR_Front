@@ -4,8 +4,9 @@ import { redirect } from "next/navigation";
 import PageShell from "@/components/sub/PageShell";
 import LoginForm from "./LoginForm";
 import { getSession } from "@/lib/auth/session";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "로그인" };
+export const metadata: Metadata = pageMeta("로그인", "/login", "회원사 전용 자료와 교육 신청은 로그인 후 이용할 수 있습니다.");
 
 export default async function Page({
   searchParams,

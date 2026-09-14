@@ -3,8 +3,13 @@ import PageShell from "@/components/sub/PageShell";
 import { SectionHeading, DefTable } from "@/components/sub/Ui";
 import { ORG_UNITS } from "@/lib/page-data";
 import { getPageTexts, listAboutCards, listDepartments } from "@/lib/db/about-content";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "조직도" };
+/* 머리 설명은 관리자 화면에서 고치는 글이라 그때그때 읽는다 */
+export async function generateMetadata(): Promise<Metadata> {
+  const texts = await getPageTexts();
+  return pageMeta("조직도", "/about/organization", texts["organization.desc"]);
+}
 
 /* 4열 격자에서 n번째 열의 중심 (0-indexed).
    격자가 gap-4(16px) x 3 을 쓰므로 컬럼 폭은 (100% - 48px) / 4 다.

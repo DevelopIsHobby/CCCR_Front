@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import BoardListView from "@/components/board/BoardListView";
 import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 import { BOARDS, getBoardAt } from "@/lib/boards";
+import { pageMeta } from "@/lib/page-meta";
 
 /* 정보서비스 메뉴 아래 게시판: 산업뉴스·기술동향·자료실·뉴스레터 */
 export function generateStaticParams() {
@@ -15,7 +16,8 @@ export async function generateMetadata({
   params: Promise<{ board: string }>;
 }): Promise<Metadata> {
   const { board } = await params;
-  return { title: getBoardAt(`/info/${board}`)?.name ?? "정보서비스" };
+  const b = getBoardAt(`/info/${board}`);
+  return b ? pageMeta(b.name, b.basePath, b.desc) : { title: "정보서비스" };
 }
 
 export default async function Page({

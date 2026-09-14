@@ -5,8 +5,9 @@ import ServiceIntro from "@/components/sub/ServiceIntro";
 import RoomBookingDialog from "@/components/RoomBookingDialog";
 import { getApplicant } from "@/lib/db/me";
 import { ROOM_LABEL } from "@/lib/room-types";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "회의실 예약" };
+export const metadata: Metadata = pageMeta("회의실 예약", "/participate/room", "조합 회의실을 빌려 쓰실 수 있습니다.");
 
 export default async function Page() {
   const me = await getApplicant();

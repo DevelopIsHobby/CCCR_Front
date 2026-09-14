@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BoardListView from "@/components/board/BoardListView";
 import { BOARDS, getBoardAt } from "@/lib/boards";
+import { pageMeta } from "@/lib/page-meta";
 
 /*
   게시판 메뉴 아래에 있는 게시판만 이 경로가 받는다.
@@ -18,7 +19,8 @@ export async function generateMetadata({
   params: Promise<{ board: string }>;
 }): Promise<Metadata> {
   const { board } = await params;
-  return { title: getBoardAt(`/board/${board}`)?.name ?? "게시판" };
+  const b = getBoardAt(`/board/${board}`);
+  return b ? pageMeta(b.name, b.basePath, b.desc) : { title: "게시판" };
 }
 
 export default async function Page({

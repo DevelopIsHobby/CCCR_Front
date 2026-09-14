@@ -3,8 +3,13 @@ import PageShell from "@/components/sub/PageShell";
 import { Prose, ContactBanner } from "@/components/sub/Ui";
 import { getPageTexts } from "@/lib/db/about-content";
 import { getSiteSettings } from "@/lib/db/site-settings";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "인사말" };
+/* 머리 설명은 관리자 화면에서 고치는 글이라 그때그때 읽는다 */
+export async function generateMetadata(): Promise<Metadata> {
+  const texts = await getPageTexts();
+  return pageMeta("인사말", "/about/greeting", texts["greeting.desc"]);
+}
 
 /** 이름 사이를 띄운다. 서명은 "이 동 기" 처럼 보이는 것이 관례다. */
 const spaced = (name: string) => [...name].join(" ");

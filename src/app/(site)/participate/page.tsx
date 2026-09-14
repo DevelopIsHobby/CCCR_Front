@@ -3,8 +3,9 @@ import Link from "next/link";
 import PageShell from "@/components/sub/PageShell";
 import { SectionHeading } from "@/components/sub/Ui";
 import { IconArrow } from "@/components/Icons";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "참여하기" };
+export const metadata: Metadata = pageMeta("참여하기", "/participate", "조합 사업에 함께하실 분들을 기다립니다.");
 
 const SERVICES = [
   {

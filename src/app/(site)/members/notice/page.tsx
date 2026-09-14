@@ -5,8 +5,9 @@ import { SectionHeading, InfoCard } from "@/components/sub/Ui";
 import NoticeSignupForm from "@/components/NoticeSignupForm";
 import { getSiteSettings } from "@/lib/db/site-settings";
 import { getApplicant } from "@/lib/db/me";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "사업공고 안내" };
+export const metadata: Metadata = pageMeta("사업공고 안내", "/members/notice", "임원사 담당자에게 매주 보내드리는 사업공고 안내입니다.");
 
 const POINTS = [
   {

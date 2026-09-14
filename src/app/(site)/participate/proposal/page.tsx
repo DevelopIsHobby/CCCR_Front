@@ -4,8 +4,9 @@ import PageShell from "@/components/sub/PageShell";
 import ServiceIntro from "@/components/sub/ServiceIntro";
 import ProposalDialog from "@/components/ProposalDialog";
 import { getApplicant } from "@/lib/db/me";
+import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = { title: "교육사업 제안" };
+export const metadata: Metadata = pageMeta("교육사업 제안", "/participate/proposal", "조합과 함께 교육과정을 열고 싶은 기관·기업의 제안을 받습니다.");
 
 export default async function Page() {
   const me = await getApplicant();
