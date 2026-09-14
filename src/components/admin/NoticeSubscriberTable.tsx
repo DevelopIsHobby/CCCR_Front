@@ -85,7 +85,15 @@ export default function NoticeSubscriberTable({
                       <form
                         action={setNoticeSubscriberStatus}
                         onSubmit={(e) => {
-                          const reason = prompt("반려 사유를 적어 주세요. (신청자에게 알릴 내용)");
+                          /*
+                            적은 사유는 반려 메일에 그대로 실려 나간다.
+                            임원사 기준은 밖에 알리지 않기로 했으므로(lib/outreach-types.ts)
+                            사유에 적으면 그 말이 도로 나간다. 적는 자리에서 알려 준다.
+                          */
+                          const reason = prompt(
+                            "반려 사유를 적어 주세요. 적으신 내용이 신청자에게 메일로 그대로 갑니다. " +
+                              "임원사 기준은 밖에 알리지 않기로 했으니 사유에도 적지 마세요.",
+                          );
                           if (reason === null) {
                             e.preventDefault();
                             return;

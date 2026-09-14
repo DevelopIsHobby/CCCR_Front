@@ -48,15 +48,20 @@ export default function NewsTabs({
           C3R <span className="text-brand-600">새소식</span>
         </h2>
 
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1 rounded-full bg-surface p-1">
+        {/*
+          탭이 늘거나 이름이 길어지면 좁은 화면에서 줄이 넘친다. 넘친 만큼
+          화면 전체가 가로로 밀려 본문까지 어긋나므로, 탭 줄 안에서만 밀리게 한다.
+          하위 화면 탭·배너 띠도 같은 방식이다(가로 스크롤, 막대는 숨김).
+        */}
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 gap-1 overflow-x-auto rounded-full bg-surface p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {["전체", ...tabs.map((t) => t.name)].map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTab(t)}
                 aria-pressed={tab === t}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`shrink-0 rounded-full px-3 py-2 text-sm font-semibold transition-colors sm:px-4 ${
                   tab === t ? "bg-navy-900 text-white" : "text-ink-600 hover:text-brand-600"
                 }`}
               >

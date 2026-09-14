@@ -28,14 +28,20 @@ export default async function NewsSection() {
 
   return (
     <section className="mx-auto max-w-[1280px] px-6 py-10 lg:py-12">
+      {/*
+        격자 칸은 기본이 min-width:auto 라 속 내용보다 좁아지기를 거부한다.
+        탭 이름이 길어지면 칸이 화면 밖으로 밀려 나가고, 넘친 만큼 화면 전체가
+        가로로 흔들린다. min-w-0 을 주어 칸이 먼저 줄고, 줄지 못하는 것(탭 줄)은
+        제 안에서 가로로 밀리게 한다.
+      */}
       <div className="grid gap-12 lg:grid-cols-[1.7fr_1fr] lg:gap-14">
         {/* 새소식 */}
-        <div>
+        <div className="min-w-0">
           <NewsTabs items={items} tabs={homeBoards.map((b) => ({ slug: b.slug, name: b.name }))} />
         </div>
 
         {/* 알림판 — 좌측 목록 높이에 맞춰 카드가 늘어난다 */}
-        <div className="flex flex-col">
+        <div className="flex min-w-0 flex-col">
           <h2 className="text-2xl font-bold text-navy-900 lg:text-3xl">알림판</h2>
           <div className="mt-7 flex flex-1 flex-col gap-4">
             {promos.map((item) => (
