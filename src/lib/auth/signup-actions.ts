@@ -4,6 +4,7 @@ import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { hashPassword } from "@/lib/auth/password";
 import { addSubscriberFromSignup } from "@/lib/db/newsletter-actions";
+import { clientKey, record, SIGNUP, tooMany } from "@/lib/db/rate-limit";
 
 export type SignUpState = { error?: string; ok?: boolean };
 
@@ -13,6 +14,15 @@ export type SignUpState = { error?: string; ok?: boolean };
   관리자 화면에서 승인해야 로그인할 수 있다. 조합 회원사 가입과는 별개다.
 */
 export async function signUp(_prev: SignUpState, formData: FormData): Promise<SignUpState> {
+  /*
+    승인 대기로 들어가므로 뚫리는 길은 아니지만, 계정을 무더기로 만들어
+    사무국의 '가입 승인' 화면을 덮을 수는 있다.
+  */
+  const from = await clientKey();
+  if (await tooMany("signup", from, SIGNUP.limit, SIGNUP.windowSec)) {
+    return { error: "가입 시도가 너무 잦습니다. 잠시 뒤에 다시 시도해 주세요." };
+  }
+
   const value = (key: string) => String(formData.get(key) ?? "").trim();
 
   const email = value("email").toLowerCase();
@@ -56,5 +66,7 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
     await addSubscriberFromSignup(email);
   }
 
+  /* 다른 창구와 마찬가지로 실제로 만들어졌을 때만 센다 */
+  await record("signup", from);
   return { ok: true };
 }

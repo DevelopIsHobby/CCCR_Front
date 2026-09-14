@@ -44,6 +44,16 @@ export default async function AdminRootLayout({
 
   return (
     <html lang="ko" className={plexMono.variable}>
+      <head>
+        {/*
+          본문 글꼴. HTML 에 두어야 브라우저가 곧바로 찾아 나선다.
+          globals.css 안에 @import 로 두면 그 파일을 다 받아 파싱한 뒤에야
+          출발하므로, 처음 오는 사람에게는 그만큼 글자가 늦게 자리잡는다.
+          preconnect 로 주소 찾기와 암호화 악수를 미리 해 둔다.
+        */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+      </head>
       <body>
         <a
           href="#admin-main"

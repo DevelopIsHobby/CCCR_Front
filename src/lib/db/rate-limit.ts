@@ -67,3 +67,13 @@ export const SUBMIT = { limit: 5, windowSec: 600 };
 
 /** 비밀번호 재설정 요청: 한 곳에서 1시간 동안 5번까지. */
 export const RESET = { limit: 5, windowSec: 3600 };
+
+/*
+  신청 현황 조회 실패: 한 곳에서 10분 동안 10번까지.
+  접수번호를 바꿔 가며 남의 신청을 떠보는 것을 막는다.
+  제 접수번호를 잘못 적는 일은 흔하므로 접수보다는 넉넉히 둔다.
+*/
+export const LOOKUP = { limit: 10, windowSec: 600 };
+
+/** 회원가입: 한 곳에서 1시간 동안 5번까지. */
+export const SIGNUP = { limit: 5, windowSec: 3600 };

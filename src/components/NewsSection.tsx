@@ -13,8 +13,11 @@ const isNew = (iso: string) =>
 export default async function NewsSection() {
   /* 메인에는 showOnHome 인 게시판만 모은다. */
   const homeBoards = BOARDS.filter((b) => b.showOnHome);
-  const posts = await listRecentByBoard(homeBoards.map((b) => b.slug));
-  const promos = await listHomeCards("promo");
+  /* 서로 기다릴 일이 없는 조회다. 줄 세우면 왕복이 두 번이 된다. */
+  const [posts, promos] = await Promise.all([
+    listRecentByBoard(homeBoards.map((b) => b.slug)),
+    listHomeCards("promo"),
+  ]);
 
   const items: NewsItem[] = posts.map((p) => ({
     id: p.id,
