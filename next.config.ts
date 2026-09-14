@@ -31,7 +31,8 @@ const csp = [
   "img-src 'self' data: blob: https://*.daumcdn.net https://*.kakaocdn.net",
   "font-src 'self' data: https://cdn.jsdelivr.net",
   "connect-src 'self' https://dapi.kakao.com https://*.daumcdn.net",
-  "frame-src 'self'",
+  /* 찾아오시는 길의 구글 지도(키 없이 주소로 띄우는 창) */
+  "frame-src 'self' https://www.google.com https://maps.google.com",
   /* 어디에도 우리 화면을 끼워 넣지 못하게 한다 */
   "frame-ancestors 'none'",
   "base-uri 'self'",

@@ -34,19 +34,19 @@ export default async function Page() {
         {/* 좌: 이사장 */}
         <div>
           <div className="overflow-hidden rounded-2xl border border-line bg-surface">
-            {/* 사진은 관리자 화면에서 올린다. 없으면 자리만 비워 둔다. */}
+            {/*
+              관리자 화면에서 올린 사진이 있으면 그것을, 없으면 기본 사진(public/about/chairman.jpg)을 쓴다.
+              올리기가 막힌 환경(Vercel)에서도 사진이 나오게 하려고 기본 사진을 코드에 함께 둔다.
+              이사장이 바뀌면 관리자 화면에서 새 사진을 올리면 된다.
+            */}
             <div className="grid aspect-[4/5] place-items-center bg-white">
-              {texts["greeting.photo"] ? (
-                /* 크기를 미리 알 수 없는 사진이라 next/image 대신 img 를 쓴다 */
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={texts["greeting.photo"]}
-                  alt={`${site.chairman} 이사장`}
-                  className="size-full object-cover"
-                />
-              ) : (
-                <span className="label-mono text-ink-400">이사장 사진</span>
-              )}
+              {/* 관리자가 올린 사진은 크기를 미리 알 수 없어 next/image 대신 img 를 쓴다 */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={texts["greeting.photo"] || "/about/chairman.jpg"}
+                alt={`${site.chairman} 이사장`}
+                className="size-full object-cover"
+              />
             </div>
             <div className="border-t border-line px-6 py-5">
               <p className="text-sm text-ink-600">한국클라우드컴퓨팅연구조합</p>

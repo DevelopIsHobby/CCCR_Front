@@ -43,7 +43,8 @@ function IconWalk({ className }: { className?: string }) {
   );
 }
 
-/* 지도 키와 좌표가 모두 있으면 지도를, 없으면 자리표시자를 보여준다.
+/* 카카오 지도 키와 좌표가 모두 있으면 카카오 지도를, 없으면 키 없이 되는 구글 지도를 주소로 띄운다.
+   어느 쪽이든 휴대폰에서 길찾기로 이어지게 카카오맵·네이버지도 버튼을 함께 둔다.
    도보 안내는 지도에서 걸어오는 설명이라 지도 아래 캡션으로 붙인다. */
 function MapCard({
   address,
@@ -59,41 +60,41 @@ function MapCard({
   const lat = Number(office.mapLat);
   const lng = Number(office.mapLng);
   const hasMap = Boolean(appKey) && Boolean(office.mapLat) && Boolean(office.mapLng);
+  /* 층수까지 넣으면 지도 검색이 건물을 못 찾는 일이 있어 층 뒤로는 뗀다 */
+  const mapQuery = address.replace(/,?\s*\d+층.*$/, "").trim();
+  const q = encodeURIComponent(mapQuery);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-line">
       {hasMap ? (
         <KakaoMap appKey={appKey} lat={lat} lng={lng} label={office.name} />
       ) : (
-      <div className="relative grid aspect-[16/6] place-items-center bg-surface">
-      <div
-        className="absolute inset-0 opacity-70"
-        style={{
-          backgroundImage:
-            "linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
-        aria-hidden
-      />
-      <div className="relative flex flex-col items-center px-6 text-center">
-        <span className="grid size-11 place-items-center rounded-full bg-flame-500 text-white shadow-[0_8px_20px_-6px_rgba(240,90,40,0.8)]">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            className="size-6"
-            aria-hidden
-          >
-            <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" />
-            <circle cx="12" cy="10" r="2.5" />
-          </svg>
-        </span>
-        <p className="mt-3 max-w-md text-md font-bold text-navy-900">{address}</p>
-        <p className="label-mono mt-1.5 text-ink-400">지도 API 연동 영역</p>
-        </div>
-      </div>
+        <iframe
+          title={`${office.name} 위치 지도`}
+          src={`https://maps.google.com/maps?q=${q}&z=17&hl=ko&output=embed`}
+          className="block aspect-[4/3] w-full border-0 sm:aspect-[16/6]"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
       )}
+
+      <div className="flex flex-wrap items-center gap-2 border-t border-line bg-white px-6 py-3">
+        <span className="mr-1 text-base text-ink-400">길찾기</span>
+        {[
+          { label: "카카오맵에서 보기", href: `https://map.kakao.com/link/search/${q}` },
+          { label: "네이버지도에서 보기", href: `https://map.naver.com/p/search/${q}` },
+        ].map((link) => (
+          <a
+            key={link.label}
+            href={link.href}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="rounded-full border border-line px-4 py-1.5 text-base font-semibold text-ink-700 transition-colors hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
 
       <p className="flex items-start gap-3 border-t border-line bg-white px-6 py-4">
         <IconWalk className="mt-0.5 size-5 shrink-0 text-flame-500" />
