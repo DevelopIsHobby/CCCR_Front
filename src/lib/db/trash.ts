@@ -27,6 +27,16 @@ type Spec = {
 const TABLES: Record<TrashKind, Spec> = {
   post: { table: "posts", titleSql: "title", whereSql: "board" },
   company: { table: "companies", titleSql: "name", whereSql: "grade" },
+  notice: {
+    table: "notice_subscribers",
+    titleSql: "company || ' · ' || name",
+    whereSql: "'사업공고 수신자'",
+  },
+  proposal: {
+    table: "education_proposals",
+    titleSql: "subject",
+    whereSql: "org",
+  },
   aboutCard: { table: "about_cards", titleSql: "title", whereSql: "section" },
   department: { table: "departments", titleSql: "name", whereSql: "'부서별 연락처'" },
   history: {

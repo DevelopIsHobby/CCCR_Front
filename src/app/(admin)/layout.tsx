@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 import { getSession } from "@/lib/auth/session";
 import { countUsersByStatus } from "@/lib/db/users";
+import { countNewProposals, countPendingNotices } from "@/lib/db/outreach";
 import { countTrash } from "@/lib/db/trash";
 import "../globals.css";
 
@@ -33,8 +34,13 @@ export default async function AdminRootLayout({
   const session = await getSession();
   if (session?.role !== "admin") redirect("/login?next=/admin");
 
-  /* 사이드바에 붙는 '가입 승인 대기'·'휴지통' 숫자 */
-  const [counts, trash] = await Promise.all([countUsersByStatus(), countTrash()]);
+  /* 사이드바에 붙는 '가입 승인 대기'·'새 제안' 숫자 */
+  const [counts, newProposals, pendingNotices, trash] = await Promise.all([
+    countUsersByStatus(),
+    countNewProposals(),
+    countPendingNotices(),
+    countTrash(),
+  ]);
 
   return (
     <html lang="ko" className={plexMono.variable}>
@@ -50,6 +56,8 @@ export default async function AdminRootLayout({
           email={session.email}
           badges={{
             pendingMembers: counts.pending,
+            newProposals,
+            pendingNotices,
             trash,
           }}
         >

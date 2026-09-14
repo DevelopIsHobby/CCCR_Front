@@ -15,6 +15,8 @@ import type { TrashKind } from "@/lib/trash-types";
 const KINDS = new Set<TrashKind>([
   "post",
   "company",
+  "notice",
+  "proposal",
   "aboutCard",
   "department",
   "history",
@@ -32,6 +34,8 @@ function refresh() {
   revalidatePath("/admin/trash");
   revalidatePath("/admin/posts");
   revalidatePath("/admin/companies");
+  revalidatePath("/admin/notices");
+  revalidatePath("/admin/proposals");
   revalidatePath("/admin/pages");
   revalidatePath("/", "layout");
 }

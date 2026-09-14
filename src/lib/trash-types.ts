@@ -5,6 +5,8 @@
 export type TrashKind =
   | "post"
   | "company"
+  | "notice"
+  | "proposal"
   | "aboutCard"
   | "department"
   | "history";
@@ -22,6 +24,8 @@ export type TrashRow = {
 export const TRASH_LABEL: Record<TrashKind, string> = {
   post: "게시글",
   company: "회원사",
+  notice: "사업공고 수신자",
+  proposal: "교육사업 제안",
   aboutCard: "소개 페이지 항목",
   department: "부서",
   history: "연혁",

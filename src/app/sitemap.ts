@@ -22,6 +22,7 @@ const MAX_POSTS = 1000;
 
   검색 로봇에게 알려 줘 봐야 넘어간 곳을 한 번 더 받을 뿐이고, 색인에는
   '넘겨 보내는 쪽'으로 남아 실린 보람이 없다.
+  참여하기(/participate)는 제 화면이 있으므로 여기 넣지 않는다.
 */
 const REDIRECT_ONLY = new Set(["/about", "/members", "/business", "/board", "/info"]);
 

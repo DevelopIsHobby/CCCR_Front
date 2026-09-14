@@ -70,6 +70,26 @@ export async function runCleanup(): Promise<CleanupReport> {
   ]);
   await db.run("DELETE FROM mail_log WHERE created_at < ?", [daysAgo(RETENTION_DAYS.mailLog)]);
 
+  /* ── 교육사업 제안 — 처리 완료 기준 ────────────── */
+  const doneCut = daysAgo(RETENTION_DAYS.proposal);
+  report.proposals = await count(
+    "SELECT COUNT(*) AS n FROM education_proposals WHERE status = 'done' AND updated_at < ?",
+    [doneCut],
+  );
+  await db.run("DELETE FROM education_proposals WHERE status = 'done' AND updated_at < ?", [
+    doneCut,
+  ]);
+
+  /* ── 반려된 사업공고 수신신청 ──────────────────── */
+  const rejectedCut = daysAgo(RETENTION_DAYS.noticeRejected);
+  report.noticeRejected = await count(
+    "SELECT COUNT(*) AS n FROM notice_subscribers WHERE status = 'rejected' AND updated_at < ?",
+    [rejectedCut],
+  );
+  await db.run("DELETE FROM notice_subscribers WHERE status = 'rejected' AND updated_at < ?", [
+    rejectedCut,
+  ]);
+
   /* 휴지통에서 30일이 지난 것을 진짜로 지운다 */
   report.trash = await purgeExpired();
 

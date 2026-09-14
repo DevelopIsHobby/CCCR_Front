@@ -24,6 +24,11 @@ export const MAIL_PER_PAGE = 30;
 
 /** 무슨 알림인지 한글로. 목록에서 kind 를 그대로 보여 주면 읽기 어렵다. */
 export const MAIL_KIND_LABEL: Record<string, string> = {
+  "notice.received": "사업공고 · 접수 확인",
+  "notice.approved": "사업공고 · 승인",
+  "notice.rejected": "사업공고 · 반려",
+  "proposal.received": "교육사업 제안 · 접수 확인",
+  "proposal.done": "교육사업 제안 · 검토 완료",
   "account.reset": "비밀번호 재설정",
 };
 

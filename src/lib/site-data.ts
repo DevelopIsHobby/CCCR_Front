@@ -21,6 +21,7 @@ export const NAV: NavItem[] = [
     children: [
       { label: "회원사 현황", href: "/members/list" },
       { label: "회원사 가입안내", href: "/members/join" },
+      { label: "사업공고 안내", href: "/members/notice" },
     ],
   },
   {
@@ -41,13 +42,22 @@ export const NAV: NavItem[] = [
     ],
   },
   {
+    /* 두 창구 모두 다른 화면 안에 숨어 있어 메뉴가 없으면 있는 줄도 모른다. */
+    label: "참여하기",
+    href: "/participate",
+    children: [
+      { label: "교육사업 제안", href: "/participate/proposal" },
+      { label: "뉴스레터 신청", href: "/info/newsletter" },
+      { label: "신청 현황 조회", href: "/participate/status" },
+    ],
+  },
+  {
     label: "정보서비스",
     href: "/info",
     children: [
       { label: "산업뉴스", href: "/info/news" },
       { label: "기술동향", href: "/info/trends" },
       { label: "자료실", href: "/info/archive" },
-      { label: "뉴스레터", href: "/info/newsletter" },
     ],
   },
 ];

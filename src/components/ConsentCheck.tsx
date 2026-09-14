@@ -22,7 +22,7 @@ export default function ConsentCheck({
 }: {
   /** 수집하는 칸. 예) "기관명, 성명, 이메일주소" */
   items: string;
-  /** 쓰는 목적. 예) "뉴스레터 발송" */
+  /** 쓰는 목적. 예) "제안 내용 검토와 회신" */
   purpose: string;
   /** 보유기간. 예) "이용일부터 1년" */
   keep: string;

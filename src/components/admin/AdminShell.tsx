@@ -16,6 +16,8 @@ import { logout } from "@/lib/auth/actions";
 
 export type AdminBadges = {
   pendingMembers: number;
+  newProposals: number;
+  pendingNotices: number;
   trash: number;
 };
 
