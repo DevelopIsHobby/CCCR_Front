@@ -7,7 +7,7 @@ import Link from "next/link";
 import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { IconClose } from "./Icons";
+import { IconArrow, IconClose } from "./Icons";
 import ConsentCheck from "./ConsentCheck";
 import { submitProposal, type ProposalState } from "@/lib/db/outreach-actions";
 import { MIN_PROPOSAL_BODY } from "@/lib/outreach-types";
@@ -27,7 +27,8 @@ export default function ProposalDialog({
   label = "교육사업 제안하기",
   me = EMPTY_APPLICANT,
 }: {
-  tone?: "light" | "dark";
+  /* light·dark 는 혼자 서 있는 알약 단추, text 는 카드 안에 들어가는 글자 단추다. */
+  tone?: "light" | "dark" | "text";
   label?: string;
   me?: Applicant;
 }) {
@@ -48,12 +49,17 @@ export default function ProposalDialog({
   const buttonClass =
     tone === "dark"
       ? "inline-flex items-center gap-2 rounded-full bg-white px-7 py-3 text-base font-bold text-navy-900 transition-colors hover:bg-brand-50"
-      : "inline-flex items-center gap-2 rounded-full bg-navy-900 px-7 py-3 text-base font-bold text-white transition-colors hover:bg-brand-600";
+      : tone === "text"
+        ? "group inline-flex items-center gap-2 text-base font-bold text-navy-900 transition-colors hover:text-brand-600"
+        : "inline-flex items-center gap-2 rounded-full bg-navy-900 px-7 py-3 text-base font-bold text-white transition-colors hover:bg-brand-600";
 
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} className={buttonClass}>
         {label}
+        {tone === "text" && (
+          <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
+        )}
       </button>
 
       <dialog
