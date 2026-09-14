@@ -56,7 +56,6 @@ type RawImageUse = {
   board: string | null;
   company: string | null;
   page_key: string | null;
-  promo: string | null;
 };
 
 /** 이미지가 어디에 걸려 있는지 한 곳만 골라 알려 준다. */
@@ -72,7 +71,6 @@ function imageUsedIn(
   }
   if (i.company) return { title: `회원사 로고 · ${i.company}`, href: "/admin/companies" };
   if (i.page_key) return { title: "소개 페이지", href: "/admin/pages" };
-  if (i.promo) return { title: `홍보 신청 · ${i.promo}`, href: "/admin/promos" };
   return null;
 }
 
@@ -109,7 +107,6 @@ export async function getFileReport(): Promise<FileReport> {
     board: string | null;
     company: string | null;
     page_key: string | null;
-    promo: string | null;
   }>(
     `SELECT i.id, i.filename, i.stored_name, i.byte_size, i.created_at,
             (SELECT COUNT(*) FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%') AS used,
@@ -117,8 +114,7 @@ export async function getFileReport(): Promise<FileReport> {
             (SELECT p.title FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%' LIMIT 1) AS title,
             (SELECT p.board FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%' LIMIT 1) AS board,
             (SELECT c.name FROM companies c WHERE c.logo_url = '/api/images/' || i.id LIMIT 1) AS company,
-            (SELECT t.key FROM page_texts t WHERE t.value = '/api/images/' || i.id LIMIT 1) AS page_key,
-            (SELECT r.org FROM promo_requests r WHERE r.image_id = i.id LIMIT 1) AS promo
+            (SELECT t.key FROM page_texts t WHERE t.value = '/api/images/' || i.id LIMIT 1) AS page_key
        FROM images i
       ORDER BY i.id DESC`,
   );

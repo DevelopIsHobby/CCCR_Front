@@ -2,7 +2,6 @@ import "server-only";
 import { ready } from "./migrate";
 import type { SqlValue } from "./driver";
 import { RETENTION_DAYS } from "@/lib/retention";
-import { deleteUpload } from "@/lib/uploads";
 import { purgeExpired } from "./trash";
 
 /*
@@ -70,58 +69,6 @@ export async function runCleanup(): Promise<CleanupReport> {
     daysAgo(RETENTION_DAYS.mailLog),
   ]);
   await db.run("DELETE FROM mail_log WHERE created_at < ?", [daysAgo(RETENTION_DAYS.mailLog)]);
-
-  /* ── 회의실 예약 — 이용일 기준 ─────────────────── */
-  const roomCut = dateDaysAgo(RETENTION_DAYS.room);
-  report.roomReservations = await count(
-    "SELECT COUNT(*) AS n FROM room_reservations WHERE use_date < ?",
-    [roomCut],
-  );
-  await db.run("DELETE FROM room_reservations WHERE use_date < ?", [roomCut]);
-  await db.run("DELETE FROM room_blocks WHERE use_date < ?", [roomCut]);
-
-  /* ── 교육사업 제안 — 처리 완료 기준 ────────────── */
-  const doneCut = daysAgo(RETENTION_DAYS.proposal);
-  report.proposals = await count(
-    "SELECT COUNT(*) AS n FROM education_proposals WHERE status = 'done' AND updated_at < ?",
-    [doneCut],
-  );
-  await db.run("DELETE FROM education_proposals WHERE status = 'done' AND updated_at < ?", [
-    doneCut,
-  ]);
-
-  /* ── 홍보 신청 — 올린 파일까지 함께 지운다 ─────── */
-  const promoCut = daysAgo(RETENTION_DAYS.promo);
-  const promos = await db.all<{ id: number; image_id: number | null; file_stored: string }>(
-    "SELECT id, image_id, file_stored FROM promo_requests WHERE status = 'done' AND updated_at < ?",
-    [promoCut],
-  );
-  for (const promo of promos) {
-    await db.run("DELETE FROM promo_requests WHERE id = ?", [promo.id]);
-
-    if (promo.image_id) {
-      const image = await db.get<{ stored_name: string }>(
-        "SELECT stored_name FROM images WHERE id = ?",
-        [promo.image_id],
-      );
-      if (image) {
-        await db.run("DELETE FROM images WHERE id = ?", [promo.image_id]);
-        await deleteUpload(image.stored_name);
-      }
-    }
-    if (promo.file_stored) await deleteUpload(promo.file_stored);
-  }
-  report.promos = promos.length;
-
-  /* ── 반려된 사업공고 수신신청 ──────────────────── */
-  const rejectedCut = daysAgo(RETENTION_DAYS.noticeRejected);
-  report.noticeRejected = await count(
-    "SELECT COUNT(*) AS n FROM notice_subscribers WHERE status = 'rejected' AND updated_at < ?",
-    [rejectedCut],
-  );
-  await db.run("DELETE FROM notice_subscribers WHERE status = 'rejected' AND updated_at < ?", [
-    rejectedCut,
-  ]);
 
   /* 휴지통에서 30일이 지난 것을 진짜로 지운다 */
   report.trash = await purgeExpired();

@@ -2,16 +2,11 @@ import type { Metadata } from "next";
 import PageShell from "@/components/sub/PageShell";
 import { ContactBanner } from "@/components/sub/Ui";
 import { PROGRAMS } from "@/lib/page-data";
-import ProposalDialog from "@/components/ProposalDialog";
-import { getApplicant } from "@/lib/db/me";
 import { pageMeta } from "@/lib/page-meta";
 
 export const metadata: Metadata = pageMeta("주요사업", "/business/programs", "조합은 네 갈래로 사업을 추진합니다.");
 
-export default async function Page() {
-  /* 로그인해 두었으면 제안 폼을 미리 채운다 */
-  const me = await getApplicant();
-
+export default function Page() {
   return (
     <PageShell
       href="/business/programs"
@@ -47,26 +42,6 @@ export default async function Page() {
           </li>
         ))}
       </ol>
-
-      {/* 교육사업은 밖에서 함께 하자는 제안이 들어오는 창구가 필요하다 */}
-      <section className="mt-12 overflow-hidden rounded-2xl bg-navy-900 px-8 py-12 lg:px-14">
-        <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-16">
-          <div>
-            <p className="data-line text-flame-500">교육사업 협력</p>
-            <p className="mt-4 text-xl font-bold leading-snug text-white lg:text-2xl">
-              조합과 함께 교육과정을 열어보세요
-            </p>
-            <p className="mt-3 text-md leading-relaxed text-brand-100/70">
-              대학·교육기관·회원사와 함께 클라우드·AI 인프라 과정을 운영하고 있습니다.
-              함께 하실 과정이나 협력 방안을 제안해 주세요.
-            </p>
-          </div>
-
-          <div className="shrink-0">
-            <ProposalDialog tone="dark" me={me} />
-          </div>
-        </div>
-      </section>
 
       <ContactBanner
         spacing="tight"

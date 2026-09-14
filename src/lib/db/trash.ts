@@ -27,22 +27,6 @@ type Spec = {
 const TABLES: Record<TrashKind, Spec> = {
   post: { table: "posts", titleSql: "title", whereSql: "board" },
   company: { table: "companies", titleSql: "name", whereSql: "grade" },
-  notice: {
-    table: "notice_subscribers",
-    titleSql: "company || ' · ' || name",
-    whereSql: "'사업공고 수신자'",
-  },
-  proposal: {
-    table: "education_proposals",
-    titleSql: "subject",
-    whereSql: "org",
-  },
-  promo: { table: "promo_requests", titleSql: "subject", whereSql: "org" },
-  room: {
-    table: "room_reservations",
-    titleSql: "org || ' · ' || use_date || ' ' || start_time",
-    whereSql: "'회의실 예약'",
-  },
   aboutCard: { table: "about_cards", titleSql: "title", whereSql: "section" },
   department: { table: "departments", titleSql: "name", whereSql: "'부서별 연락처'" },
   history: {
@@ -115,7 +99,7 @@ export async function countTrash(): Promise<number> {
 /*
   진짜로 지운다.
 
-  글과 홍보 신청은 딸린 파일이 있어 표만 지우면 디스크에 남는다.
+  글은 딸린 첨부파일이 있어 표만 지우면 디스크에 남는다.
   파일 관리 화면의 '기록 없는 파일'로 흘러가긴 하지만, 여기서 함께 치우는 편이 낫다.
 */
 async function purgeOne(kind: TrashKind, id: number): Promise<void> {
@@ -128,24 +112,6 @@ async function purgeOne(kind: TrashKind, id: number): Promise<void> {
     );
     await db.run("DELETE FROM attachments WHERE post_id = ?", [id]);
     for (const f of files) await deleteUpload(f.stored_name);
-  }
-
-  if (kind === "promo") {
-    const row = await db.get<{ image_id: number | null; file_stored: string }>(
-      "SELECT image_id, file_stored FROM promo_requests WHERE id = ?",
-      [id],
-    );
-    if (row?.image_id) {
-      const image = await db.get<{ stored_name: string }>(
-        "SELECT stored_name FROM images WHERE id = ?",
-        [row.image_id],
-      );
-      if (image) {
-        await db.run("DELETE FROM images WHERE id = ?", [row.image_id]);
-        await deleteUpload(image.stored_name);
-      }
-    }
-    if (row?.file_stored) await deleteUpload(row.file_stored);
   }
 
   await db.run(`DELETE FROM ${spec(kind).table} WHERE id = ?`, [id]);

@@ -44,7 +44,7 @@ export default async function Page({
     <div className="space-y-6">
       <PageHead
         title="알림 메일 기록"
-        desc="신청자에게 보낸 접수 확인·결과 안내 메일입니다. 메일을 못 받았다는 문의가 오면 여기서 확인하세요. 본문은 남기지 않습니다."
+        desc="사이트가 보낸 안내 메일(비밀번호 재설정 등)입니다. 메일을 못 받았다는 문의가 오면 여기서 확인하세요. 본문은 남기지 않습니다."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

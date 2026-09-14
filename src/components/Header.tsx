@@ -12,7 +12,7 @@ import SnsLinks from "./SnsLinks";
 import type { SiteSettings } from "@/lib/site-settings-types";
 
 /* 로그인 여부와 무관하게 항상 보이는 항목 */
-/* 뉴스레터는 참여하기 메뉴와 푸터 띠에 있다. 여기까지 두면 세 군데가 된다. */
+/* 뉴스레터는 정보서비스 메뉴와 푸터 띠에 있다. 여기까지 두면 세 군데가 된다. */
 const UTILITY = [{ label: "교육 홈페이지", href: EDUCATION_URL }];
 
 const GUEST_LINKS = [
