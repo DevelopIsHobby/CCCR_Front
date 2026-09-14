@@ -1,10 +1,12 @@
 import Logo from "./Logo";
+import SmartLink from "./SmartLink";
 import NewsletterBand from "./NewsletterBand";
 import FooterPolicyLinks from "./FooterPolicyLinks";
 import SnsLinks from "./SnsLinks";
 import { getSiteSettings } from "@/lib/db/site-settings";
 import { listRelatedSites } from "@/lib/db/site-content";
 import RelatedSiteSelect from "./RelatedSiteSelect";
+import { OLD_SITE_URL } from "@/lib/site-data";
 
 
 export default async function Footer() {
@@ -52,7 +54,21 @@ export default async function Footer() {
 
           <div className="lg:text-right">
             <RelatedSiteSelect sites={relatedSites} />
-            <p className="mt-6 text-xs text-brand-100/40">
+
+            {/*
+              옛 홈페이지. 새 사이트에 없는 옛 글을 찾는 분을 위한 길이다.
+              날마다 쓸 길이 아니라 헤더가 아니라 여기 둔다.
+            */}
+            <p className="mt-6">
+              <SmartLink
+                href={OLD_SITE_URL}
+                className="text-sm transition-colors hover:text-flame-500"
+              >
+                옛 홈페이지
+              </SmartLink>
+            </p>
+
+            <p className="mt-4 text-xs text-brand-100/40">
               © {new Date().getFullYear()} Consortium of Cloud Computing Research.
               <br className="hidden lg:block" /> All rights reserved.
             </p>

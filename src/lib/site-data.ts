@@ -71,6 +71,21 @@ export const NAV: NavItem[] = [
 /** 교육은 조합이 별도 사이트로 운영한다. 사이트 안에 교육 페이지를 두지 않는다. */
 export const EDUCATION_URL = "https://www.cccr-edu.or.kr/main/index.jsp";
 
+/*
+  옛 홈페이지(그누보드). 새 사이트를 열어도 닫지 않고 그대로 둔다.
+
+  옛 글이 공지 800건대·산업뉴스 11,000건대까지 쌓여 있는데 새 사이트로 옮기지
+  않았다. 그 글을 찾는 분이 갈 곳이 있어야 하므로 길을 하나 남긴다.
+
+  헤더에는 두지 않는다. 윗줄에 SNS·교육 홈페이지·로그인·회원가입이 이미 있어
+  하나만 더해도 빡빡하다. 날마다 쓸 길이 아니라 찾을 때만 있으면 되는 길이라
+  푸터 구석이 맞다.
+
+  주소가 http 라 새 창에서 열린다(SmartLink 가 바깥 주소를 그렇게 다룬다).
+  새 사이트가 이 도메인을 가져가게 되면 이 주소부터 바꿔야 한다.
+*/
+export const OLD_SITE_URL = "http://www.cccr.or.kr/home/";
+
 export type QuickLink = {
   label: string;
   desc: string;
