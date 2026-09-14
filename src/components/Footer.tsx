@@ -56,15 +56,17 @@ export default async function Footer() {
             <RelatedSiteSelect sites={relatedSites} />
 
             {/*
-              옛 홈페이지. 새 사이트에 없는 옛 글을 찾는 분을 위한 길이다.
-              날마다 쓸 길이 아니라 헤더가 아니라 여기 둔다.
+              옛 홈페이지로 가는 길. 새 사이트에 없는 지난 글을 찾는 분을 위한 것이다.
+              사이트 이름('옛 홈페이지') 대신 거기 뭐가 있는지로 적는다.
+              옛 사이트는 문을 닫지 않으므로 '옛'이라 부르면 없어진 곳처럼 읽히고,
+              누르는 분이 실제로 찾는 것도 사이트가 아니라 지난 자료다.
             */}
             <p className="mt-6">
               <SmartLink
                 href={OLD_SITE_URL}
                 className="text-sm transition-colors hover:text-flame-500"
               >
-                옛 홈페이지
+                지난 자료 보기
               </SmartLink>
             </p>
 
