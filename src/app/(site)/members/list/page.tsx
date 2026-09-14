@@ -5,7 +5,11 @@ import MemberDirectory from "@/components/sub/MemberDirectory";
 import { countCompanies, listCompanyGroups } from "@/lib/db/companies";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("회원사 현황", "/members/list", "클라우드 인프라부터 서비스까지, 산업 전 영역의 기업이 조합에 참여하고 있습니다.");
+export const metadata: Metadata = pageMeta(
+  "회원사 현황",
+  "/members/list",
+  "클라우드 인프라부터 서비스까지 산업 전 영역의 기업이 조합에 참여하고 있습니다. 등급별 회원사 명단과 각 사 홈페이지를 보실 수 있습니다.",
+);
 
 export default async function Page() {
   const [groups, counts] = await Promise.all([listCompanyGroups(), countCompanies()]);

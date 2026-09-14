@@ -6,7 +6,11 @@ import LoginForm from "./LoginForm";
 import { getSession } from "@/lib/auth/session";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("로그인", "/login", "회원사 전용 자료와 교육 신청은 로그인 후 이용할 수 있습니다.");
+export const metadata: Metadata = pageMeta(
+  "로그인",
+  "/login",
+  "한국클라우드컴퓨팅연구조합 홈페이지 로그인. 회원사 전용 자료를 보시거나 넣으신 신청의 진행 상황을 확인하실 때 필요합니다.",
+);
 
 export default async function Page({
   searchParams,

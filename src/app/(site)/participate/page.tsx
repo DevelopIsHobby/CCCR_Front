@@ -5,7 +5,11 @@ import { SectionHeading } from "@/components/sub/Ui";
 import { IconArrow } from "@/components/Icons";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("참여 안내", "/participate", "조합 사업에 함께하실 분들을 기다립니다.");
+export const metadata: Metadata = pageMeta(
+  "참여 안내",
+  "/participate",
+  "조합이 회원사·유관기관과 함께 운영하는 창구를 모아 두었습니다. 사업공고 수신신청, 교육사업 제안, 뉴스레터 신청과 신청 현황 조회를 이곳에서 하실 수 있습니다.",
+);
 
 const SERVICES = [
   {

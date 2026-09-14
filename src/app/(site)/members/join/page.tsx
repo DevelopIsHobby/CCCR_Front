@@ -15,7 +15,11 @@ import {
   MEMBER_BENEFITS,
 } from "@/lib/page-data";
 
-export const metadata: Metadata = pageMeta("회원사 가입안내", "/members/join", "클라우드컴퓨팅 관련 기업·기관·단체라면 조합에 참여할 수 있습니다.");
+export const metadata: Metadata = pageMeta(
+  "회원사 가입안내",
+  "/members/join",
+  "클라우드컴퓨팅과 관련된 기업·기관·단체라면 조합에 참여하실 수 있습니다. 회원 등급과 회비, 가입 절차와 필요한 서식을 안내합니다.",
+);
 
 export default async function Page() {
   /* 입금계좌·문의처는 관리자 화면(/admin/site)에서 고친다 */

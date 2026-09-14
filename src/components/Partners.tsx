@@ -49,6 +49,11 @@ export default function Partners() {
                     /* 띠가 계속 흐르므로 첫 묶음은 미리 받아 둔다.
                        뒤 묶음은 같은 주소라 브라우저 캐시에서 바로 나온다. */
                     loading={isCopy ? "lazy" : "eager"}
+                    /*
+                      다만 이 띠는 화면 한참 아래에 있다. 먼저 받되 순서는 뒤로 미뤄
+                      첫 화면에 바로 보이는 것들과 자리를 다투지 않게 한다.
+                    */
+                    fetchPriority="low"
                     className="h-11 w-[152px] object-contain"
                   />
                 </a>

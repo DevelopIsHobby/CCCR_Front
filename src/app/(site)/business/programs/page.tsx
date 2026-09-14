@@ -6,7 +6,11 @@ import ProposalDialog from "@/components/ProposalDialog";
 import { getApplicant } from "@/lib/db/me";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("주요사업", "/business/programs", "조합은 네 갈래로 사업을 추진합니다.");
+export const metadata: Metadata = pageMeta(
+  "주요사업",
+  "/business/programs",
+  "한국클라우드컴퓨팅연구조합이 추진하는 네 갈래 사업을 안내합니다. 공동 연구개발, 전문인력 양성, 정책 건의와 표준화, 회원사 교류를 다룹니다.",
+);
 
 export default async function Page() {
   /* 로그인해 두었으면 제안 폼을 미리 채운다 */

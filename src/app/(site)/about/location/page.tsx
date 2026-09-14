@@ -8,7 +8,11 @@ import KakaoMap from "@/components/sub/KakaoMap";
 import { parseTransit, type Office } from "@/lib/site-content-types";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("찾아오시는 길", "/about/location", "조합 사무실과 교육장 위치를 안내해 드립니다.");
+export const metadata: Metadata = pageMeta(
+  "찾아오시는 길",
+  "/about/location",
+  "한국클라우드컴퓨팅연구조합 사무국과 교육장의 주소, 지하철·버스 이용 방법을 안내합니다. 지도에서 위치를 확인하고 길찾기를 바로 여실 수 있습니다.",
+);
 
 const anchor = (i: number) => `office-${i + 1}`;
 

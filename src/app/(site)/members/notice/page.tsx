@@ -7,7 +7,11 @@ import { getSiteSettings } from "@/lib/db/site-settings";
 import { getApplicant } from "@/lib/db/me";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("사업공고 안내", "/members/notice", "조합이 매주 모아 보내드리는 사업공고 안내입니다.");
+export const metadata: Metadata = pageMeta(
+  "사업공고 안내",
+  "/members/notice",
+  "국가 연구개발과제와 정부·유관기관 공모 공고를 사무국이 모아 매주 메일로 보내드립니다. 받아보실 담당자를 등록하시면 사무국 확인 후 발송이 시작됩니다.",
+);
 
 const POINTS = [
   {

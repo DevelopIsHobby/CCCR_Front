@@ -5,7 +5,11 @@ import { search } from "@/lib/db/search";
 import { formatDate } from "@/lib/format";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("통합검색", "/search", "게시판 글과 안내 화면을 한 번에 찾습니다.");
+export const metadata: Metadata = pageMeta(
+  "통합검색",
+  "/search",
+  "공지사항, 행사정보, 산업뉴스, 기술동향, 자료실의 글과 사이트 안내 화면을 한 번에 찾습니다. 두 글자 이상 넣어 주세요.",
+);
 
 const input =
   "w-full rounded-md border border-line bg-white px-5 py-3.5 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";

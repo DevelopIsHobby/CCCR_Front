@@ -34,7 +34,7 @@ export const BOARDS: BoardConfig[] = [
   {
     slug: "notice",
     name: "공지사항",
-    desc: "조합 운영과 정부·유관기관 공고를 안내합니다.",
+    desc: "한국클라우드컴퓨팅연구조합의 운영 소식과 정부·유관기관 사업 공고를 전합니다.",
     basePath: "/board/notice",
     layout: "table",
     hasEventFields: false,
@@ -43,7 +43,7 @@ export const BOARDS: BoardConfig[] = [
   {
     slug: "events",
     name: "행사정보",
-    desc: "조합과 유관기관이 개최하는 세미나·컨퍼런스·전시 일정을 안내합니다.",
+    desc: "조합과 회원사·유관기관이 여는 세미나, 컨퍼런스, 전시회 일정을 안내합니다.",
     basePath: "/board/events",
     layout: "cards",
     hasEventFields: true,
@@ -52,7 +52,7 @@ export const BOARDS: BoardConfig[] = [
   {
     slug: "news",
     name: "산업뉴스",
-    desc: "클라우드컴퓨팅 산업의 정책·시장·기술 소식을 정리해 전합니다.",
+    desc: "클라우드컴퓨팅 산업의 정책, 시장, 기술 소식을 사무국이 모아 정리해 전합니다.",
     basePath: "/info/news",
     layout: "table",
     hasEventFields: false,
@@ -61,7 +61,7 @@ export const BOARDS: BoardConfig[] = [
   {
     slug: "trends",
     name: "기술동향",
-    desc: "클라우드·AI 인프라 기술 동향 자료를 정리해 공유합니다.",
+    desc: "클라우드와 AI 인프라 분야의 기술 동향 자료를 정리해 공유합니다.",
     basePath: "/info/trends",
     layout: "table",
     hasEventFields: false,
@@ -70,7 +70,7 @@ export const BOARDS: BoardConfig[] = [
   {
     slug: "archive",
     name: "자료실",
-    desc: "조합 발간자료와 정책·기술 참고자료를 내려받을 수 있습니다.",
+    desc: "조합이 펴낸 발간자료와 정책·기술 참고자료를 내려받을 수 있습니다.",
     basePath: "/info/archive",
     layout: "table",
     hasEventFields: false,
@@ -79,7 +79,7 @@ export const BOARDS: BoardConfig[] = [
   {
     slug: "newsletter",
     name: "뉴스레터",
-    desc: "조합이 발행한 뉴스레터를 모아 두었습니다.",
+    desc: "조합이 월 1회 발행하는 뉴스레터를 모아 두었습니다. 지난 호를 읽어 보실 수 있습니다.",
     basePath: "/info/newsletter",
     layout: "issues",
     hasEventFields: false,

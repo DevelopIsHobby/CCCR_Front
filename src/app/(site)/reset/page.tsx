@@ -4,7 +4,11 @@ import PageShell from "@/components/sub/PageShell";
 import ResetRequestForm from "@/components/ResetRequestForm";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("비밀번호 찾기", "/reset", "가입하신 이메일로 재설정 링크를 보내드립니다.");
+export const metadata: Metadata = pageMeta(
+  "비밀번호 찾기",
+  "/reset",
+  "홈페이지 비밀번호를 잊으셨다면 가입하신 이메일 주소를 넣어 주세요. 비밀번호를 새로 정하실 수 있는 링크를 보내드립니다.",
+);
 
 export default function Page() {
   return (

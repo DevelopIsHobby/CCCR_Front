@@ -7,7 +7,11 @@ import SignUpForm from "./SignUpForm";
 import { getSession } from "@/lib/auth/session";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("회원가입", "/signup", "홈페이지 회원가입은 조합 회원사 가입과 별개입니다.");
+export const metadata: Metadata = pageMeta(
+  "회원가입",
+  "/signup",
+  "홈페이지 회원가입 안내. 조합 회원사 가입과는 별개이며, 가입하시면 사무국 승인 후 회원사 전용 자료와 신청 현황을 이용하실 수 있습니다.",
+);
 
 const SIGNUP_STEPS = [
   { title: "약관 동의", desc: "이용약관과 개인정보 수집·이용에 동의합니다." },
