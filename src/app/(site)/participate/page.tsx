@@ -18,7 +18,7 @@ const SERVICES = [
     href: "/participate/proposal",
     eyebrow: "대학 · 교육기관 · 회원사",
     title: "교육사업 제안",
-    desc: "함께 열고 싶은 교육과정이나 협력 방안을 제안해 주세요.",
+    desc: "대학·교육기관·회원사와 함께 여는 교육과정 협력을 받습니다.",
   },
   {
     href: "/info/newsletter",

@@ -58,7 +58,6 @@ export default async function Page() {
             </p>
             <p className="mt-3 text-md leading-relaxed text-brand-100/70">
               대학·교육기관·회원사와 함께 클라우드·AI 인프라 과정을 운영하고 있습니다.
-              함께 하실 과정이나 협력 방안을 제안해 주세요.
             </p>
           </div>
 

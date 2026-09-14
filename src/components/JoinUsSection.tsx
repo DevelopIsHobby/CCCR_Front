@@ -91,8 +91,7 @@ export default function JoinUsSection({ me = EMPTY_APPLICANT }: { me?: Applicant
                 함께 교육과정을 열어보세요
               </p>
               <p className="mt-2 text-base leading-relaxed text-ink-600">
-                대학·교육기관·회원사와 함께 클라우드·AI 인프라 과정을 운영하고 있습니다. 협력
-                방안을 제안해 주세요.
+                대학·교육기관·회원사와 함께 클라우드·AI 인프라 과정을 운영하고 있습니다.
               </p>
 
               <div className="mt-auto pt-6">
