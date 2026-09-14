@@ -82,7 +82,23 @@
     color: var(--color-ink-900);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    /* 국문은 어절 안에서 끊으면 못 읽는다. 띄어쓰기에서만 넘긴다. */
     word-break: keep-all;
+  }
+
+  /*
+    줄을 어디서 넘길지.
+
+    keep-all 이 '어절 안에서 끊지 말라'는 것이라면, 이쪽은 '어느 어절에서
+    넘길지'를 맡긴다. 그냥 두면 브라우저가 첫 줄을 꽉 채우고 남은 한 덩어리를
+    아래로 떨어뜨려서, "…매주 / 보내드립니다." 처럼 끝에 한 마디만 남는다.
+
+    pretty 는 끝에 한 마디만 남는 것을 피하고, balance 는 줄 길이를 고르게 한다.
+    제목은 짧고 눈에 먼저 들어오므로 고르게, 본문은 끝줄만 다듬는다.
+    모르는 브라우저는 그냥 지나치므로 지금과 같아질 뿐 깨지지 않는다.
+  */
+  p {
+    text-wrap: pretty;
   }
 
   /*
@@ -101,6 +117,7 @@
   h2,
   h3 {
     letter-spacing: -0.03em;
+    text-wrap: balance;
   }
 
   :focus-visible {

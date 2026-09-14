@@ -35,7 +35,7 @@ export default async function Page() {
       <SectionHeading
         eyebrow="주 1회 발송"
         title="사업공고 안내"
-        desc="조합은 회원사가 참여할 수 있는 국가 연구개발과제와 정부·유관기관 공모 공고를 모아 매주 보내드리고 있습니다. 받아보실 담당자를 등록해 주세요."
+        desc="회원사가 참여할 수 있는 국가 연구개발과제와 정부·유관기관 공모 공고를 사무국이 모아 매주 보내드립니다."
       />
 
       <div className="mt-10 grid gap-4 sm:grid-cols-3">
