@@ -23,6 +23,7 @@ const MAX_POSTS = 1000;
   검색 로봇에게 알려 줘 봐야 넘어간 곳을 한 번 더 받을 뿐이고, 색인에는
   '넘겨 보내는 쪽'으로 남아 실린 보람이 없다.
   참여하기(/participate)는 제 화면이 있으므로 여기 넣지 않는다.
+  다만 그 화면은 하위 메뉴에도 올라 있어, 그대로 두면 같은 주소가 두 번 실린다.
 */
 const REDIRECT_ONLY = new Set(["/about", "/members", "/business", "/board", "/info"]);
 
@@ -34,7 +35,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: MetadataRoute.Sitemap = [
     { url: base, lastModified: now, changeFrequency: "daily", priority: 1 },
     ...NAV.flatMap((section) => [
-      ...(REDIRECT_ONLY.has(section.href)
+      /* 묶음 주소가 하위 메뉴에도 있으면 그쪽 한 번만 실는다 */
+      ...(REDIRECT_ONLY.has(section.href) ||
+      section.children.some((child) => child.href === section.href)
         ? []
         : [
             {

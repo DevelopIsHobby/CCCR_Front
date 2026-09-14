@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/sub/Ui";
 import { IconArrow } from "@/components/Icons";
 import { pageMeta } from "@/lib/page-meta";
 
-export const metadata: Metadata = pageMeta("참여하기", "/participate", "조합 사업에 함께하실 분들을 기다립니다.");
+export const metadata: Metadata = pageMeta("참여 안내", "/participate", "조합 사업에 함께하실 분들을 기다립니다.");
 
 const SERVICES = [
   {
@@ -33,7 +33,7 @@ export default function Page() {
     <PageShell href="/participate" desc="조합 사업에 함께하실 분들을 기다립니다.">
       <SectionHeading
         eyebrow="참여 · 신청"
-        title="참여하기"
+        title="참여 안내"
         desc="조합이 회원사·유관기관과 함께 운영하는 창구입니다. 로그인 없이도 신청하실 수 있고, 넣으신 뒤에는 접수번호로 진행 상황을 확인하실 수 있습니다."
       />
 

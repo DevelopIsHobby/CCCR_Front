@@ -46,6 +46,12 @@ export const NAV: NavItem[] = [
     label: "참여하기",
     href: "/participate",
     children: [
+      /*
+        대메뉴 중에서 유일하게 제 화면을 가진 곳이라 하위에도 올려 둔다.
+        전체 메뉴와 휴대폰 서람은 대메뉴 이름을 글자로만 내므로,
+        여기 없으면 휴대폰에서는 들어갈 길이 없다.
+      */
+      { label: "참여 안내", href: "/participate" },
       { label: "교육사업 제안", href: "/participate/proposal" },
       { label: "뉴스레터 신청", href: "/info/newsletter" },
       { label: "신청 현황 조회", href: "/participate/status" },
