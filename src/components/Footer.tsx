@@ -23,8 +23,9 @@ export default async function Footer() {
               흰 글씨판은 C 가 남색이라 짙은 푸터 바탕에 묻힌다.
               공식 색을 바꾸지 않고 살리려고 흰 판 위에 기본 로고를 올린다.
             */}
-            <span className="inline-block rounded-lg bg-white px-4 py-3">
-              <Logo />
+            <span className="inline-block rounded-lg bg-white px-3 py-2">
+              {/* 푸터는 맨 아래 서명 자리다. 헤더(32px)보다 작게 둔다. */}
+              <Logo className="h-6 w-auto sm:h-7" />
             </span>
             <address className="mt-5 space-y-1 text-sm not-italic leading-relaxed">
               {site.address && <p>{site.address}</p>}
