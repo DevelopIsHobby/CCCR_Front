@@ -5,7 +5,7 @@ import { ready } from "@/lib/db/migrate";
 import { softDelete } from "@/lib/db/trash";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
-import { COMPANY_GRADES } from "@/lib/company-types";
+import { COMPANY_GRADES, normalizeCompanySite } from "@/lib/company-types";
 
 export type CompanyFormState = { error?: string; ok?: boolean };
 
@@ -25,10 +25,8 @@ export async function saveCompany(
   const id = Number(formData.get("id")) || 0;
   const grade = String(formData.get("grade") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
-  /* 주소는 프로토콜 없이 저장한다. 화면에서 https:// 를 붙인다. */
-  const site = String(formData.get("site") ?? "")
-    .trim()
-    .replace(/^https?:\/\//i, "");
+  /* 주소는 https:// 없이 저장한다. http 로만 열리는 곳은 http:// 를 남긴다(company-types 참고). */
+  const site = normalizeCompanySite(String(formData.get("site") ?? ""));
 
   /* 로고는 우리가 저장한 주소만 받는다 */
   const rawLogo = String(formData.get("logoUrl") ?? "").trim();

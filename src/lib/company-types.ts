@@ -23,3 +23,30 @@ export const COMPANY_GRADES = [
     desc: "조합 주도 과제에 참여하는 기업·기관은 별도 가입절차와 가입비 없이 준회원으로 자동 가입됩니다.",
   },
 ];
+
+/*
+  회원사 홈페이지 주소.
+
+  주소는 대개 https 로 열리므로 앞머리 없이 저장하고 링크에서 https:// 를 붙인다.
+  다만 https 가 안 되고 http 로만 열리는 곳이 있어(예: 디노아이티), 그런 곳은
+  http:// 를 붙인 채로 저장해 두면 그대로 쓴다.
+*/
+
+/** 저장할 꼴로 다듬는다. https:// 와 끝의 / 는 떼고, http:// 는 남긴다. */
+export function normalizeCompanySite(raw: string): string {
+  return raw
+    .trim()
+    .replace(/^https:\/\//i, "")
+    .replace(/^http:\/\//i, "http://")
+    .replace(/\/$/, "");
+}
+
+/** 누르면 갈 주소 */
+export function companySiteHref(site: string): string {
+  return /^https?:\/\//i.test(site) ? site : `https://${site}`;
+}
+
+/** 화면에 보일 주소. 앞머리는 떼고 보여 준다. */
+export function companySiteLabel(site: string): string {
+  return site.replace(/^https?:\/\//i, "");
+}

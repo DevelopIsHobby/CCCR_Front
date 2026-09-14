@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CompanyGroup } from "@/lib/db/companies";
+import { companySiteHref, companySiteLabel } from "@/lib/company-types";
 
 /*
   원 사이트와 같은 3개 구분을 유지한다.
@@ -61,7 +62,7 @@ export default function MemberDirectory({ groups }: { groups: CompanyGroup[] }) 
             {g.members.map((m) => (
               <li key={m.id}>
                 <a
-                  href={`https://${m.site}`}
+                  href={companySiteHref(m.site)}
                   target="_blank"
                   rel="noreferrer noopener"
                   className="group block h-full rounded-lg border border-line bg-white px-5 py-4 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_10px_20px_-14px_rgba(6,42,85,0.45)]"
@@ -81,7 +82,7 @@ export default function MemberDirectory({ groups }: { groups: CompanyGroup[] }) 
                     {m.name}
                   </span>
                   <span className="label-mono mt-1.5 block truncate text-ink-400">
-                    {m.site}
+                    {companySiteLabel(m.site)}
                   </span>
                 </a>
               </li>

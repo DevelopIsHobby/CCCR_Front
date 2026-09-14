@@ -10,7 +10,7 @@ import {
   type CompanyFormState,
 } from "@/lib/db/company-actions";
 import ImagePicker from "./ImagePicker";
-import { COMPANY_GRADES, type Company } from "@/lib/company-types";
+import { COMPANY_GRADES, type Company, companySiteLabel } from "@/lib/company-types";
 
 const input =
   "w-full rounded-md border border-line px-4 py-3 text-md outline-none transition-colors focus:border-brand-500";
@@ -61,7 +61,7 @@ function CompanyForm({
           <input
             name="site"
             defaultValue={company?.site ?? ""}
-            placeholder="www.example.com"
+            placeholder="www.example.com (http 로만 열리면 http:// 를 붙여 적기)"
             className={input}
           />
         </label>
@@ -169,7 +169,8 @@ function CompanyRow({
           </span>
         )}
         {company.site && (
-          <span className="label-mono ml-2 text-ink-400">{company.site}</span>
+          /* 긴 주소가 휴대폰에서 줄 밖으로 밀려나지 않게 낱자 단위로 끊는다 */
+          <span className="label-mono ml-2 break-all text-ink-400">{companySiteLabel(company.site)}</span>
         )}
       </span>
 
