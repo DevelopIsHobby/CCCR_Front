@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import { buildOldSiteRedirects } from "./src/lib/old-site";
 
 /*
   브라우저에 보내는 보안 머리말(헤더).
@@ -61,20 +60,9 @@ const securityHeaders = [
   ...(isProd ? [{ key: "Content-Security-Policy", value: csp }] : []),
 ];
 
-/*
-  옛 홈페이지 주소 넘겨주기. 규칙과 까닭은 src/lib/old-site.ts 에 있다.
-  OLD_SITE_ORIGIN(지난 자료 보관 주소)에 따라 달라지고 빌드할 때 굳으므로,
-  그 값을 바꾸면 다시 빌드해야 한다.
-*/
-const oldSiteRedirects = buildOldSiteRedirects();
-
 const nextConfig: NextConfig = {
   // 상위 폴더의 package-lock.json을 루트로 오인하지 않도록 고정
   turbopack: { root: __dirname },
-
-  async redirects() {
-    return oldSiteRedirects;
-  },
 
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

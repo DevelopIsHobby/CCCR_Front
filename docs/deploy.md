@@ -259,37 +259,3 @@ sudo crontab -e
 Vercel 에 올린 경우에는 `vercel.json` 의 `crons` 가 대신 부릅니다.
 환경변수에 `CRON_SECRET` 을 정해 두면 Vercel 이 그 값을 헤더에 붙여 보냅니다.
 `CLEANUP_SECRET` 과 `CRON_SECRET` 중 하나만 맞으면 실행됩니다.
-
----
-
-## 8. 옛 홈페이지를 지난 자료 보관용으로 옮기기 (도메인 옮기기 전에)
-
-옛 홈페이지(그누보드)는 닫지 않고 지난 자료 보관용으로 남깁니다. 새 사이트가
-`cccr.or.kr`·`www.cccr.or.kr` 을 가져가면 옛 사이트는 하위 주소로 옮겨야 합니다.
-도메인 DNS·옛 사이트 호스팅이 모두 카페24에 있으므로 카페24 관리 화면에서 합니다.
-
-**순서가 중요합니다. 보관 주소가 먼저 열려야 합니다.** 거꾸로 하면 옮기는 동안 옛 글이 끊깁니다.
-
-1. 카페24 도메인 관리 > DNS 에서 `archive.cccr.or.kr` 을 옛 사이트 서버(지금 `183.111.182.207`)로 연결
-2. 카페24 호스팅 관리 > 연결 도메인에 `archive.cccr.or.kr` 추가
-3. `http://archive.cccr.or.kr/home/` 이 열리고, 게시판 글과 첨부 내려받기가 되는지 확인
-   (그누보드 설정에 `www.cccr.or.kr` 이 박혀 있으면 링크가 옛 도메인으로 튈 수 있습니다. 그때는 옛 사이트 설정의 사이트 주소를 고칩니다)
-4. 새 서버 `.env.production` 에 보관 주소를 넣고 **다시 빌드**합니다. 넘겨주기 규칙은 빌드할 때 굳습니다.
-
-```bash
-echo 'OLD_SITE_ORIGIN=http://archive.cccr.or.kr' | sudo -u c3r tee -a /srv/c3r/app/.env.production
-cd /srv/c3r/app && ./scripts/deploy.sh
-```
-
-5. 그다음에 `cccr.or.kr`·`www.cccr.or.kr` 을 새 서버로 연결하고 인증서를 받습니다(1-9).
-
-넣고 나면 이렇게 됩니다.
-
-| 옛 주소 | 가는 곳 |
-| --- | --- |
-| `/home`, 소개·회원사·사업 화면, 로그인·가입 | 새 사이트의 같은 화면 |
-| 게시판·글·첨부 등 나머지 `/home/...` | 보관 주소의 같은 자리 (옛 글 링크가 그대로 열림) |
-| 푸터 '지난 자료 보기' | `http://archive.cccr.or.kr/home/` |
-
-보관 주소는 나중에 바뀔 수 있어 임시 이동(307)으로 넘깁니다.
-보관 주소를 쓰는 동안에는 HSTS 에 하위 도메인(includeSubDomains)을 넣지 마세요. 옛 사이트는 https 가 없습니다.
