@@ -26,6 +26,7 @@ export default async function PostEditView({
         board={board.slug}
         listPath={base}
         hasEventFields={board.hasEventFields}
+        linkRequired={board.layout === "links"}
         post={{
           id: post.id,
           title: post.title,

@@ -1,7 +1,7 @@
 import SmartLink from "./SmartLink";
 import NewsTabs, { type NewsItem } from "./NewsTabs";
 import { listHomeCards } from "@/lib/db/home-cards";
-import { BOARDS } from "@/lib/boards";
+import { BOARDS, postHref } from "@/lib/boards";
 import { listRecentByBoard } from "@/lib/db/posts";
 import { formatDate } from "@/lib/format";
 import { IconArrow } from "./Icons";
@@ -19,15 +19,19 @@ export default async function NewsSection() {
     listHomeCards("promo"),
   ]);
 
-  const items: NewsItem[] = posts.map((p) => ({
+  const items: NewsItem[] = posts.map((p) => {
+    const board = BOARDS.find((b) => b.slug === p.board);
+    return {
     id: p.id,
     board: p.board,
-    boardName: BOARDS.find((b) => b.slug === p.board)?.name ?? p.board,
-    href: `${BOARDS.find((b) => b.slug === p.board)?.basePath ?? "/board"}/${p.id}`,
+    boardName: board?.name ?? p.board,
+    /* 산업뉴스는 원문 기사로 바로 보낸다(목록·검색과 같다) */
+    href: board ? postHref(board, p.id, p.link?.url) : `/board/${p.id}`,
     title: p.title,
     createdAt: formatDate(p.createdAt),
     isNew: isNew(p.createdAt),
-  }));
+    };
+  });
 
   return (
     <section className="mx-auto max-w-[1280px] px-6 py-10 lg:py-12">

@@ -1,7 +1,7 @@
 import "server-only";
 import { ready } from "./migrate";
 import { likeContains } from "@/lib/like";
-import { BOARDS, getBoard } from "@/lib/boards";
+import { BOARDS, getBoard, postHref } from "@/lib/boards";
 import { NAV } from "@/lib/site-data";
 
 /*
@@ -68,8 +68,9 @@ export async function search(q: string): Promise<SearchResult> {
     title: string;
     body: string;
     created_at: string;
+    link_url: string | null;
   }>(
-    `SELECT id, board, title, body, created_at FROM posts
+    `SELECT id, board, title, body, created_at, link_url FROM posts
       WHERE deleted_at = '' AND (title LIKE ? ESCAPE '\\' OR body LIKE ? ESCAPE '\\')
       ORDER BY id DESC LIMIT ?`,
     [like, like, PER_PAGE],
@@ -85,7 +86,8 @@ export async function search(q: string): Promise<SearchResult> {
         id: Number(r.id),
         board: r.board,
         boardName: board.name,
-        href: `${board.basePath}/${r.id}`,
+        /* 산업뉴스는 원문 기사로 바로 보낸다 */
+        href: postHref(board, Number(r.id), r.link_url),
         title: r.title,
         snippet: snippetOf(r.body ?? "", term),
         createdAt: r.created_at,

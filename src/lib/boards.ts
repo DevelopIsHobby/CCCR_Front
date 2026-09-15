@@ -16,11 +16,13 @@ export type BoardConfig = {
   basePath: string;
   /**
    * 목록 표시 방식.
-   * table  — 공지·뉴스처럼 제목이 정보의 전부인 게시판
+   * table  — 공지처럼 제목이 정보의 전부인 게시판
    * cards  — 행사처럼 일시·장소를 함께 봐야 하는 게시판
    * issues — 뉴스레터처럼 표지가 곧 제목인 게시판. 표지를 그리드로 늘어놓는다
+   * links  — 산업뉴스처럼 바깥 기사를 모으는 게시판. 제목·출처·날짜만 한 줄로 두고
+   *          제목을 누르면 원문 기사가 새 창으로 열린다. 글쓰기에서 기사 주소가 필수다
    */
-  layout: "table" | "cards" | "issues";
+  layout: "table" | "cards" | "issues" | "links";
   /** 주최·장소·행사일 같은 행사 전용 입력을 쓰는가 */
   hasEventFields: boolean;
   /**
@@ -54,7 +56,8 @@ export const BOARDS: BoardConfig[] = [
     name: "산업뉴스",
     desc: "클라우드컴퓨팅 산업의 정책, 시장, 기술 소식을 사무국이 모아 정리해 전합니다.",
     basePath: "/info/news",
-    layout: "table",
+    /* 기사 전문을 옮기지 않고 원문 기사로 보낸다. 일반 게시판 표(번호·글쓴이·조회)는 맞지 않았다 */
+    layout: "links",
     hasEventFields: false,
     showOnHome: true,
   },
@@ -104,4 +107,17 @@ export function boardPath(slug: string): string {
   const board = getBoard(slug);
   if (!board) throw new Error(`알 수 없는 게시판: ${slug}`);
   return board.basePath;
+}
+
+/**
+ * 글을 눌렀을 때 갈 곳. 목록·메인 새소식·통합검색이 함께 쓴다.
+ * 기사 링크 게시판(산업뉴스)은 원문 기사로 바로 보내고, 링크가 없는 글은 사이트 안 글 화면으로 보낸다.
+ */
+export function postHref(board: BoardConfig, id: number, linkUrl?: string | null): string {
+  return board.layout === "links" && linkUrl ? linkUrl : `${board.basePath}/${id}`;
+}
+
+/** 사이트 밖으로 나가는 주소인지. 새 창으로 열지 가를 때 쓴다. */
+export function isExternalHref(href: string): boolean {
+  return /^https?:\/\//i.test(href);
 }

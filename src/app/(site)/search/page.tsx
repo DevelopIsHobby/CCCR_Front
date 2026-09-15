@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageShell from "@/components/sub/PageShell";
+import SmartLink from "@/components/SmartLink";
 import { search } from "@/lib/db/search";
 import { formatDate } from "@/lib/format";
 import { pageMeta } from "@/lib/page-meta";
@@ -106,7 +107,8 @@ export default async function Page({
           <ul className="mt-4 border-t-2 border-navy-900">
             {posts.map((post) => (
               <li key={`${post.board}-${post.id}`} className="border-b border-line">
-                <Link href={post.href} className="group block py-5">
+                {/* 산업뉴스는 원문 기사 주소라 새 창으로 열린다(SmartLink) */}
+                <SmartLink href={post.href} className="group block py-5">
                   <span className="flex flex-wrap items-baseline gap-3">
                     <span className="inline-flex shrink-0 rounded bg-brand-50 px-2.5 py-1 text-2xs font-bold text-brand-700">
                       {post.boardName}
@@ -124,7 +126,7 @@ export default async function Page({
                       {post.snippet}
                     </span>
                   )}
-                </Link>
+                </SmartLink>
               </li>
             ))}
           </ul>

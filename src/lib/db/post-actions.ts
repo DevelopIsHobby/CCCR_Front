@@ -79,6 +79,10 @@ export async function createPost(
   if (rawLink && !/^https?:\/\//i.test(rawLink)) {
     return { error: "링크는 http:// 또는 https:// 로 시작해야 합니다." };
   }
+  /* 산업뉴스처럼 원문 기사로 보내는 게시판은 기사 주소가 곧 글이다 */
+  if (getBoard(board)?.layout === "links" && !rawLink) {
+    return { error: "원문 기사 주소를 넣어 주세요." };
+  }
 
   boardPath(board); // 알 수 없는 게시판이면 여기서 걸린다
 
@@ -114,7 +118,8 @@ export async function createPost(
   }
 
   refreshBoard(board, postId);
-  redirect(`${boardPath(board)}/${postId}`);
+  /* 산업뉴스 글 화면은 원문 링크뿐이라 목록으로 돌려보낸다 */
+  redirect(getBoard(board)?.layout === "links" ? boardPath(board) : `${boardPath(board)}/${postId}`);
 }
 
 export async function updatePost(
@@ -135,6 +140,9 @@ export async function updatePost(
   const rawLink = String(formData.get("linkUrl") ?? "").trim();
   if (rawLink && !/^https?:\/\//i.test(rawLink)) {
     return { error: "링크는 http:// 또는 https:// 로 시작해야 합니다." };
+  }
+  if (getBoard(board)?.layout === "links" && !rawLink) {
+    return { error: "원문 기사 주소를 넣어 주세요." };
   }
 
   boardPath(board);
@@ -179,7 +187,8 @@ export async function updatePost(
   }
 
   refreshBoard(board, id);
-  redirect(`${boardPath(board)}/${id}`);
+  /* 산업뉴스 글 화면은 원문 링크뿐이라 목록으로 돌려보낸다 */
+  redirect(getBoard(board)?.layout === "links" ? boardPath(board) : `${boardPath(board)}/${id}`);
 }
 
 export async function deletePost(formData: FormData): Promise<void> {

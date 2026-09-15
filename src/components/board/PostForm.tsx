@@ -13,6 +13,8 @@ type Props = {
   listPath: string;
   /** 행사정보처럼 주최·장소·일시를 함께 받는 게시판인가 */
   hasEventFields?: boolean;
+  /** 산업뉴스처럼 원문 기사로 보내는 게시판인가. 링크 칸이 '기사 주소(필수)'가 된다 */
+  linkRequired?: boolean;
   post?: {
     id: number;
     title: string;
@@ -28,7 +30,13 @@ type Props = {
 const fieldClass =
   "w-full rounded-md border border-line px-4 py-3.5 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500";
 
-export default function PostForm({ board, listPath, hasEventFields = false, post }: Props) {
+export default function PostForm({
+  board,
+  listPath,
+  hasEventFields = false,
+  linkRequired = false,
+  post,
+}: Props) {
   const isEdit = Boolean(post);
   const [state, action, pending] = useActionState<PostFormState, FormData>(
     isEdit ? updatePost : createPost,
@@ -65,7 +73,8 @@ export default function PostForm({ board, listPath, hasEventFields = false, post
         {/* 본문 안 하이퍼링크와 별개로, 글에 함께 걸어 두는 링크 한 줄 */}
         <div>
           <label htmlFor="post-link" className="mb-2 block text-base font-bold text-navy-900">
-            링크
+            {linkRequired ? "원문 기사 주소" : "링크"}
+            {linkRequired && <span className="ml-1.5 text-xs font-bold text-flame-600">필수</span>}
           </label>
           <div className="grid gap-3 sm:grid-cols-[1fr_240px]">
             <input
@@ -73,6 +82,7 @@ export default function PostForm({ board, listPath, hasEventFields = false, post
               name="linkUrl"
               type="url"
               inputMode="url"
+              required={linkRequired}
               defaultValue={post?.link?.url ?? ""}
               placeholder="https://example.com/article"
               className={fieldClass}
@@ -82,12 +92,14 @@ export default function PostForm({ board, listPath, hasEventFields = false, post
               type="text"
               maxLength={40}
               defaultValue={post?.link?.label ?? ""}
-              placeholder="표시할 이름 (선택)"
+              placeholder={linkRequired ? "언론사 이름 (예: 전자신문)" : "표시할 이름 (선택)"}
               className={fieldClass}
             />
           </div>
           <p className="mt-2 text-sm text-ink-400">
-            입력하면 글 위에 바로가기 단추로 보입니다. 표시할 이름을 비우면 주소가 그대로 나옵니다.
+            {linkRequired
+              ? "목록에서 제목을 누르면 이 기사가 새 창으로 열립니다. 언론사 이름은 제목 옆 출처로 보이고, 비우면 기사 주소의 도메인이 나옵니다. 내용은 비워도 됩니다."
+              : "입력하면 글 위에 바로가기 단추로 보입니다. 표시할 이름을 비우면 주소가 그대로 나옵니다."}
           </p>
         </div>
 

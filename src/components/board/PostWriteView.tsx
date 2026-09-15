@@ -12,7 +12,12 @@ export default async function PostWriteView({ board }: { board: BoardConfig }) {
 
   return (
     <PageShell href={base} desc={`새 ${board.name} 게시물을 등록합니다.`}>
-      <PostForm board={board.slug} listPath={base} hasEventFields={board.hasEventFields} />
+      <PostForm
+        board={board.slug}
+        listPath={base}
+        hasEventFields={board.hasEventFields}
+        linkRequired={board.layout === "links"}
+      />
     </PageShell>
   );
 }

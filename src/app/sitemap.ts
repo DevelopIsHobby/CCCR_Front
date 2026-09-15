@@ -76,7 +76,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       [MAX_POSTS],
     );
 
-    const basePath = new Map(BOARDS.map((b) => [b.slug, b.basePath]));
+    /* 산업뉴스처럼 원문 기사로 보내는 게시판의 글 화면은 싣지 않는다. 내용 없이 링크뿐인 화면이다 */
+    const basePath = new Map(BOARDS.filter((b) => b.layout !== "links").map((b) => [b.slug, b.basePath]));
     posts = rows
       .filter((r) => basePath.has(r.board))
       .map((r) => ({

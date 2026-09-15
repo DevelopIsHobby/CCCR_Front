@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import SmartLink from "./SmartLink";
 import { IconPlus } from "./Icons";
 
 export type NewsItem = {
   id: number;
   board: string;
   boardName: string;
-  /** 게시판마다 주소가 달라 서버에서 만들어 넘긴다. */
+  /** 게시판마다 주소가 달라 서버에서 만들어 넘긴다. 산업뉴스는 원문 기사 주소다. */
   href: string;
   title: string;
   createdAt: string;
@@ -89,7 +90,8 @@ export default function NewsTabs({
 
         {list.map((post) => (
           <li key={`${post.board}-${post.id}`} className="border-b border-line">
-            <Link
+            {/* 산업뉴스는 원문 기사 주소라 새 창으로 열린다(SmartLink) */}
+            <SmartLink
               href={post.href}
               className="group flex flex-col gap-2 py-5 sm:flex-row sm:items-center sm:gap-5"
             >
@@ -112,7 +114,7 @@ export default function NewsTabs({
               <span className="label-mono shrink-0 tabular-nums text-ink-400">
                 {post.createdAt}
               </span>
-            </Link>
+            </SmartLink>
           </li>
         ))}
       </ul>
