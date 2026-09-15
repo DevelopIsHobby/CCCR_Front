@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { signUp, type SignUpState } from "@/lib/auth/signup-actions";
 import LegalDialog, { type LegalTab } from "@/components/LegalDialog";
+import ScrollToTopOnShow from "@/components/ScrollToTopOnShow";
 
 const input =
   "w-full rounded-md border border-line px-4 py-3.5 text-md outline-none transition-colors focus:border-brand-500";
@@ -30,6 +31,7 @@ export default function SignUpForm() {
   if (state.ok) {
     return (
       <div className="mx-auto mt-11 max-w-2xl rounded-2xl border border-line bg-white p-10 text-center">
+        <ScrollToTopOnShow />
         <p className="text-xl font-bold text-navy-900">가입 신청이 접수되었습니다</p>
         <p className="mt-4 text-md leading-relaxed text-ink-600">
           사무국 확인 후 이용할 수 있습니다. 승인되면 입력하신 이메일로 로그인해 주세요.

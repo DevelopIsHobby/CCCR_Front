@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import LegalDialog, { type LegalTab } from "@/components/LegalDialog";
+import ScrollToTopOnShow from "@/components/ScrollToTopOnShow";
 import { SocialIcon } from "@/components/SocialIcons";
 import { SOCIAL_LABEL, type SocialProvider } from "@/lib/auth/social-profile";
 import {
@@ -89,6 +90,7 @@ export function SocialSignupDone({ provider }: { provider: SocialProvider }) {
   const label = SOCIAL_LABEL[provider];
   return (
     <>
+      <ScrollToTopOnShow />
       <SignupProgress provider={provider} current={3} />
       <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-line bg-white p-10 text-center">
         <span className="mx-auto grid size-14 place-items-center rounded-full bg-brand-50 text-brand-600">
