@@ -9,10 +9,16 @@ type Props = {
   title?: string;
   category?: string;
   desc?: string;
+  /**
+   * 머리 제목의 태그. 기본은 h1.
+   * 게시글 상세처럼 본문에 따로 h1(글 제목)이 있는 화면은 "p" 로 두어 h1 이 하나만 남게 한다.
+   */
+  titleAs?: "h1" | "p";
   children: React.ReactNode;
 };
 
-export default function PageShell({ href, title, category, desc, children }: Props) {
+export default function PageShell({ href, title, category, desc, titleAs = "h1", children }: Props) {
+  const TitleTag = titleAs;
   const section = NAV.find((n) => href.startsWith(n.href));
   const child = section?.children.find((c) => c.href === href);
 
@@ -46,9 +52,9 @@ export default function PageShell({ href, title, category, desc, children }: Pro
             <span className="text-sm font-medium text-white">{pageTitle}</span>
           </nav>
 
-          <h1 className="mt-7 text-2xl font-bold leading-tight text-white lg:text-3xl">
+          <TitleTag className="mt-7 text-2xl font-bold leading-tight text-white lg:text-3xl">
             {pageTitle}
-          </h1>
+          </TitleTag>
           {desc && (
             <p className="mt-4 max-w-2xl text-md leading-relaxed text-brand-100/70">
               {desc}

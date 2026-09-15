@@ -27,6 +27,12 @@ const MAX_POSTS = 1000;
 */
 const REDIRECT_ONLY = new Set(["/about", "/members", "/business", "/board", "/info"]);
 
+/*
+  메뉴에는 있지만 검색에 싣지 않는 화면(페이지에 noindex 를 걸어 둔 곳).
+  사이트맵에 넣으면 서치콘솔이 '제출한 주소가 noindex' 라고 경고한다.
+*/
+const NOINDEX = new Set(["/participate/status"]);
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
   const now = new Date();
@@ -47,15 +53,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
               priority: 0.7,
             },
           ]),
-      ...section.children.map((child) => ({
-        url: `${base}${child.href}`,
-        lastModified: now,
-        changeFrequency: "monthly" as const,
-        priority: 0.6,
-      })),
+      ...section.children
+        .filter((child) => !NOINDEX.has(child.href))
+        .map((child) => ({
+          url: `${base}${child.href}`,
+          lastModified: now,
+          changeFrequency: "monthly" as const,
+          priority: 0.6,
+        })),
     ]),
     { url: `${base}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
     { url: `${base}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${base}/email-policy`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 
   /* 게시글 */

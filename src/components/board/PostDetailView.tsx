@@ -59,7 +59,8 @@ export default async function PostDetailView({
     : [];
 
   return (
-    <PageShell href={base} title={board.name}>
+    /* 글 제목이 이 화면의 h1 이다. 머리의 게시판 이름까지 h1 이면 한 화면에 제목이 둘이 된다 */
+    <PageShell href={base} title={board.name} titleAs="p">
       <ViewCounter postId={post.id} />
 
       <article>
