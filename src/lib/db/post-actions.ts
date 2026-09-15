@@ -68,8 +68,10 @@ export async function createPost(
 
   const board = String(formData.get("board") ?? "");
   const title = String(formData.get("title") ?? "").trim();
+  /* 산업뉴스는 제목·원문 주소·출처·상단 고정만 받는다 */
+  const linkOnly = getBoard(board)?.layout === "links";
   /* 편집기가 보낸 HTML 은 허용 태그만 남긴다 */
-  const raw = String(formData.get("body") ?? "").trim();
+  const raw = linkOnly ? "" : String(formData.get("body") ?? "").trim();
   const body = isEmptyHtml(raw) ? "" : sanitizePostBody(raw);
 
   if (!title) return { error: "제목을 입력해 주세요." };
@@ -80,7 +82,7 @@ export async function createPost(
     return { error: "링크는 http:// 또는 https:// 로 시작해야 합니다." };
   }
   /* 산업뉴스처럼 원문 기사로 보내는 게시판은 기사 주소가 곧 글이다 */
-  if (getBoard(board)?.layout === "links" && !rawLink) {
+  if (linkOnly && !rawLink) {
     return { error: "원문 기사 주소를 넣어 주세요." };
   }
 
@@ -101,7 +103,7 @@ export async function createPost(
       session.userId,
       session.name,
       formData.get("isPinned") ? 1 : 0,
-      formData.get("isLocked") ? 1 : 0,
+      !linkOnly && formData.get("isLocked") ? 1 : 0,
       stamp,
       stamp,
       ...eventFields(board, formData),
@@ -111,15 +113,17 @@ export async function createPost(
 
   const postId = Number(inserted?.id);
 
-  try {
-    await attachFiles(postId, formData.getAll("files"));
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : "첨부파일 저장에 실패했습니다." };
+  if (!linkOnly) {
+    try {
+      await attachFiles(postId, formData.getAll("files"));
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : "첨부파일 저장에 실패했습니다." };
+    }
   }
 
   refreshBoard(board, postId);
   /* 산업뉴스 글 화면은 원문 링크뿐이라 목록으로 돌려보낸다 */
-  redirect(getBoard(board)?.layout === "links" ? boardPath(board) : `${boardPath(board)}/${postId}`);
+  redirect(linkOnly ? boardPath(board) : `${boardPath(board)}/${postId}`);
 }
 
 export async function updatePost(
@@ -131,6 +135,8 @@ export async function updatePost(
   const id = Number(formData.get("id"));
   const board = String(formData.get("board") ?? "");
   const title = String(formData.get("title") ?? "").trim();
+  /* 산업뉴스 글쓰기 화면에는 본문·첨부·회원 전용 칸이 없다. 없는 칸 때문에 기존 값이 지워지지 않게 한다. */
+  const linkOnly = getBoard(board)?.layout === "links";
   const raw = String(formData.get("body") ?? "").trim();
   const body = isEmptyHtml(raw) ? "" : sanitizePostBody(raw);
 
@@ -141,54 +147,63 @@ export async function updatePost(
   if (rawLink && !/^https?:\/\//i.test(rawLink)) {
     return { error: "링크는 http:// 또는 https:// 로 시작해야 합니다." };
   }
-  if (getBoard(board)?.layout === "links" && !rawLink) {
+  if (linkOnly && !rawLink) {
     return { error: "원문 기사 주소를 넣어 주세요." };
   }
 
   boardPath(board);
 
   const db = await ready();
-  await db.run(
-    `UPDATE posts
-        SET title = ?, body = ?, is_pinned = ?, is_locked = ?, updated_at = ?,
-            event_host = ?, event_place = ?, event_starts_on = ?, event_ends_on = ?,
-            event_apply_by = ?, link_url = ?, link_label = ?
-      WHERE id = ? AND board = ?`,
-    [
-      title,
-      body,
-      formData.get("isPinned") ? 1 : 0,
-      formData.get("isLocked") ? 1 : 0,
-      now(),
-      ...eventFields(board, formData),
-      ...linkFields(formData),
-      id,
-      board,
-    ],
-  );
+  if (linkOnly) {
+    await db.run(
+      `UPDATE posts
+          SET title = ?, is_pinned = ?, updated_at = ?, link_url = ?, link_label = ?
+        WHERE id = ? AND board = ?`,
+      [title, formData.get("isPinned") ? 1 : 0, now(), ...linkFields(formData), id, board],
+    );
+  } else {
+    await db.run(
+      `UPDATE posts
+          SET title = ?, body = ?, is_pinned = ?, is_locked = ?, updated_at = ?,
+              event_host = ?, event_place = ?, event_starts_on = ?, event_ends_on = ?,
+              event_apply_by = ?, link_url = ?, link_label = ?
+        WHERE id = ? AND board = ?`,
+      [
+        title,
+        body,
+        formData.get("isPinned") ? 1 : 0,
+        formData.get("isLocked") ? 1 : 0,
+        now(),
+        ...eventFields(board, formData),
+        ...linkFields(formData),
+        id,
+        board,
+      ],
+    );
 
-  /* 체크가 풀린 기존 첨부는 지운다. */
-  const keep = new Set(formData.getAll("keepAttachment").map((v) => Number(v)));
-  const current = await db.all<{ id: number; stored_name: string }>(
-    "SELECT id, stored_name FROM attachments WHERE post_id = ?",
-    [id],
-  );
+    /* 체크가 풀린 기존 첨부는 지운다. */
+    const keep = new Set(formData.getAll("keepAttachment").map((v) => Number(v)));
+    const current = await db.all<{ id: number; stored_name: string }>(
+      "SELECT id, stored_name FROM attachments WHERE post_id = ?",
+      [id],
+    );
 
-  for (const a of current) {
-    if (keep.has(a.id)) continue;
-    await db.run("DELETE FROM attachments WHERE id = ?", [a.id]);
-    await deleteUpload(a.stored_name);
-  }
+    for (const a of current) {
+      if (keep.has(a.id)) continue;
+      await db.run("DELETE FROM attachments WHERE id = ?", [a.id]);
+      await deleteUpload(a.stored_name);
+    }
 
-  try {
-    await attachFiles(id, formData.getAll("files"));
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : "첨부파일 저장에 실패했습니다." };
+    try {
+      await attachFiles(id, formData.getAll("files"));
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : "첨부파일 저장에 실패했습니다." };
+    }
   }
 
   refreshBoard(board, id);
   /* 산업뉴스 글 화면은 원문 링크뿐이라 목록으로 돌려보낸다 */
-  redirect(getBoard(board)?.layout === "links" ? boardPath(board) : `${boardPath(board)}/${id}`);
+  redirect(linkOnly ? boardPath(board) : `${boardPath(board)}/${id}`);
 }
 
 export async function deletePost(formData: FormData): Promise<void> {

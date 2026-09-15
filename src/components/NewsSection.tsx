@@ -22,14 +22,14 @@ export default async function NewsSection() {
   const items: NewsItem[] = posts.map((p) => {
     const board = BOARDS.find((b) => b.slug === p.board);
     return {
-    id: p.id,
-    board: p.board,
-    boardName: board?.name ?? p.board,
-    /* 산업뉴스는 원문 기사로 바로 보낸다(목록·검색과 같다) */
-    href: board ? postHref(board, p.id, p.link?.url) : `/board/${p.id}`,
-    title: p.title,
-    createdAt: formatDate(p.createdAt),
-    isNew: isNew(p.createdAt),
+      id: p.id,
+      board: p.board,
+      boardName: board?.name ?? p.board,
+      /* 산업뉴스는 원문 기사로 바로 보낸다(목록·검색과 같다) */
+      href: board ? postHref(board, p.id, p.link?.url) : `/board/${p.id}`,
+      title: p.title,
+      createdAt: formatDate(p.createdAt),
+      isNew: isNew(p.createdAt),
     };
   });
 

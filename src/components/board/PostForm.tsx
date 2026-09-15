@@ -65,10 +65,13 @@ export default function PostForm({
           />
         </div>
 
-        <div>
-          <span className="mb-2 block text-base font-bold text-navy-900">내용</span>
-          <RichTextEditor name="body" defaultValue={post?.body ?? ""} />
-        </div>
+        {/* 산업뉴스는 원문 기사로 바로 보내므로 본문·첨부·회원 전용 칸이 필요 없다 */}
+        {!linkRequired && (
+          <div>
+            <span className="mb-2 block text-base font-bold text-navy-900">내용</span>
+            <RichTextEditor name="body" defaultValue={post?.body ?? ""} />
+          </div>
+        )}
 
         {/* 본문 안 하이퍼링크와 별개로, 글에 함께 걸어 두는 링크 한 줄 */}
         <div>
@@ -98,7 +101,7 @@ export default function PostForm({
           </div>
           <p className="mt-2 text-sm text-ink-400">
             {linkRequired
-              ? "목록에서 제목을 누르면 이 기사가 새 창으로 열립니다. 언론사 이름은 제목 옆 출처로 보이고, 비우면 기사 주소의 도메인이 나옵니다. 내용은 비워도 됩니다."
+              ? "목록에서 제목을 누르면 이 기사가 새 창으로 열립니다. 언론사 이름은 제목 옆 출처로 보이고, 비우면 기사 주소의 도메인이 나옵니다."
               : "입력하면 글 위에 바로가기 단추로 보입니다. 표시할 이름을 비우면 주소가 그대로 나옵니다."}
           </p>
         </div>
@@ -191,57 +194,59 @@ export default function PostForm({
           </fieldset>
         )}
 
-        <div>
-          <label htmlFor="post-files" className="mb-2 block text-base font-bold text-navy-900">
-            첨부파일
-          </label>
-
-          {post && post.attachments.length > 0 && (
-            <ul className="mb-3 space-y-2">
-              {post.attachments.map((a) => (
-                <li key={a.id} className="flex items-center gap-2 text-base text-ink-600">
-                  <input
-                    type="checkbox"
-                    id={`keep-${a.id}`}
-                    name="keepAttachment"
-                    value={a.id}
-                    defaultChecked
-                    className="size-4 rounded border-line accent-brand-600"
-                  />
-                  <label htmlFor={`keep-${a.id}`}>
-                    {a.filename}
-                    <span className="label-mono ml-2 text-ink-400">{formatBytes(a.byteSize)}</span>
-                  </label>
+        {!linkRequired && (
+          <div>
+            <label htmlFor="post-files" className="mb-2 block text-base font-bold text-navy-900">
+              첨부파일
+            </label>
+  
+            {post && post.attachments.length > 0 && (
+              <ul className="mb-3 space-y-2">
+                {post.attachments.map((a) => (
+                  <li key={a.id} className="flex items-center gap-2 text-base text-ink-600">
+                    <input
+                      type="checkbox"
+                      id={`keep-${a.id}`}
+                      name="keepAttachment"
+                      value={a.id}
+                      defaultChecked
+                      className="size-4 rounded border-line accent-brand-600"
+                    />
+                    <label htmlFor={`keep-${a.id}`}>
+                      {a.filename}
+                      <span className="label-mono ml-2 text-ink-400">{formatBytes(a.byteSize)}</span>
+                    </label>
+                  </li>
+                ))}
+                <li className="text-sm text-ink-400">
+                  체크를 해제한 파일은 저장할 때 삭제됩니다.
                 </li>
-              ))}
-              <li className="text-sm text-ink-400">
-                체크를 해제한 파일은 저장할 때 삭제됩니다.
-              </li>
-            </ul>
-          )}
-
-          <input
-            id="post-files"
-            name="files"
-            type="file"
-            multiple
-            /*
-              서버는 한 번에 받는 요청을 25MB 에서 자른다(next.config.ts·nginx.conf).
-              넘으면 저장을 눌렀을 때 까닭 모를 오류가 나므로, 고르는 순간 알려 주고 제출을 막는다.
-              합계는 제목·본문 같은 다른 칸 몫을 남겨 24MB 로 잡는다.
-            */
-            onChange={(e) => {
-              const input = e.currentTarget;
-              const message = checkAttachmentSizes(Array.from(input.files ?? []));
-              input.setCustomValidity(message);
-              if (message) input.reportValidity();
-            }}
-            className="w-full rounded-md border border-line px-4 py-3 text-base file:mr-4 file:rounded file:border-0 file:bg-surface file:px-4 file:py-2 file:text-base file:font-semibold file:text-navy-900"
-          />
-          <p className="mt-2 text-sm text-ink-400">
-            한 개당 20MB, 한 번에 합쳐 24MB까지 올릴 수 있습니다. 더 많으면 저장한 뒤 수정에서 나눠 올려 주세요.
-          </p>
-        </div>
+              </ul>
+            )}
+  
+            <input
+              id="post-files"
+              name="files"
+              type="file"
+              multiple
+              /*
+                서버는 한 번에 받는 요청을 25MB 에서 자른다(next.config.ts·nginx.conf).
+                넘으면 저장을 눌렀을 때 까닭 모를 오류가 나므로, 고르는 순간 알려 주고 제출을 막는다.
+                합계는 제목·본문 같은 다른 칸 몫을 남겨 24MB 로 잡는다.
+              */
+              onChange={(e) => {
+                const input = e.currentTarget;
+                const message = checkAttachmentSizes(Array.from(input.files ?? []));
+                input.setCustomValidity(message);
+                if (message) input.reportValidity();
+              }}
+              className="w-full rounded-md border border-line px-4 py-3 text-base file:mr-4 file:rounded file:border-0 file:bg-surface file:px-4 file:py-2 file:text-base file:font-semibold file:text-navy-900"
+            />
+            <p className="mt-2 text-sm text-ink-400">
+              한 개당 20MB, 한 번에 합쳐 24MB까지 올릴 수 있습니다. 더 많으면 저장한 뒤 수정에서 나눠 올려 주세요.
+            </p>
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-6 rounded-xl bg-surface px-6 py-5">
           <label className="flex items-center gap-2 text-base text-ink-700">
@@ -253,15 +258,17 @@ export default function PostForm({
             />
             상단 고정 (공지)
           </label>
-          <label className="flex items-center gap-2 text-base text-ink-700">
-            <input
-              type="checkbox"
-              name="isLocked"
-              defaultChecked={post?.isLocked}
-              className="size-4 rounded border-line accent-brand-600"
-            />
-            회원 전용
-          </label>
+          {!linkRequired && (
+            <label className="flex items-center gap-2 text-base text-ink-700">
+              <input
+                type="checkbox"
+                name="isLocked"
+                defaultChecked={post?.isLocked}
+                className="size-4 rounded border-line accent-brand-600"
+              />
+              회원 전용
+            </label>
+          )}
         </div>
       </div>
 
