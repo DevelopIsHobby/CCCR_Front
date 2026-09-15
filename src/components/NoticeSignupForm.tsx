@@ -72,7 +72,7 @@ export default function NoticeSignupForm({ me = EMPTY_APPLICANT }: { me?: Applic
         <ConsentCheck
           items="기관·회사명, 담당자 성명, 이메일주소 (선택: 연락처)"
           purpose="신청자 확인, 주간 사업공고 발송"
-          keep="수신 중단 요청 시까지 (반려 시 6개월 이내 파기)"
+          keep="수신 중단 요청 시까지 (중단 후 30일, 반려 시 6개월 이내 파기)"
         />
       </div>
 

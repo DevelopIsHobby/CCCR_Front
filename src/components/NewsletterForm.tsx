@@ -58,7 +58,7 @@ export default function NewsletterForm({
         <ConsentCheck
           items="이메일주소"
           purpose="뉴스레터 발송"
-          keep="구독 해지 시까지"
+          keep="구독 해지 시까지 (해지 후 30일 이내 파기)"
           compact
           tone={tone}
         />

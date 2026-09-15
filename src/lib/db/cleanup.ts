@@ -90,6 +90,27 @@ export async function runCleanup(): Promise<CleanupReport> {
     rejectedCut,
   ]);
 
+  /*
+    ── 해지한 뉴스레터·수신 중단한 사업공고 — 해지·중단일부터 ──
+    방침은 '해지·중단 시까지' 둔다고 적었는데 예전에는 상태만 바꾸고 기록을 계속 남겼다.
+    해지·중단할 때 updated_at 을 남기므로(관리자 화면·마이페이지 모두) 그때부터 센다.
+  */
+  const unsubscribedCut = daysAgo(RETENTION_DAYS.unsubscribed);
+  report.newsletterUnsubscribed = await count(
+    "SELECT COUNT(*) AS n FROM newsletter_subscribers WHERE status = 'unsubscribed' AND updated_at < ?",
+    [unsubscribedCut],
+  );
+  await db.run("DELETE FROM newsletter_subscribers WHERE status = 'unsubscribed' AND updated_at < ?", [
+    unsubscribedCut,
+  ]);
+  report.noticeUnsubscribed = await count(
+    "SELECT COUNT(*) AS n FROM notice_subscribers WHERE status = 'unsubscribed' AND updated_at < ?",
+    [unsubscribedCut],
+  );
+  await db.run("DELETE FROM notice_subscribers WHERE status = 'unsubscribed' AND updated_at < ?", [
+    unsubscribedCut,
+  ]);
+
   /* ── 기한(30분)이 지난 소셜 가입 대기 기록 ───────── */
   report.oauthSignups = await count("SELECT COUNT(*) AS n FROM oauth_signups WHERE expires_at < ?", [
     nowStamp,

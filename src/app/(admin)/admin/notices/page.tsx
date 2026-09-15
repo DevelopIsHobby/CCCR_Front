@@ -39,7 +39,8 @@ export default async function Page({
           <h1 className="text-2xl font-bold text-navy-900">사업공고 수신자</h1>
           <p className="mt-2 text-md text-ink-600">
             사업공고는 임원사에 보내는 것이라 신청을 받았다고 바로 나가지 않습니다. 승인한
-            분에게만 보내며, 내려받기도 승인한 명단만 담깁니다.
+            분에게만 보내며, 내려받기도 승인한 명단만 담깁니다. 수신 중단한 기록은 개인정보처리방침에
+            따라 중단일부터 30일이 지나면 자동으로 지워집니다.
           </p>
         </div>
 

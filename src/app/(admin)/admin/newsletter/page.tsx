@@ -41,7 +41,7 @@ export default async function Page({
     <div className="space-y-6">
       <PageHead
         title="뉴스레터 구독자"
-        desc="메인 하단 띠와 뉴스레터 화면에서 신청한 주소가 모입니다. 회원가입 시 수신에 동의한 주소도 함께 담깁니다. 발송은 내려받은 명단으로 오즈메일러에서 합니다."
+        desc="메인 하단 띠와 뉴스레터 화면에서 신청한 주소가 모입니다. 회원가입 시 수신에 동의한 주소도 함께 담깁니다. 발송은 내려받은 명단으로 오즈메일러에서 합니다. 해지한 주소는 개인정보처리방침에 따라 해지일부터 30일이 지나면 자동으로 지워집니다."
         actions={
           <a href={exportHref} className={btnPrimary}>
             엑셀(CSV) 내려받기

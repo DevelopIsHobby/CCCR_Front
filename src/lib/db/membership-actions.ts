@@ -78,9 +78,10 @@ export async function stopMyNotice(
 
   const db = await ready();
   await db.run(
-    `UPDATE notice_subscribers SET status = 'unsubscribed'
+    /* 중단한 때를 남긴다. 자동 파기가 이 시각부터 30일을 센다(retention.ts) */
+    `UPDATE notice_subscribers SET status = 'unsubscribed', updated_at = ?
       WHERE deleted_at = '' AND status IN ('active', 'pending') AND (user_id = ? OR email = ?)`,
-    [session.userId, email],
+    [now(), session.userId, email],
   );
 
   revalidatePath("/mypage");
@@ -117,9 +118,10 @@ export async function withdrawMe(
   /* 계정을 먼저 지우면 어떤 주소로 받던 것인지 다시 찾기 번거로우므로 메일부터 정리한다 */
   await db.run("DELETE FROM newsletter_subscribers WHERE email = ?", [email]);
   await db.run(
-    `UPDATE notice_subscribers SET status = 'unsubscribed'
+    /* 중단한 때를 남긴다. 자동 파기가 이 시각부터 30일을 센다(retention.ts) */
+    `UPDATE notice_subscribers SET status = 'unsubscribed', updated_at = ?
       WHERE deleted_at = '' AND status IN ('active', 'pending') AND (user_id = ? OR email = ?)`,
-    [session.userId, email],
+    [now(), session.userId, email],
   );
   await db.run("DELETE FROM users WHERE id = ?", [session.userId]);
 

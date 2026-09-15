@@ -64,7 +64,7 @@ export function NewsletterPrefForm({ subscribed, email }: { subscribed: boolean;
 
       {!subscribed && (
         <>
-          <ConsentCheck items="이메일주소" purpose="뉴스레터 발송" keep="구독 해지 시까지" />
+          <ConsentCheck items="이메일주소" purpose="뉴스레터 발송" keep="구독 해지 시까지 (해지 후 30일 이내 파기)" />
           <div className="flex justify-end">
             <button type="submit" name="intent" value="subscribe" disabled={pending} className={primaryBtn}>
               {pending ? "처리 중…" : "뉴스레터 받기"}
