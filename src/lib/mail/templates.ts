@@ -132,6 +132,74 @@ export function officeNotice(input: {
   };
 }
 
+/* ── 홈페이지 회원가입 ───────────────────────────── */
+
+/**
+ * 사무국이 가입을 승인했을 때 신청자에게.
+ * 알리지 않으면 신청자는 언제 되었는지 몰라 로그인을 되풀이해 본다.
+ * 소셜로 가입한 사람은 비밀번호가 없으므로 어느 단추로 들어오면 되는지 알려 준다.
+ */
+export function memberApproved({
+  name,
+  socialLabels,
+}: {
+  name: string;
+  /** 이어 둔 소셜 서비스 이름. 예) ["카카오"] */
+  socialLabels: string[];
+}): MailBody {
+  const how =
+    socialLabels.length > 0
+      ? `로그인 화면에서 ${socialLabels.map((label) => `[${label}로 로그인]`).join(" 또는 ")}을 눌러 들어오시면 됩니다.`
+      : "가입하신 이메일과 비밀번호로 로그인하시면 됩니다.";
+
+  return {
+    subject: "[조합] 홈페이지 회원가입이 승인되었습니다",
+    text:
+      `${name}님, 안녕하세요.\n\n` +
+      "신청하신 홈페이지 회원가입이 승인되었습니다.\n" +
+      `${how}\n\n` +
+      `로그인  ${siteUrl()}/login\n` +
+      "\n" +
+      "─────────────────────\n" +
+      `문의: ${mailFrom()}\n` +
+      OFFICE,
+  };
+}
+
+/**
+ * 새 회원가입 신청이 들어왔을 때 사무국에.
+ * 승인해야 로그인할 수 있으므로 들어온 줄 바로 알아야 한다.
+ * 회원가입에는 접수번호가 없어 officeNotice 대신 따로 둔다.
+ */
+export function memberSignupOffice({
+  name,
+  company,
+  email,
+  method,
+}: {
+  name: string;
+  company: string;
+  email: string;
+  /** 가입 방식. 예) "이메일", "카카오 로그인" */
+  method: string;
+}): MailBody {
+  return {
+    subject: `[신청] 홈페이지 회원가입 · ${company}`,
+    text:
+      "홈페이지 회원가입 신청이 들어왔습니다.\n\n" +
+      `신청자  ${company} ${name}\n` +
+      `연락처  ${email}\n` +
+      `가입 방식  ${method}\n` +
+      "승인해야 로그인할 수 있습니다.\n" +
+      "\n" +
+      `처리하기  ${siteUrl()}/admin/members\n` +
+      "\n" +
+      "─────────────────────\n" +
+      "이 메일은 새 신청이 들어올 때 자동으로 보내드립니다.\n" +
+      OFFICE,
+  };
+}
+
 /* ── 계정 ────────────────────────────────────────── */
 
 /** 비밀번호 재설정 링크. 접수번호가 없는 메일이라 조회 안내를 붙이지 않는다. */

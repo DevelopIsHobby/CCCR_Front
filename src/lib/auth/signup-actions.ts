@@ -5,6 +5,10 @@ import { now } from "@/lib/db/driver";
 import { hashPassword } from "@/lib/auth/password";
 import { addSubscriberFromSignup } from "@/lib/db/newsletter-actions";
 import { clientKey, record, SIGNUP, tooMany } from "@/lib/db/rate-limit";
+import { after } from "next/server";
+import { sendMail } from "@/lib/mail/send";
+import { officeTo } from "@/lib/mail/address";
+import { memberSignupOffice } from "@/lib/mail/templates";
 
 export type SignUpState = { error?: string; ok?: boolean };
 
@@ -68,5 +72,15 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
 
   /* 다른 창구와 마찬가지로 실제로 만들어졌을 때만 센다 */
   await record("signup", from);
+
+  /* 사무국이 승인해야 쓸 수 있으므로 새 신청이 들어왔다고 바로 알린다. 신청자를 기다리게 하지 않게 응답 뒤에 보낸다. */
+  after(() =>
+    sendMail({
+      kind: "member.office",
+      to: officeTo(),
+      ...memberSignupOffice({ name, company, email, method: "이메일" }),
+    }),
+  );
+
   return { ok: true };
 }

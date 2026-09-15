@@ -33,6 +33,8 @@ export const MAIL_KIND_LABEL: Record<string, string> = {
   "proposal.office": "교육사업 제안 · 사무국 알림",
   "proposal.done": "교육사업 제안 · 검토 완료",
   "account.reset": "비밀번호 재설정",
+  "member.office": "회원가입 · 사무국 알림",
+  "member.approved": "회원가입 · 승인",
 };
 
 export const MAIL_STATUS_LABEL: Record<MailLogRow["status"], string> = {

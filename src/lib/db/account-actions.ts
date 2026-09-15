@@ -35,6 +35,10 @@ export async function changeMyPassword(
     "SELECT password_hash FROM users WHERE id = ?",
     [session.userId],
   );
+  /* 소셜 로그인으로만 가입해 비밀번호가 없는 계정. '현재 비밀번호가 틀렸다'고 하면 헷갈린다. */
+  if (row && row.password_hash === "") {
+    return { error: "비밀번호 없이 소셜 로그인으로 가입한 계정입니다. 비밀번호 찾기에서 새로 만들어 주세요." };
+  }
   if (!row || !(await verifyPassword(current, row.password_hash))) {
     return { error: "현재 비밀번호가 맞지 않습니다." };
   }

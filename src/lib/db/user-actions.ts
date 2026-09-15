@@ -6,6 +6,10 @@ import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
 import type { UserStatus } from "@/lib/user-types";
+import { after } from "next/server";
+import { sendMail } from "@/lib/mail/send";
+import { memberApproved } from "@/lib/mail/templates";
+import { SOCIAL_LABEL, isSocialProvider } from "@/lib/auth/social-profile";
 
 const STATUSES: UserStatus[] = ["pending", "active", "blocked"];
 
@@ -21,7 +25,34 @@ export async function setUserStatus(formData: FormData): Promise<void> {
   if (id === admin.userId && status !== "active") return;
 
   const db = await ready();
+  const before = await db.get<{ status: string; name: string; email: string }>(
+    "SELECT status, name, email FROM users WHERE id = ?",
+    [id],
+  );
   await db.run("UPDATE users SET status = ? WHERE id = ?", [status, id]);
+
+  /*
+    승인 대기에서 이용 중으로 바꾸면 신청자에게 알린다. 알리지 않으면 언제 되었는지 몰라
+    로그인을 되풀이해 본다. 소셜로 가입한 사람에게는 어느 단추로 들어오면 되는지도 적는다.
+    관리자 화면이 메일 서버를 기다리지 않게 응답 뒤에 보낸다.
+  */
+  if (before?.status === "pending" && status === "active") {
+    const identities = await db.all<{ provider: string }>(
+      "SELECT provider FROM user_identities WHERE user_id = ? ORDER BY id",
+      [id],
+    );
+    const socialLabels = identities
+      .map((row) => row.provider)
+      .filter(isSocialProvider)
+      .map((provider) => SOCIAL_LABEL[provider]);
+    after(() =>
+      sendMail({
+        kind: "member.approved",
+        to: before.email,
+        ...memberApproved({ name: before.name, socialLabels }),
+      }),
+    );
+  }
 
   /* 이용을 막으면 로그인 상태도 함께 끊는다 */
   if (status !== "active") {

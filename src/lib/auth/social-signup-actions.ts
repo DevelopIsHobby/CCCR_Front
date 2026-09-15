@@ -5,6 +5,11 @@ import { now } from "@/lib/db/driver";
 import { addSubscriberFromSignup } from "@/lib/db/newsletter-actions";
 import { clientKey, record, SIGNUP, tooMany } from "@/lib/db/rate-limit";
 import { getPendingSocialSignup } from "./social-signup";
+import { after } from "next/server";
+import { sendMail } from "@/lib/mail/send";
+import { officeTo } from "@/lib/mail/address";
+import { memberSignupOffice } from "@/lib/mail/templates";
+import { SOCIAL_LABEL } from "./social-profile";
 
 export type SocialSignUpState = { error?: string; ok?: boolean };
 
@@ -96,5 +101,20 @@ export async function completeSocialSignup(
   }
 
   await record("signup", from);
+
+  /* 사무국이 승인해야 들어올 수 있으므로 새 신청이 들어왔다고 바로 알린다. 응답 뒤에 보낸다. */
+  after(() =>
+    sendMail({
+      kind: "member.office",
+      to: officeTo(),
+      ...memberSignupOffice({
+        name,
+        company,
+        email,
+        method: `${SOCIAL_LABEL[pending.provider]} 로그인`,
+      }),
+    }),
+  );
+
   return { ok: true };
 }

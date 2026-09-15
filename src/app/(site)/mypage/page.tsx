@@ -10,6 +10,15 @@ import { countMySessions } from "@/lib/db/account-actions";
 import { listMyRequests } from "@/lib/db/requests";
 import { USER_STATUS_LABEL, type UserStatus } from "@/lib/user-types";
 import { ready } from "@/lib/db/migrate";
+import { SocialIcon } from "@/components/SocialIcons";
+import { SOCIAL_LABEL, isSocialProvider, type SocialProvider } from "@/lib/auth/social-profile";
+
+/* 소셜 서비스 딱지 색. 각 서비스 로그인 버튼 안내를 따른다(SocialLoginButtons 와 같다). */
+const SOCIAL_BADGE: Record<SocialProvider, string> = {
+  kakao: "bg-[#FEE500] text-black",
+  naver: "bg-[#03C75A] text-white",
+  google: "bg-white ring-1 ring-[#DADCE0]",
+};
 
 export const metadata: Metadata = {
   title: "마이페이지",
@@ -28,14 +37,22 @@ export default async function Page() {
   if (!session) redirect("/login?next=/mypage");
 
   const db = await ready();
-  const [me, requests, sessionCount] = await Promise.all([
-    db.get<{ company: string | null; department: string | null; status: string }>(
-      "SELECT company, department, status FROM users WHERE id = ?",
+  const [me, requests, sessionCount, identities] = await Promise.all([
+    db.get<{ company: string | null; department: string | null; status: string; has_password: number }>(
+      "SELECT company, department, status, CASE WHEN password_hash = '' THEN 0 ELSE 1 END AS has_password FROM users WHERE id = ?",
       [session.userId],
     ),
     listMyRequests(session.userId, session.email),
     countMySessions(),
+    db.all<{ provider: string }>(
+      "SELECT provider FROM user_identities WHERE user_id = ? ORDER BY id",
+      [session.userId],
+    ),
   ]);
+
+  /* 소셜 로그인으로만 가입한 계정은 비밀번호가 비어 있다 */
+  const hasPassword = Number(me?.has_password ?? 1) === 1;
+  const socialProviders = identities.map((row) => row.provider).filter(isSocialProvider);
 
   const statusLabel = USER_STATUS_LABEL[me?.status as UserStatus] ?? me?.status ?? "";
 
@@ -122,14 +139,57 @@ export default async function Page() {
         <NameForm name={session.name} />
       </section>
 
+      {socialProviders.length > 0 && (
+        <section className="mt-11">
+          <h3 className="border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">
+            연결된 소셜 계정
+          </h3>
+          <ul className="mt-5 flex flex-wrap gap-2">
+            {socialProviders.map((provider) => (
+              <li
+                key={provider}
+                className="inline-flex items-center gap-2.5 rounded-full border border-line bg-white py-1.5 pl-1.5 pr-4 text-base font-bold text-navy-900"
+              >
+                <span className={`grid size-7 place-items-center rounded-full ${SOCIAL_BADGE[provider]}`}>
+                  <SocialIcon provider={provider} className="size-3.5" />
+                </span>
+                {SOCIAL_LABEL[provider]} 로그인
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-base leading-relaxed text-ink-600">
+            로그인 화면에서 이 서비스 단추를 누르면 비밀번호 없이 들어오실 수 있습니다.
+          </p>
+        </section>
+      )}
+
       <section className="mt-11">
         <h3 className="border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">
-          비밀번호 변경
+          {hasPassword ? "비밀번호 변경" : "비밀번호 만들기"}
         </h3>
-        <p className="mt-4 text-base leading-relaxed text-ink-600">
-          바꾸면 지금 기기를 뺀 다른 기기의 로그인은 모두 끊어집니다.
-        </p>
-        <PasswordForm />
+        {hasPassword ? (
+          <>
+            <p className="mt-4 text-base leading-relaxed text-ink-600">
+              바꾸면 지금 기기를 뺀 다른 기기의 로그인은 모두 끊어집니다.
+            </p>
+            <PasswordForm />
+          </>
+        ) : (
+          /* 소셜로만 가입해 비밀번호가 없다. 지금 비밀번호를 묻는 변경 칸은 쓸 수 없으므로 비밀번호 찾기로 만들게 한다. */
+          <div className="mt-5 rounded-xl border border-line bg-surface px-5 py-5 lg:px-6">
+            <p className="text-base leading-relaxed text-ink-600">
+              소셜 로그인으로 가입하셔서 아직 비밀번호가 없습니다. 이메일로도 로그인하고 싶으시면
+              비밀번호 찾기에서 <b className="font-bold text-navy-900">{session.email}</b> 로 링크를 받아
+              비밀번호를 만들어 주세요.
+            </p>
+            <Link
+              href="/reset"
+              className="mt-4 inline-flex rounded-full bg-navy-900 px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-brand-600"
+            >
+              비밀번호 만들기
+            </Link>
+          </div>
+        )}
       </section>
 
       <section className="mt-11">
