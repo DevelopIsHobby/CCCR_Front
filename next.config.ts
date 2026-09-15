@@ -71,6 +71,8 @@ const nextConfig: NextConfig = {
         서버 액션 본문은 기본 1MB 에서 잘려, 1MB 넘는 PDF 를 첨부하면 코드에 닿기도 전에 실패했다.
         Vercel 미리보기는 파일을 남길 수 없어 드러나지 않았다.
         Nginx 의 client_max_body_size(25M, deploy/nginx.conf)와 맞춘다. 한 번에 올리는 전체가 이 안이어야 한다.
+        이 값은 모든 서버 액션에 걸리므로, Nginx 에서 업로드 화면(관리자·게시판 글쓰기/수정)만 25M 로 열고
+        나머지 화면은 1M 로 막는다. 로그인·신청 같은 공개 화면에 큰 요청을 쏟아붓지 못하게 하려는 것이다.
       */
       bodySizeLimit: "25mb",
     },
