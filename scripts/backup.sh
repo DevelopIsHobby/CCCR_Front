@@ -9,15 +9,21 @@ set -euo pipefail
 BACKUP_DIR="${BACKUP_DIR:-/srv/c3r/backup}"
 UPLOAD_DIR="${UPLOAD_DIR:-/srv/c3r/data/uploads}"
 DB_NAME="${DB_NAME:-c3r}"
-DB_USER="${DB_USER:-c3r}"
 KEEP_DAYS="${KEEP_DAYS:-30}"
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "root 로 실행하세요 (sudo 또는 root crontab)" >&2
+  exit 1
+fi
 
 STAMP="$(date +%Y%m%d-%H%M)"
 mkdir -p "$BACKUP_DIR"
 
 echo "[$(date '+%F %T')] 백업 시작"
 
-pg_dump -U "$DB_USER" -d "$DB_NAME" -Fc -f "$BACKUP_DIR/db-$STAMP.dump"
+# root 로 -U c3r 을 주면 PostgreSQL 기본 설정(peer 인증)에서 거절된다.
+# postgres 계정으로 덤프하고, 파일은 root 쉘이 받아 적는다(postgres 계정은 백업 폴더에 못 쓴다).
+runuser -u postgres -- pg_dump -d "$DB_NAME" -Fc > "$BACKUP_DIR/db-$STAMP.dump"
 echo "  DB 덤프: db-$STAMP.dump"
 
 if [ -d "$UPLOAD_DIR" ]; then

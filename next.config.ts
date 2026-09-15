@@ -52,6 +52,11 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
   },
+  /*
+    HTTPS 로만 오게 한다. Vercel 은 스스로 붙여 주었지만 우리 서버(Nginx)에서는 앱이 보내야 한다.
+    includeSubDomains 는 넣지 않는다. 옛 홈페이지가 https 없이 하위 주소로 남을 수 있어서다.
+  */
+  ...(isProd ? [{ key: "Strict-Transport-Security", value: "max-age=31536000" }] : []),
   ...(isProd ? [{ key: "Content-Security-Policy", value: csp }] : []),
 ];
 

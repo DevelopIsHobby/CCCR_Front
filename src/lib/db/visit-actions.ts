@@ -22,7 +22,7 @@ export async function recordVisit(rawPath: string): Promise<void> {
 
   const head = await headers();
   const ip =
-    head.get("x-forwarded-for")?.split(",")[0].trim() ?? head.get("x-real-ip") ?? "unknown";
+    head.get("x-real-ip")?.trim() || head.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   const agent = head.get("user-agent") ?? "";
   const visitor = createHash("sha256").update(`${day}|${ip}|${agent}`).digest("hex").slice(0, 32);
 

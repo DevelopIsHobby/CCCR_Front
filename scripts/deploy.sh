@@ -14,7 +14,8 @@ echo "▶ 코드 받는 중"
 git pull --ff-only
 
 echo "▶ 의존성 설치"
-npm ci --omit=dev --ignore-scripts=false
+# 빌드에 Tailwind·TypeScript(개발용 패키지)가 필요하므로 --omit=dev 로 빼지 않는다.
+npm ci
 
 echo "▶ 빌드"
 # 메모리가 작은 서버에서 빌드가 죽는 것을 막는다 (2GB 기준)

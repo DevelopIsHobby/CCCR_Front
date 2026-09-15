@@ -15,8 +15,13 @@ import { now } from "./driver";
 /** 요청을 보낸 곳. 프록시 뒤에 있으므로 X-Forwarded-For 를 먼저 본다. */
 export async function clientKey(): Promise<string> {
   const head = await headers();
+  /*
+    접속한 곳은 앞단(Nginx·Vercel)이 직접 적어 넣는 X-Real-IP 를 먼저 믿는다.
+    X-Forwarded-For 의 첫 값은 접속자가 마음대로 적어 보낼 수 있다. Nginx 는 받은 값 뒤에
+    진짜 주소를 덧붙이므로, 첫 값부터 믿으면 값을 바꿔 보내는 것만으로 횟수 제한을 피한다.
+  */
   const forwarded = head.get("x-forwarded-for") ?? "";
-  const ip = forwarded.split(",")[0].trim() || head.get("x-real-ip") || "unknown";
+  const ip = head.get("x-real-ip")?.trim() || forwarded.split(",")[0].trim() || "unknown";
   return ip.slice(0, 60);
 }
 

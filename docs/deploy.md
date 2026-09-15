@@ -62,6 +62,9 @@ NODE_ENV=production
 DB_DRIVER=postgres
 DATABASE_URL=postgres://c3r:여기에_긴_비밀번호@127.0.0.1:5432/c3r
 UPLOAD_DIR=/srv/c3r/data/uploads
+SITE_URL=https://cccr.or.kr
+# 정식 공개 전까지 검색에 잡히지 않게 막는다. 공개하는 날 이 줄을 지우고 재시작한다.
+SITE_NOINDEX=1
 ENV
 sudo chmod 600 .env.production
 ```
@@ -111,6 +114,36 @@ sudo crontab -e
 # 아래 한 줄 추가 — 매일 새벽 4시
 0 4 * * * /srv/c3r/app/scripts/backup.sh >> /var/log/c3r-backup.log 2>&1
 ```
+
+`sudo crontab -e` 는 root 의 crontab 입니다. 백업 스크립트는 root 로 돌아야 합니다
+(DB 는 postgres 계정으로 덤프하고, 파일은 root 가 백업 폴더에 씁니다).
+
+### 1-11. 지금 쓰던 DB 옮겨 오기 (한 번만)
+
+그동안은 Vercel 에 연결된 PostgreSQL 을 써 왔습니다. 회원사 주소·소개 문구·관리자 계정·
+신청 기록이 거기 들어 있으므로 새 서버를 열기 전에 한 번 옮깁니다.
+첨부·이미지는 Vercel 에서 올릴 수 없었으므로 옮길 파일이 없습니다.
+
+1) 옛 DB 를 덤프합니다. 접속 주소는 Vercel 프로젝트 **Settings > Environment Variables** 의
+   `DATABASE_URL` 입니다. 이 주소에는 비밀번호가 들어 있으니 명령 기록에 남지 않게 조심하세요.
+
+```bash
+pg_dump "옛_DATABASE_URL" -Fc --no-owner --no-privileges -f c3r-from-vercel.dump
+```
+
+2) 새 서버에서 되살립니다. `1-7` 을 마친 뒤(표가 만들어진 뒤)에 합니다.
+
+```bash
+sudo systemctl stop c3r
+sudo -u postgres pg_restore --no-owner --role=c3r -d c3r --clean --if-exists c3r-from-vercel.dump
+sudo systemctl start c3r
+```
+
+3) 관리자로 로그인해 회원사 현황·소개 문구·신청 목록이 그대로인지 봅니다.
+
+- `pg_dump` 판이 옛 DB 판보다 낮으면 거절됩니다. 새 서버의 PostgreSQL 을 옛 DB 판 이상으로 맞추세요.
+- `schema_migrations` 표도 함께 옮겨지므로, 앱이 켜질 때 이미 적용한 마이그레이션을 다시 돌리지 않습니다.
+- 옮긴 뒤 관리자 비밀번호는 `1-7` 의 명령으로 새로 정해 두세요.
 
 ---
 
