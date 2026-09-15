@@ -38,7 +38,8 @@ export default function NewsletterIssues({
   }
 
   return (
-    <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    /* 한 줄에 3장이면 표지 한 장이 화면 절반을 차지해 너무 컸다. 책꽂이처럼 여러 장을 나란히 둔다 */
+    <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5">
       {all.map(({ post, pinned: isPinnedRow }) => (
         <li key={`${isPinnedRow ? "pin" : "row"}-${post.id}`}>
           <Link
@@ -61,21 +62,21 @@ export default function NewsletterIssues({
                   />
                 </>
               ) : (
-                <span className="flex size-full flex-col items-center justify-center gap-2 text-ink-400">
-                  <IconClip className="size-6" />
-                  <span className="text-base">첨부파일로 제공</span>
+                <span className="flex size-full flex-col items-center justify-center gap-1.5 text-ink-400">
+                  <IconClip className="size-5" />
+                  <span className="text-sm">첨부파일로 제공</span>
                 </span>
               )}
             </div>
 
-            <div className="flex flex-1 flex-col gap-3 border-t border-line px-5 py-4">
+            <div className="flex flex-1 flex-col gap-2 border-t border-line px-3.5 py-3 sm:px-4">
               {isPinnedRow && (
                 <p className="flex">
                   <PinnedBadge />
                 </p>
               )}
 
-              <p className="line-clamp-2 text-md font-bold leading-snug text-navy-900 transition-colors group-hover:text-brand-600">
+              <p className="line-clamp-2 text-base font-bold leading-snug text-navy-900 transition-colors group-hover:text-brand-600">
                 {post.title}
               </p>
 
