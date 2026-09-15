@@ -259,3 +259,11 @@ sudo crontab -e
 Vercel 에 올린 경우에는 `vercel.json` 의 `crons` 가 대신 부릅니다.
 환경변수에 `CRON_SECRET` 을 정해 두면 Vercel 이 그 값을 헤더에 붙여 보냅니다.
 `CLEANUP_SECRET` 과 `CRON_SECRET` 중 하나만 맞으면 실행됩니다.
+
+---
+
+## 8. 소셜 로그인 (카카오·네이버·구글)
+
+각 서비스에 앱을 등록하고 `KAKAO_CLIENT_ID`·`KAKAO_CLIENT_SECRET`·`NAVER_CLIENT_ID`·`NAVER_CLIENT_SECRET`·
+`GOOGLE_CLIENT_ID`·`GOOGLE_CLIENT_SECRET` 을 `.env.production` 에 넣으면 로그인 단추가 나타납니다.
+등록 방법과 돌아올 주소는 [social-login.md](social-login.md) 에 있습니다.

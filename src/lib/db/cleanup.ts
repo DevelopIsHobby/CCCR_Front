@@ -90,6 +90,12 @@ export async function runCleanup(): Promise<CleanupReport> {
     rejectedCut,
   ]);
 
+  /* ── 기한(30분)이 지난 소셜 가입 대기 기록 ───────── */
+  report.oauthSignups = await count("SELECT COUNT(*) AS n FROM oauth_signups WHERE expires_at < ?", [
+    nowStamp,
+  ]);
+  await db.run("DELETE FROM oauth_signups WHERE expires_at < ?", [nowStamp]);
+
   /* 휴지통에서 30일이 지난 것을 진짜로 지운다 */
   report.trash = await purgeExpired();
 

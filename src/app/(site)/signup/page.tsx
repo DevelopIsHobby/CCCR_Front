@@ -6,6 +6,7 @@ import { StepFlow } from "@/components/sub/Ui";
 import SignUpForm from "./SignUpForm";
 import { getSession } from "@/lib/auth/session";
 import { pageMeta } from "@/lib/page-meta";
+import SocialLoginButtons from "@/components/SocialLoginButtons";
 
 export const metadata: Metadata = pageMeta(
   "회원가입",
@@ -31,6 +32,11 @@ export default async function Page() {
       desc="홈페이지 회원가입은 조합 회원사 가입과 별개입니다."
     >
       <StepFlow steps={SIGNUP_STEPS} />
+
+      {/* 소셜 계정으로 가입하면 비밀번호 없이 들어오고, 소속·동의는 따로 받는다(키가 있는 서비스만 나온다) */}
+      <div className="mx-auto max-w-2xl">
+        <SocialLoginButtons verb="가입" heading="소셜 계정으로 간편 가입" />
+      </div>
 
       <SignUpForm />
 

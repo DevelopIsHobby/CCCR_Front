@@ -3,6 +3,7 @@
 import { deleteUser, setUserRole, setUserStatus } from "@/lib/db/user-actions";
 import { USER_STATUS_LABEL, type UserRow } from "@/lib/user-types";
 import { formatDate } from "@/lib/format";
+import { SOCIAL_LABEL } from "@/lib/auth/social-profile";
 
 const STATUS_TONE: Record<UserRow["status"], string> = {
   pending: "bg-flame-100 text-flame-700",
@@ -61,6 +62,18 @@ export default function MemberTable({ users }: { users: UserRow[] }) {
                   )}
                 </p>
                 <p className="label-mono mt-1 text-ink-400">{user.email}</p>
+                {user.providers && user.providers.length > 0 && (
+                  <p className="mt-1.5 flex flex-wrap gap-1">
+                    {user.providers.map((provider) => (
+                      <span
+                        key={provider}
+                        className="rounded bg-surface px-2 py-0.5 text-2xs font-bold text-ink-600"
+                      >
+                        {SOCIAL_LABEL[provider]} 로그인
+                      </span>
+                    ))}
+                  </p>
+                )}
                 {user.phone && <p className="mt-1 text-base text-ink-600">{user.phone}</p>}
               </td>
 
