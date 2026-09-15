@@ -61,7 +61,12 @@ export default function PageShell({ href, title, category, desc, children }: Pro
       {siblings.length > 1 && (
         <div className="border-b border-line bg-white">
           <div className="mx-auto max-w-[1280px] px-6">
-            <ul className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {/*
+              휴대폰에서는 탭이 화면 끝에서 잘려도 옆으로 밀면 더 있다는 표시가 없었다.
+              오른쪽 끝을 흐리게 해 이어진다는 것을 보이고, 끝까지 밀면 마지막 탭이 흐림 밖으로 나오게 여백을 둔다.
+              PC 에서는 한 줄에 다 들어가므로 흐리지 않는다.
+            */}
+            <ul className="flex gap-1 overflow-x-auto pr-10 [mask-image:linear-gradient(to_right,#000_calc(100%-2.5rem),transparent)] [scrollbar-width:none] lg:pr-0 lg:[mask-image:none] [&::-webkit-scrollbar]:hidden">
               {siblings.map((s) => {
                 const active = s.href === href;
                 return (
@@ -69,7 +74,8 @@ export default function PageShell({ href, title, category, desc, children }: Pro
                     <Link
                       href={s.href}
                       aria-current={active ? "page" : undefined}
-                      className={`relative flex h-14 items-center px-5 text-md font-semibold transition-colors ${
+                      /* 휴대폰에서는 여백을 줄여 다음 탭이 흐림 속에 걸쳐 보이게 한다(이어진다는 신호) */
+                      className={`relative flex h-14 items-center px-4 text-md font-semibold transition-colors lg:px-5 ${
                         active ? "text-navy-900" : "text-ink-400 hover:text-brand-600"
                       }`}
                     >

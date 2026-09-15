@@ -73,13 +73,25 @@ function MapCard({
       {hasMap ? (
         <KakaoMap appKey={appKey} lat={lat} lng={lng} label={office.name} />
       ) : (
-        <iframe
-          title={`${office.name} 위치 지도`}
-          src={`https://maps.google.com/maps?q=${q}&z=17&hl=ko&output=embed`}
-          className="block aspect-[4/3] w-full border-0 sm:aspect-[16/6]"
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        />
+        /*
+          구글 지도가 뜨기 전 1~2초는 흰 상자만 보여 깨진 줄 알기 쉽다.
+          뒤에 회색 바탕과 안내를 깔아 두고, 지도가 뜨면 그 위를 덮어 저절로 가려지게 한다.
+        */
+        <div className="relative bg-surface">
+          <div aria-hidden className="absolute inset-0 grid place-items-center">
+            <span className="flex items-center gap-2 text-base text-ink-400">
+              <span className="size-4 animate-spin rounded-full border-2 border-line border-t-brand-500" />
+              지도를 불러오는 중입니다
+            </span>
+          </div>
+          <iframe
+            title={`${office.name} 위치 지도`}
+            src={`https://maps.google.com/maps?q=${q}&z=17&hl=ko&output=embed`}
+            className="relative block aspect-[4/3] w-full border-0 sm:aspect-[16/6]"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
       )}
 
       <div className="flex flex-wrap items-center gap-2 border-t border-line bg-white px-6 py-3">

@@ -13,6 +13,50 @@ const toBlocks = (a: Article) =>
         ...(a.list ? [{ items: a.list }] : []),
       ];
 
+/* 바로가기로 내려갔을 때 조항 제목이 상단 헤더(72·80px)에 가리지 않게 */
+const articleId = (i: number) => `article-${i + 1}`;
+
+/** 조항이 이만큼은 되어야 목차를 둔다. 한두 조짜리 문서는 목차가 오히려 거슬린다. */
+const TOC_MIN = 3;
+
+/*
+  조항 바로가기. 약관은 스무 조가 넘어 원하는 조항까지 한참 내려야 했다.
+  장이 있는 문서(이용약관)는 장 이름 아래로 조항을 묶는다. 링크만 있어 서버에서 그대로 그린다.
+*/
+function LegalToc({ articles }: { articles: Article[] }) {
+  const groups: { chapter?: string; items: { id: string; title: string }[] }[] = [];
+  articles.forEach((a, i) => {
+    const chapter = "chapter" in a ? a.chapter : undefined;
+    if (chapter || groups.length === 0) groups.push({ chapter, items: [] });
+    groups[groups.length - 1].items.push({ id: articleId(i), title: a.title });
+  });
+
+  return (
+    <nav aria-label="조항 바로가기" className="mb-12 rounded-xl border border-line bg-surface px-5 py-5 sm:px-6">
+      <p className="text-md font-bold text-navy-900">조항 바로가기</p>
+      <div className="mt-4 space-y-4">
+        {groups.map((g, gi) => (
+          <div key={g.chapter ?? gi}>
+            {g.chapter && <p className="mb-2 text-sm font-bold text-brand-600">{g.chapter}</p>}
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
+              {g.items.map((item) => (
+                <li key={item.id}>
+                  <a
+                    href={`#${item.id}`}
+                    className="text-sm leading-snug text-ink-600 transition-colors hover:text-brand-600 hover:underline"
+                  >
+                    {item.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
 export function LegalDoc({ articles, notice }: { articles: Article[]; notice?: string }) {
   return (
     <div className="mx-auto max-w-3xl">
@@ -22,9 +66,11 @@ export function LegalDoc({ articles, notice }: { articles: Article[]; notice?: s
         </p>
       )}
 
+      {articles.length >= TOC_MIN && <LegalToc articles={articles} />}
+
       <div className="space-y-12">
-        {articles.map((a) => (
-          <section key={a.title}>
+        {articles.map((a, i) => (
+          <section key={a.title} id={articleId(i)} className="scroll-mt-24 lg:scroll-mt-28">
             {"chapter" in a && a.chapter && (
               <p className="mb-6 rounded-lg bg-navy-900 px-5 py-3 text-md font-bold text-white">
                 {a.chapter}
