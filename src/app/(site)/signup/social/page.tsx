@@ -17,7 +17,6 @@ export default async function Page() {
   if (await getSession()) redirect("/");
 
   const pending = await getPendingSocialSignup();
-  const label = pending ? SOCIAL_LABEL[pending.provider] : "";
 
   return (
     <PageShell
@@ -26,7 +25,7 @@ export default async function Page() {
       category="회원"
       desc={
         pending
-          ? `${label} 계정으로 가입합니다. 사무국 승인 후 이용하실 수 있습니다.`
+          ? `${SOCIAL_LABEL[pending.provider]} 계정으로 가입합니다. 정보를 마저 작성하고 신청하시면 사무국 승인 후 이용하실 수 있습니다.`
           : "소셜 계정으로 가입합니다."
       }
     >
@@ -44,10 +43,10 @@ export default async function Page() {
           </Link>
         </div>
       ) : pending.completed ? (
-        <SocialSignupDone />
+        <SocialSignupDone provider={pending.provider} />
       ) : (
         <SocialSignupForm
-          providerLabel={label}
+          provider={pending.provider}
           email={pending.email}
           emailLocked={pending.emailVerified && Boolean(pending.email)}
           name={pending.name}
