@@ -21,6 +21,8 @@ const SOCIAL_MESSAGE: Record<string, string> = {
   expired: "가입할 수 있는 시간이 지났습니다. 다시 소셜 로그인해 주세요.",
   unavailable: "지금은 그 방법으로 로그인할 수 없습니다.",
   error: "소셜 로그인을 마치지 못했습니다. 잠시 뒤에 다시 시도해 주세요.",
+  /* 마이페이지에서 탈퇴한 뒤 돌아온 경우(membership-actions.ts) */
+  withdrawn: "탈퇴가 끝났습니다. 그동안 이용해 주셔서 감사합니다.",
 };
 
 export default async function Page({

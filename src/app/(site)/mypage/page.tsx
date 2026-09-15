@@ -5,8 +5,10 @@ import PageShell from "@/components/sub/PageShell";
 import { SectionHeading } from "@/components/sub/Ui";
 import RequestStatusCard from "@/components/RequestStatusCard";
 import { NameForm, OtherDevicesForm, PasswordForm } from "@/components/admin/AccountForms";
+import { NewsletterPrefForm, NoticePrefForm, WithdrawForm } from "@/components/MyAccountForms";
 import { getSession } from "@/lib/auth/session";
 import { countMySessions } from "@/lib/db/account-actions";
+import { getMyMailPrefs } from "@/lib/db/mail-prefs";
 import { listMyRequests } from "@/lib/db/requests";
 import { USER_STATUS_LABEL, type UserStatus } from "@/lib/user-types";
 import { ready } from "@/lib/db/migrate";
@@ -37,7 +39,7 @@ export default async function Page() {
   if (!session) redirect("/login?next=/mypage");
 
   const db = await ready();
-  const [me, requests, sessionCount, identities] = await Promise.all([
+  const [me, requests, sessionCount, identities, mailPrefs] = await Promise.all([
     db.get<{ company: string | null; department: string | null; status: string; has_password: number }>(
       "SELECT company, department, status, CASE WHEN password_hash = '' THEN 0 ELSE 1 END AS has_password FROM users WHERE id = ?",
       [session.userId],
@@ -48,6 +50,7 @@ export default async function Page() {
       "SELECT provider FROM user_identities WHERE user_id = ? ORDER BY id",
       [session.userId],
     ),
+    getMyMailPrefs(session.userId, session.email),
   ]);
 
   /* 소셜 로그인으로만 가입한 계정은 비밀번호가 비어 있다 */
@@ -199,10 +202,28 @@ export default async function Page() {
         <OtherDevicesForm count={sessionCount} />
       </section>
 
+      {/*
+        메일 수신. 이용약관 제12조(회원정보수정 메뉴에서 정보수신거부)를 지키는 자리다.
+        계정 이메일을 기준으로 보여 주고 바꾼다.
+      */}
+      <section className="mt-11">
+        <h3 className="border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">메일 수신</h3>
+        <div className="mt-6 space-y-4">
+          <NewsletterPrefForm subscribed={mailPrefs.newsletter} email={session.email} />
+          <NoticePrefForm status={mailPrefs.notice} />
+        </div>
+      </section>
+
       <p className="mt-11 rounded-xl border border-line bg-surface px-5 py-4 text-base leading-relaxed text-ink-600 lg:px-6">
         소속·부서·이메일을 바꾸시려면 사무국으로 알려 주세요. 회원 정보는 사무국에서
         확인한 뒤 고쳐 드립니다.
       </p>
+
+      {/* 회원 탈퇴. 이용약관 제5조(요청하면 즉시 말소). 가장 아래에 둔다. */}
+      <section className="mt-14">
+        <h3 className="border-b-2 border-navy-900 pb-4 text-xl font-bold text-navy-900">회원 탈퇴</h3>
+        <WithdrawForm email={session.email} isAdmin={session.role === "admin"} />
+      </section>
     </PageShell>
   );
 }
