@@ -22,6 +22,12 @@ export type LegalArticle = {
   blocks: LegalBlock[];
 };
 
+/*
+  시행일. 정식으로 여는 날 "2026년 10월 1일" 처럼 넣는다. 비워 두면 부칙이 나오지 않는다.
+  방침을 고칠 때마다 새 시행일로 바꾸고, 바뀐 내용을 공지한다.
+*/
+export const PRIVACY_EFFECTIVE_DATE = "";
+
 export const PRIVACY_INTRO =
   "개인정보취급방침 - 본사이트를 이용하시는 모든 이용자들의 개인정보를 소중히 다루고 있습니다.";
 
@@ -135,12 +141,12 @@ export const PRIVACY_ARTICLES: LegalArticle[] = [
         items: [
           {
             text: "홈페이지 운영 및 자료 보관",
-            sub: ["수탁자 : 서버 호스팅 사업자", "위탁업무 : 홈페이지 서버 운영, 데이터 보관"],
+            sub: ["수탁자 : 주식회사 카페24", "위탁업무 : 홈페이지 서버 운영, 데이터 보관"],
           },
           {
             text: "안내 메일 발송",
             sub: [
-              "수탁자 : 메일 발송 서비스 사업자",
+              "수탁자 : 주식회사 카페24",
               "위탁업무 : 신청 접수·처리 결과 안내 메일 발송, 뉴스레터 발송",
             ],
           },
@@ -186,6 +192,14 @@ export const PRIVACY_ARTICLES: LegalArticle[] = [
       },
     ],
   },
+  ...(PRIVACY_EFFECTIVE_DATE
+    ? [
+        {
+          title: "부칙",
+          blocks: [{ text: `이 개인정보처리방침은 ${PRIVACY_EFFECTIVE_DATE}부터 시행합니다.` }],
+        },
+      ]
+    : []),
 ];
 
 export const EMAIL_POLICY_ARTICLES: LegalArticle[] = [

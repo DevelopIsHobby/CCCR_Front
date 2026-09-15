@@ -1,3 +1,5 @@
+import { oldSiteHomeUrl } from "@/lib/old-site";
+
 export type NavItem = {
   label: string;
   href: string;
@@ -84,9 +86,10 @@ export const EDUCATION_URL = "https://www.cccr-edu.or.kr/main/index.jsp";
   푸터 구석이 맞다.
 
   주소가 http 라 새 창에서 열린다(SmartLink 가 바깥 주소를 그렇게 다룬다).
-  새 사이트가 이 도메인을 가져가게 되면 이 주소부터 바꿔야 한다.
+  새 사이트가 이 도메인을 가져가면 옛 사이트는 하위 주소로 옮긴다. 그 주소는
+  OLD_SITE_ORIGIN 으로 정한다(src/lib/old-site.ts).
 */
-export const OLD_SITE_URL = "http://www.cccr.or.kr/home/";
+export const OLD_SITE_URL = oldSiteHomeUrl();
 
 export type QuickLink = {
   label: string;
