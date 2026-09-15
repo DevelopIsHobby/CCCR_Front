@@ -147,10 +147,14 @@ export default function Header({
                     href={item.href}
                     onMouseEnter={() => setMegaOpen(true)}
                     onFocus={() => setMegaOpen(true)}
-                    className="group relative flex items-center px-5 text-lg font-semibold text-ink-900 transition-colors hover:text-brand-600 xl:px-6"
+                    /*
+                      1024~1099px 에서는 로고·메뉴 6개·검색 단추가 한 줄에 다 들어가지 않아
+                      검색 단추가 화면 밖으로 밀리고 가로 스크롤이 생겼다. 그 구간만 여백을 줄인다.
+                    */
+                    className="group relative flex items-center px-3.5 text-lg font-semibold text-ink-900 transition-colors hover:text-brand-600 min-[1100px]:px-5 xl:px-6"
                   >
                     {item.label}
-                    <span className="absolute inset-x-4 bottom-0 h-[3px] origin-left scale-x-0 bg-flame-500 transition-transform duration-200 group-hover:scale-x-100" />
+                    <span className="absolute inset-x-3 bottom-0 h-[3px] origin-left scale-x-0 bg-flame-500 transition-transform duration-200 group-hover:scale-x-100 min-[1100px]:inset-x-4" />
                   </Link>
                 </li>
               ))}

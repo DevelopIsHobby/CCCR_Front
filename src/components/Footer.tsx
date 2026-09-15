@@ -31,14 +31,15 @@ export default async function Footer() {
             </span>
             <address className="mt-5 space-y-1 text-sm not-italic leading-relaxed">
               {site.address && <p>{site.address}</p>}
+              {/* 휴대폰 폭에서 'E-' 와 'MAIL' 사이가 끊기지 않게 항목마다 한 덩어리로 묶는다 */}
               <p>
-                {site.tel && <>TEL. {site.tel}</>}
+                {site.tel && <span className="whitespace-nowrap">TEL. {site.tel}</span>}
                 {site.tel && site.fax && <span className="mx-2 text-white/20">|</span>}
-                {site.fax && <>FAX. {site.fax}</>}
+                {site.fax && <span className="whitespace-nowrap">FAX. {site.fax}</span>}
                 {(site.tel || site.fax) && site.email && (
                   <span className="mx-2 text-white/20">|</span>
                 )}
-                {site.email && <>E-MAIL. {site.email}</>}
+                {site.email && <span className="whitespace-nowrap">E-MAIL. {site.email}</span>}
               </p>
               {/* 이사장 이름은 인사말·조직도에서만 밝힌다 */}
               {site.businessNo && (
