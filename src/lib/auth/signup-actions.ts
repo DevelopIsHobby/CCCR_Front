@@ -9,6 +9,7 @@ import { after } from "next/server";
 import { sendMail } from "@/lib/mail/send";
 import { officeTo } from "@/lib/mail/address";
 import { memberSignupOffice } from "@/lib/mail/templates";
+import { checkSignupLengths } from "./signup-limits";
 
 export type SignUpState = { error?: string; ok?: boolean };
 
@@ -42,6 +43,10 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   }
   if (!email || !name || !company) {
     return { error: "기관·회사명, 담당자 이름, 이메일은 반드시 입력해 주세요." };
+  }
+  const tooLong = checkSignupLengths({ email, name, company, department, phone });
+  if (tooLong) {
+    return { error: tooLong };
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { error: "이메일 주소를 다시 확인해 주세요." };

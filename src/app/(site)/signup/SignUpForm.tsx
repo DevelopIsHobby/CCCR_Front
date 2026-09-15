@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { signUp, type SignUpState } from "@/lib/auth/signup-actions";
 import LegalDialog, { type LegalTab } from "@/components/LegalDialog";
 import ScrollToTopOnShow from "@/components/ScrollToTopOnShow";
+import { SIGNUP_MAX } from "@/lib/auth/signup-limits";
 
 const input =
   "w-full rounded-md border border-line px-4 py-3.5 text-md outline-none transition-colors focus:border-brand-500";
@@ -105,6 +106,7 @@ export default function SignUpForm() {
                 type={f.type}
                 autoComplete={f.ac}
                 required={f.required}
+                maxLength={SIGNUP_MAX[f.id as keyof typeof SIGNUP_MAX]}
                 className={input}
               />
             </div>

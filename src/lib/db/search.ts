@@ -1,5 +1,6 @@
 import "server-only";
 import { ready } from "./migrate";
+import { likeContains } from "@/lib/like";
 import { BOARDS, getBoard } from "@/lib/boards";
 import { NAV } from "@/lib/site-data";
 
@@ -57,7 +58,8 @@ export async function search(q: string): Promise<SearchResult> {
   if (term.length < 2) return { q: term, posts: [], pages: [], total: 0 };
 
   const db = await ready();
-  const like = `%${term}%`;
+  /* %·_ 를 글자 그대로 찾는다(like.ts) */
+  const like = likeContains(term);
 
   /* 잠근 글은 목록에 보이므로 함께 찾는다. 숨김 상태는 게시판에 따로 없다. */
   const rows = await db.all<{
@@ -68,7 +70,7 @@ export async function search(q: string): Promise<SearchResult> {
     created_at: string;
   }>(
     `SELECT id, board, title, body, created_at FROM posts
-      WHERE deleted_at = '' AND (title LIKE ? OR body LIKE ?)
+      WHERE deleted_at = '' AND (title LIKE ? ESCAPE '\\' OR body LIKE ? ESCAPE '\\')
       ORDER BY id DESC LIMIT ?`,
     [like, like, PER_PAGE],
   );

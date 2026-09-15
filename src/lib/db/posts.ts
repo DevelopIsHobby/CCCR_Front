@@ -1,5 +1,6 @@
 import "server-only";
 import { ready } from "./migrate";
+import { likeContains } from "@/lib/like";
 
 export type PostRow = {
   id: number;
@@ -165,10 +166,11 @@ export async function listPosts(opts: { board: string; page?: number; q?: string
   const db = await ready();
   const page = Math.max(1, opts.page ?? 1);
   const q = opts.q?.trim() ?? "";
-  const like = `%${q}%`;
+  /* %·_ 를 글자 그대로 찾는다(like.ts) */
+  const like = likeContains(q);
 
   const countRow = await db.get<{ n: number }>(
-    `SELECT COUNT(*) AS n FROM posts WHERE deleted_at = '' AND board = ?${q ? " AND title LIKE ?" : ""}`,
+    `SELECT COUNT(*) AS n FROM posts WHERE deleted_at = '' AND board = ?${q ? " AND title LIKE ? ESCAPE '\\'" : ""}`,
     q ? [opts.board, like] : [opts.board],
   );
   const total = Number(countRow?.n ?? 0);
@@ -177,7 +179,7 @@ export async function listPosts(opts: { board: string; page?: number; q?: string
   const current = Math.min(page, totalPages);
 
   const rows = await db.all<RawRow>(
-    `SELECT * FROM (${NUMBERED}) numbered${q ? " WHERE title LIKE ?" : ""}
+    `SELECT * FROM (${NUMBERED}) numbered${q ? " WHERE title LIKE ? ESCAPE '\\'" : ""}
      ORDER BY id DESC LIMIT ? OFFSET ?`,
     q
       ? [opts.board, like, PER_PAGE, (current - 1) * PER_PAGE]
