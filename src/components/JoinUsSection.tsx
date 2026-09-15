@@ -13,9 +13,9 @@ import ProposalDialog from "./ProposalDialog";
   바로 위 알림판(BannerRail)이 옅은 회색 바탕이라 같은 색을 쓰면 두 자리가
   한 덩어리로 보인다. 어두운 바탕으로 갈라 놓는다.
 
-  카드 속은 알림판 카드와 같은 규칙으로 짠다 — 왼쪽에 그림 딱지, 오른쪽에 글,
-  맨 아래에 화살표 달린 글자 단추. 네 칸이 두 칸으로 줄면서 칸이 두 배로
-  넓어졌으므로, 글을 위에서 아래로 흘리지 않고 그림 옆에 붙여 폭을 쓴다.
+  카드 속은 그림 딱지 | 글 | 단추를 가로 한 줄로 둔다. 네 칸이 두 칸으로 줄면서
+  칸이 두 배로 넓어졌는데, 단추를 글 아래에 두었더니 오른쪽이 텅 비고 카드만
+  높아졌다. 단추를 오른쪽으로 옮겨 폭을 쓰고 높이는 줄인다. 휴대폰에서는 위아래로 쌓는다.
 */
 export default function JoinUsSection({ me = EMPTY_APPLICANT }: { me?: Applicant }) {
   return (
@@ -50,53 +50,48 @@ export default function JoinUsSection({ me = EMPTY_APPLICANT }: { me?: Applicant
           </Link>
         </div>
 
-        {/* 칸이 좁아지면 그림 옆 글자리가 모자라므로 넓은 화면에서만 두 칸으로 나눈다 */}
         <div className="mt-8 grid gap-4 lg:grid-cols-2">
           {/* 사업공고 — 신청한 담당자가 받아보는 주간 안내 */}
-          <div className="flex rounded-xl bg-white p-6 lg:p-7">
+          <div className="flex flex-col gap-5 rounded-xl bg-white p-6 sm:flex-row sm:items-center lg:p-7">
             <span className="grid size-14 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
               <CardIcon name="notice" className="size-7" />
             </span>
 
-            <div className="ml-4 flex min-w-0 flex-1 flex-col lg:ml-5">
+            <div className="min-w-0 flex-1">
               <p className="data-line text-brand-600">주 1회 발송</p>
-              <p className="mt-2 text-lg font-bold leading-snug text-navy-900">
-                사업공고를 메일로 받아보세요
-              </p>
+              <p className="mt-2 text-lg font-bold leading-snug text-navy-900">사업공고를 메일로 받아보세요</p>
               <p className="mt-2 text-base leading-relaxed text-ink-600">
                 국가 연구개발과제와 정부·유관기관 공모 공고를 사무국이 정리해 매주 보내드립니다.
               </p>
+            </div>
 
-              <div className="mt-auto pt-6">
-                <Link
-                  href="/members/notice"
-                  className="group inline-flex items-center gap-2 text-base font-bold text-navy-900 transition-colors hover:text-brand-600"
-                >
-                  수신 신청
-                  <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </div>
+            <div className="shrink-0">
+              <Link
+                href="/members/notice"
+                className="group inline-flex items-center gap-2 rounded-full bg-navy-900 px-6 py-3 text-base font-bold text-white transition-colors hover:bg-brand-600"
+              >
+                수신 신청
+                <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
+              </Link>
             </div>
           </div>
 
           {/* 교육사업 — 밖에서 함께 하자고 들어오는 제안 */}
-          <div className="flex rounded-xl bg-white p-6 lg:p-7">
+          <div className="flex flex-col gap-5 rounded-xl bg-white p-6 sm:flex-row sm:items-center lg:p-7">
             <span className="grid size-14 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
               <CardIcon name="education" className="size-7" />
             </span>
 
-            <div className="ml-4 flex min-w-0 flex-1 flex-col lg:ml-5">
+            <div className="min-w-0 flex-1">
               <p className="data-line text-brand-600">교육사업 협력</p>
-              <p className="mt-2 text-lg font-bold leading-snug text-navy-900">
-                함께 교육과정을 열어보세요
-              </p>
+              <p className="mt-2 text-lg font-bold leading-snug text-navy-900">함께 교육과정을 열어보세요</p>
               <p className="mt-2 text-base leading-relaxed text-ink-600">
                 대학·교육기관·회원사와 함께 클라우드·AI 인프라 과정을 운영하고 있습니다.
               </p>
+            </div>
 
-              <div className="mt-auto pt-6">
-                <ProposalDialog tone="text" label="제안하기" me={me} />
-              </div>
+            <div className="shrink-0">
+              <ProposalDialog label="제안하기" me={me} />
             </div>
           </div>
         </div>
