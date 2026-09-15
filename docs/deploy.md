@@ -14,7 +14,7 @@ RAM 1GB짜리는 `next build`가 메모리 부족으로 죽을 수 있습니다(
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y curl git nginx postgresql ufw
+sudo apt install -y curl git nginx ufw
 ```
 
 ### 1-2. Node.js 22 LTS 이상
@@ -43,7 +43,27 @@ sudo mkdir -p /srv/c3r/{app,data/uploads,backup}
 sudo chown -R c3r:c3r /srv/c3r
 ```
 
-### 1-5. PostgreSQL 준비
+### 1-5. PostgreSQL 설치와 준비
+
+지금 쓰는 DB 를 옮겨 오므로(1-11) **새 서버의 PostgreSQL 판이 옛 DB 판보다 낮으면 안 됩니다.**
+낮으면 옛 DB 덤프를 되살리지 못합니다. 우분투 기본 저장소의 판(22.04 는 14, 24.04 는 16)은
+옛 DB 보다 낮을 수 있어 PostgreSQL 공식 저장소에서 설치합니다.
+
+먼저 옛 DB 판을 확인합니다. 접속 주소는 Vercel 프로젝트 Settings > Environment Variables 의 `DATABASE_URL` 입니다.
+
+```bash
+sudo apt install -y postgresql-common
+sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh    # 묻는 말에 Enter
+sudo apt install -y postgresql-client-17
+psql "옛_DATABASE_URL" -c 'SHOW server_version;'
+```
+
+나온 판의 앞 숫자(예: 17)와 같은 판을 설치합니다. 아래는 17 일 때입니다.
+
+```bash
+sudo apt install -y postgresql-17
+psql --version
+```
 
 ```bash
 sudo -u postgres psql <<'SQL'
@@ -65,9 +85,32 @@ UPLOAD_DIR=/srv/c3r/data/uploads
 SITE_URL=https://cccr.or.kr
 # 정식 공개 전까지 검색에 잡히지 않게 막는다. 공개하는 날 이 줄을 지우고 재시작한다.
 SITE_NOINDEX=1
+
+# 메일 (6장) — 지금 Vercel 에 넣어 둔 값을 그대로 옮긴다
+SMTP_HOST=smtp.cafe24.com
+SMTP_PORT=587
+SMTP_USER=rnd@cccr.or.kr
+SMTP_PASS=메일_비밀번호
+SMTP_LEGACY_TLS=1
+MAIL_FROM=rnd@cccr.or.kr
+MAIL_OFFICE=새_신청_알림을_받을_주소
+
+# 보관 기간 지난 자료 자동 파기 (7장) — openssl rand -hex 24 로 만든 값
+CLEANUP_SECRET=긴_임의값
+
+# 소셜 로그인 (8장) — 비워 둔 서비스는 단추가 나오지 않는다
+KAKAO_CLIENT_ID=
+KAKAO_CLIENT_SECRET=
+NAVER_CLIENT_ID=
+NAVER_CLIENT_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 ENV
 sudo chmod 600 .env.production
 ```
+
+값을 바꾼 뒤에는 `sudo systemctl restart c3r` 로 다시 시작해야 반영됩니다.
+다 올린 뒤 관리자로 로그인해 `https://cccr.or.kr/api/health` 를 열면 빠진 값과 첨부 폴더 쓰기 권한을 한눈에 볼 수 있습니다.
 
 `.env.production`에는 DB 비밀번호가 들어갑니다. 절대 git에 올리지 마세요(`.gitignore`에 이미 있습니다).
 
@@ -78,9 +121,9 @@ cd /srv/c3r/app
 sudo -u c3r npm ci
 sudo -u c3r npm run build
 
-# 스키마 생성 + 관리자 계정 (환경변수를 함께 넘겨야 합니다)
-sudo -u c3r env $(grep -v '^#' .env.production | xargs) \
-  node scripts/create-admin.mjs admin@cccr.or.kr '실제_비밀번호' '최고관리자'
+# 스키마 생성 + 관리자 계정 (환경변수 파일을 함께 읽힙니다)
+sudo -u c3r node --env-file=.env.production \
+  scripts/create-admin.mjs admin@cccr.or.kr '실제_비밀번호' '최고관리자'
 ```
 
 ### 1-8. 서비스 등록
@@ -141,7 +184,7 @@ sudo systemctl start c3r
 
 3) 관리자로 로그인해 회원사 현황·소개 문구·신청 목록이 그대로인지 봅니다.
 
-- `pg_dump` 판이 옛 DB 판보다 낮으면 거절됩니다. 새 서버의 PostgreSQL 을 옛 DB 판 이상으로 맞추세요.
+- `pg_dump` 판이 옛 DB 판보다 낮으면 거절됩니다. 1-5 에서 옛 DB 와 같은 판을 설치했는지 확인하세요.
 - `schema_migrations` 표도 함께 옮겨지므로, 앱이 켜질 때 이미 적용한 마이그레이션을 다시 돌리지 않습니다.
 - 옮긴 뒤 관리자 비밀번호는 `1-7` 의 명령으로 새로 정해 두세요.
 
@@ -211,16 +254,59 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 
 | 변수 | 뜻 | 예 |
 | --- | --- | --- |
-| `SMTP_HOST` | 발송 서버 | 메일 사업자가 알려 줍니다 |
-| `SMTP_PORT` | 포트 | 465 또는 587 |
+| `SMTP_HOST` | 발송 서버 | `smtp.cafe24.com` (받는 주소 webmail.cccr.or.kr 와 다릅니다) |
+| `SMTP_PORT` | 포트 | `587` |
 | `SMTP_USER` | 로그인 계정 | `rnd@cccr.or.kr` |
 | `SMTP_PASS` | 비밀번호 | |
 | `MAIL_FROM` | 보내는 주소 | `rnd@cccr.or.kr` |
 | `MAIL_OFFICE` | **새 신청 알림을 받을 주소** | 비우면 `MAIL_FROM` 으로 갑니다. 쉼표로 여럿 가능 |
 | `SITE_URL` | 메일 안의 링크 주소 | `https://cccr.or.kr` |
 | `SMTP_LEGACY_TLS` | 낡은 TLS 를 받아들일지 | 카페24처럼 TLS 1.0 까지만 하는 서버에 `1`. 인증서 검증은 그대로 합니다 |
+| `DKIM_SELECTOR` | DKIM 선택자 | `c3r` (아래 'Gmail 스팸함' 참고. 없으면 서명하지 않음) |
+| `DKIM_PRIVATE_KEY` | DKIM 비밀키(한 줄) | 아래 명령으로 넣습니다 |
 
 `MAIL_OFFICE` 는 담당자가 바뀌거나 여럿이 함께 받아야 할 때 이 값만 바꾸면 됩니다.
+
+### Gmail 스팸함으로 가지 않게 (DMARC · DKIM)
+
+2026-09 확인: `cccr.or.kr` 에는 SPF 만 있고 DKIM · DMARC 가 없어 Gmail 이 회원가입 승인 메일을 스팸함으로 보냈습니다.
+이 도메인에는 모든 하위 이름을 `cccr.or.kr` 로 돌리는 와일드카드(`*`)가 걸려 있어 조회하면 SPF 값이 대신 나옵니다.
+아래 이름으로 TXT 를 직접 넣으면 와일드카드보다 먼저 쓰입니다. DNS 는 카페24 도메인 관리에서 바꿉니다.
+
+**1) DMARC** — 메일을 막지 않고(`p=none`) 인증 결과만 보고받는 설정이라 기존 조합 메일에 영향이 없습니다.
+
+| 이름 | 종류 | 값 |
+| --- | --- | --- |
+| `_dmarc` | TXT | `v=DMARC1; p=none; rua=mailto:admin@cccr.or.kr` |
+
+**2) DKIM** — 카페24 메일 관리 화면에서 DKIM 을 켤 수 있으면 그것을 씁니다. 그 경우 아래는 하지 않습니다.
+안 되면 홈페이지가 보내는 메일에 직접 서명합니다. 서버에서:
+
+```bash
+cd /srv/c3r && sudo openssl genrsa -out dkim.pem 2048
+# DNS 에 넣을 공개키
+sudo openssl rsa -in dkim.pem -pubout -outform der 2>/dev/null | openssl base64 -A; echo
+```
+
+| 이름 | 종류 | 값 |
+| --- | --- | --- |
+| `c3r._domainkey` | TXT | `v=DKIM1; k=rsa; p=위에서_나온_공개키` |
+
+DNS 에 퍼질 때까지(길면 하루) 기다린 뒤 비밀키를 한 줄로 바꿔 넣고 다시 시작합니다.
+
+```bash
+cd /srv/c3r
+echo "DKIM_SELECTOR=c3r" | sudo -u c3r tee -a app/.env.production >/dev/null
+echo "DKIM_PRIVATE_KEY='$(sudo awk 'NF{printf "%s\\n",$0}' dkim.pem)'" | sudo -u c3r tee -a app/.env.production >/dev/null
+sudo shred -u dkim.pem          # 비밀키 원본은 남기지 않는다
+sudo systemctl restart c3r
+```
+
+Gmail 에서 받은 메일의 ⋮ > **원본 보기** 맨 위에 `DKIM: 'PASS'` 가 나오면 됩니다.
+공개키를 DNS 에 넣기 전에 비밀키부터 넣으면 서명이 맞지 않아 오히려 실패로 찍히니 순서를 지킵니다.
+
+**3) 링크 주소** — 보내는 도메인과 다른 주소(`*.vercel.app`)의 링크가 들어 있으면 점수가 깎입니다.
+`SITE_URL` 을 정식 주소로 바꾸면 저절로 풀립니다.
 
 ---
 
@@ -239,7 +325,7 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 개인정보처리방침 제4조에 적은 기간이 지난 자료를 지웁니다.
 적어 놓고 지키지 않으면 그 자체가 문제가 되므로 반드시 걸어 두세요.
 
-`.env.production` 에 아무나 못 부르게 할 비밀값을 넣습니다.
+`.env.production` 에 아무나 못 부르게 할 비밀값을 넣습니다(1-6 에서 넣었다면 건너뜁니다).
 
 ```bash
 CLEANUP_SECRET=$(openssl rand -hex 24)

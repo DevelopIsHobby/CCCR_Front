@@ -3,7 +3,8 @@ import nodemailer, { type Transporter } from "nodemailer";
 import { constants as sslConstants } from "node:crypto";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
-import { fromHeader } from "./address";
+import { siteUrl } from "@/lib/site-url";
+import { fromHeader, mailFrom } from "./address";
 
 /*
   메일 보내기.
@@ -79,6 +80,28 @@ function transport(): Transporter | null {
   */
   const legacyTls = process.env.SMTP_LEGACY_TLS === "1";
 
+  /*
+    DKIM 서명. 받는 쪽(특히 Gmail)이 '정말 cccr.or.kr 이 보낸 메일'인지 확인하는 값이다.
+    SPF 만 있고 DKIM 이 없으면 Gmail 이 스팸함으로 보내는 일이 잦다(2026-09 승인 메일에서 겪음).
+
+    DNS 에 공개키(선택자._domainkey.도메인 TXT)를 먼저 올리고 비밀키를 넣는다.
+    선택자와 비밀키가 둘 다 있을 때만 서명한다. 방법은 docs/deploy.md 6장.
+    한 줄로 넣은 비밀키의 \n 은 줄바꿈으로 되돌린다(.env 파일은 여러 줄 값을 못 담는다).
+  */
+  const dkimSelector = process.env.DKIM_SELECTOR?.trim();
+  const dkimKey = process.env.DKIM_PRIVATE_KEY?.replace(/\\n/g, "\n").trim();
+  const dkimDomain = mailFrom().split("@").pop() ?? "";
+  const dkim =
+    dkimSelector && dkimKey && dkimDomain
+      ? { domainName: dkimDomain, keySelector: dkimSelector, privateKey: dkimKey }
+      : undefined;
+
+  /*
+    메일 서버에 인사할 때 밝히는 이름. 정하지 않으면 서버 컴퓨터 이름을 쓰는데,
+    VPS 는 이름이 점 없는 짧은 것이라 [127.0.0.1] 로 인사하게 되고 받는 쪽 점수가 깎인다.
+  */
+  const helo = new URL(siteUrl()).hostname;
+
   cached = nodemailer.createTransport({
     host,
     port,
@@ -95,6 +118,8 @@ function transport(): Transporter | null {
         }
       : undefined,
     auth: method ? { user, pass, method } : { user, pass },
+    name: helo.includes(".") ? helo : undefined,
+    dkim,
     /* 서버리스에서 함수가 끝나기 전에 매달리지 않도록 짧게 끊는다. */
     connectionTimeout: 10_000,
     greetingTimeout: 10_000,

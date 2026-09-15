@@ -29,6 +29,20 @@ export async function GET(
     return NextResponse.redirect(new URL("/login?social=unavailable", siteUrl()));
   }
 
+  /*
+    사이트 주소(SITE_URL)가 아닌 주소로 들어왔으면 먼저 그 주소로 옮겨 다시 시작한다.
+    서비스는 SITE_URL 쪽으로 돌려보내는데 state 쿠키는 브라우저가 지금 주소에만 붙인다.
+    www.cccr.or.kr 로 들어와 시작하면 cccr.or.kr 로 돌아왔을 때 쿠키가 없어 늘 실패한다.
+  */
+  const home = new URL(siteUrl());
+  const host = request.headers.get("host");
+  if (host && host !== home.host) {
+    const moved = new URL(`/api/auth/${provider}`, home);
+    const next = request.nextUrl.searchParams.get("next");
+    if (next) moved.searchParams.set("next", safeNext(next));
+    return NextResponse.redirect(moved);
+  }
+
   const { url, state, codeVerifier } = startAuthorization(provider);
 
   const store = await cookies();

@@ -18,7 +18,8 @@
 | 네이버 | `https://cccr.or.kr/api/auth/naver/callback` | `https://cccr-front.vercel.app/api/auth/naver/callback` |
 | 구글 | `https://cccr.or.kr/api/auth/google/callback` | `https://cccr-front.vercel.app/api/auth/google/callback` |
 
-주소 앞부분은 서버의 `SITE_URL` 을 따릅니다. `www.cccr.or.kr` 로 쓰게 되면 그 주소로도 등록합니다.
+주소 앞부분은 서버의 `SITE_URL` 을 따릅니다. 다른 주소(예: `www.` 가 붙은 주소)로 들어와 로그인 단추를 눌러도
+먼저 `SITE_URL` 주소로 옮긴 뒤 시작하므로, 서비스에는 `SITE_URL` 주소만 등록하면 됩니다.
 
 ---
 
@@ -32,16 +33,19 @@
    - 닉네임: 필수 동의
    - 카카오계정(이메일): 받으려면 **비즈 앱 전환(사업자 정보 등록)** 이 필요합니다.
      이메일을 못 받아도 가입은 됩니다. 가입 화면에서 이메일을 직접 적게 됩니다.
-6. 앱 설정 > 플랫폼 > Web 에 사이트 도메인 등록
+6. 앱 설정 > 플랫폼 > Web 에 사이트 도메인 등록 (미리보기 주소와 정식 주소 둘 다)
 
 ## 2. 네이버 — https://developers.naver.com
 
 1. Application > 애플리케이션 등록, 사용 API: **네이버 로그인**
 2. 제공 정보: **이메일 주소, 이름** (필수)
-3. 로그인 오픈 API 서비스 환경: PC 웹 — 서비스 URL `https://cccr.or.kr`, Callback URL 에 위 주소 등록
+3. 로그인 오픈 API 서비스 환경: PC 웹 — Callback URL 에 위 주소 등록.
+   서비스 URL 은 **지금 로그인해 보는 사이트 주소**로 둡니다(미리보기 기간 `https://cccr-front.vercel.app`, 정식 오픈 뒤 `https://cccr.or.kr`).
 4. `Client ID` → `NAVER_CLIENT_ID`, `Client Secret` → `NAVER_CLIENT_SECRET`
 5. 등록 직후에는 **개발 중 상태**라 등록한 관리자·테스터 아이디만 로그인됩니다.
+   시험할 아이디는 **멤버관리 > 테스트 ID** 에 넣습니다. 등록하지 않은 아이디는 네이버 오류 화면에서 멈춥니다.
    누구나 쓰려면 내 애플리케이션 > 네이버 로그인 검수요청을 받아야 합니다(며칠 걸릴 수 있음).
+   검수는 정식 주소로 옮기고 서비스 URL·Callback URL 을 정식 주소로 바꾼 뒤 요청합니다.
 
 ## 3. 구글 — https://console.cloud.google.com
 
