@@ -4,14 +4,15 @@ import NewsletterForm from "./NewsletterForm";
   푸터 최상단 구독 밴드 — 페이지를 떠나기 직전의 액션 자리.
   아래 푸터가 짙은 남색이라 같은 남색을 쓰면 한 덩어리로 붙어 보인다.
   히어로와 같은 파란 계열로 띄우고 육각 무늬를 얹어 따로 선다.
-  한 줄 권유라 높을 이유가 없다. 위아래 여백은 PC 28px, 휴대폰 32px 로 둔다.
+  한 줄 권유라 높을 이유는 없지만 너무 좁으면 답답하다. 위아래 여백은 PC 36px, 휴대폰 40px 로 둔다.
+  (48px 은 너무 높았고 28px 은 너무 좁았다)
 */
 export default function NewsletterBand() {
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-navy-800">
       <div className="hex-field absolute inset-0" aria-hidden />
 
-      <div className="relative mx-auto flex max-w-[1280px] flex-col gap-5 px-6 py-8 lg:flex-row lg:py-7 lg:items-center lg:justify-between lg:gap-16">
+      <div className="relative mx-auto flex max-w-[1280px] flex-col gap-5 px-6 py-10 lg:flex-row lg:py-9 lg:items-center lg:justify-between lg:gap-16">
         <div>
           {/* 짙은 남색 위에서 쓰던 flame-500 은 파란 바탕에서 대비가 2.5:1 로 떨어진다 */}
           <p className="data-line text-flame-100">뉴스레터 · 월 1회</p>
