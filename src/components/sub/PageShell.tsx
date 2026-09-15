@@ -19,7 +19,14 @@ type Props = {
 
 export default function PageShell({ href, title, category, desc, titleAs = "h1", children }: Props) {
   const TitleTag = titleAs;
-  const section = NAV.find((n) => href.startsWith(n.href));
+  /*
+    화면이 속한 대메뉴. 하위 메뉴 주소가 똑같은 곳을 먼저 찾고, 없을 때만 주소 앞부분으로 찾는다.
+    뉴스레터(/info/newsletter)는 주소가 /info 로 시작하지만 메뉴는 참여하기 아래라,
+    앞부분만 보면 정보서비스로 잡혀 경로 표시와 탭 줄이 틀렸다.
+  */
+  const section =
+    NAV.find((n) => n.children.some((c) => c.href === href)) ??
+    NAV.find((n) => href.startsWith(n.href));
   const child = section?.children.find((c) => c.href === href);
 
   const pageTitle = title ?? child?.label ?? section?.label ?? "";
