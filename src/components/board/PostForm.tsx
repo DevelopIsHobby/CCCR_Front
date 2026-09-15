@@ -243,7 +243,7 @@ export default function PostForm({
               className="w-full rounded-md border border-line px-4 py-3 text-base file:mr-4 file:rounded file:border-0 file:bg-surface file:px-4 file:py-2 file:text-base file:font-semibold file:text-navy-900"
             />
             <p className="mt-2 text-sm text-ink-400">
-              한 개당 20MB, 한 번에 합쳐 24MB까지 올릴 수 있습니다. 더 많으면 저장한 뒤 수정에서 나눠 올려 주세요.
+              한 개당 20MB, 한 번에 합쳐 24MB까지 올릴 수 있습니다. 더 많이 저장하기 위해선 나눠서 올려주세요.
             </p>
           </div>
         )}
