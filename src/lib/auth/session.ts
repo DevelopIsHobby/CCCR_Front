@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { ready } from "@/lib/db/migrate";
@@ -55,7 +56,7 @@ export async function createSession(userId: number): Promise<void> {
   });
 }
 
-export async function getSession(): Promise<Session | null> {
+async function readSession(): Promise<Session | null> {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
 
@@ -109,6 +110,13 @@ export async function getSession(): Promise<Session | null> {
     role: row.role === "admin" ? "admin" : "member",
   };
 }
+
+/*
+  공통 틀·헤더·화면이 저마다 로그인 정보를 물어 한 화면에 같은 조회가 몇 번씩 나갔다.
+  React.cache 로 한 요청 안에서는 한 번만 읽고 결과를 나눠 쓴다(요청끼리는 나누지 않는다).
+  남은 기간을 채우는 쓰기도 요청마다 한 번이면 된다.
+*/
+export const getSession = cache(readSession);
 
 export async function destroySession(): Promise<void> {
   const store = await cookies();

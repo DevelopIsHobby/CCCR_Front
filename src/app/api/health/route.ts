@@ -1,5 +1,6 @@
 import { ready } from "@/lib/db/migrate";
 import { getSession } from "@/lib/auth/session";
+import { isNoindex } from "@/lib/site-url";
 
 /*
   배포 점검용. 화면이 500 일 때 원인이 DB 설정인지 코드인지 가른다.
@@ -30,6 +31,7 @@ export async function GET() {
     DATABASE_SSL: process.env.DATABASE_SSL ?? "(없음)",
     DATABASE_POOL_MAX: process.env.DATABASE_POOL_MAX ?? "(없음)",
     SITE_NOINDEX: process.env.SITE_NOINDEX ?? "(없음)",
+    검색차단: isNoindex() ? "켜짐" : "꺼짐",
     SMTP_HOST: process.env.SMTP_HOST ?? "(없음 → 메일 보내지 않음)",
     SMTP_USER: process.env.SMTP_USER ?? "(없음)",
     SMTP_PASS: process.env.SMTP_PASS ? "설정됨" : "(없음)",

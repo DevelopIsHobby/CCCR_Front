@@ -15,3 +15,23 @@ export function siteUrl(): string {
   }
   return "http://localhost:3000";
 }
+
+/*
+  검색에 잡히지 않게 할지.
+
+  미리보기 주소(*.vercel.app)는 정식 주소가 아니다. 색인되면 나중에 진짜 주소와 내용이
+  겹쳐 검색 순위에 손해이므로, 사이트 주소가 vercel.app 이면 따로 정하지 않아도 막는다.
+  SITE_URL 을 정식 도메인으로 바꾸면 저절로 풀린다.
+
+  SITE_NOINDEX=1 이면 주소와 상관없이 막고, SITE_NOINDEX=0 이면 주소와 상관없이 연다.
+*/
+export function isNoindex(): boolean {
+  const flag = process.env.SITE_NOINDEX?.trim();
+  if (flag === "1") return true;
+  if (flag === "0") return false;
+  try {
+    return new URL(siteUrl()).hostname.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+}

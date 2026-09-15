@@ -6,7 +6,7 @@ import ScrollTop from "@/components/ScrollTop";
 import VisitLogger from "@/components/VisitLogger";
 import { getSession } from "@/lib/auth/session";
 import { getSiteSettings } from "@/lib/db/site-settings";
-import { siteUrl } from "@/lib/site-url";
+import { isNoindex, siteUrl } from "@/lib/site-url";
 import "../globals.css";
 
 const plexMono = IBM_Plex_Mono({
@@ -28,10 +28,10 @@ export const metadata: Metadata = {
   /*
     미리보기 배포는 검색에 잡히면 안 된다. 정식 공개 전 주소가 색인되면
     나중에 진짜 주소와 내용이 겹쳐 검색 순위에도 손해다.
-    SITE_NOINDEX=1 을 넣은 곳에서만 막고, 값이 없으면 평소대로 색인된다.
+    주소가 vercel.app 이거나 SITE_NOINDEX=1 이면 막는다(isNoindex 참고).
   */
   robots:
-    process.env.SITE_NOINDEX === "1" ? { index: false, follow: false } : undefined,
+    isNoindex() ? { index: false, follow: false } : undefined,
   /*
     링크를 공유했을 때 뜨는 카드. 이것이 없으면 카카오톡·페이스북에 회색 상자만 나온다.
 
