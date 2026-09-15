@@ -2,6 +2,7 @@
 
 import { createHash, randomBytes } from "node:crypto";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { hashPassword } from "@/lib/auth/password";
@@ -74,11 +75,17 @@ export async function requestReset(
       [hash(token), user.id, expiresAt, now()],
     );
 
-    await sendMail({
-      kind: "account.reset",
-      to: email,
-      ...passwordReset({ name: user.name, url: `${siteUrl()}/reset/${token}` }),
-    });
+    /*
+      응답을 보낸 뒤에 보낸다. 기다렸다가 답하면 가입된 주소일 때만 응답이 늦어져,
+      안내 문구를 똑같이 써도 걸리는 시간만으로 가입 여부를 알 수 있다.
+    */
+    after(() =>
+      sendMail({
+        kind: "account.reset",
+        to: email,
+        ...passwordReset({ name: user.name, url: `${siteUrl()}/reset/${token}` }),
+      }),
+    );
   }
 
   return {

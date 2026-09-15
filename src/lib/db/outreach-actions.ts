@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { ready } from "@/lib/db/migrate";
 import { softDelete } from "@/lib/db/trash";
 import { clientKey, record, SUBMIT, tooMany } from "@/lib/db/rate-limit";
@@ -129,8 +130,12 @@ export async function signUpForNotices(
       ...noticeReceived({ name, ref, token }),
     })) === "sent";
 
-  /* 사무국이 승인해야 발송이 시작되므로, 기다리는 신청이 있다는 것을 바로 알린다. */
-  await sendMail({
+  /*
+    사무국이 승인해야 발송이 시작되므로, 기다리는 신청이 있다는 것을 바로 알린다.
+    신청자는 이 메일을 기다릴 까닭이 없어 응답을 보낸 뒤에 보낸다(after).
+    메일 한 통에 발송 서버와 열 번 가까이 주고받아, 기다리게 하면 접수가 그만큼 늦다.
+  */
+  after(() => sendMail({
     kind: "notice.office",
     to: officeTo(),
     ref,
@@ -143,7 +148,7 @@ export async function signUpForNotices(
       email,
       lines: ["승인해야 발송이 시작됩니다."],
     }),
-  });
+  }));
 
   return {
     ok: "신청을 받았습니다. 사무국에서 확인한 뒤 알려드리겠습니다.",
@@ -181,12 +186,13 @@ export async function setNoticeSubscriberStatus(formData: FormData): Promise<voi
   if (!row) return;
 
   const base = { name: row.name, ref: row.ref, token: row.lookup_token };
-  await sendMail({
+  /* 화면은 메일 결과를 기다리지 않는다. 승인 단추가 발송 서버를 기다리지 않게 응답 뒤에 보낸다. */
+  after(() => sendMail({
     kind: status === "active" ? "notice.approved" : "notice.rejected",
     to: row.email,
     ref: row.ref,
     ...(status === "active" ? noticeApproved(base) : noticeRejected({ ...base, note })),
-  });
+  }));
 }
 
 export async function deleteNoticeSubscriber(formData: FormData): Promise<void> {
@@ -262,8 +268,11 @@ export async function submitProposal(
       ...proposalReceived({ name, ref, token }),
     })) === "sent";
 
-  /* 사무국도 알아야 한다. 밤이나 주말에 들어온 제안을 다음 날에야 알면 늦다. */
-  await sendMail({
+  /*
+    사무국도 알아야 한다. 밤이나 주말에 들어온 제안을 다음 날에야 알면 늦다.
+    신청자는 이 메일을 기다릴 까닭이 없어 응답을 보낸 뒤에 보낸다(after).
+  */
+  after(() => sendMail({
     kind: "proposal.office",
     to: officeTo(),
     ref,
@@ -276,7 +285,7 @@ export async function submitProposal(
       email,
       lines: [`제목  ${subject}`],
     }),
-  });
+  }));
 
   return { ok: "제안을 접수했습니다. 사무국에서 검토 후 연락드리겠습니다.", ref, mailed };
 }
@@ -302,12 +311,13 @@ export async function setProposalStatus(id: number, status: ProposalStatus): Pro
   );
   if (!row) return;
 
-  await sendMail({
+  /* 화면은 메일 결과를 기다리지 않는다. 승인 단추가 발송 서버를 기다리지 않게 응답 뒤에 보낸다. */
+  after(() => sendMail({
     kind: "proposal.done",
     to: row.email,
     ref: row.ref,
     ...proposalDone({ name: row.name, ref: row.ref, token: row.lookup_token }),
-  });
+  }));
 }
 
 export async function deleteProposal(formData: FormData): Promise<void> {
