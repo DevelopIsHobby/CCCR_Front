@@ -64,6 +64,18 @@ const nextConfig: NextConfig = {
   // 상위 폴더의 package-lock.json을 루트로 오인하지 않도록 고정
   turbopack: { root: __dirname },
 
+  experimental: {
+    serverActions: {
+      /*
+        게시글 첨부(파일당 20MB)와 편집기·관리자 그림 올리기는 서버 액션으로 보낸다.
+        서버 액션 본문은 기본 1MB 에서 잘려, 1MB 넘는 PDF 를 첨부하면 코드에 닿기도 전에 실패했다.
+        Vercel 미리보기는 파일을 남길 수 없어 드러나지 않았다.
+        Nginx 의 client_max_body_size(25M, deploy/nginx.conf)와 맞춘다. 한 번에 올리는 전체가 이 안이어야 한다.
+      */
+      bodySizeLimit: "25mb",
+    },
+  },
+
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

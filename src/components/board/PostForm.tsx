@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { createPost, updatePost, type PostFormState } from "@/lib/db/post-actions";
 import { formatBytes } from "@/lib/format";
+import { checkAttachmentSizes } from "@/lib/upload-limits";
 import RichTextEditor from "./RichTextEditor";
 import type { Attachment, EventInfo, PostLink } from "@/lib/db/posts";
 
@@ -212,9 +213,22 @@ export default function PostForm({ board, listPath, hasEventFields = false, post
             name="files"
             type="file"
             multiple
+            /*
+              서버는 한 번에 받는 요청을 25MB 에서 자른다(next.config.ts·nginx.conf).
+              넘으면 저장을 눌렀을 때 까닭 모를 오류가 나므로, 고르는 순간 알려 주고 제출을 막는다.
+              합계는 제목·본문 같은 다른 칸 몫을 남겨 24MB 로 잡는다.
+            */
+            onChange={(e) => {
+              const input = e.currentTarget;
+              const message = checkAttachmentSizes(Array.from(input.files ?? []));
+              input.setCustomValidity(message);
+              if (message) input.reportValidity();
+            }}
             className="w-full rounded-md border border-line px-4 py-3 text-base file:mr-4 file:rounded file:border-0 file:bg-surface file:px-4 file:py-2 file:text-base file:font-semibold file:text-navy-900"
           />
-          <p className="mt-2 text-sm text-ink-400">한 개당 20MB까지 올릴 수 있습니다.</p>
+          <p className="mt-2 text-sm text-ink-400">
+            한 개당 20MB, 한 번에 합쳐 24MB까지 올릴 수 있습니다. 더 많으면 저장한 뒤 수정에서 나눠 올려 주세요.
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-6 rounded-xl bg-surface px-6 py-5">
