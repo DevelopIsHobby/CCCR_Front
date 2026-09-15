@@ -1,7 +1,9 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { ready } from "./migrate";
 import { now } from "./driver";
+import { today } from "@/lib/format";
 
 /*
   횟수 제한.
@@ -11,6 +13,15 @@ import { now } from "./driver";
 
   세는 곳은 DB 다. 메모리에 두면 서버가 여럿이거나 다시 뜰 때 셈이 사라진다.
 */
+
+/*
+  세는 값은 원문을 남기지 않는다(개인정보처리방침 제4조 '부정 이용 방지 기록').
+  한국 날짜와 섞어 되돌리기 어려운 값으로 바꾼다. 날짜가 바뀌면 값도 바뀌어 자정을 넘기면
+  셈이 새로 시작되지만, 세는 창이 길어야 한 시간이고 기록도 하루만 두므로 문제되지 않는다.
+*/
+export function keyOf(value: string): string {
+  return createHash("sha256").update(`${today()}|${value}`).digest("hex").slice(0, 32);
+}
 
 /** 요청을 보낸 곳. 프록시 뒤에 있으므로 X-Forwarded-For 를 먼저 본다. */
 export async function clientKey(): Promise<string> {
@@ -22,7 +33,8 @@ export async function clientKey(): Promise<string> {
   */
   const forwarded = head.get("x-forwarded-for") ?? "";
   const ip = head.get("x-real-ip")?.trim() || forwarded.split(",")[0].trim() || "unknown";
-  return ip.slice(0, 60);
+  /* IP 원문은 저장하지 않는다 */
+  return keyOf(ip.slice(0, 60));
 }
 
 /** 창(window) 안에 남은 기록 수를 센다. */
