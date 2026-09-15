@@ -1,6 +1,6 @@
 import "server-only";
 import { ready } from "./migrate";
-import { now } from "./driver";
+import { today } from "@/lib/format";
 import { BOARDS } from "@/lib/boards";
 import { NAV } from "@/lib/site-data";
 
@@ -25,18 +25,18 @@ export type VisitSummary = {
 };
 
 /*
-  오늘부터 거꾸로 n일치 날짜. 'YYYY-MM-DD'
-  기록은 서버 시각(now())으로 남기므로 여기서도 같은 기준으로 센다.
-  toISOString 은 UTC 로 돌려 한국 시간과 하루가 어긋나므로 쓰지 않는다.
+  오늘(한국 날짜)부터 거꾸로 n일치 날짜. 'YYYY-MM-DD'
+  방문 기록의 day 도 한국 날짜로 남기므로(visit-actions.ts) 같은 기준으로 센다.
+  예전에는 UTC 날짜(now())를 기준으로 삼아 한국 오전 9시 전에는 '오늘'이 어제였다.
+  서버 시간대에 흔들리지 않게 날짜 더하기·빼기는 UTC 달력으로만 한다.
 */
-const ymd = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const ymd = (d: Date) => d.toISOString().slice(0, 10);
 
 function recentDays(n: number): string[] {
-  const today = new Date(`${now().slice(0, 10)}T00:00:00`);
+  const base = new Date(`${today()}T00:00:00Z`);
   return Array.from({ length: n }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() - (n - 1 - i));
+    const d = new Date(base);
+    d.setUTCDate(d.getUTCDate() - (n - 1 - i));
     return ymd(d);
   });
 }

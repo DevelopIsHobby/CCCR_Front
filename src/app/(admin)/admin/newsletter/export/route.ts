@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth/session";
 import { listSubscribers } from "@/lib/db/newsletter";
+import { today, toKst } from "@/lib/format";
 
 /*
   구독자 명단 내려받기(CSV).
@@ -24,19 +25,19 @@ export async function GET(request: Request) {
       s.email,
       s.status === "active" ? "구독 중" : "해지",
       s.source,
-      s.createdAt.slice(0, 10),
+      /* DB 시각은 UTC 라 한국 날짜로 바꿔 적는다 */
+      toKst(s.createdAt).slice(0, 10),
     ]
       .map(escape)
       .join(","),
   );
 
-  const csv = `\uFEFF${header.map(escape).join(",")}\n${lines.join("\n")}\n`;
-  const today = new Date().toISOString().slice(0, 10);
+  const csv = `﻿${header.map(escape).join(",")}\n${lines.join("\n")}\n`;
 
   return new Response(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="newsletter-${today}.csv"`,
+      "Content-Disposition": `attachment; filename="newsletter-${today()}.csv"`,
       "Cache-Control": "no-store",
     },
   });

@@ -6,6 +6,8 @@ import {
   formatDate,
   formatDateTime,
   formatEventPeriod,
+  kstDate,
+  toKst,
 } from "../src/lib/format.ts";
 
 /*
@@ -14,9 +16,27 @@ import {
   '오늘'을 넘겨 검사한다. 실제 오늘에 기대면 내일 깨지는 검사가 된다.
 */
 
-test("DB 시각을 화면용 날짜로 자른다", () => {
+test("DB 시각(UTC)을 한국 시간 날짜·시각으로 보여 준다", () => {
   assert.equal(formatDate("2026-09-03 05:15:00"), "2026.09.03");
-  assert.equal(formatDateTime("2026-09-03 05:15:00"), "2026.09.03 05:15");
+  assert.equal(formatDateTime("2026-09-03 05:15:00"), "2026.09.03 14:15");
+});
+
+test("한국 새벽에 쓴 글은 UTC 로는 전날이지만 한국 날짜로 보인다", () => {
+  /* 한국 9월 4일 오전 7시 = UTC 9월 3일 22시. 예전에는 9월 3일로 찍혔다 */
+  assert.equal(formatDate("2026-09-03 22:00:00"), "2026.09.04");
+  assert.equal(formatDateTime("2026-09-03 22:00:00"), "2026.09.04 07:00");
+});
+
+test("날짜만 있는 값(행사 날짜)은 한국 날짜 그대로 둔다", () => {
+  assert.equal(formatDate("2026-09-15"), "2026.09.15");
+  assert.equal(toKst("2026-09-15"), "2026-09-15");
+});
+
+test("오늘 날짜는 한국 기준이다", () => {
+  /* UTC 9월 14일 20시 = 한국 9월 15일 오전 5시 */
+  assert.equal(kstDate(Date.parse("2026-09-14T20:00:00Z")), "2026-09-15");
+  /* UTC 14:59:59 = 한국 23:59:59, 아직 같은 날 */
+  assert.equal(kstDate(Date.parse("2026-09-14T14:59:59Z")), "2026-09-14");
 });
 
 test("용량은 단위를 바꿔 가며 읽기 좋게", () => {

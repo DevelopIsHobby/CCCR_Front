@@ -1,3 +1,5 @@
+import { today } from "@/lib/format";
+
 /*
   표(CSV) 로 내보내기.
 
@@ -17,14 +19,12 @@ export function toCsv(header: string[], rows: (string | number)[][]): string {
   return `﻿${lines.join("\n")}\n`;
 }
 
-/** 내려받기 응답. 파일 이름 뒤에 오늘 날짜를 붙여 언제 뽑은 것인지 남긴다. */
+/** 내려받기 응답. 파일 이름 뒤에 오늘 날짜(한국)를 붙여 언제 뽑은 것인지 남긴다. */
 export function csvResponse(name: string, csv: string): Response {
-  const today = new Date().toISOString().slice(0, 10);
-
   return new Response(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${name}-${today}.csv"`,
+      "Content-Disposition": `attachment; filename="${name}-${today()}.csv"`,
       "Cache-Control": "no-store",
     },
   });

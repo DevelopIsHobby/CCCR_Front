@@ -92,6 +92,8 @@ export default async function Page() {
               month: "long",
               day: "numeric",
               weekday: "long",
+              /* 서버는 UTC 라 한국 오전 9시 전에는 어제 날짜가 찍혔다 */
+              timeZone: "Asia/Seoul",
             })}
           </p>
           <h1 className="mt-1.5 text-2xl font-bold text-white">대시보드</h1>

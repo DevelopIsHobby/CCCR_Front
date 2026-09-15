@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
+import { today } from "@/lib/format";
 
 /* 관리자 화면과 내부 요청은 세지 않는다. */
 const SKIP = ["/admin", "/api", "/login", "/signup"];
@@ -18,7 +19,8 @@ export async function recordVisit(rawPath: string): Promise<void> {
   if (!path.startsWith("/") || SKIP.some((p) => path === p || path.startsWith(`${p}/`))) return;
 
   const stamp = now();
-  const day = stamp.slice(0, 10);
+  /* 통계는 한국 날짜로 묶는다. UTC 로 자르면 한국 새벽 방문이 전날로 들어간다 */
+  const day = today();
 
   const head = await headers();
   const ip =

@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth/session";
 import { listNoticeSubscribers } from "@/lib/db/outreach";
+import { today, toKst } from "@/lib/format";
 
 /*
   사업공고 수신자 명단 내려받기(CSV).
@@ -22,19 +23,19 @@ export async function GET() {
       r.name,
       r.email,
       r.tel,
-      r.createdAt.slice(0, 10),
+      /* DB 시각은 UTC 라 한국 날짜로 바꿔 적는다 */
+      toKst(r.createdAt).slice(0, 10),
     ]
       .map(escape)
       .join(","),
   );
 
-  const csv = `\uFEFF${header.map(escape).join(",")}\n${lines.join("\n")}\n`;
-  const today = new Date().toISOString().slice(0, 10);
+  const csv = `﻿${header.map(escape).join(",")}\n${lines.join("\n")}\n`;
 
   return new Response(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="notice-subscribers-${today}.csv"`,
+      "Content-Disposition": `attachment; filename="notice-subscribers-${today()}.csv"`,
       "Cache-Control": "no-store",
     },
   });

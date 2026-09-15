@@ -6,18 +6,44 @@ export function formatBytes(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
 }
 
-/** SQLite 의 'YYYY-MM-DD HH:MM:SS'(UTC) 를 표시용 날짜로 바꾼다. */
-export function formatDate(sqliteDate: string): string {
-  return sqliteDate.slice(0, 10).replace(/-/g, ".");
+/*
+  시각은 DB 에 UTC 로 쌓는다(driver.ts 의 now()). 화면과 '오늘'은 한국 시간으로 본다.
+  예전에는 UTC 문자열을 그대로 잘라 보여 줘서 모든 시각이 9시간 이르게 찍혔고,
+  한국 새벽 0~9시에 올린 글은 전날 날짜로 보였다. 서버 시간대 설정과 상관없이 맞도록
+  계산으로 바꾼다. 한국은 서머타임이 없어 +9시간을 고정으로 더한다.
+*/
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+/** 이 순간(밀리초)의 한국 날짜 'YYYY-MM-DD'. 테스트에서 시각을 넘겨 확인한다. */
+export function kstDate(ms: number): string {
+  return new Date(ms + KST_OFFSET_MS).toISOString().slice(0, 10);
 }
 
-export function formatDateTime(sqliteDate: string): string {
-  return `${formatDate(sqliteDate)} ${sqliteDate.slice(11, 16)}`;
+/**
+ * DB 의 UTC 시각 'YYYY-MM-DD HH:MM:SS' 를 같은 모양의 한국 시각으로.
+ * 행사 날짜처럼 날짜만 있는 값('YYYY-MM-DD')은 이미 한국 날짜이므로 그대로 둔다.
+ */
+export function toKst(dbTime: string): string {
+  if (dbTime.length < 19) return dbTime;
+  const ms = Date.parse(`${dbTime.slice(0, 19).replace(" ", "T")}Z`);
+  if (Number.isNaN(ms)) return dbTime;
+  return new Date(ms + KST_OFFSET_MS).toISOString().slice(0, 19).replace("T", " ");
 }
 
-/** 오늘 날짜를 'YYYY-MM-DD' 로. 상태 계산 기준일이다. */
+/** DB 시각(UTC)이나 날짜를 화면용 한국 날짜 '2026.09.03' 으로. */
+export function formatDate(value: string): string {
+  return toKst(value).slice(0, 10).replace(/-/g, ".");
+}
+
+/** DB 시각(UTC)을 화면용 한국 시각 '2026.09.03 14:15' 로. */
+export function formatDateTime(value: string): string {
+  const kst = toKst(value);
+  return `${kst.slice(0, 10).replace(/-/g, ".")} ${kst.slice(11, 16)}`;
+}
+
+/** 한국 기준 오늘 날짜 'YYYY-MM-DD'. 행사 상태·팝업 기간·방문 통계의 기준일이다. */
 export function today(): string {
-  return new Date().toISOString().slice(0, 10);
+  return kstDate(Date.now());
 }
 
 export type EventStatus = "접수중" | "예정" | "종료";
