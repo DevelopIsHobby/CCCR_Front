@@ -126,7 +126,7 @@ export const PARTNERS: Partner[] = [
   { name: "한국지능정보사회진흥원", src: "/partners/nia.png", width: 510, height: 113, href: "https://www.nia.or.kr/site/nia_kor/main.do" },
   { name: "정보통신기획평가원", src: "/partners/iitp.png", width: 621, height: 90, href: "https://www.iitp.kr/web/index.do" },
   { name: "한국컴퓨팅산업협회", src: "/partners/kcia.png", width: 415, height: 74, href: "https://k-cia.or.kr/" },
-  { name: "과학기술정보통신부", src: "/partners/msit.png", width: 501, height: 114, href: "https://www.msit.go.kr/index.do" },
+  { name: "과학기술정보통신부", src: "/partners/msit.png", width: 501, height: 114, href: "https://www.msit.go.kr/" },
   { name: "산업통상부", src: "/partners/motie.png", width: 499, height: 92, href: "https://www.motir.go.kr/" },
   { name: "한국컴퓨팅사업협동조합", src: "/partners/kbiz-coop.png", width: 188, height: 35, href: "http://www.kcb.or.kr/" },
   { name: "공공클라우드지원센터", src: "/partners/pcsc.png", width: 300, height: 63, href: "https://m.digitalmarket.kr/m/cpcpCloud/cpcpCenterInfo.do" },
