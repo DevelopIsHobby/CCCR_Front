@@ -36,7 +36,7 @@ export default async function Page() {
         desc="화면이 열릴 때마다 셉니다. 누가 왔는지는 남기지 않고, 그날 하루만 쓰는 값으로 같은 사람인지만 구분합니다. 관리자 화면은 세지 않습니다."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {cards.map((card) => (
           <StatCard
             key={card.label}

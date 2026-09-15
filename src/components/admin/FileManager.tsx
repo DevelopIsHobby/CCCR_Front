@@ -54,7 +54,7 @@ export default function FileManager({ report }: { report: FileReport }) {
   return (
     <>
       {/* 요약 */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {[
           { label: "전체 파일", value: `${totals.count}개` },
           { label: "차지하는 용량", value: formatBytes(totals.bytes) },

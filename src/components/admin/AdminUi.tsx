@@ -98,7 +98,8 @@ export function StatCard({
     </>
   );
 
-  const shell = `block rounded-xl border p-5 transition-colors ${
+  /* 휴대폰에서는 한 줄에 두 장씩 놓으므로 안쪽 여백을 조금 줄인다 */
+  const shell = `block rounded-xl border p-4 transition-colors sm:p-5 ${
     accent ? "border-flame-500/50 bg-flame-100/40" : "border-line bg-white"
   } ${href ? "hover:border-brand-500" : ""}`;
 

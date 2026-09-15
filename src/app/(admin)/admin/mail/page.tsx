@@ -14,6 +14,7 @@ import { formatDateTime } from "@/lib/format";
 import {
   countMailByStatus,
   listMailLog,
+  MAIL_FAIL_ALERT_DAYS,
   MAIL_KIND_LABEL,
   MAIL_STATUS_LABEL,
   type MailLogRow,
@@ -47,15 +48,21 @@ export default async function Page({
         desc="신청자에게 보낸 접수 확인·결과 안내 메일입니다. 메일을 못 받았다는 문의가 오면 여기서 확인하세요. 본문은 남기지 않습니다."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard label="전체" value={counts.total} unit="통" />
         <StatCard label={MAIL_STATUS_LABEL.sent} value={counts.sent} unit="통" />
         <StatCard
           label={MAIL_STATUS_LABEL.failed}
           value={counts.failed}
           unit="통"
-          accent={counts.failed > 0}
-          note={counts.failed > 0 ? "보내지 못한 메일이 있습니다" : undefined}
+          accent={counts.recentFailed > 0}
+          note={
+            counts.recentFailed > 0
+              ? `최근 ${MAIL_FAIL_ALERT_DAYS}일 ${counts.recentFailed}통을 보내지 못했습니다`
+              : counts.failed > 0
+                ? `최근 ${MAIL_FAIL_ALERT_DAYS}일 실패 없음`
+                : undefined
+          }
         />
         <StatCard
           label={MAIL_STATUS_LABEL.skipped}

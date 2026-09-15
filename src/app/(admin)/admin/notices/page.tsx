@@ -51,7 +51,7 @@ export default async function Page({
         </a>
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {[
           { label: "승인 대기", value: counts.pending, accent: counts.pending > 0 },
           { label: "수신 중", value: counts.active },

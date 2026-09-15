@@ -156,7 +156,7 @@ export default async function Page() {
           </Link>
         </div>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <StatCard
             label="오늘 방문자"
             value={summary.today.visitors}
@@ -217,7 +217,7 @@ export default async function Page() {
       <section>
         <h2 className="text-xl font-bold text-navy-900">콘텐츠 현황</h2>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {contentCards.map((card) => (
             <StatCard key={card.label} {...card} />
           ))}

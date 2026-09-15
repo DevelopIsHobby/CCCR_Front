@@ -41,7 +41,7 @@ export default async function Page({
         desc="홈페이지 회원가입 신청을 승인하고 권한을 관리합니다. 조합 회원사 가입과는 별개입니다."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard label="전체" value={counts.total} unit="명" />
         <StatCard
           label={USER_STATUS_LABEL.pending}
