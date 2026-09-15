@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { ready } from "./migrate";
 import { UPLOAD_DIR } from "@/lib/uploads";
 import { BOARDS } from "@/lib/boards";
+import { mapImageUses, type ImageUse } from "@/lib/image-uses";
 
 /*
   업로드 파일 현황.
@@ -49,75 +50,75 @@ async function diskFiles(): Promise<Map<string, number>> {
   return sizes;
 }
 
-type RawImageUse = {
-  used: number;
-  post_id: number | null;
-  title: string | null;
-  board: string | null;
+type RawImageRef = {
   company: string | null;
   page_key: string | null;
 };
 
-/** 이미지가 어디에 걸려 있는지 한 곳만 골라 알려 준다. */
+/** 이미지가 어디에 걸려 있는지 한 곳만 골라 알려 준다. 글 본문이 먼저다. */
 function imageUsedIn(
-  i: RawImageUse,
+  post: ImageUse | undefined,
+  ref: RawImageRef,
   basePath: Record<string, string>,
 ): { title: string; href: string } | null {
-  if (Number(i.used) > 0 && i.post_id) {
+  if (post) {
     return {
-      title: i.title ?? "(제목 없음)",
-      href: `${basePath[i.board ?? ""] ?? "/board"}/${i.post_id}`,
+      title: post.title || "(제목 없음)",
+      href: `${basePath[post.board] ?? "/board"}/${post.postId}`,
     };
   }
-  if (i.company) return { title: `회원사 로고 · ${i.company}`, href: "/admin/companies" };
-  if (i.page_key) return { title: "소개 페이지", href: "/admin/pages" };
+  if (ref.company) return { title: `회원사 로고 · ${ref.company}`, href: "/admin/companies" };
+  if (ref.page_key) return { title: "소개 페이지", href: "/admin/pages" };
   return null;
 }
 
 export async function getFileReport(): Promise<FileReport> {
   const db = await ready();
-  const sizes = await diskFiles();
   const basePath = Object.fromEntries(BOARDS.map((b) => [b.slug, b.basePath]));
 
-  const attachments = await db.all<{
-    id: number;
-    filename: string;
-    stored_name: string;
-    byte_size: number;
-    created_at: string;
-    post_id: number;
-    title: string;
-    board: string;
-  }>(
-    `SELECT a.id, a.filename, a.stored_name, a.byte_size, a.created_at,
-            p.id AS post_id, p.title, p.board
-       FROM attachments a JOIN posts p ON p.id = a.post_id
-      ORDER BY a.id DESC`,
-  );
-
-  const images = await db.all<{
-    id: number;
-    filename: string;
-    stored_name: string;
-    byte_size: number;
-    created_at: string;
-    used: number;
-    post_id: number | null;
-    title: string | null;
-    board: string | null;
-    company: string | null;
-    page_key: string | null;
-  }>(
-    `SELECT i.id, i.filename, i.stored_name, i.byte_size, i.created_at,
-            (SELECT COUNT(*) FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%') AS used,
-            (SELECT p.id FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%' LIMIT 1) AS post_id,
-            (SELECT p.title FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%' LIMIT 1) AS title,
-            (SELECT p.board FROM posts p WHERE p.body LIKE '%/api/images/' || i.id || '%' LIMIT 1) AS board,
-            (SELECT c.name FROM companies c WHERE c.logo_url = '/api/images/' || i.id LIMIT 1) AS company,
-            (SELECT t.key FROM page_texts t WHERE t.value = '/api/images/' || i.id LIMIT 1) AS page_key
-       FROM images i
-      ORDER BY i.id DESC`,
-  );
+  /* 서로 기다릴 일이 없다. 줄 세우면 그만큼 왕복이 늘어난다. */
+  const [sizes, attachments, images, postBodies] = await Promise.all([
+    diskFiles(),
+    db.all<{
+      id: number;
+      filename: string;
+      stored_name: string;
+      byte_size: number;
+      created_at: string;
+      post_id: number;
+      title: string;
+      board: string;
+    }>(
+      `SELECT a.id, a.filename, a.stored_name, a.byte_size, a.created_at,
+              p.id AS post_id, p.title, p.board
+         FROM attachments a JOIN posts p ON p.id = a.post_id
+        ORDER BY a.id DESC`,
+    ),
+    /* 회원사 로고·소개 페이지 사진은 주소가 통째로 같아 등호로 찾는다(표도 작다) */
+    db.all<{
+      id: number;
+      filename: string;
+      stored_name: string;
+      byte_size: number;
+      created_at: string;
+      company: string | null;
+      page_key: string | null;
+    }>(
+      `SELECT i.id, i.filename, i.stored_name, i.byte_size, i.created_at,
+              (SELECT c.name FROM companies c WHERE c.logo_url = '/api/images/' || i.id LIMIT 1) AS company,
+              (SELECT t.key FROM page_texts t WHERE t.value = '/api/images/' || i.id LIMIT 1) AS page_key
+         FROM images i
+        ORDER BY i.id DESC`,
+    ),
+    /*
+      글 본문은 그림 주소가 들어 있는 글만 한 번 읽는다. 그림마다 모든 본문을 훑으면
+      글이 쌓일수록 느려지고, 1번 그림이 11번 주소에 걸리는 문제도 있었다(image-uses.ts).
+    */
+    db.all<{ id: number; title: string; board: string; body: string | null }>(
+      "SELECT id, title, board, body FROM posts WHERE body LIKE '%/api/images/%'",
+    ),
+  ]);
+  const uses = mapImageUses(postBodies.map((p) => ({ ...p, id: Number(p.id) })));
 
   const files: FileRow[] = [
     ...attachments.map((a) => ({
@@ -138,7 +139,7 @@ export async function getFileReport(): Promise<FileReport> {
       byteSize: Number(i.byte_size),
       createdAt: i.created_at,
       /* 글 본문 말고 회원사 로고·소개 페이지 사진으로도 쓰인다 */
-      usedIn: imageUsedIn(i, basePath),
+      usedIn: imageUsedIn(uses.get(Number(i.id)), i, basePath),
       onDisk: sizes.has(i.stored_name),
     })),
   ];

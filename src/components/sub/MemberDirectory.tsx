@@ -69,11 +69,16 @@ export default function MemberDirectory({ groups }: { groups: CompanyGroup[] }) 
                 >
                   {/* 로고는 받는 대로 관리자 화면에서 올린다. 없으면 이름만 나온다. */}
                   {m.logoUrl && (
-                    /* 크기를 미리 알 수 없는 그림이라 next/image 대신 img 를 쓴다 */
+                    /*
+                      크기를 미리 알 수 없는 그림이라 next/image 대신 img 를 쓴다.
+                      회원사가 백 곳이 넘는다. 화면에 가까워질 때 받고, 그림 풀기가 화면 그리기를 막지 않게 한다.
+                    */
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={m.logoUrl}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="mb-3 h-9 w-auto max-w-[8rem] object-contain object-left"
                     />
                   )}
