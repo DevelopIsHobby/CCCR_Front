@@ -139,6 +139,8 @@ sudo systemctl status c3r        # active (running) 확인
 
 ```bash
 sudo cp deploy/nginx.conf /etc/nginx/sites-available/c3r
+# 요청량 제한(한 곳에서 쉬지 않고 두드리는 것을 막는 그물). 없으면 위 설정이 뜨지 않는다
+sudo cp deploy/nginx-limits.conf /etc/nginx/conf.d/c3r-limits.conf
 sudo ln -s /etc/nginx/sites-available/c3r /etc/nginx/sites-enabled/c3r
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
@@ -160,6 +162,18 @@ sudo crontab -e
 
 `sudo crontab -e` 는 root 의 crontab 입니다. 백업 스크립트는 root 로 돌아야 합니다
 (DB 는 postgres 계정으로 덤프하고, 파일은 root 가 백업 폴더에 씁니다).
+
+백업이 실패하면 사무국 메일로 알립니다(`scripts/notify.mjs`, 메일 설정은 앱과 같은 값을 씁니다).
+**알림이 진짜 오는지 한 번 확인해 두세요.** 아래는 일부러 실패시키는 명령입니다.
+
+```bash
+sudo MIN_FREE_MB=99999999 /srv/c3r/app/scripts/backup.sh
+```
+
+「남은 자리가 모자라 백업하지 않습니다」가 뜨고 메일이 와야 정상입니다. DB 는 건드리지 않습니다.
+
+첨부파일은 날마다 `backup/uploads/<날짜>/` 폴더로 남습니다. 바뀌지 않은 파일은 어제 것과
+이어 붙여(하드링크) 두므로, 30일치를 두어도 자리는 늘어난 만큼만 먹습니다.
 
 ### 1-11. 지금 쓰던 DB 옮겨 오기 (한 번만)
 
@@ -197,8 +211,17 @@ cd /srv/c3r/app
 ./scripts/deploy.sh
 ```
 
-코드 받기 → 설치 → 빌드 → 재시작 → 상태 확인까지 한 번에 합니다.
-실패하면 어디서 멈췄는지 출력하고 멈춥니다.
+코드 받기 → 설치 → 빌드 → 재시작 → `/api/health` 응답 확인까지 한 번에 합니다.
+
+어느 단계에서든 어긋나면 **스스로 배포 전으로 되돌립니다.** 코드는 직전 커밋으로,
+화면은 직전 빌드(`.next.prev`)로 돌리고 서비스를 다시 띄웁니다. 빌드가 깨져도 사이트는 계속 돌아갑니다.
+
+배포는 됐는데 그 뒤에 문제가 보이면 직접 되돌립니다. 빌드를 다시 하지 않으므로 1분이면 끝납니다.
+
+```bash
+cd /srv/c3r/app
+./scripts/rollback.sh
+```
 
 ---
 
@@ -211,6 +234,9 @@ cd /srv/c3r/app
 | 최근 오류만 보기 | `sudo journalctl -u c3r -p err -n 50` |
 | 관리자 비밀번호 변경 | `1-7`의 create-admin 명령을 같은 이메일로 다시 실행 |
 | 수동 백업 | `/srv/c3r/app/scripts/backup.sh` |
+| 직전 판으로 되돌리기 | `/srv/c3r/app/scripts/rollback.sh` |
+| 백업 알림이 오는지 확인 | `sudo MIN_FREE_MB=99999999 /srv/c3r/app/scripts/backup.sh` |
+| 사이트가 살아 있는지 | `curl -s localhost:3000/api/health` |
 | 디스크 여유 확인 | `df -h /srv` |
 
 ---
@@ -226,6 +252,17 @@ sudo systemctl start c3r
 ```
 
 ### 첨부파일 되돌리기
+
+```bash
+# 어느 날짜가 있는지 본다
+ls /srv/c3r/backup/uploads/
+
+# 그날 것으로 되돌린다 (끝의 / 를 빠뜨리지 마세요)
+sudo rsync -a --delete /srv/c3r/backup/uploads/20260826-0400/ /srv/c3r/data/uploads/
+sudo chown -R c3r:c3r /srv/c3r/data/uploads
+```
+
+rsync 가 없는 서버에서는 백업이 `uploads-<날짜>.tar.gz` 로 남습니다. 그때는 이렇게 풉니다.
 
 ```bash
 sudo tar -xzf /srv/c3r/backup/uploads-20260826-0400.tar.gz -C /srv/c3r/data/
@@ -244,6 +281,10 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 - [ ] `sudo ufw status`에서 3000 포트가 열려 있지 않은지
 - [ ] 백업 파일이 실제로 쌓이는지 (`ls -lh /srv/c3r/backup`)
 - [ ] 백업을 서버 밖으로도 복사하고 있는지
+- [ ] 백업 알림 메일이 실제로 오는지 한 번 확인했는지
+- [ ] 백업으로 되살리기를 한 번 해 봤는지 (백업은 복구해 봐야 백업입니다)
+- [ ] 밖에서 사이트를 지켜보는 감시(UptimeRobot 등)에 `/api/health` 를 걸었는지
+- [ ] `/etc/nginx/conf.d/c3r-limits.conf` 가 있는지 (없으면 nginx 가 뜨지 않습니다)
 - [ ] `sudo apt update && sudo apt upgrade`를 주기적으로 하는지
 
 ---
