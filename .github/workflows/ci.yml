@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  검사:
+  check:
     name: 타입·린트·단위 테스트
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -31,7 +31,7 @@ jobs:
       - name: 단위 테스트
         run: npm test
 
-  브라우저:
+  e2e:
     name: 브라우저로 화면 확인
     runs-on: ubuntu-latest
     timeout-minutes: 30
