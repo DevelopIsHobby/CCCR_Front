@@ -46,3 +46,9 @@ next-env.d.ts
 
 # 게시판 DB · 업로드 파일 (로컬 데이터)
 /data/
+
+# 브라우저 자동 테스트 (확인용 DB·업로드·보고서)
+/.e2e/
+/playwright-report/
+/test-results/
+/blob-report/

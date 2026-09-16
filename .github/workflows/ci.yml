@@ -1,0 +1,55 @@
+# 깃허브에 올릴 때마다 스스로 도는 검사.
+# 1) 타입·린트·단위 테스트  2) 실제 브라우저로 화면 확인
+name: 검사
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# 같은 가지에 새로 올리면 앞의 검사는 멈춘다(시간 낭비를 줄인다)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  검사:
+    name: 타입·린트·단위 테스트
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: 타입 검사
+        run: npx tsc --noEmit
+      - name: 린트
+        run: npm run lint
+      - name: 단위 테스트
+        run: npm test
+
+  브라우저:
+    name: 브라우저로 화면 확인
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: 크롬 내려받기
+        run: npx playwright install --with-deps chromium
+      - name: 브라우저 테스트
+        run: npm run test:e2e
+      - name: 실패한 화면 기록 남기기
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
