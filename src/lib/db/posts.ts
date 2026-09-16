@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { ready } from "./migrate";
 import { likeContains } from "@/lib/like";
 
@@ -202,6 +203,12 @@ export async function listPosts(opts: { board: string; page?: number; q?: string
     totalPages,
   };
 }
+
+/*
+  한 요청 안에서 같은 글을 여러 번 읽지 않게 한다.
+  글 화면은 메타데이터(제목·설명)·없는 글 확인·본문 표시로 세 번 찾는다.
+*/
+export const getPostCached = cache(getPost);
 
 export async function getPost(board: string, id: number): Promise<PostDetail | null> {
   if (!Number.isInteger(id)) return null;

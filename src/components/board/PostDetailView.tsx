@@ -4,7 +4,7 @@ import PageShell from "@/components/sub/PageShell";
 import ViewCounter from "./ViewCounter";
 import DeleteButton from "@/components/board/DeleteButton";
 import { IconArrow, IconChevron, IconClip, IconLock } from "@/components/Icons";
-import { getNeighbors, getPost } from "@/lib/db/posts";
+import { getNeighbors, getPostCached } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
 import type { BoardConfig } from "@/lib/boards";
 import {
@@ -32,7 +32,7 @@ export default async function PostDetailView({
   board: BoardConfig;
   id: string;
 }) {
-  const post = await getPost(board.slug, Number(id));
+  const post = await getPostCached(board.slug, Number(id));
   if (!post) notFound();
 
   const session = await getSession();
