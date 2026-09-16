@@ -24,6 +24,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Next 가 만드는 타입 파일(next-env.d.ts, .next/types)은 깃에 올리지 않는다.
+      # 없으면 그림 파일 import 같은 것을 타입 검사가 모른다.
+      - name: 타입 파일 만들기
+        run: npx next typegen
       - name: 타입 검사
         run: npx tsc --noEmit
       - name: 린트
