@@ -3,7 +3,7 @@
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { hashPassword } from "@/lib/auth/password";
-import { addSubscriberFromSignup } from "@/lib/db/newsletter-actions";
+import { addSubscriberFromSignup } from "@/lib/db/newsletter";
 import { clientKey, record, SIGNUP, tooMany } from "@/lib/db/rate-limit";
 import { after } from "next/server";
 import { sendMail } from "@/lib/mail/send";

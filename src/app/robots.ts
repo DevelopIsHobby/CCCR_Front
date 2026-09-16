@@ -15,6 +15,15 @@ import { isNoindex, siteUrl } from "@/lib/site-url";
   뜨는 것 자체가 좋지 않다. 조회 링크(참여 현황)는 접수번호가 주소에 들어가
   있어 더더욱 막아야 한다.
 */
+/*
+  요청마다 새로 만든다.
+
+  이 파일은 기본적으로 빌드할 때 한 번 만들어져 굳는다. 그러면 공개일에
+  SITE_NOINDEX 를 지워도 robots.txt 는 빌드 당시 상태로 남아, 사이트맵을 알리지 않고
+  관리자 화면도 막지 않는다. 하루에 몇 번 불리는 파일이라 그때그때 만들어도 부담이 없다.
+*/
+export const dynamic = "force-dynamic";
+
 export default function robots(): MetadataRoute.Robots {
   const base = siteUrl();
 

@@ -63,23 +63,6 @@ export async function subscribeNewsletter(
   return { ok: "구독 신청이 접수되었습니다." };
 }
 
-/** 회원가입에서 수신 동의를 함께 받은 경우. */
-export async function addSubscriberFromSignup(email: string): Promise<void> {
-  const db = await ready();
-  const stamp = now();
-  const existing = await db.get<{ id: number }>(
-    "SELECT id FROM newsletter_subscribers WHERE email = ?",
-    [email],
-  );
-  if (existing) return;
-
-  await db.run(
-    `INSERT INTO newsletter_subscribers (email, status, source, created_at, updated_at)
-     VALUES (?, 'active', '회원가입', ?, ?)`,
-    [email, stamp, stamp],
-  );
-}
-
 /* ── 관리자 ───────────────────────────────────────── */
 
 export async function setSubscriberStatus(formData: FormData): Promise<void> {
