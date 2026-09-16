@@ -9,7 +9,7 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-/srv/c3r/app}"
 SERVICE="${SERVICE:-c3r}"
 PORT="${PORT:-3000}"
-# 재시작한 뒤 이 시간(초) 안에 /api/health 가 답해야 한다
+# 재시작한 뒤 이 시간(초) 안에 /api/health/live 가 답해야 한다
 HEALTH_WAIT="${HEALTH_WAIT:-40}"
 
 cd "$APP_DIR"
@@ -44,6 +44,10 @@ fail() {
 }
 trap fail ERR
 
+# 값 하나가 빠져도 사이트는 그냥 뜨고 조용히 틀어진다. 아무것도 건드리기 전에 본다
+echo "▶ 설정 점검"
+node scripts/check-env.mjs
+
 echo "▶ 코드 받는 중 (지금: $PREV_SHA)"
 git pull --ff-only
 
@@ -69,7 +73,7 @@ sudo systemctl restart "$SERVICE"
 echo "▶ 살아 있는지 확인 (최대 ${HEALTH_WAIT}초)"
 OK=0
 for _ in $(seq 1 "$HEALTH_WAIT"); do
-  if curl -fsS -m 3 "http://127.0.0.1:$PORT/api/health" > /dev/null 2>&1; then
+  if curl -fsS -m 3 "http://127.0.0.1:$PORT/api/health/live" > /dev/null 2>&1; then
     OK=1
     break
   fi

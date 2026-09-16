@@ -110,7 +110,15 @@ sudo chmod 600 .env.production
 ```
 
 값을 바꾼 뒤에는 `sudo systemctl restart c3r` 로 다시 시작해야 반영됩니다.
-다 올린 뒤 관리자로 로그인해 `https://cccr.or.kr/api/health` 를 열면 빠진 값과 첨부 폴더 쓰기 권한을 한눈에 볼 수 있습니다.
+값을 다 적었으면 빠진 것이 없는지 먼저 봅니다.
+
+```bash
+cd /srv/c3r/app && node scripts/check-env.mjs
+```
+
+빠진 값이 있으면 무엇이 어떻게 잘못되는지 알려 주고 멈춥니다(배포할 때도 자동으로 돕니다).
+
+다 올린 뒤 관리자로 로그인해 `https://cccr.or.kr/api/health` 를 열면 설정과 첨부 폴더 쓰기 권한을 한눈에 볼 수 있습니다.
 
 `.env.production`에는 DB 비밀번호가 들어갑니다. 절대 git에 올리지 마세요(`.gitignore`에 이미 있습니다).
 
@@ -159,6 +167,10 @@ sudo crontab -e
 # 아래 한 줄 추가 — 매일 새벽 4시
 0 4 * * * /srv/c3r/app/scripts/backup.sh >> /var/log/c3r-backup.log 2>&1
 ```
+
+`.env.production` 의 `UPLOAD_DIR` 을 기본값(`/srv/c3r/data/uploads`)과 다르게 적었다면
+cron 줄 앞에도 같이 적어야 합니다(`0 4 * * * UPLOAD_DIR=/다른/경로 /srv/c3r/app/scripts/backup.sh ...`).
+`node scripts/check-env.mjs` 가 어긋나면 알려 줍니다.
 
 `sudo crontab -e` 는 root 의 crontab 입니다. 백업 스크립트는 root 로 돌아야 합니다
 (DB 는 postgres 계정으로 덤프하고, 파일은 root 가 백업 폴더에 씁니다).
@@ -211,7 +223,7 @@ cd /srv/c3r/app
 ./scripts/deploy.sh
 ```
 
-코드 받기 → 설치 → 빌드 → 재시작 → `/api/health` 응답 확인까지 한 번에 합니다.
+설정 점검 → 코드 받기 → 설치 → 빌드 → 재시작 → `/api/health/live` 응답 확인까지 한 번에 합니다.
 
 어느 단계에서든 어긋나면 **스스로 배포 전으로 되돌립니다.** 코드는 직전 커밋으로,
 화면은 직전 빌드(`.next.prev`)로 돌리고 서비스를 다시 띄웁니다. 빌드가 깨져도 사이트는 계속 돌아갑니다.
@@ -236,7 +248,9 @@ cd /srv/c3r/app
 | 수동 백업 | `/srv/c3r/app/scripts/backup.sh` |
 | 직전 판으로 되돌리기 | `/srv/c3r/app/scripts/rollback.sh` |
 | 백업 알림이 오는지 확인 | `sudo MIN_FREE_MB=99999999 /srv/c3r/app/scripts/backup.sh` |
-| 사이트가 살아 있는지 | `curl -s localhost:3000/api/health` |
+| 사이트가 살아 있는지 | `curl -s localhost:3000/api/health/live` (ok 가 나와야 함) |
+| 설정을 한눈에 보기 | 관리자로 로그인한 브라우저에서 `/api/health` |
+| 설정에 빠진 값이 없는지 | `cd /srv/c3r/app && node scripts/check-env.mjs` |
 | 디스크 여유 확인 | `df -h /srv` |
 
 ---
@@ -283,7 +297,8 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 - [ ] 백업을 서버 밖으로도 복사하고 있는지
 - [ ] 백업 알림 메일이 실제로 오는지 한 번 확인했는지
 - [ ] 백업으로 되살리기를 한 번 해 봤는지 (백업은 복구해 봐야 백업입니다)
-- [ ] 밖에서 사이트를 지켜보는 감시(UptimeRobot 등)에 `/api/health` 를 걸었는지
+- [ ] 밖에서 사이트를 지켜보는 감시(UptimeRobot 등)에 `https://cccr.or.kr/api/health/live` 를 걸었는지
+      (`/api/health` 는 관리자만 볼 수 있어 감시가 404 를 받는다)
 - [ ] `/etc/nginx/conf.d/c3r-limits.conf` 가 있는지 (없으면 nginx 가 뜨지 않습니다)
 - [ ] `sudo apt update && sudo apt upgrade`를 주기적으로 하는지
 

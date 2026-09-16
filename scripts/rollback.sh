@@ -33,7 +33,7 @@ mv .next.rollback-tmp .next.prev
 sudo systemctl restart "$SERVICE"
 
 for _ in $(seq 1 40); do
-  if curl -fsS -m 3 "http://127.0.0.1:$PORT/api/health" > /dev/null 2>&1; then
+  if curl -fsS -m 3 "http://127.0.0.1:$PORT/api/health/live" > /dev/null 2>&1; then
     echo "✅ 되돌렸습니다 — $(git rev-parse --short HEAD) / $(systemctl is-active "$SERVICE")"
     exit 0
   fi

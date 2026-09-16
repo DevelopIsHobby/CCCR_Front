@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // 브라우저 테스트가 만들어 내는 것들(보고서·실패 기록·확인용 DB). 우리가 쓴 코드가 아니다
+    "playwright-report/**",
+    "test-results/**",
+    ".e2e/**",
   ]),
   {
     rules: {
