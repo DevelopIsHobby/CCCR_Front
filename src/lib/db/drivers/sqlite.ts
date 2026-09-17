@@ -7,8 +7,13 @@ import type { Driver, SqlValue } from "../driver";
 /*
   SQLite 드라이버. Node 내장 node:sqlite 를 쓰므로 설치할 패키지가 없다.
   동기 API 지만 Driver 인터페이스에 맞춰 Promise 로 감싼다.
+
+  경로를 환경변수로 정하므로 빌드할 때는 어디를 가리킬지 알 수 없다. 그대로 두면
+  Next 가 "모르겠으니 다 넣자" 하고 프로젝트 전체(public 폴더까지)를 결과물에
+  딸려 넣는다. 여기서 읽는 것은 서버가 돌 때 생기는 자료 파일이지 빌드에 넣을
+  코드가 아니므로, 따라가지 말라고 표시해 둔다.
 */
-const DB_PATH = resolve(process.env.DATABASE_PATH ?? "data/c3r.db");
+const DB_PATH = resolve(/* turbopackIgnore: true */ process.env.DATABASE_PATH ?? "data/c3r.db");
 
 let conn: DatabaseSync | null = null;
 

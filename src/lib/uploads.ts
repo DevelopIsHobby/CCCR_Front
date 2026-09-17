@@ -7,8 +7,13 @@ import { readImageSize } from "@/lib/image-size";
 /*
   첨부파일은 public/ 이 아니라 서버 디렉터리에 둔다.
   잠금글 첨부를 URL 만으로 내려받지 못하게 하려면 권한 검사를 거쳐야 하기 때문이다.
+
+  아래 세 군데의 `turbopackIgnore` 는 "이 경로는 빌드가 따라가지 말라"는 표시다.
+  경로를 환경변수로 정해 빌드할 때는 어디인지 알 수 없는데, 표시가 없으면 Next 가
+  프로젝트 전체를 결과물에 딸려 넣는다. 여기서 다루는 것은 서버가 돌면서 주고받는
+  올린 파일이지 빌드에 넣을 코드가 아니다.
 */
-export const UPLOAD_DIR = resolve(process.env.UPLOAD_DIR ?? "data/uploads");
+export const UPLOAD_DIR = resolve(/* turbopackIgnore: true */ process.env.UPLOAD_DIR ?? "data/uploads");
 
 export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024; // 20MB
 
@@ -66,7 +71,7 @@ export async function saveUpload(file: File) {
 
   try {
     await mkdir(UPLOAD_DIR, { recursive: true });
-    await writeFile(join(UPLOAD_DIR, storedName), buffer);
+    await writeFile(join(/* turbopackIgnore: true */ UPLOAD_DIR, storedName), buffer);
   } catch (err) {
     /*
       Vercel 같은 서버리스 환경은 디스크가 읽기 전용이라 파일을 남길 수 없다.
@@ -100,7 +105,7 @@ export async function saveUpload(file: File) {
 
 export async function deleteUpload(storedName: string): Promise<void> {
   try {
-    await unlink(join(UPLOAD_DIR, safeStoredName(storedName)));
+    await unlink(join(/* turbopackIgnore: true */ UPLOAD_DIR, safeStoredName(storedName)));
   } catch {
     /* 파일이 이미 없으면 넘어간다. */
   }
