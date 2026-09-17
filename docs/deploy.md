@@ -240,7 +240,26 @@ sudo -u postgres pg_restore --no-owner --role=c3r -d c3r --clean --if-exists c3r
 sudo systemctl start c3r
 ```
 
-3) 관리자로 로그인해 회원사 현황·소개 문구·신청 목록이 그대로인지 봅니다.
+3) **닫은 창구의 시연용 개인정보를 지웁니다.** 회의실 예약·홍보 서비스 신청은 2026-09-14 에
+   걷어냈지만, 되살릴 여지를 두려고 표는 남겼습니다. 그래서 그때 들어온 시연용 신청이
+   덤프에 따라옵니다. 이 자료는 **개인정보 처리방침에 적혀 있지 않고**, 코드가 이 표를
+   건드리지 않아 **보관기간 파기에서도 빠집니다.** 방침에 없는 개인정보를 갖고 있게 되므로
+   옮긴 직후에 비웁니다. 표 자체는 남겨 두어 나중에 기능을 되살릴 수 있게 합니다.
+
+```bash
+# 먼저 몇 건인지 봅니다
+sudo -u postgres psql -d c3r -c "SELECT 'room' AS t, count(*) FROM room_reservations
+  UNION ALL SELECT 'promo', count(*) FROM promo_requests
+  UNION ALL SELECT 'block', count(*) FROM room_blocks;"
+
+# 비웁니다
+sudo -u postgres psql -d c3r -c "DELETE FROM room_reservations; DELETE FROM room_blocks; DELETE FROM promo_requests;"
+```
+
+   홍보 신청에 딸려 있던 그림·첨부가 있으면 파일은 남습니다. 관리자 화면 → 파일 관리의
+   **'기록 없는 파일'** 에 뜨니 거기서 함께 지웁니다.
+
+4) 관리자로 로그인해 회원사 현황·소개 문구·신청 목록이 그대로인지 봅니다.
 
 - `pg_dump` 판이 옛 DB 판보다 낮으면 거절됩니다. 1-5 에서 옛 DB 와 같은 판을 설치했는지 확인하세요.
 - `schema_migrations` 표도 함께 옮겨지므로, 앱이 켜질 때 이미 적용한 마이그레이션을 다시 돌리지 않습니다.
@@ -324,6 +343,8 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 - [ ] `.env.production` 권한이 600이고 git에 없는지
 - [ ] DB 비밀번호가 추측 불가능한 긴 문자열인지
 - [ ] 관리자 계정 비밀번호를 기본값에서 바꿨는지
+- [ ] 닫은 창구(회의실·홍보)의 시연용 신청을 비웠는지 (`1-11` 의 3단계).
+      방침에 없는 개인정보이고 자동 파기 대상도 아닙니다
 - [ ] `sudo ufw status`에서 3000 포트가 열려 있지 않은지
 - [ ] `free -h` 에서 스왑 2GB 가 켜져 있는지 (재부팅 뒤에도)
 - [ ] 백업 파일이 실제로 쌓이는지 (`ls -lh /srv/c3r/backup`)
