@@ -18,6 +18,7 @@
 # 배포가 남기는 직전 빌드와 되돌릴 지점 (scripts/deploy.sh)
 /.next.prev/
 /.next.prev.sha
+/.next.new/
 /out/
 
 # production

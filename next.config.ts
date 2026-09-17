@@ -61,6 +61,18 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  /*
+    빌드 결과를 어디에 둘지. 평소에는 .next 다.
+
+    배포할 때만 NEXT_DIST_DIR=.next.new 로 딴 곳에 짓는다. 그래야 짓는 동안
+    돌고 있는 옛 판이 제 빌드(.next)를 그대로 쥐고 있을 수 있다. 예전에는 짓기 전에
+    .next 를 옮겨 두었는데, 그러면 빌드가 도는 1분 남짓 동안 옛 판이 자기 파일을
+    잃어버려 CSS·JS 와 /api/health/live 가 500 을 냈다(감시가 장애로 오인했다).
+    다 지은 뒤에 바꿔치기하므로 멈추는 시간은 재시작하는 몇 초뿐이다.
+
+    `next start` 는 이 값을 안 주므로 늘 .next 를 읽는다.
+  */
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // 상위 폴더의 package-lock.json을 루트로 오인하지 않도록 고정
   turbopack: { root: __dirname },
 
