@@ -1,5 +1,6 @@
 import "server-only";
 import { ready } from "./migrate";
+import { likeContains } from "@/lib/like";
 import type {
   EducationProposal,
   NoticeSubscriber,
@@ -48,8 +49,10 @@ export async function listNoticeSubscribers(
     params.push(status);
   }
   if (q) {
-    where.push("(email LIKE ? OR company LIKE ? OR name LIKE ?)");
-    params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+    /* LOWER + likeContains 짝. 한쪽만 낮추면 아무것도 안 걸린다(lib/like.ts) */
+    where.push("(LOWER(email) LIKE ? ESCAPE '\\' OR LOWER(company) LIKE ? ESCAPE '\\' OR LOWER(name) LIKE ? ESCAPE '\\')");
+    const like = likeContains(q);
+    params.push(like, like, like);
   }
 
   /* 휴지통에 있는 것은 목록에 내지 않는다 */

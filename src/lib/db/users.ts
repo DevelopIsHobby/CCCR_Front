@@ -1,5 +1,6 @@
 import "server-only";
 import { ready } from "./migrate";
+import { likeContains } from "@/lib/like";
 
 export type { UserRole, UserRow, UserStatus } from "@/lib/user-types";
 export { USER_STATUS_LABEL } from "@/lib/user-types";
@@ -48,8 +49,10 @@ export async function listUsers(opts: { q?: string; status?: UserStatus | "all" 
     params.push(status);
   }
   if (q) {
-    where.push("(email LIKE ? OR name LIKE ? OR company LIKE ?)");
-    params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+    /* LOWER + likeContains 짝. 한쪽만 낮추면 아무것도 안 걸린다(lib/like.ts) */
+    where.push("(LOWER(email) LIKE ? ESCAPE '\\' OR LOWER(name) LIKE ? ESCAPE '\\' OR LOWER(company) LIKE ? ESCAPE '\\')");
+    const like = likeContains(q);
+    params.push(like, like, like);
   }
 
   const rows = await db.all<RawUser>(

@@ -1,5 +1,6 @@
 import "server-only";
 import { ready } from "./migrate";
+import { likeContains } from "@/lib/like";
 import { now } from "./driver";
 
 export type SubscriberStatus = "active" | "unsubscribed";
@@ -43,8 +44,9 @@ export async function listSubscribers(
     params.push(status);
   }
   if (q) {
-    where.push("email LIKE ?");
-    params.push(`%${q}%`);
+    /* LOWER + likeContains 짝. 한쪽만 낮추면 아무것도 안 걸린다(lib/like.ts) */
+    where.push("LOWER(email) LIKE ? ESCAPE '\\'");
+    params.push(likeContains(q));
   }
 
   const rows = await db.all<RawSubscriber>(

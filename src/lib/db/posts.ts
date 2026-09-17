@@ -171,7 +171,7 @@ export async function listPosts(opts: { board: string; page?: number; q?: string
   const like = likeContains(q);
 
   const countRow = await db.get<{ n: number }>(
-    `SELECT COUNT(*) AS n FROM posts WHERE deleted_at = '' AND board = ?${q ? " AND title LIKE ? ESCAPE '\\'" : ""}`,
+    `SELECT COUNT(*) AS n FROM posts WHERE deleted_at = '' AND board = ?${q ? " AND LOWER(title) LIKE ? ESCAPE '\\'" : ""}`,
     q ? [opts.board, like] : [opts.board],
   );
   const total = Number(countRow?.n ?? 0);
@@ -180,7 +180,7 @@ export async function listPosts(opts: { board: string; page?: number; q?: string
   const current = Math.min(page, totalPages);
 
   const rows = await db.all<RawRow>(
-    `SELECT * FROM (${NUMBERED}) numbered${q ? " WHERE title LIKE ? ESCAPE '\\'" : ""}
+    `SELECT * FROM (${NUMBERED}) numbered${q ? " WHERE LOWER(title) LIKE ? ESCAPE '\\'" : ""}
      ORDER BY id DESC LIMIT ? OFFSET ?`,
     q
       ? [opts.board, like, PER_PAGE, (current - 1) * PER_PAGE]

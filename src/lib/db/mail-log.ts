@@ -1,5 +1,6 @@
 import "server-only";
 import { ready } from "./migrate";
+import { likeContains } from "@/lib/like";
 
 /*
   보낸 알림 메일 기록.
@@ -74,8 +75,10 @@ export async function listMailLog(opts: { q?: string; page?: number } = {}) {
   const params: string[] = [];
   if (q) {
     /* 접수번호·받는 주소 어느 쪽으로도 찾을 수 있게 한다 */
-    where.push("(ref LIKE ? OR to_email LIKE ?)");
-    params.push(`%${q}%`, `%${q}%`);
+    /* LOWER + likeContains 짝. 한쪽만 낮추면 아무것도 안 걸린다(lib/like.ts) */
+    where.push("(LOWER(ref) LIKE ? ESCAPE '\\' OR LOWER(to_email) LIKE ? ESCAPE '\\')");
+    const like = likeContains(q);
+    params.push(like, like);
   }
   const clause = where.length ? `WHERE ${where.join(" AND ")}` : "";
 

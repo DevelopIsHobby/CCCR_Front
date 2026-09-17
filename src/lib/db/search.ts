@@ -71,7 +71,7 @@ export async function search(q: string): Promise<SearchResult> {
     link_url: string | null;
   }>(
     `SELECT id, board, title, body, created_at, link_url FROM posts
-      WHERE deleted_at = '' AND (title LIKE ? ESCAPE '\\' OR body LIKE ? ESCAPE '\\')
+      WHERE deleted_at = '' AND (LOWER(title) LIKE ? ESCAPE '\\' OR LOWER(body) LIKE ? ESCAPE '\\')
       ORDER BY id DESC LIMIT ?`,
     [like, like, PER_PAGE],
   );

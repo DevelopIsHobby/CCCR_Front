@@ -1,5 +1,6 @@
 import "server-only";
 import { ready } from "./migrate";
+import { likeContains } from "@/lib/like";
 import { BOARDS } from "@/lib/boards";
 
 /* 관리자 화면에서 전체 게시판 글을 한 번에 본다. */
@@ -55,8 +56,10 @@ export async function listAdminPosts(opts: { board?: string; q?: string; page?: 
     params.push(board);
   }
   if (q) {
-    where.push("(title LIKE ? OR body LIKE ?)");
-    params.push(`%${q}%`, `%${q}%`);
+    /* LOWER + likeContains 짝. 한쪽만 낮추면 아무것도 안 걸린다(lib/like.ts) */
+    where.push("(LOWER(title) LIKE ? ESCAPE '\\' OR LOWER(body) LIKE ? ESCAPE '\\')");
+    const like = likeContains(q);
+    params.push(like, like);
   }
   /* 휴지통에 있는 글은 목록에 내지 않는다 */
   where.unshift("deleted_at = ''");
