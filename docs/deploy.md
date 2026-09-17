@@ -3,8 +3,13 @@
 우분투 계열 국내 VPS 한 대에 **Next.js 앱 + PostgreSQL + Nginx**를 올리는 방법입니다.
 서버를 처음 받았을 때 한 번만 하는 설치와, 이후 반복하는 배포·백업·복구를 나눠서 적었습니다.
 
-권장 사양: **vCPU 2 / RAM 2GB / SSD 30GB 이상**, Ubuntu 22.04 LTS.
-RAM 1GB짜리는 `next build`가 메모리 부족으로 죽을 수 있습니다(스왑을 잡으면 되지만 느립니다).
+권장 사양: **RAM 2GB / SSD 40GB 이상**, Ubuntu 22.04 LTS.
+2026-09 정한 서버: **카페24 가상서버호스팅 비즈니스**(RAM 2GB · SSD 40GB · Ubuntu 22.04).
+
+평소에는 앱·DB·Nginx 를 합쳐 600MB 안팎을 씁니다(2026-09 측정: 앱 약 120MB).
+서버에서 빌드하는 동안에만 1.5GB 넘게 더 필요하므로 **1-1a 의 스왑을 꼭 켜 둡니다.**
+빌드가 메모리 부족으로 실패해도 `scripts/deploy.sh` 가 이전 판으로 되돌리므로 사이트는 멈추지 않습니다.
+RAM 1GB 요금제는 서버에서 빌드할 수 없습니다.
 
 ---
 
@@ -16,6 +21,31 @@ RAM 1GB짜리는 `next build`가 메모리 부족으로 죽을 수 있습니다(
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y curl git nginx ufw
 ```
+
+### 1-1a. 스왑 (RAM 2GB 서버에서 빌드하려면 필요)
+
+스왑은 디스크 일부를 비상 메모리로 쓰게 하는 우분투 설정입니다. 호스팅 요금표에는 없고 서버에서 직접 켭니다.
+
+```bash
+# 2GB 스왑 파일을 만들어 켠다
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+# 재부팅 뒤에도 켜지게 한다
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+# 평소에는 스왑을 되도록 쓰지 않게 한다(빌드처럼 모자랄 때만)
+echo 'vm.swappiness=10' | sudo tee /etc/sysctl.d/99-swappiness.conf
+sudo sysctl --system
+
+# 확인: Swap 줄에 2.0Gi 가 보여야 한다
+free -h
+```
+
+`swapon` 에서 "Operation not permitted" 같은 오류가 나면 이 가상서버는 스왑을 쓸 수 없는 방식입니다.
+그때는 서버에서 빌드하지 말고 깃허브에서 빌드해 결과만 보내는 방식으로 바꿔야 합니다(작업기록 남은 일 참고).
 
 ### 1-2. Node.js 22 LTS 이상
 
@@ -295,6 +325,7 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 - [ ] DB 비밀번호가 추측 불가능한 긴 문자열인지
 - [ ] 관리자 계정 비밀번호를 기본값에서 바꿨는지
 - [ ] `sudo ufw status`에서 3000 포트가 열려 있지 않은지
+- [ ] `free -h` 에서 스왑 2GB 가 켜져 있는지 (재부팅 뒤에도)
 - [ ] 백업 파일이 실제로 쌓이는지 (`ls -lh /srv/c3r/backup`)
 - [ ] 백업을 서버 밖으로도 복사하고 있는지
 - [ ] 백업 알림 메일이 실제로 오는지 한 번 확인했는지
