@@ -6,6 +6,7 @@ import { signUp, type SignUpState } from "@/lib/auth/signup-actions";
 import LegalDialog, { type LegalTab } from "@/components/LegalDialog";
 import ScrollToTopOnShow from "@/components/ScrollToTopOnShow";
 import { SIGNUP_MAX } from "@/lib/auth/signup-limits";
+import SignupPrivacyNotice from "@/components/SignupPrivacyNotice";
 
 const input =
   "w-full rounded-md border border-line px-4 py-3.5 text-md outline-none transition-colors focus:border-brand-500";
@@ -89,6 +90,7 @@ export default function SignUpForm() {
             </div>
           ))}
         </div>
+        <SignupPrivacyNotice />
       </fieldset>
 
       <fieldset className="mt-10">

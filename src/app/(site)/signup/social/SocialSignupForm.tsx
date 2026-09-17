@@ -6,6 +6,7 @@ import LegalDialog, { type LegalTab } from "@/components/LegalDialog";
 import ScrollToTopOnShow from "@/components/ScrollToTopOnShow";
 import { SocialIcon } from "@/components/SocialIcons";
 import { SOCIAL_LABEL, type SocialProvider } from "@/lib/auth/social-profile";
+import SignupPrivacyNotice from "@/components/SignupPrivacyNotice";
 import {
   completeSocialSignup,
   type SocialSignUpState,
@@ -201,6 +202,7 @@ export default function SocialSignupForm({
               </div>
             ))}
           </div>
+          <SignupPrivacyNotice social />
         </fieldset>
 
         <fieldset className="mt-11">
