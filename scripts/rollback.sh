@@ -20,13 +20,30 @@ if [ ! -d .next.prev ]; then
 fi
 
 echo "지금: $(git rev-parse --short HEAD)"
-echo "▶ 한 단계 앞 코드로 되돌립니다"
-git reset --hard --quiet HEAD~1
+
+# deploy.sh 가 '이 빌드가 어느 코드의 것인지' 적어 둔다. 그 지점으로 돌아가야
+# 코드와 빌드가 맞는다. 한 배포가 커밋을 여러 개 받아 왔을 수 있으므로
+# HEAD~1 로는 부족하다.
+TARGET=""
+if [ -f .next.prev.sha ]; then
+  TARGET="$(tr -d '[:space:]' < .next.prev.sha)"
+fi
+
+if [ -n "$TARGET" ]; then
+  echo "▶ 배포 전 코드로 되돌립니다 ($(git rev-parse --short "$TARGET"))"
+  git reset --hard --quiet "$TARGET"
+else
+  echo "⚠ 되돌릴 지점 기록(.next.prev.sha)이 없습니다 — 한 커밋만 되돌립니다."
+  echo "  그 배포가 커밋을 여러 개 받아 왔다면 코드와 빌드가 어긋날 수 있습니다."
+  git reset --hard --quiet HEAD~1
+fi
 
 echo "▶ 직전 빌드로 바꿉니다"
 rm -rf .next.rollback-tmp
 mv .next .next.rollback-tmp
 mv .next.prev .next
+# 이 기록은 방금 쓴 것이라 더는 맞지 않는다. 다음 배포가 새로 적는다.
+rm -f .next.prev.sha
 # 되돌린 것을 또 되돌릴 수 있게 남겨 둔다
 mv .next.rollback-tmp .next.prev
 

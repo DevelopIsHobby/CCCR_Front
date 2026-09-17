@@ -27,6 +27,7 @@ restore() {
   if [ -d .next.prev ]; then
     rm -rf .next
     mv .next.prev .next
+    rm -f .next.prev.sha
     echo "  이전 빌드를 되살렸습니다"
   else
     echo "  이전 빌드가 없습니다(첫 배포)"
@@ -58,9 +59,14 @@ npm ci
 echo "▶ 이전 빌드 보관"
 # 빌드는 .next 를 갈아엎는다. 빌드가 깨지면 되돌릴 것이 없어지므로 먼저 옮겨 둔다.
 rm -rf .next.prev
+rm -f .next.prev.sha
 # set -e 아래에서 [ ... ] && ... 를 쓰면 조건이 거짓일 때 배포가 실패로 끝난다. if 로 쓴다
 if [ -d .next ]; then
   mv .next .next.prev
+  # 이 빌드가 어느 코드의 것인지 함께 남긴다.
+  # git pull 은 커밋을 여러 개 한꺼번에 받아 오므로, 나중에 rollback.sh 가
+  # 'HEAD~1' 로 되돌리면 코드와 빌드가 어긋난다. 정확한 지점을 적어 둔다.
+  echo "$PREV_SHA" > .next.prev.sha
 fi
 
 echo "▶ 빌드"
