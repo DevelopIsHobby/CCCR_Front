@@ -3,6 +3,11 @@
 
     node scripts/create-admin.mjs admin@cccr.or.kr "비밀번호" "최고관리자"
 
+  비밀번호를 명령줄에 적으면 셸 기록(~/.bash_history)과 실행하는 동안
+  프로세스 목록(ps aux)에 그대로 남는다. 흘려 넣는 쪽이 안전하다.
+
+    printf '%s' '비밀번호' | node scripts/create-admin.mjs admin@cccr.or.kr
+
   어떤 DB 를 쓸지는 앱과 같은 환경변수를 따른다.
     DB_DRIVER=sqlite   (기본)  DATABASE_PATH=data/c3r.db
     DB_DRIVER=postgres         DATABASE_URL=postgres://user:pw@host:5432/c3r
@@ -18,9 +23,27 @@ const require = createRequire(import.meta.url);
 const scryptAsync = promisify(scrypt);
 const stamp = () => new Date().toISOString().slice(0, 19).replace("T", " ");
 
-const [email, password, name = "최고관리자"] = process.argv.slice(2);
+/*
+  비밀번호는 인자로 받거나(예전 사용법) 흘려 넣어 받는다.
+  흘려 넣으면 셸 기록과 프로세스 목록에 남지 않는다.
+*/
+async function readPiped() {
+  if (process.stdin.isTTY) return "";
+  const chunks = [];
+  for await (const chunk of process.stdin) chunks.push(chunk);
+  const text = Buffer.concat(chunks).toString("utf8");
+  const nl = text.indexOf(String.fromCharCode(10));
+  return (nl === -1 ? text : text.slice(0, nl)).replace(String.fromCharCode(13), "");
+}
+
+const [email, passwordArg, name = "최고관리자"] = process.argv.slice(2);
+const password = (passwordArg ?? (await readPiped())).trim();
+
 if (!email || !password) {
-  console.error("사용법: node scripts/create-admin.mjs <이메일> <비밀번호> [이름]");
+  console.error("사용법: node scripts/create-admin.mjs <이메일> [<비밀번호>] [이름]");
+  console.error("");
+  console.error("비밀번호를 빼고 흘려 넣으면 셸 기록에 남지 않습니다:");
+  console.error("  printf '%s' '비밀번호' | node scripts/create-admin.mjs <이메일>");
   process.exit(1);
 }
 

@@ -160,9 +160,14 @@ sudo -u c3r npm ci
 sudo -u c3r npm run build
 
 # 스키마 생성 + 관리자 계정 (환경변수 파일을 함께 읽힙니다)
-sudo -u c3r node --env-file=.env.production \
-  scripts/create-admin.mjs admin@cccr.or.kr '실제_비밀번호' '최고관리자'
+# 비밀번호는 흘려 넣습니다. 명령줄에 적으면 셸 기록(~/.bash_history)과
+# 실행하는 동안 프로세스 목록(ps aux)에 그대로 남습니다.
+printf '%s' '실제_비밀번호' | sudo -u c3r node --env-file=.env.production \
+  scripts/create-admin.mjs admin@cccr.or.kr
 ```
+
+이름까지 정하려면 예전처럼 인자로 줍니다(`… create-admin.mjs admin@cccr.or.kr '비밀번호' '최고관리자'`).
+그때는 위 주의가 그대로 적용되니, 명령 앞에 빈칸을 하나 두어 셸 기록에서 빼세요.
 
 ### 1-8. 서비스 등록
 
