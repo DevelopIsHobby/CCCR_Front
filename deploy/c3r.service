@@ -9,6 +9,13 @@ Description=C3R 홈페이지 (Next.js)
 After=network.target postgresql.service
 Wants=postgresql.service
 
+# 죽으면 다시 살리되(아래 Restart), 5분 안에 5번을 넘겨 죽으면 그만 시도한다.
+# systemd 는 이 두 줄을 [Unit] 에서만 읽는다. [Service] 에 두면 조용히 무시되어
+# DB 가 안 떠 있을 때 5초마다 끝없이 다시 뜨며 로그만 쌓인다.
+# 멈춘 뒤 다시 켜려면: sudo systemctl reset-failed c3r && sudo systemctl start c3r
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
 [Service]
 Type=simple
 User=c3r
@@ -18,9 +25,6 @@ ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000
 Restart=always
 RestartSec=5
 
-# 죽으면 다시 살리되, 계속 죽으면 5분 뒤에 다시 시도한다
-StartLimitIntervalSec=300
-StartLimitBurst=5
 
 # 파일 쓰기는 업로드 폴더에만 허용한다
 NoNewPrivileges=true
