@@ -1,4 +1,5 @@
 import { getSession } from "@/lib/auth/session";
+import { logAdminAccess } from "@/lib/db/admin-access";
 import { listProposals } from "@/lib/db/outreach";
 import { csvResponse, toCsv } from "@/lib/csv";
 import { PROPOSAL_STATUS_LABEL, type ProposalStatus } from "@/lib/outreach-types";
@@ -12,6 +13,9 @@ export async function GET(request: Request) {
   if (session?.role !== "admin") {
     return new Response("관리자만 내려받을 수 있습니다.", { status: 403 });
   }
+
+  /* 개인정보가 담긴 명단이 밖으로 나가므로 관리자 접속 기록에 남긴다 */
+  await logAdminAccess(session, "내려받기", `교육사업 제안 목록 · ${new URL(request.url).search || "전체"}`);
 
   const { searchParams } = new URL(request.url);
   const raw = searchParams.get("status");

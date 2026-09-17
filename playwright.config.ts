@@ -55,6 +55,8 @@ export default defineConfig({
       /* 확인용 서버가 검색에 잡히지 않게 한다 */
       SITE_NOINDEX: "1",
       SITE_URL: baseURL,
+      /* 보관기간 자동 파기(/api/cleanup)를 테스트에서 부르기 위한 값. 확인용 서버에만 쓴다 */
+      CLEANUP_SECRET: "e2e-cleanup-secret",
     },
   },
 });

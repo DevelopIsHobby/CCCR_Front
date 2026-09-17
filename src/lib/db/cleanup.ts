@@ -111,6 +111,39 @@ export async function runCleanup(): Promise<CleanupReport> {
     unsubscribedCut,
   ]);
 
+  /*
+    ── 승인되지 않은 가입 신청 · 이용이 제한된 계정 ──
+    방침 제3조: 승인 대기는 신청일부터 6개월, 이용 제한은 제한한 날부터 1년.
+    상태를 바꾼 때(status_changed_at)가 없으면 가입일부터 센다.
+    관리자 계정은 어떤 경우에도 여기서 지우지 않는다.
+  */
+  const since = "COALESCE(NULLIF(status_changed_at, ''), created_at)";
+  const pendingCut = daysAgo(RETENTION_DAYS.pendingMember);
+  report.pendingMembers = await count(
+    `SELECT COUNT(*) AS n FROM users WHERE role = 'member' AND status = 'pending' AND ${since} < ?`,
+    [pendingCut],
+  );
+  await db.run(`DELETE FROM users WHERE role = 'member' AND status = 'pending' AND ${since} < ?`, [
+    pendingCut,
+  ]);
+
+  const blockedCut = daysAgo(RETENTION_DAYS.blockedMember);
+  report.blockedMembers = await count(
+    `SELECT COUNT(*) AS n FROM users WHERE role = 'member' AND status = 'blocked' AND ${since} < ?`,
+    [blockedCut],
+  );
+  await db.run(`DELETE FROM users WHERE role = 'member' AND status = 'blocked' AND ${since} < ?`, [
+    blockedCut,
+  ]);
+
+  /* ── 관리자 접속 기록 — 2년 ────────────────────── */
+  report.adminAccess = await count("SELECT COUNT(*) AS n FROM admin_access_log WHERE created_at < ?", [
+    daysAgo(RETENTION_DAYS.adminAccess),
+  ]);
+  await db.run("DELETE FROM admin_access_log WHERE created_at < ?", [
+    daysAgo(RETENTION_DAYS.adminAccess),
+  ]);
+
   /* ── 기한(30분)이 지난 소셜 가입 대기 기록 ───────── */
   report.oauthSignups = await count("SELECT COUNT(*) AS n FROM oauth_signups WHERE expires_at < ?", [
     nowStamp,

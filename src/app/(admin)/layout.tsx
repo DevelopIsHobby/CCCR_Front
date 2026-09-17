@@ -6,6 +6,7 @@ import { getSession } from "@/lib/auth/session";
 import { countUsersByStatus } from "@/lib/db/users";
 import { countNewProposals, countPendingNotices } from "@/lib/db/outreach";
 import { countTrash } from "@/lib/db/trash";
+import { inspectionOverdue, lastInspection } from "@/lib/db/admin-access";
 import "../globals.css";
 
 /*
@@ -35,11 +36,12 @@ export default async function AdminRootLayout({
   if (session?.role !== "admin") redirect("/login?next=/admin");
 
   /* 사이드바에 붙는 '가입 승인 대기'·'새 제안' 숫자 */
-  const [counts, newProposals, pendingNotices, trash] = await Promise.all([
+  const [counts, newProposals, pendingNotices, trash, inspected] = await Promise.all([
     countUsersByStatus(),
     countNewProposals(),
     countPendingNotices(),
     countTrash(),
+    lastInspection(),
   ]);
 
   return (
@@ -69,6 +71,8 @@ export default async function AdminRootLayout({
             newProposals,
             pendingNotices,
             trash,
+            /* 월 1회 점검(안전성 확보조치 기준 제8조)이 밀렸으면 사이드바에 표시 */
+            inspection: inspectionOverdue(inspected) ? 1 : 0,
           }}
         >
           {children}

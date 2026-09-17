@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AdminIcon, IconExternal } from "@/components/admin/AdminIcons";
@@ -13,12 +13,15 @@ import {
   type AdminLink,
 } from "@/lib/admin-nav";
 import { logout } from "@/lib/auth/actions";
+import AdminAccessLogger from "@/components/admin/AdminAccessLogger";
 
 export type AdminBadges = {
   pendingMembers: number;
   newProposals: number;
   pendingNotices: number;
   trash: number;
+  /** 월간 접속 기록 점검이 밀렸으면 1 */
+  inspection: number;
 };
 
 type Props = {
@@ -187,6 +190,10 @@ export default function AdminShell({ name, email, badges, children }: Props) {
             id="admin-main"
             className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-8 lg:px-8 lg:py-10"
           >
+            {/* 화면을 열 때마다 관리자 접속 기록에 '조회'로 남긴다. 주소 읽기(useSearchParams)는 Suspense 안에 둔다 */}
+            <Suspense fallback={null}>
+              <AdminAccessLogger />
+            </Suspense>
             {children}
           </main>
         </div>

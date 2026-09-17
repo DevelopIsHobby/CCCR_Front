@@ -1,4 +1,5 @@
 import { getSession } from "@/lib/auth/session";
+import { logAdminAccess } from "@/lib/db/admin-access";
 import { listNoticeSubscribers } from "@/lib/db/outreach";
 import { today, toKst } from "@/lib/format";
 
@@ -11,6 +12,9 @@ export async function GET() {
   if (session?.role !== "admin") {
     return new Response("관리자만 내려받을 수 있습니다.", { status: 403 });
   }
+
+  /* 개인정보가 담긴 명단이 밖으로 나가므로 관리자 접속 기록에 남긴다 */
+  await logAdminAccess(session, "내려받기", "사업공고 수신자 명단");
 
   /* 보낼 곳만 담는다. 승인 대기·반려·중단은 넣지 않는다. */
   const rows = await listNoticeSubscribers({ status: "active" });

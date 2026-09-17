@@ -4,6 +4,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
+import { logAdminActionIfAny } from "@/lib/db/admin-access";
 
 const COOKIE = "c3r_session";
 
@@ -138,11 +139,17 @@ export async function requireUser(): Promise<Session> {
   return session;
 }
 
-/** 관리자 전용 동작 앞에서 호출한다. 아니면 예외를 던진다. */
-export async function requireAdmin(): Promise<Session> {
+/**
+  관리자 전용 동작 앞에서 호출한다. 아니면 예외를 던진다.
+
+  서버 액션에서 불렸으면 관리자 접속 기록에 '처리'로 남긴다(admin-access.ts).
+  label 을 주면 무엇을 했는지 함께 적는다. 예) requireAdmin("회원 12 승인")
+*/
+export async function requireAdmin(label?: string): Promise<Session> {
   const session = await getSession();
   if (!session || session.role !== "admin") {
     throw new Error("관리자 권한이 필요합니다.");
   }
+  await logAdminActionIfAny(session, label);
   return session;
 }

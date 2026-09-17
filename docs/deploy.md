@@ -149,6 +149,8 @@ sudo systemctl status c3r        # active (running) 확인
 sudo cp deploy/nginx.conf /etc/nginx/sites-available/c3r
 # 요청량 제한(한 곳에서 쉬지 않고 두드리는 것을 막는 그물). 없으면 위 설정이 뜨지 않는다
 sudo cp deploy/nginx-limits.conf /etc/nginx/conf.d/c3r-limits.conf
+# 접속 기록(IP 등)을 90일만 둔다. 개인정보 처리방침에 '서버 접속 기록 3개월'이라고 적었다
+sudo cp deploy/logrotate-nginx /etc/logrotate.d/nginx
 sudo ln -s /etc/nginx/sites-available/c3r /etc/nginx/sites-enabled/c3r
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
@@ -300,6 +302,9 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 - [ ] 밖에서 사이트를 지켜보는 감시(UptimeRobot 등)에 `https://cccr.or.kr/api/health/live` 를 걸었는지
       (`/api/health` 는 관리자만 볼 수 있어 감시가 404 를 받는다)
 - [ ] `/etc/nginx/conf.d/c3r-limits.conf` 가 있는지 (없으면 nginx 가 뜨지 않습니다)
+- [ ] `/etc/logrotate.d/nginx` 에 `rotate 90` 이 들어 있는지 (개인정보 처리방침의 서버 접속 기록 3개월)
+- [ ] **매달** 관리자 화면 → 사이트 운영 → 관리자 접속 기록을 살펴보고 '점검 완료'를 눌렀는지
+      (「개인정보의 안전성 확보조치 기준」 제8조 — 월 1회 이상. 31일이 지나면 사이드바에 표시가 뜹니다)
 - [ ] `sudo apt update && sudo apt upgrade`를 주기적으로 하는지
 
 ---

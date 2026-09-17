@@ -1,0 +1,26 @@
+# /etc/logrotate.d/nginx
+# 설치:  sudo cp deploy/logrotate-nginx /etc/logrotate.d/nginx
+#
+# Nginx 접속 기록(IP주소·접속 일시·요청 주소·브라우저 정보)을 90일만 둔다.
+# 개인정보 처리방침 제3조에 "서버 접속 기록 : 수집일부터 3개월"이라고 적었으므로
+# 우분투 기본값(14일)이 아니라 이 값이어야 한다. 바꾸면 방침(src/lib/legal-data.ts)도 함께 고친다.
+#
+# 날마다 새 파일로 돌리고, 91번째 날 파일은 지운다. 오래된 것은 압축해 자리를 아낀다.
+/var/log/nginx/*.log {
+    daily
+    rotate 90
+    missingok
+    notifempty
+    compress
+    delaycompress
+    create 0640 www-data adm
+    sharedscripts
+    prerotate
+        if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+            run-parts /etc/logrotate.d/httpd-prerotate; \
+        fi \
+    endscript
+    postrotate
+        invoke-rc.d nginx rotate >/dev/null 2>&1
+    endscript
+}
