@@ -117,6 +117,17 @@ if (smtp.length > 0) {
 if (!process.env.MAIL_OFFICE?.trim()) {
   warnings.push("MAIL_OFFICE 가 없습니다. 새 신청·백업 실패 알림이 보내는 주소로만 갑니다");
 }
+/*
+  카페24 발송 서버(smtp.cafe24.com)는 TLS 1.0 까지만 하고 재협상 방식도 옛것이라
+  요즘 Node 가 연결을 끊는다. 이 값이 없으면 메일이 한 통도 나가지 않는데
+  화면에는 아무 표시가 없다(기록에만 failed 로 남는다). 여기서 미리 짚어 준다.
+*/
+const smtpHost = process.env.SMTP_HOST?.trim().toLowerCase() ?? "";
+if (smtpHost.includes("cafe24") && process.env.SMTP_LEGACY_TLS?.trim() !== "1") {
+  warnings.push(
+    "SMTP_LEGACY_TLS=1 이 없습니다. 카페24 발송 서버는 낡은 TLS 라 이 값이 없으면 메일이 나가지 않습니다",
+  );
+}
 
 /* 5) 보관기간 자동 파기 */
 if (!process.env.CLEANUP_SECRET?.trim() && !process.env.CRON_SECRET?.trim()) {
