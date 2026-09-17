@@ -13,6 +13,7 @@
   진짜 문제가 무엇이었는지 가려진다. 대신 까닭을 화면(=cron 로그)에 남긴다.
 */
 import { readFileSync } from "node:fs";
+import { constants as sslConstants } from "node:crypto";
 
 const ENV_FILE = process.env.C3R_ENV_FILE ?? "/srv/c3r/app/.env.production";
 
@@ -80,11 +81,37 @@ try {
     process.exit(0);
   }
 
+  /*
+    붙는 방식은 앱(src/lib/mail/send.ts)과 똑같이 맞춘다.
+
+    앞서는 host·port·auth 만 넘겼다. 그런데 조합 메일은 카페24를 쓰고, 그 발송 서버는
+    TLS 1.0 까지만 하며 재협상 방식도 옛것이라 요즘 Node 가 연결을 끊는다. 앱은
+    SMTP_LEGACY_TLS=1 로 이것을 풀어 주는데 여기에는 그 갈래가 없었다.
+    그래서 앱은 메일을 보내는데 이 알림만 못 보내는 상태였다. 하필 '백업이 실패했다'는,
+    못 받으면 가장 곤란한 알림이다. 그마저 조용히 실패했다(아래 catch 가 삼킨다).
+
+    설정을 바꿀 때는 send.ts 와 함께 고친다.
+  */
+  const insecure = process.env.SMTP_INSECURE === "1";
+  const legacyTls = process.env.SMTP_LEGACY_TLS === "1";
+  const authMethod = process.env.SMTP_AUTH?.trim().toUpperCase();
+  const method = authMethod || (insecure ? "CRAM-MD5" : undefined);
+
   const transport = createTransport({
     host,
     port,
-    secure: port === 465,
-    auth: { user, pass },
+    /* 587 은 평문으로 열고 STARTTLS 로 올린다. 465 는 처음부터 TLS 다. */
+    secure: !insecure && port === 465,
+    requireTLS: !insecure && port !== 465,
+    ignoreTLS: insecure,
+    tls: legacyTls
+      ? {
+          minVersion: "TLSv1",
+          ciphers: "DEFAULT:@SECLEVEL=0",
+          secureOptions: sslConstants.SSL_OP_LEGACY_SERVER_CONNECT,
+        }
+      : undefined,
+    auth: method ? { user, pass, method } : { user, pass },
     connectionTimeout: 20_000,
   });
 
