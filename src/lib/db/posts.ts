@@ -130,7 +130,15 @@ function toPost(r: RawRow): PostRow {
     createdAt: r.created_at,
     attachmentCount: Number(r.attachment_count),
     link: r.link_url ? { url: r.link_url, label: r.link_label ?? null } : null,
-    thumbUrl: firstImage(r.body),
+    /*
+      회원 전용 글은 대표 그림을 내지 않는다.
+
+      대표 그림은 본문 맨 앞 그림을 뽑아 쓰는데, 그러면 본문을 막아 놓고 그 안의
+      그림만 목록에 내거는 꼴이 된다. 그림 자체도 로그인해야 받을 수 있으므로
+      (api/images), 그대로 두면 목록에 깨진 그림이 걸린다.
+      제목과 잠금 표시는 그대로 보인다.
+    */
+    thumbUrl: Number(r.is_locked) === 1 ? null : firstImage(r.body),
     thumbWidth: 0,
     thumbHeight: 0,
     event: {
