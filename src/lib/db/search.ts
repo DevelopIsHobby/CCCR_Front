@@ -1,5 +1,6 @@
 import "server-only";
 import { ready } from "./migrate";
+import { getSession } from "@/lib/auth/session";
 import { likeContains } from "@/lib/like";
 import { BOARDS, getBoard, postHref } from "@/lib/boards";
 import { NAV } from "@/lib/site-data";
@@ -61,17 +62,29 @@ export async function search(q: string): Promise<SearchResult> {
   /* %·_ 를 글자 그대로 찾는다(like.ts) */
   const like = likeContains(term);
 
-  /* 잠근 글은 목록에 보이므로 함께 찾는다. 숨김 상태는 게시판에 따로 없다. */
+  /*
+    잠근 글(회원 전용)은 제목이 목록에 보이므로 제목으로는 함께 찾는다.
+    다만 본문은 로그인해야 볼 수 있는 것이라, 로그인하지 않은 사람에게는
+    본문으로 찾아 주지도, 미리보기를 보여 주지도 않는다.
+    그러지 않으면 상세 화면에서 막아 놓은 내용을 검색 결과로 읽을 수 있다.
+    숨김 상태는 게시판에 따로 없다.
+  */
+  const canReadLocked = (await getSession()) !== null;
+  const bodyMatch = canReadLocked
+    ? `LOWER(body) LIKE ? ESCAPE '\\'`
+    : `(LOWER(body) LIKE ? ESCAPE '\\' AND is_locked = 0)`;
+
   const rows = await db.all<{
     id: number;
     board: string;
     title: string;
     body: string;
+    is_locked: number;
     created_at: string;
     link_url: string | null;
   }>(
-    `SELECT id, board, title, body, created_at, link_url FROM posts
-      WHERE deleted_at = '' AND (LOWER(title) LIKE ? ESCAPE '\\' OR LOWER(body) LIKE ? ESCAPE '\\')
+    `SELECT id, board, title, body, is_locked, created_at, link_url FROM posts
+      WHERE deleted_at = '' AND (LOWER(title) LIKE ? ESCAPE '\\' OR ${bodyMatch})
       ORDER BY id DESC LIMIT ?`,
     [like, like, PER_PAGE],
   );
@@ -89,7 +102,9 @@ export async function search(q: string): Promise<SearchResult> {
         /* 산업뉴스는 원문 기사로 바로 보낸다 */
         href: postHref(board, Number(r.id), r.link_url),
         title: r.title,
-        snippet: snippetOf(r.body ?? "", term),
+        /* 잠근 글의 본문은 로그인한 사람에게만 미리 보여 준다 */
+        snippet:
+          Number(r.is_locked) === 1 && !canReadLocked ? "" : snippetOf(r.body ?? "", term),
         createdAt: r.created_at,
       };
     });
