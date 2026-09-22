@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth/session";
 import { logAdminAccess } from "@/lib/db/admin-access";
 import { listProposals } from "@/lib/db/outreach";
 import { csvResponse, toCsv } from "@/lib/csv";
+import { toKst } from "@/lib/format";
 import { PROPOSAL_STATUS_LABEL, type ProposalStatus } from "@/lib/outreach-types";
 
 /*
@@ -36,7 +37,8 @@ export async function GET(request: Request) {
       r.subject,
       r.body,
       r.ref,
-      r.createdAt.slice(0, 10),
+      /* DB 시각은 UTC 라 한국 날짜로 바꿔 적는다. 화면 목록도 한국 날짜를 보여 준다. */
+      toKst(r.createdAt).slice(0, 10),
     ]),
   );
 
