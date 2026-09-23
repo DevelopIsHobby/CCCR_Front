@@ -76,6 +76,13 @@ sudo ufw enable
 sudo adduser --system --group --home /srv/c3r c3r
 sudo mkdir -p /srv/c3r/{app,data/uploads,backup}
 sudo chown -R c3r:c3r /srv/c3r
+
+# Nginx(www-data)가 /srv/c3r 안으로 들어갈 수 있게 한다.
+# adduser 가 만든 /srv/c3r 은 750 이라 그냥 두면 www-data 가 못 들어간다.
+# 그러면 CSS·JS(.next/static)와 점검 안내 화면이 통째로 404 가 되어,
+# 사이트가 글씨만 나온 맨몸으로 뜬다. 그룹으로만 열고 남에게는 닫아 둔다.
+sudo usermod -aG c3r www-data
+sudo systemctl restart nginx      # 그룹은 다시 켜야 반영된다
 ```
 
 ### 1-5. PostgreSQL 설치와 준비
