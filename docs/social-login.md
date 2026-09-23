@@ -18,6 +18,21 @@
 | 네이버 | `https://cccr.kr/api/auth/naver/callback` | `https://cccr-front.vercel.app/api/auth/naver/callback` |
 | 구글 | `https://cccr.kr/api/auth/google/callback` | `https://cccr-front.vercel.app/api/auth/google/callback` |
 
+**나중에 주소를 옮길 수 있으니 처음부터 여러 개 등록해 두세요.** 세 서비스 모두 돌아올 주소를
+여러 개 받습니다. 등록해 둔다고 그 주소로 무엇이 일어나지는 않습니다 — 허용 목록일 뿐입니다.
+미리 넣어 두면 나중에 서버의 `SITE_URL` 한 줄만 바꾸고 다시 켜면 되고, 서비스 쪽은 손댈 일이 없습니다.
+
+    https://cccr.kr/api/auth/<서비스>/callback        ← 지금 쓰는 주소
+    https://cccr.or.kr/api/auth/<서비스>/callback     ← 나중에 옮길 수도 있는 주소
+
+**네이버만 예외입니다.** Callback URL 은 여러 개 되지만 **서비스 URL 은 하나**이고,
+**검수가 그 서비스 URL 기준으로 납니다.** 나중에 주소를 바꾸면 검수를 다시 받아야 할 수 있습니다.
+지금 실제로 쓰는 주소(`https://cccr.kr`)로 두고 검수받으세요.
+
+> 도메인을 옮기는 것 자체는 간단하지 않습니다. `cccr.or.kr` 을 이 서버로 돌리면 HSTS 가
+> 1년짜리로 박히는데 옛 홈페이지는 https 를 받지 않아, 옛 홈페이지가 죽은 것처럼 보이게 됩니다
+> (`docs/deploy.md` 참고). 옮긴다면 옛 홈페이지를 닫는 것까지 함께 정해야 합니다.
+
 새 홈페이지는 **`cccr.kr`** 입니다(2026-09-23). 옛 홈페이지가 있는 `cccr.or.kr` 이 아닙니다.
 메일 주소만 계속 `@cccr.or.kr` 을 씁니다.
 
