@@ -4,7 +4,10 @@
 서버를 처음 받았을 때 한 번만 하는 설치와, 이후 반복하는 배포·백업·복구를 나눠서 적었습니다.
 
 권장 사양: **RAM 2GB / SSD 40GB 이상**, Ubuntu 24.04 LTS (22.04 도 됩니다).
-2026-09 정한 서버: **카페24 가상서버호스팅 비즈니스**(RAM 2GB · SSD 40GB · Ubuntu 24.04).
+2026-09-23 계약한 서버: **카페24 가상서버호스팅 비즈니스**(RAM 2GB · SSD 40GB · 트래픽 500GB/월,
+Ubuntu 24.04). 주소는 **`cccr.kr`** 입니다. 옛 홈페이지는 `cccr.or.kr` 에 그대로 두고
+이 서버로 넘기지 않습니다. **메일은 계속 `@cccr.or.kr`** 이므로 SPF·DKIM·DMARC 는
+`cccr.kr` 이 아니라 `cccr.or.kr` 쪽 DNS 에 넣습니다(6장).
 카페24 구매 화면에서 설치사항은 **OS 만** 고릅니다. APM(Apache·PHP·MariaDB)을 함께 깔면
 Apache 가 80 번 포트를 먼저 잡아 Nginx 가 뜨지 못하고, 쓰지도 않는 프로그램이 메모리를 축냅니다.
 
@@ -114,7 +117,7 @@ NODE_ENV=production
 DB_DRIVER=postgres
 DATABASE_URL=postgres://c3r:여기에_긴_비밀번호@127.0.0.1:5432/c3r
 UPLOAD_DIR=/srv/c3r/data/uploads
-SITE_URL=https://cccr.or.kr
+SITE_URL=https://cccr.kr
 # 정식 공개 전까지 검색에 잡히지 않게 막는다. 공개하는 날 이 줄을 지우고 재시작한다.
 SITE_NOINDEX=1
 
@@ -150,7 +153,7 @@ cd /srv/c3r/app && node scripts/check-env.mjs
 
 빠진 값이 있으면 무엇이 어떻게 잘못되는지 알려 주고 멈춥니다(배포할 때도 자동으로 돕니다).
 
-다 올린 뒤 관리자로 로그인해 `https://cccr.or.kr/api/health` 를 열면 설정과 첨부 폴더 쓰기 권한을 한눈에 볼 수 있습니다.
+다 올린 뒤 관리자로 로그인해 `https://cccr.kr/api/health` 를 열면 설정과 첨부 폴더 쓰기 권한을 한눈에 볼 수 있습니다.
 
 `.env.production`에는 DB 비밀번호가 들어갑니다. 절대 git에 올리지 마세요(`.gitignore`에 이미 있습니다).
 
@@ -194,10 +197,37 @@ sudo nginx -t && sudo systemctl reload nginx
 
 # 도메인이 서버 IP를 가리키게 한 뒤 인증서 발급
 sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d cccr.or.kr -d www.cccr.or.kr
+sudo certbot --nginx -d cccr.kr -d www.cccr.kr
 ```
 
 인증서는 certbot이 자동 갱신합니다(`systemctl status certbot.timer`로 확인).
+
+**인증서를 받은 뒤에** `www` 를 대표 주소로 넘깁니다. 순서가 중요합니다 —
+넘김을 먼저 넣으면 certbot 이 `www.cccr.kr` 을 확인하러 보내는 요청까지 넘겨 버려
+인증서 발급이 실패합니다.
+
+두 주소가 같은 내용을 그대로 내주면 **로그인 쿠키가 주소마다 따로 생깁니다.**
+`www.cccr.kr` 에서 로그인한 분이 `cccr.kr` 로 들어오면 로그아웃 상태로 보입니다.
+(소셜 로그인은 앱이 스스로 대표 주소로 옮겨 시작하므로 이미 막혀 있습니다.)
+
+`/etc/nginx/sites-available/c3r` 에서 certbot 이 만든 **443 블록의 `server_name` 에서
+`www.cccr.kr` 만 빼고**, 아래 블록을 파일 끝에 더합니다.
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name www.cccr.kr;
+    # 인증서는 certbot 이 위에 만들어 둔 것을 그대로 가리킵니다
+    ssl_certificate     /etc/letsencrypt/live/cccr.kr/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/cccr.kr/privkey.pem;
+    return 301 https://cccr.kr$request_uri;
+}
+```
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+curl -sI https://www.cccr.kr/ | head -2    # 301 과 location: https://cccr.kr/ 이 보이면 됩니다
+```
 
 ### 1-10. 자동 백업 등록
 
@@ -359,7 +389,7 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 - [ ] 백업을 서버 밖으로도 복사하고 있는지
 - [ ] 백업 알림 메일이 실제로 오는지 한 번 확인했는지
 - [ ] 백업으로 되살리기를 한 번 해 봤는지 (백업은 복구해 봐야 백업입니다)
-- [ ] 밖에서 사이트를 지켜보는 감시(UptimeRobot 등)에 `https://cccr.or.kr/api/health/live` 를 걸었는지
+- [ ] 밖에서 사이트를 지켜보는 감시(UptimeRobot 등)에 `https://cccr.kr/api/health/live` 를 걸었는지
       (`/api/health` 는 관리자만 볼 수 있어 감시가 404 를 받는다)
 - [ ] `/etc/nginx/conf.d/c3r-limits.conf` 가 있는지 (없으면 nginx 가 뜨지 않습니다)
 - [ ] `/etc/logrotate.d/nginx` 에 `rotate 90` 이 들어 있는지 (개인정보 처리방침의 서버 접속 기록 3개월)
@@ -381,7 +411,7 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 | `SMTP_PASS` | 비밀번호 | |
 | `MAIL_FROM` | 보내는 주소 | `rnd@cccr.or.kr` |
 | `MAIL_OFFICE` | **새 신청 알림을 받을 주소** | 비우면 `MAIL_FROM` 으로 갑니다. 쉼표로 여럿 가능 |
-| `SITE_URL` | 메일 안의 링크 주소 | `https://cccr.or.kr` |
+| `SITE_URL` | 메일 안의 링크 주소 | `https://cccr.kr` |
 | `SMTP_LEGACY_TLS` | 낡은 TLS 를 받아들일지 | 카페24처럼 TLS 1.0 까지만 하는 서버에 `1`. 인증서 검증은 그대로 합니다 |
 | `DKIM_SELECTOR` | DKIM 선택자 | `c3r` (아래 'Gmail 스팸함' 참고. 없으면 서명하지 않음) |
 | `DKIM_PRIVATE_KEY` | DKIM 비밀키(한 줄) | 아래 명령으로 넣습니다 |
@@ -441,14 +471,14 @@ Gmail 에서 받은 메일의 ⋮ > **원본 보기** 맨 위에 `DKIM: 'PASS'` 
 
 ### 임시 주소에서 정식 주소로 넘길 때
 
-임시 주소(`stage.cccr.or.kr` 등)로 한동안 써 보고 정식으로 여는 흐름입니다.
+임시 주소(`stage.cccr.kr` 등)로 한동안 써 보고 정식으로 여는 흐름입니다.
 **다시 빌드할 필요는 없습니다.** 환경변수를 고치고 서비스를 다시 켜면 됩니다
 (`robots.txt`·정식주소(canonical)·사이트맵·noindex 가 모두 요청마다 새로 만들어집니다).
 
 1) `.env.production` 에서 두 줄을 고칩니다.
 
 ```
-SITE_URL=https://cccr.or.kr     # 임시 주소에서 정식 주소로
+SITE_URL=https://cccr.kr        # 임시 주소에서 정식 주소로
 # SITE_NOINDEX=1                 ← 이 줄을 지웁니다
 ```
 
@@ -456,14 +486,17 @@ SITE_URL=https://cccr.or.kr     # 임시 주소에서 정식 주소로
 3) DNS 의 A레코드를 정식 주소로 옮기고, **임시 주소의 A레코드는 지웁니다.**
    남겨 두면 같은 내용이 두 주소에 떠서 검색에서 깎입니다.
 4) 소셜 로그인 콜백 주소를 각 콘솔(카카오·네이버·구글)에서 정식 주소로 바꿉니다.
-5) `sudo systemctl restart c3r` 후 `curl -s https://cccr.or.kr/robots.txt` 로
+5) `sudo systemctl restart c3r` 후 `curl -s https://cccr.kr/robots.txt` 로
    `Disallow: /admin` 과 사이트맵 줄이 보이는지 확인합니다. 보이면 공개 상태입니다.
 
-> 정식 도메인으로는 **미리 시험하지 마세요.** 운영 모드에서 `Strict-Transport-Security`
-> 를 1년으로 보내는데, 옛 홈페이지는 https 를 받지 않습니다. `cccr.or.kr` 을 새 서버로
-> 잠깐 돌려 https 로 열었다가 되돌리면, 그 사이 들어온 분의 브라우저가 1년 동안
-> https 로만 열려 해서 옛 홈페이지가 죽은 것처럼 보입니다. 서버에서 풀 방법이 없습니다.
-> 하위 주소(`stage.…`)는 안전합니다.
+> **`cccr.or.kr` 은 이 서버로 돌리지 마세요.** 새 홈페이지가 `cccr.kr` 이라 평소에는
+> 마주칠 일이 없지만, 시험 삼아 잠깐이라도 돌리면 되돌릴 수 없는 일이 생깁니다.
+> 운영 모드에서 `Strict-Transport-Security` 를 1년으로 보내는데 옛 홈페이지는 https 를
+> 받지 않습니다. 그 사이 들어온 분의 브라우저는 1년 동안 `cccr.or.kr` 을 https 로만
+> 열려 해서, **옛 홈페이지가 죽은 것처럼 보입니다.** 서버에서 풀 방법이 없습니다.
+>
+> 나중에 정말 `cccr.or.kr` 을 새 홈페이지 주소로 삼기로 한다면, 그때는 옛 홈페이지를
+> 닫는 것까지 함께 정하고 한 번에 넘겨야 합니다. 하위 주소(`stage.cccr.kr` 등)는 안전합니다.
 
 ### 공개일에 시험하며 쌓인 자료 정리
 
@@ -517,7 +550,7 @@ cron 에 하루 한 번 등록합니다.
 ```bash
 sudo crontab -e
 # 매일 새벽 4시 30분 — 백업(4시) 다음에 돈다
-30 4 * * * curl -fsS -H "Authorization: Bearer 비밀값" https://cccr.or.kr/api/cleanup >> /var/log/c3r-cleanup.log 2>&1
+30 4 * * * curl -fsS -H "Authorization: Bearer 비밀값" https://cccr.kr/api/cleanup >> /var/log/c3r-cleanup.log 2>&1
 ```
 
 지운 개수가 로그에 남습니다. 기간을 바꾸려면 `src/lib/retention.ts` 와
