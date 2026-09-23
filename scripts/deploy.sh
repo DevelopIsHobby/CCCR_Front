@@ -16,27 +16,48 @@ cd "$APP_DIR"
 
 PREV_SHA="$(git rev-parse HEAD)"
 ROLLED_BACK=0
+# 어디까지 갔는지. 되돌릴 때 무엇을 되돌려야 하는지가 여기서 갈린다
+STAGE=start
 
 restore() {
   [ "$ROLLED_BACK" -eq 1 ] && return
   ROLLED_BACK=1
 
-  echo "↩ 되돌리는 중 — 코드 $PREV_SHA, 이전 빌드"
+  echo "↩ 되돌리는 중 — 코드 $PREV_SHA"
   # 짓다 만 새 빌드는 쓸모가 없다
   rm -rf .next.new
   git reset --hard --quiet "$PREV_SHA" || echo "  (코드 되돌리기 실패 — 직접 확인하세요)"
 
-  if [ -d .next.prev ]; then
-    rm -rf .next
-    mv .next.prev .next
-    rm -f .next.prev.sha
-    echo "  이전 빌드를 되살렸습니다"
-  else
-    echo "  이전 빌드가 없습니다(첫 배포)"
-  fi
+  # npm ci 는 node_modules 를 지우고 새로 깔다. 그 뒤에 어깋나가 어긋나면
+  # 지금 node_modules 는 되돌린 코드와 짝이 맞지 않는다. 돌고 있는 프로세스는
+  # 이미 읽어 둔 것으로 버티지만, 다시 켜면 그때 못 뜼다. 짝을 다시 맞춘다.
+  case "$STAGE" in
+    install | build | swap | restart)
+      echo "  node_modules 를 되돌린 코드에 맞춥니다"
+      npm ci || echo "  (npm ci 실패 — 인터넷이 돌아오면 직접 한 번 돌리세요)"
+      ;;
+  esac
 
-  sudo systemctl restart "$SERVICE" || true
-  echo "↩ 되돌렸습니다. 사이트는 배포 전 상태입니다"
+  # .next 는 바꿔치기(swap) 전까지는 돌고 있는 판 그대로다. 그 전에 어긋난 것이라면
+  # 손대면 안 된다. 예전에는 언제든 .next.prev 를 덮어썼는데, 직전 배포가
+  # 남긴 .next.prev 는 한 판 더 오래된 빌드라 돌고 있는 사이트의 CSS·JS 가 깨졌다.
+  case "$STAGE" in
+    swap | restart)
+      if [ -d .next.prev ]; then
+        rm -rf .next
+        mv .next.prev .next
+        rm -f .next.prev.sha
+        echo "  이전 빌드를 되살렸습니다"
+      else
+        echo "  이전 빌드가 없습니다(첫 배포)"
+      fi
+      sudo systemctl restart "$SERVICE" || true
+      echo "↩ 되돌렸습니다. 사이트는 배포 전 상태입니다"
+      ;;
+    *)
+      echo "↩ 되돌렸습니다. 돌고 있던 사이트는 건드리지 않았습니다"
+      ;;
+  esac
 }
 
 fail() {
@@ -54,6 +75,7 @@ node scripts/check-env.mjs
 echo "▶ 코드 받는 중 (지금: $PREV_SHA)"
 git pull --ff-only
 
+STAGE=install
 echo "▶ 의존성 설치"
 # 빌드에 Tailwind·TypeScript(개발용 패키지)가 필요하므로 --omit=dev 로 빼지 않는다.
 npm ci
@@ -62,6 +84,7 @@ echo "▶ 자리 비우기"
 rm -rf .next.prev .next.new
 rm -f .next.prev.sha
 
+STAGE=build
 echo "▶ 빌드"
 # .next 는 건드리지 않고 새 폴더(.next.new)에 짓는다.
 #
@@ -74,6 +97,7 @@ echo "▶ 빌드"
 # 메모리가 작은 서버에서 빌드가 죽는 것을 막는다 (2GB 기준)
 NEXT_DIST_DIR=.next.new NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
+STAGE=swap
 echo "▶ 새 빌드로 바꾸기"
 # set -e 아래에서 [ ... ] && ... 를 쓰면 조건이 거짓일 때 배포가 실패로 끝난다. if 로 쓴다
 if [ -d .next ]; then
@@ -85,6 +109,7 @@ if [ -d .next ]; then
 fi
 mv .next.new .next
 
+STAGE=restart
 echo "▶ 재시작"
 sudo systemctl restart "$SERVICE"
 
