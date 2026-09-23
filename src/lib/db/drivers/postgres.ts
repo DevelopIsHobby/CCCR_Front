@@ -35,6 +35,23 @@ function getPool(): Pool {
     ssl: process.env.DATABASE_SSL === "1" ? { rejectUnauthorized: false } : undefined,
   });
 
+  /*
+    놀고 있는 커넥션이 끊기면 pg 가 Pool 에 'error' 를 쏜다. DB 를 다시 띄우거나
+    (apt 업그레이드·백업) 네트워크가 잠깐 끊기면 놀던 커넥션이 한꺼번에 끊긴다.
+
+    받는 곳이 없으면 Node 규칙대로 '잡히지 않은 예외'가 되어 서버가 그대로 죽는다.
+    조회 한 번 실패로 끝날 일이 사이트 전체가 내려가는 일이 된다. systemd 가 5초 뒤
+    다시 띄우지만, DB 가 늦게 돌아오면 5분에 5번을 넘겨 죽으면서 systemd 가 아예
+    손을 놓는다(StartLimitBurst, deploy/c3r.service). 그러면 사람이 와서
+    reset-failed 를 해 줄 때까지 사이트가 내려가 있다.
+
+    pg 는 이 줄에 닿기 전에 끊긴 커넥션을 풀에서 이미 빼냈다. 여기서는 받아서
+    남기기만 하면 된다. 다음 조회는 새 커넥션으로 이어진다.
+  */
+  pool.on("error", (err) => {
+    console.error("[db] 놀고 있던 커넥션이 끊겼습니다. 다음 조회에서 새로 잇습니다.", err.message);
+  });
+
   return pool;
 }
 
@@ -89,7 +106,15 @@ export const postgresDriver: Driver = {
       await client.query("COMMIT");
       return result;
     } catch (err) {
-      await client.query("ROLLBACK");
+      /*
+        되돌리기도 실패할 수 있다(커넥션이 이미 끊긴 경우). 그때 ROLLBACK 오류가
+        위로 올라가면 진짜 원인이 로그에서 사라진다. 원인 쪽을 남긴다.
+      */
+      try {
+        await client.query("ROLLBACK");
+      } catch (rollbackErr) {
+        console.error("[db] 되돌리기도 실패했습니다.", rollbackErr);
+      }
       throw err;
     } finally {
       client.release();

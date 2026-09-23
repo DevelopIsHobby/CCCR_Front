@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { ready } from "@/lib/db/migrate";
-import { verifyPassword } from "@/lib/auth/password";
+import { burnPasswordTime, verifyPassword } from "@/lib/auth/password";
 import { createSession, destroySession } from "@/lib/auth/session";
 import { clear, clientKey, keyOf, LOGIN, record, tooMany } from "@/lib/db/rate-limit";
 
@@ -37,8 +37,13 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
     [email],
   );
 
-  /* 계정이 없을 때도 같은 문구를 돌려준다. 어떤 이메일이 있는지 알려주지 않는다. */
+  /*
+    계정이 없을 때도 같은 문구를 돌려준다. 어떤 이메일이 있는지 알려주지 않는다.
+    문구뿐 아니라 걸리는 시간도 맞춘다. 곧바로 돌려보내면 가입된 주소일 때만
+    scrypt 만큼 늦어져, 시간을 재는 것만으로 가입 여부가 드러난다.
+  */
   const ok = user ? await verifyPassword(password, user.password_hash) : false;
+  if (!user) await burnPasswordTime(password);
   if (!user || !ok) {
     await record("login", `email:${keyOf(email)}`);
     await record("login", `ip:${from}`);
