@@ -280,7 +280,7 @@ pg_dump "옛_DATABASE_URL" -Fc --no-owner --no-privileges -f c3r-from-vercel.dum
 
 ```bash
 sudo systemctl stop c3r
-sudo -u postgres pg_restore --no-owner --role=c3r -d c3r --clean --if-exists c3r-from-vercel.dump
+sudo cat c3r-from-vercel.dump | sudo -u postgres pg_restore --no-owner --role=c3r -d c3r --clean --if-exists
 sudo systemctl start c3r
 ```
 
@@ -356,7 +356,8 @@ cd /srv/c3r/app
 
 ```bash
 sudo systemctl stop c3r
-sudo -u postgres pg_restore -c -d c3r /srv/c3r/backup/db-20260826-0400.dump
+# 백업 파일은 root 만 읽습니다(개인정보). root 가 읽어 postgres 로 흘려 넣습니다.
+sudo cat /srv/c3r/backup/db-20260826-0400.dump | sudo -u postgres pg_restore -c -d c3r
 sudo systemctl start c3r
 ```
 

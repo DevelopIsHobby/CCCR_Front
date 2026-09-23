@@ -10,6 +10,10 @@
 # 실패하면 사무국 메일로 알린다. 조용히 실패해서 몇 달 뒤에 아는 것이 가장 나쁘다.
 set -euo pipefail
 
+# 백업에는 회원 개인정보가 통째로 들어간다. 만드는 파일을 주인만 읽게 한다.
+# (root 로 도는 스크립트이므로 주인은 root 다. 되살릴 때도 root 가 읽어 흘려 넣는다.)
+umask 077
+
 BACKUP_DIR="${BACKUP_DIR:-/srv/c3r/backup}"
 UPLOAD_DIR="${UPLOAD_DIR:-/srv/c3r/data/uploads}"
 APP_DIR="${APP_DIR:-/srv/c3r/app}"
@@ -63,8 +67,10 @@ fi
 DUMP="$BACKUP_DIR/db-$STAMP.dump"
 runuser -u postgres -- pg_dump -d "$DB_NAME" -Fc > "$DUMP"
 
-# 덤프가 실제로 쓸 수 있는 것인지 확인한다. 빈 파일이나 깨진 파일을 백업이라 믿으면 안 된다
-if ! runuser -u postgres -- pg_restore -l "$DUMP" > /dev/null 2>&1; then
+# 덤프가 실제로 쓸 수 있는 것인지 확인한다. 빈 파일이나 깨진 파일을 백업이라 믿으면 안 된다.
+# 이 확인은 root 로 한다. pg_restore -l 은 파일만 읽고 DB 에 붙지 않으므로 postgres 계정일
+# 필요가 없다. 오히려 postgres 계정은 /srv/c3r(750)을 지나가지 못해 늘 실패한다.
+if ! pg_restore -l "$DUMP" > /dev/null 2>&1; then
   say "덤프 파일을 읽을 수 없습니다: $DUMP"
   fail
 fi
