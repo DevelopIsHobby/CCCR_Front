@@ -8,6 +8,8 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-/srv/c3r/app}"
 SERVICE="${SERVICE:-c3r}"
+# 앱이 도는 계정(c3r.service 의 User=). 빌드 결과를 이 계정 것으로 넘겨줘야 한다
+APP_USER="${APP_USER:-c3r}"
 PORT="${PORT:-3000}"
 # 재시작한 뒤 이 시간(초) 안에 /api/health/live 가 답해야 한다
 HEALTH_WAIT="${HEALTH_WAIT:-40}"
@@ -108,6 +110,12 @@ if [ -d .next ]; then
   echo "$PREV_SHA" > .next.prev.sha
 fi
 mv .next.new .next
+
+# 빌드 결과는 이 스크립트를 돌린 사람(보통 root)의 것이 된다. 앱은 c3r 로 도므로
+# 그대로 두면 Next 가 .next/cache/images 를 만들지 못한다(EACCES). 그러면 방문자가
+# 그림을 볼 때마다 서버가 그림을 새로 만들고, 로그에는 unhandledRejection 이 쌓인다.
+# 화면은 멀쩡히 나오므로 로그를 보지 않으면 모르고 지나간다.
+chown -R "$APP_USER":"$APP_USER" .next
 
 STAGE=restart
 echo "▶ 재시작"
