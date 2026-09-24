@@ -28,7 +28,7 @@ restore() {
   echo "↩ 되돌리는 중 — 코드 $PREV_SHA"
   # 짓다 만 새 빌드는 쓸모가 없다
   rm -rf .next.new
-  git reset --hard --quiet "$PREV_SHA" || echo "  (코드 되돌리기 실패 — 직접 확인하세요)"
+  sudo -u "$APP_USER" git reset --hard --quiet "$PREV_SHA" || echo "  (코드 되돌리기 실패 — 직접 확인하세요)"
 
   # npm ci 는 node_modules 를 지우고 새로 깔다. 그 뒤에 어깋나가 어긋나면
   # 지금 node_modules 는 되돌린 코드와 짝이 맞지 않는다. 돌고 있는 프로세스는
@@ -75,7 +75,9 @@ echo "▶ 설정 점검"
 node scripts/check-env.mjs
 
 echo "▶ 코드 받는 중 (지금: $PREV_SHA)"
-git pull --ff-only
+# 앱 계정으로 받는다. root 로 받으면 .git 안에 root 것이 섞여, 나중에 사람이
+# 앱 계정으로 한 번 받으려 할 때 "권한이 없다"며 막힌다(2026-09-24 실제로 겪음).
+sudo -u "$APP_USER" git pull --ff-only
 
 STAGE=install
 echo "▶ 의존성 설치"

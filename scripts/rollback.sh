@@ -8,6 +8,8 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-/srv/c3r/app}"
 SERVICE="${SERVICE:-c3r}"
+# 앱이 도는 계정. git 과 빌드 결과를 이 계정 것으로 둔다
+APP_USER="${APP_USER:-c3r}"
 PORT="${PORT:-3000}"
 
 cd "$APP_DIR"
@@ -31,11 +33,11 @@ fi
 
 if [ -n "$TARGET" ]; then
   echo "▶ 배포 전 코드로 되돌립니다 ($(git rev-parse --short "$TARGET"))"
-  git reset --hard --quiet "$TARGET"
+  sudo -u "$APP_USER" git reset --hard --quiet "$TARGET"
 else
   echo "⚠ 되돌릴 지점 기록(.next.prev.sha)이 없습니다 — 한 커밋만 되돌립니다."
   echo "  그 배포가 커밋을 여러 개 받아 왔다면 코드와 빌드가 어긋날 수 있습니다."
-  git reset --hard --quiet HEAD~1
+  sudo -u "$APP_USER" git reset --hard --quiet HEAD~1
 fi
 
 echo "▶ 직전 빌드로 바꿉니다"
@@ -46,6 +48,10 @@ mv .next.prev .next
 rm -f .next.prev.sha
 # 되돌린 것을 또 되돌릴 수 있게 남겨 둔다
 mv .next.rollback-tmp .next.prev
+
+# 빌드 결과는 앱 계정 것이어야 한다. 아니면 Next 가 .next/cache 에 쓰지 못해
+# 방문자가 그림을 볼 때마다 서버가 그림을 새로 만든다(deploy.sh 와 같은 까닭).
+chown -R "$APP_USER":"$APP_USER" .next .next.prev
 
 sudo systemctl restart "$SERVICE"
 
