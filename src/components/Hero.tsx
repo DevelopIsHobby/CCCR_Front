@@ -225,44 +225,65 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
           </div>
         </div>
 
-        {/* 바로가기 패널 */}
+        {/*
+          바로가기 패널.
+
+          흰 바탕은 그대로 둔다. 어두운 히어로 위에서 '여기서 뭘 할 수 있다'를 가장
+          또렷하게 드러내는 자리이기 때문이다. 대신 왼쪽 슬라이드 패널과 말이 통하도록
+          사이트가 쓰는 세 가지를 들여왔다 — flame 강조, label-mono 머리글, hex-field 무늬.
+
+          칸 사이를 머리카락 선(gap-px)으로 나누던 것을 카드로 바꿨다. 선으로만 가르면
+          표처럼 보여서, 여섯 개가 '누를 수 있는 것'으로 읽히지 않았다.
+        */}
         <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_48px_-20px_rgba(4,27,56,0.55)]">
           <div className="px-7 pt-7">
-            <h2 className="text-2xl font-bold text-navy-900">
+            <p className="label-mono text-flame-500">QUICK LINKS</p>
+            <h2 className="mt-2 text-2xl font-bold text-navy-900">
               신청 · <span className="text-brand-600">바로가기</span>
             </h2>
             <p className="mt-1.5 text-base text-ink-600">자주 찾는 서비스를 안내해드립니다.</p>
+            {/* 서브페이지 제목 아래와 같은 짧은 액센트 */}
+            <span className="mt-4 block h-1 w-10 rounded-full bg-flame-500" aria-hidden />
           </div>
 
-          <div className="grid flex-1 grid-cols-2 gap-px bg-line/70 p-7 sm:grid-cols-3 lg:grid-cols-2">
+          <div className="grid flex-1 grid-cols-2 gap-2.5 px-7 py-6 sm:grid-cols-3 lg:grid-cols-2">
             {QUICK_LINKS.map((link) => {
               const Icon = QUICK_ICONS[link.icon];
               return (
                 <SmartLink
                   key={link.label}
                   href={link.href}
-                  className="group flex flex-col justify-between gap-3 bg-white p-4 transition-colors hover:bg-brand-50"
+                  className="group relative flex flex-col justify-between gap-4 rounded-xl border border-line bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_14px_28px_-16px_rgba(6,42,85,0.4)]"
                 >
-                  <Icon className="size-6 text-brand-600 transition-colors group-hover:text-flame-500" />
+                  <span className="grid size-10 place-items-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-flame-500 group-hover:text-white">
+                    <Icon className="size-5" />
+                  </span>
                   <span>
                     <span className="block text-md font-bold text-navy-900">
                       {link.label}
                     </span>
                     <span className="mt-0.5 block text-xs text-ink-400">{link.desc}</span>
                   </span>
+                  {/* 누를 수 있다는 표시. 평소에는 숨어 있다가 짚었을 때만 나온다 */}
+                  <IconArrow
+                    className="absolute right-4 top-4 size-4 text-flame-500 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100"
+                    aria-hidden
+                  />
                 </SmartLink>
               );
             })}
           </div>
 
+          {/* 맨 아래 띠는 히어로와 같은 감청 바탕·같은 무늬로 맞춰 카드를 배경에 붙여 준다 */}
           <Link
             href="/members/join"
-            className="group flex items-center justify-between gap-4 bg-brand-600 px-7 py-5 transition-colors hover:bg-navy-900"
+            className="group relative flex items-center justify-between gap-4 overflow-hidden bg-navy-900 px-7 py-5 transition-colors hover:bg-navy-950"
           >
-            <span className="text-md font-medium text-white">
+            <span className="hex-field absolute inset-0" aria-hidden />
+            <span className="relative text-md font-medium text-white">
               <b className="font-bold">C3R 회원사</b>로 가입하고 공동 연구에 참여하세요
             </span>
-            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/15 text-white transition-transform group-hover:translate-x-1">
+            <span className="relative grid size-9 shrink-0 place-items-center rounded-full bg-flame-500 text-white transition-transform group-hover:translate-x-1">
               <IconArrow className="size-4" />
             </span>
           </Link>
