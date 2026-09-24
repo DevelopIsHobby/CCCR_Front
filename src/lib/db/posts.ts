@@ -60,7 +60,8 @@ export const PER_PAGE = 15;
 
 type RawRow = {
   id: number;
-  seq: number;
+  /* 번호. 쓰지 않는 자리에서는 매기지 않으므로 없을 수 있다(PLAIN) */
+  seq?: number;
   board: string;
   title: string;
   author_name: string;
@@ -120,7 +121,7 @@ async function fillThumbSize(posts: PostRow[]): Promise<PostRow[]> {
 function toPost(r: RawRow): PostRow {
   return {
     id: r.id,
-    seq: Number(r.seq),
+    seq: Number(r.seq ?? 0),
     board: r.board,
     title: r.title,
     authorName: r.author_name,
@@ -166,6 +167,30 @@ const NUMBERED = `
   SELECT
     p.*,
     ROW_NUMBER() OVER (PARTITION BY p.board ORDER BY p.id ASC) AS seq,
+    (SELECT COUNT(*) FROM attachments a WHERE a.post_id = p.id) AS attachment_count
+  FROM posts p
+  WHERE p.deleted_at = '' AND p.board = ?
+`;
+
+/*
+  번호 없이 가져오는 판.
+
+  번호(seq)는 표 방식 게시판(공지·기술동향·자료실)의 목록에서만 보여 준다
+  (BoardTable 한 곳뿐이다). 그런데 NUMBERED 는 글 하나를 여는 데도, 홈 새소식을
+  채우는 데도 게시판 전체에 번호를 매긴다. 쓰지도 않을 값이다.
+
+  지금은 글이 몇 건뿐이라 드러나지 않지만, 옛 산업뉴스 11,000건을 옮겨 오면
+  그대로 값이 든다. 운영 PostgreSQL 에 그만큼 넣고 재 보았다.
+
+    홈 새소식(게시판 하나당)  47ms -> 0.6ms
+    글 상세                   25ms -> 0.3ms
+    공지 목록(830건)          1.8ms — 번호를 실제로 쓰는 자리라 그대로 둔다
+
+  홈은 게시판마다 한 번씩 부르므로 홈 한 장에 그 값이 여러 번 든다.
+*/
+const PLAIN = `
+  SELECT
+    p.*,
     (SELECT COUNT(*) FROM attachments a WHERE a.post_id = p.id) AS attachment_count
   FROM posts p
   WHERE p.deleted_at = '' AND p.board = ?
@@ -223,7 +248,8 @@ export async function getPost(board: string, id: number): Promise<PostDetail | n
 
   const db = await ready();
   const row = await db.get<RawRow & { body: string; updated_at: string }>(
-    `SELECT * FROM (${NUMBERED}) numbered WHERE id = ?`,
+    /* 상세 화면은 번호를 보여 주지 않는다(PostDetailView) */
+    `${PLAIN} AND p.id = ?`,
     [board, id],
   );
   if (!row) return null;
@@ -277,7 +303,8 @@ export async function listRecentByBoard(boards: string[], perBoard = 6): Promise
   const perBoardRows = await Promise.all(
     boards.map((board) =>
       db.all<RawRow>(
-        `SELECT * FROM (${NUMBERED}) numbered ORDER BY id DESC LIMIT ?`,
+        /* 새소식 카드도 번호를 보여 주지 않는다 */
+        `${PLAIN} ORDER BY p.id DESC LIMIT ?`,
         [board, perBoard],
       ),
     ),
