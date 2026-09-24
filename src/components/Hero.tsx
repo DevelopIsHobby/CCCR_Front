@@ -254,9 +254,11 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
             늘어나, 히어로가 화면의 87% 를 먹고 패널은 474x694(세로로 긴 모양)가 됐다.
             옆에 두면 칸이 84px 로 줄어 패널이 제 높이를 찾는다.
 
-            남는 자리가 생기면(왼쪽이 더 길어질 때) 칸을 늘리지 않고 위아래로 고르게 나눈다.
+            남는 자리가 생겨도 칸을 늘리지 않는다(칸이 늘면 다시 세로로 홀쭉해진다).
+            대신 content-between 으로 줄 사이에 나눠 준다. 위아래로 몰아 두면(content-center)
+            여섯 개가 가운데 뭉쳐 보이고 머리글과 아래 띠 사이가 휑하다.
           */}
-          <div className="grid flex-1 content-center grid-cols-2 gap-2.5 px-7 py-6">
+          <div className="grid flex-1 content-between grid-cols-2 gap-2.5 px-7 py-6">
             {QUICK_LINKS.map((link) => {
               const Icon = QUICK_ICONS[link.icon];
               return (
