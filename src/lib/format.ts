@@ -73,3 +73,30 @@ export function formatEventPeriod(startsOn: string | null, endsOn: string | null
   const sameYear = startsOn.slice(0, 4) === endsOn.slice(0, 4);
   return `${start} – ${sameYear ? formatDate(endsOn).slice(5) : formatDate(endsOn)}`;
 }
+
+/*
+  한글 조사 고르기.
+
+  "산업뉴스(으)로" 처럼 괄호로 얼버무리면 읽는 사람이 한 번 걸린다.
+  게시판 이름은 관리자가 정하는 값이라 미리 적어 둘 수도 없으므로 받침을 보고 고른다.
+*/
+function hasJong(word: string): number | null {
+  const last = word.trim().slice(-1);
+  const code = last.charCodeAt(0);
+  if (Number.isNaN(code) || code < 0xac00 || code > 0xd7a3) return null; /* 한글이 아니면 모름 */
+  return (code - 0xac00) % 28;
+}
+
+/** …로 / …으로 (받침이 없거나 ㄹ 이면 '로') */
+export function ro(word: string): string {
+  const jong = hasJong(word);
+  if (jong === null) return "(으)로";
+  return jong === 0 || jong === 8 ? "로" : "으로";
+}
+
+/** …이 / …가 */
+export function iga(word: string): string {
+  const jong = hasJong(word);
+  if (jong === null) return "이(가)";
+  return jong === 0 ? "가" : "이";
+}

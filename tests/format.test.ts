@@ -7,6 +7,8 @@ import {
   formatDateTime,
   formatEventPeriod,
   kstDate,
+  iga,
+  ro,
   toKst,
 } from "../src/lib/format.ts";
 
@@ -83,4 +85,33 @@ test("행사 기간은 같은 해면 뒷부분만 적는다", () => {
   assert.equal(formatEventPeriod("2026-09-09", "2026-09-09"), "2026.09.09");
   assert.equal(formatEventPeriod("2026-09-09", null), "2026.09.09");
   assert.equal(formatEventPeriod(null, null), "");
+});
+
+/*
+  한글 조사 고르기.
+
+  게시판 이름은 관리자가 정하는 값이라 문구에 미리 적어 둘 수 없다.
+  "산업뉴스(으)로" 처럼 괄호로 얼버무리면 읽는 사람이 한 번 걸린다.
+*/
+test("받침이 없거나 ㄹ 이면 '로', 있으면 '으로'", () => {
+  assert.equal("산업뉴스" + ro("산업뉴스"), "산업뉴스로");   /* 받침 없음 */
+  assert.equal("뉴스레터" + ro("뉴스레터"), "뉴스레터로");
+  assert.equal("행사정보" + ro("행사정보"), "행사정보로");
+  assert.equal("자료실" + ro("자료실"), "자료실로");         /* ㄹ 받침도 '로' */
+  assert.equal("공지사항" + ro("공지사항"), "공지사항으로"); /* ㅇ 받침 */
+  assert.equal("기술동향" + ro("기술동향"), "기술동향으로");
+});
+
+test("받침이 있으면 '이', 없으면 '가'", () => {
+  assert.equal("본문" + iga("본문"), "본문이");
+  assert.equal("행사일" + iga("행사일"), "행사일이");
+  assert.equal("원문 주소" + iga("원문 주소"), "원문 주소가");
+  assert.equal("표지 그림" + iga("표지 그림"), "표지 그림이");
+});
+
+test("한글이 아니면 괄호 형태로 물러선다", () => {
+  /* 게시판 이름을 영문이나 숫자로 지을 수도 있다. 틀린 조사를 붙이는 것보다 낫다 */
+  assert.equal(ro("Archive"), "(으)로");
+  assert.equal(iga("2026"), "이(가)");
+  assert.equal(ro(""), "(으)로");
 });

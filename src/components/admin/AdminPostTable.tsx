@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import {
   bulkDeletePosts,
+  movePostsToBoard,
   togglePostFlag,
   type BulkState,
 } from "@/lib/db/admin-post-actions";
@@ -33,6 +34,22 @@ export default function AdminPostTable({
     },
     {},
   );
+  /*
+    옮기기는 삭제와 같은 폼을 쓴다(목록 전체가 한 폼이라 폼을 겹칠 수 없다).
+    단추에 formAction 을 달아 이쪽 액션으로 보낸다.
+  */
+  const [moveState, moveAction, moving] = useActionState<BulkState, FormData>(
+    async (prev, formData) => {
+      const result = await movePostsToBoard(prev, formData);
+      if (result.ok) setSelected([]);
+      return result;
+    },
+    {},
+  );
+  const [toBoard, setToBoard] = useState("");
+  const busy = pending || moving;
+  const notice = moveState.error ?? state.error;
+  const done = moveState.ok ?? state.ok;
 
   const allChecked = posts.length > 0 && selected.length === posts.length;
 
@@ -56,32 +73,63 @@ export default function AdminPostTable({
               <b className="font-bold text-navy-900">{selected.length}건</b> 선택됨
             </>
           ) : (
-            "지울 글을 선택하세요."
+            "옮기거나 지울 글을 선택하세요."
           )}
         </p>
 
-        <button
-          type="submit"
-          disabled={pending || selected.length === 0}
-          onClick={(e) => {
-            if (!confirm(`선택한 ${selected.length}건을 삭제할까요? 되돌릴 수 없습니다.`)) {
-              e.preventDefault();
-            }
-          }}
-          className="rounded-full px-5 py-2.5 text-base font-bold text-flame-700 ring-1 ring-flame-500/40 transition-colors hover:bg-flame-100 disabled:opacity-40 disabled:hover:bg-transparent"
-        >
-          {pending ? "삭제 중…" : "선택 삭제"}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="sr-only" htmlFor="toBoard">
+            옮길 게시판
+          </label>
+          <select
+            id="toBoard"
+            name="toBoard"
+            value={toBoard}
+            onChange={(e) => setToBoard(e.target.value)}
+            disabled={busy || selected.length === 0}
+            className="rounded-full border border-line bg-white px-4 py-2.5 text-base text-ink-700 disabled:opacity-40"
+          >
+            <option value="">게시판 이동…</option>
+            {Object.entries(boardName).map(([slug, name]) => (
+              <option key={slug} value={slug}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="submit"
+            formAction={moveAction}
+            disabled={busy || selected.length === 0 || !toBoard}
+            className="rounded-full px-5 py-2.5 text-base font-bold text-brand-700 ring-1 ring-brand-500/40 transition-colors hover:bg-brand-50 disabled:opacity-40 disabled:hover:bg-transparent"
+          >
+            {moving ? "옮기는 중…" : "옮기기"}
+          </button>
+
+          <span className="mx-1 h-5 w-px bg-line" aria-hidden />
+
+          <button
+            type="submit"
+            disabled={busy || selected.length === 0}
+            onClick={(e) => {
+              if (!confirm(`선택한 ${selected.length}건을 삭제할까요? 되돌릴 수 없습니다.`)) {
+                e.preventDefault();
+              }
+            }}
+            className="rounded-full px-5 py-2.5 text-base font-bold text-flame-700 ring-1 ring-flame-500/40 transition-colors hover:bg-flame-100 disabled:opacity-40 disabled:hover:bg-transparent"
+          >
+            {pending ? "삭제 중…" : "선택 삭제"}
+          </button>
+        </div>
       </div>
 
-      {state.error && (
+      {notice && (
         <p role="alert" className="mb-3 rounded-md bg-flame-100 px-4 py-3 text-base font-medium text-flame-700">
-          {state.error}
+          {notice}
         </p>
       )}
-      {state.ok && (
+      {done && (
         <p className="mb-3 rounded-md bg-brand-50 px-4 py-3 text-base font-medium text-brand-700">
-          {state.ok}
+          {done}
         </p>
       )}
 
