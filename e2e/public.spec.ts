@@ -41,3 +41,22 @@ test("없는 글 주소는 안내 화면을 보여 주고 검색 엔진에 담�
   await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
   await expect(page).toHaveTitle(/찾을 수 없는 글/);
 });
+
+/*
+  글 번호.
+
+  번호는 표 방식 게시판 목록에서만 보여 준다. 그 값을 매기는 쿼리가 무거워
+  번호를 쓰지 않는 자리(글 상세·홈 새소식)에서는 매기지 않도록 바꿨다.
+  잘못 건드리면 번호가 0 이나 NaN 으로 조용히 바뀌므로 여기서 지켜본다.
+*/
+test("공지사항 목록에 글 번호가 매겨져 보인다", async ({ page }) => {
+  await page.goto("/board/notice");
+
+  const table = page.locator("table");
+  await expect(table).toBeVisible();
+
+  /* 번호 칸에 숫자가 있어야 한다. 0·NaN·빈칸이면 안 된다 */
+  const first = table.locator("tbody tr").first().locator("td").first();
+  const text = ((await first.innerText()) || "").trim();
+  expect(text).toMatch(/^[1-9][0-9]*$|^공지$/);
+});
