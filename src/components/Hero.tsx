@@ -256,27 +256,33 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
 
             남는 자리가 생기면(왼쪽이 더 길어질 때) 칸을 늘리지 않고 위아래로 고르게 나눈다.
           */}
-          <div className="grid flex-1 content-center grid-cols-1 gap-2.5 px-7 py-6 sm:grid-cols-2">
+          <div className="grid flex-1 content-center grid-cols-2 gap-2.5 px-7 py-6">
             {QUICK_LINKS.map((link) => {
               const Icon = QUICK_ICONS[link.icon];
               return (
                 <SmartLink
                   key={link.label}
                   href={link.href}
-                  className="group flex items-center gap-3 rounded-xl border border-line bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_14px_28px_-16px_rgba(6,42,85,0.4)]"
+                  className="group flex flex-col gap-2.5 rounded-xl border border-line bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_14px_28px_-16px_rgba(6,42,85,0.4)] sm:flex-row sm:items-center sm:gap-3"
                 >
                   <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-flame-500 group-hover:text-white">
                     <Icon className="size-5" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-md font-bold text-navy-900">
+                    <span className="block text-md font-bold text-navy-900 sm:truncate">
                       {link.label}
                     </span>
-                    <span className="mt-0.5 block truncate text-xs text-ink-400">{link.desc}</span>
+                    <span className="mt-0.5 block text-xs text-ink-400 sm:truncate">
+                      {link.desc}
+                    </span>
                   </span>
-                  {/* 누를 수 있다는 표시. 평소에는 흐리게 있다가 짚으면 또렷해진다 */}
+                  {/*
+                    누를 수 있다는 표시. 평소에는 흐리게 있다가 짚으면 또렷해진다.
+                    좁은 화면에서는 칸 너비가 130px 남짓이라 화살표까지 넣으면
+                    글자가 잘린다. 아이콘을 글자 위로 올리고 화살표는 뺀다.
+                  */}
                   <IconArrow
-                    className="size-4 shrink-0 text-ink-400 transition-all group-hover:translate-x-0.5 group-hover:text-flame-500"
+                    className="hidden size-4 shrink-0 text-ink-400 transition-all group-hover:translate-x-0.5 group-hover:text-flame-500 sm:block"
                     aria-hidden
                   />
                 </SmartLink>
