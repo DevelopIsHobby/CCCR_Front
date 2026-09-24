@@ -117,9 +117,9 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
       {/* 서브페이지 머리와 같은 얇은 액센트 한 줄. 흰 바탕과 만나는 경계를 잡아 준다. */}
       <span className="absolute inset-x-0 bottom-0 z-10 h-1 bg-flame-500" aria-hidden />
 
-      <div className="relative mx-auto grid max-w-[1280px] gap-6 px-6 py-10 lg:grid-cols-[1.55fr_1fr] lg:py-12">
+      <div className="relative mx-auto grid max-w-[1280px] gap-6 px-6 py-10 lg:grid-cols-[1.55fr_1fr] lg:py-11">
         {/* 슬라이더 */}
-        <div className="relative flex min-h-[380px] flex-col overflow-hidden rounded-2xl bg-navy-950/60 ring-1 ring-white/10 lg:min-h-[580px]">
+        <div className="relative flex min-h-[380px] flex-col overflow-hidden rounded-2xl bg-navy-950/60 ring-1 ring-white/10 lg:min-h-[460px]">
           <div className="absolute inset-0 opacity-70">
             <NetworkArt />
           </div>
@@ -254,9 +254,10 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
             늘어나, 히어로가 화면의 87% 를 먹고 패널은 474x694(세로로 긴 모양)가 됐다.
             옆에 두면 칸이 84px 로 줄어 패널이 제 높이를 찾는다.
 
-            남는 자리가 생겨도 칸을 늘리지 않는다(칸이 늘면 다시 세로로 홀쭉해진다).
-            대신 content-between 으로 줄 사이에 나눠 준다. 위아래로 몰아 두면(content-center)
-            여섯 개가 가운데 뭉쳐 보이고 머리글과 아래 띠 사이가 휑하다.
+            패널 높이는 칸 내용이 정하게 둔다. 슬라이드 쪽 최소 높이를 칸 합보다 크게
+            잡으면 남는 자리가 생기는데, 그것을 위아래로 몰면(content-center) 여섯 개가
+            가운데 뭉치고, 줄 사이에 나누면(content-between) 칸끼리 멀어져 흩어져 보인다.
+            애초에 남지 않게 두는 편이 낫다. content-between 은 그래도 남을 때를 위한 것이다.
           */}
           <div className="grid flex-1 content-between grid-cols-2 gap-2.5 px-7 py-6">
             {QUICK_LINKS.map((link) => {
@@ -265,7 +266,7 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
                 <SmartLink
                   key={link.label}
                   href={link.href}
-                  className="group flex flex-col gap-2.5 rounded-xl border border-line bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_14px_28px_-16px_rgba(6,42,85,0.4)] sm:flex-row sm:items-center sm:gap-3"
+                  className="group flex flex-col gap-2.5 rounded-xl border border-line bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_14px_28px_-16px_rgba(6,42,85,0.4)] sm:flex-row sm:items-center sm:gap-3"
                 >
                   <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-flame-500 group-hover:text-white">
                     <Icon className="size-5" />
