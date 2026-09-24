@@ -246,27 +246,37 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
             <span className="mt-4 block h-1 w-10 rounded-full bg-flame-500" aria-hidden />
           </div>
 
-          <div className="grid flex-1 grid-cols-2 gap-2.5 px-7 py-6 sm:grid-cols-3 lg:grid-cols-2">
+          {/*
+            아이콘을 글자 위가 아니라 옆에 둔다.
+
+            위에 두면 칸 하나가 137px 이 되고, 석 줄이면 이 패널만 694px 이 된다.
+            왼쪽 슬라이드는 460px 이면 충분한데 둘이 같은 줄에 있으니 왼쪽까지 끌려
+            늘어나, 히어로가 화면의 87% 를 먹고 패널은 474x694(세로로 긴 모양)가 됐다.
+            옆에 두면 칸이 84px 로 줄어 패널이 제 높이를 찾는다.
+
+            남는 자리가 생기면(왼쪽이 더 길어질 때) 칸을 늘리지 않고 위아래로 고르게 나눈다.
+          */}
+          <div className="grid flex-1 content-center grid-cols-1 gap-2.5 px-7 py-6 sm:grid-cols-2">
             {QUICK_LINKS.map((link) => {
               const Icon = QUICK_ICONS[link.icon];
               return (
                 <SmartLink
                   key={link.label}
                   href={link.href}
-                  className="group relative flex flex-col justify-between gap-4 rounded-xl border border-line bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_14px_28px_-16px_rgba(6,42,85,0.4)]"
+                  className="group flex items-center gap-3 rounded-xl border border-line bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_14px_28px_-16px_rgba(6,42,85,0.4)]"
                 >
-                  <span className="grid size-10 place-items-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-flame-500 group-hover:text-white">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-flame-500 group-hover:text-white">
                     <Icon className="size-5" />
                   </span>
-                  <span>
-                    <span className="block text-md font-bold text-navy-900">
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-md font-bold text-navy-900">
                       {link.label}
                     </span>
-                    <span className="mt-0.5 block text-xs text-ink-400">{link.desc}</span>
+                    <span className="mt-0.5 block truncate text-xs text-ink-400">{link.desc}</span>
                   </span>
-                  {/* 누를 수 있다는 표시. 평소에는 숨어 있다가 짚었을 때만 나온다 */}
+                  {/* 누를 수 있다는 표시. 평소에는 흐리게 있다가 짚으면 또렷해진다 */}
                   <IconArrow
-                    className="absolute right-4 top-4 size-4 text-flame-500 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100"
+                    className="size-4 shrink-0 text-ink-400 transition-all group-hover:translate-x-0.5 group-hover:text-flame-500"
                     aria-hidden
                   />
                 </SmartLink>
