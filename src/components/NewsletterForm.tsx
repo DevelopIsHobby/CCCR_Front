@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useId } from "react";
 import { subscribeNewsletter, type SubscribeState } from "@/lib/db/newsletter-actions";
 import { IconArrow } from "./Icons";
 import ConsentCheck from "./ConsentCheck";
@@ -22,6 +22,15 @@ export default function NewsletterForm({
     subscribeNewsletter,
     {},
   );
+  /*
+    입력칸과 이름표를 잇는 id.
+
+    전에는 source 를 그대로 붙여 썼다. source 는 '메인 띠'처럼 사람이 읽는 한글
+    이름이라(구독자 명단의 '신청 경로'로 남는다) id 에 빈칸이 들어갔다.
+    HTML 에서 id 에는 빈칸을 쓸 수 없고, 웹 접근성 검사에서도 걸린다.
+    한 화면에 이 폼이 둘 나올 수 있으므로(뉴스레터 화면) 겹치지 않는 값이어야 한다.
+  */
+  const emailId = useId();
 
   const inputClass =
     tone === "dark"
@@ -32,11 +41,11 @@ export default function NewsletterForm({
     <div className="w-full shrink-0 lg:w-auto">
       <form onSubmit={keepValues(action)} className="flex w-full flex-col gap-2 sm:flex-row">
         <input type="hidden" name="source" value={source} />
-        <label htmlFor={`newsletter-email-${source}`} className="sr-only">
+        <label htmlFor={emailId} className="sr-only">
           이메일 주소
         </label>
         <input
-          id={`newsletter-email-${source}`}
+          id={emailId}
           name="email"
           type="email"
           required
