@@ -60,6 +60,22 @@ sudo apt install -y nodejs
 node -v    # v22 이상인지 확인
 ```
 
+### 1-2a. 서버 시간대를 한국으로
+
+```bash
+sudo timedatectl set-timezone Asia/Seoul
+date    # KST 로 나오는지 확인
+```
+
+우분투는 처음에 UTC 입니다. 그대로 두면 **cron 의 '새벽 4시'가 한국 시각 오후 1시**가
+되고(2026-09-24 실제로 그러고 있었습니다), 로그 시각도 모두 아홉 시간 어긋나 보여
+사고를 쫓을 때마다 더하기를 해야 합니다.
+
+자료에는 영향이 없습니다. DB 에 넣는 시각은 앱이 `toISOString()` 으로 만들어 늘 UTC 이고
+(`lib/db/driver.ts` 의 `now()`), 한국 날짜가 필요한 곳은 따로 아홉 시간을 더합니다
+(`lib/format.ts` 의 `kstDate`). 칸도 TEXT 라 DB 가 스스로 시각을 넣는 곳이 없습니다.
+시간대를 바꾼 뒤에도 `now()` 가 UTC 를 내는 것을 확인했습니다.
+
 ### 1-3. 방화벽
 
 ```bash
@@ -240,7 +256,7 @@ curl -sI https://www.cccr.kr/ | head -2    # 301 과 location: https://cccr.kr/ 
 
 ```bash
 sudo crontab -e
-# 아래 한 줄 추가 — 매일 새벽 4시
+# 아래 한 줄 추가 — 매일 새벽 4시 (서버 시간대가 KST 여야 한다. 1-2a)
 0 4 * * * /srv/c3r/app/scripts/backup.sh >> /var/log/c3r-backup.log 2>&1
 ```
 
@@ -598,7 +614,7 @@ cron 에 하루 한 번 등록합니다.
 
 ```bash
 sudo crontab -e
-# 매일 새벽 4시 30분 — 백업(4시) 다음에 돈다
+# 매일 새벽 4시 30분 — 백업(4시) 다음에 돈다 (서버 시간대가 KST 여야 한다. 1-2a)
 30 4 * * * curl -fsS -H "Authorization: Bearer 비밀값" https://cccr.kr/api/cleanup >> /var/log/c3r-cleanup.log 2>&1
 ```
 
