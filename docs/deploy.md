@@ -252,6 +252,52 @@ sudo nginx -t && sudo systemctl reload nginx
 curl -sI https://www.cccr.kr/ | head -2    # 301 과 location: https://cccr.kr/ 이 보이면 됩니다
 ```
 
+### 1-10a. 사이트 감시
+
+멈추면 사무국 메일로 알립니다. systemd 가 앱을 다시 띄우지만 **5분에 5번을 넘겨 죽으면
+그만 시도합니다.** 그때부터 사이트는 내려가 있는데, 감시가 없으면 누가 전화할 때까지
+아무도 모릅니다.
+
+```bash
+sudo crontab -e
+# 아래 한 줄 추가 — 5분마다
+*/5 * * * * /srv/c3r/app/scripts/watch.sh >> /var/log/c3r-watch.log 2>&1
+```
+
+무엇을 보는지
+
+| | 언제 알리나 |
+| --- | --- |
+| 사이트가 사는가 | `/api/health/live` 가 **두 번 연속** 응답 없을 때. 한 번 끊긴 것으로 새벽에 사람을 깨우지 않는다 |
+| 디스크 | 85% 이상 찼을 때 |
+| 인증서 | 14일 남았을 때. 보통 certbot 이 알아서 갱신하므로, 이 알림이 오면 갱신이 안 되고 있다는 뜻이다 |
+
+**멈춘 그때 한 번, 돌아온 그때 한 번만** 보냅니다. 계속 멈춰 있다고 5분마다 보내면
+사람이 메일을 무시하게 되고, 그러면 감시가 없는 것과 같습니다.
+
+알림에는 무엇을 봐야 하는지와 되살리는 명령이 함께 적혀 옵니다.
+
+로그가 무한정 커지지 않게 함께 걸어 둡니다.
+
+```bash
+sudo tee /etc/logrotate.d/c3r >/dev/null <<'CONF'
+/var/log/c3r-backup.log /var/log/c3r-cleanup.log /var/log/c3r-watch.log {
+    su root syslog
+    weekly
+    rotate 12
+    compress
+    missingok
+    notifempty
+    copytruncate
+}
+CONF
+```
+
+> `su root syslog` 가 없으면 logrotate 가 "`/var/log` 권한이 헐겁다"며 건너뜁니다.
+
+> **이것만으로는 모자랍니다.** 서버 자체가 멈추면 감시도 같이 멈춥니다.
+> 밖에서 보는 감시(UptimeRobot 등 무료로 됩니다)도 함께 걸어 두세요.
+
 ### 1-10. 자동 백업 등록
 
 ```bash
@@ -447,7 +493,9 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 - [x] 백업으로 되살리기를 한 번 해 봤는지 (백업은 복구해 봐야 백업입니다)
       — 2026-09-24 훈련함. 아래 '복구 훈련하는 법' 참고. **첨부파일이 아직 없어 그쪽은
       확인하지 못했다. 글과 첨부가 쌓인 뒤 한 번 더 해 볼 것**
-- [ ] 밖에서 사이트를 지켜보는 감시(UptimeRobot 등)에 `https://cccr.kr/api/health/live` 를 걸었는지
+- [x] 서버 안에서 지켜보는 감시 — `scripts/watch.sh` 를 5분마다(1-10a). 멈추면 사무국 메일로 알린다
+- [ ] **밖에서도** 지켜보는 감시(UptimeRobot 등)에 `https://cccr.kr/api/health/live` 를 걸 것.
+      서버 안 감시는 서버 자체가 멈추면 같이 멈춘다. 둘 다 있어야 한다
       (`/api/health` 는 관리자만 볼 수 있어 감시가 404 를 받는다)
 - [ ] `/etc/nginx/conf.d/c3r-limits.conf` 가 있는지 (없으면 nginx 가 뜨지 않습니다)
 - [ ] `/etc/logrotate.d/nginx` 에 `rotate 90` 이 들어 있는지 (개인정보 처리방침의 서버 접속 기록 3개월)
