@@ -366,6 +366,38 @@ cd /srv/c3r/app
 
 ---
 
+## 3-1. 복구 훈련하는 법 (운영을 건드리지 않고)
+
+백업이 진짜인지 보려면 되살려 봐야 합니다. 운영 DB 와 따로 노는 곳에 세워 보므로
+사이트에 아무 영향이 없습니다. 반년에 한 번쯤 해 보시면 좋습니다.
+
+```bash
+# 1) 가장 최근 백업을 빈 DB 에 되살린다
+D=$(ls -t /srv/c3r/backup/db-*.dump | head -1)
+sudo -u postgres createdb -O c3r c3r_restore
+sudo cat "$D" | sudo -u postgres pg_restore --no-owner --role=c3r -d c3r_restore
+
+# 2) 운영과 견준다 (숫자가 같아야 한다)
+for t in posts users companies history_entries attachments; do
+  echo "$t  운영 $(sudo -u postgres psql -d c3r -tAc "SELECT count(*) FROM $t")"        " 되살림 $(sudo -u postgres psql -d c3r_restore -tAc "SELECT count(*) FROM $t")"
+done
+
+# 3) 되살린 DB 로 사이트를 띄워 눈으로 본다 (3200 포트, 첨부는 빈 폴더로)
+mkdir -p /tmp/drill/uploads && chown -R c3r:c3r /tmp/drill
+sed -e "s|^DATABASE_URL=.*|DATABASE_URL=postgres://c3r:$(cat /root/.c3r-db-pass)@127.0.0.1:5432/c3r_restore|"     -e "s|^UPLOAD_DIR=.*|UPLOAD_DIR=/tmp/drill/uploads|" /srv/c3r/app/.env.production > /tmp/drill/.env
+chown c3r:c3r /tmp/drill/.env && chmod 600 /tmp/drill/.env
+cd /srv/c3r/app && sudo -u c3r env $(grep -v '^#' /tmp/drill/.env | grep . | xargs -d '
+')   node node_modules/next/dist/bin/next start -p 3200 &
+curl -s http://127.0.0.1:3200/members/list | grep -o '전체 [0-9]*'   # 회원사 수가 나오면 성공
+
+# 4) 치운다
+kill $(ss -lntpH | grep :3200 | grep -oE 'pid=[0-9]+' | cut -d= -f2)
+sudo -u postgres dropdb c3r_restore && rm -rf /tmp/drill
+```
+
+> 치울 때 `pkill -f "next start -p 3200"` 를 쓰지 마세요. 그 명령을 담은 셸 자신이
+> 그 글자를 갖고 있어 **스스로를 죽입니다.** 실제로 두 번 겪었습니다.
+
 ## 4. 복구
 
 ### DB 되돌리기
@@ -412,7 +444,9 @@ sudo chown -R c3r:c3r /srv/c3r/data/uploads
 - [ ] 백업 파일이 실제로 쌓이는지 (`ls -lh /srv/c3r/backup`)
 - [ ] 백업을 서버 밖으로도 복사하고 있는지
 - [ ] 백업 알림 메일이 실제로 오는지 한 번 확인했는지
-- [ ] 백업으로 되살리기를 한 번 해 봤는지 (백업은 복구해 봐야 백업입니다)
+- [x] 백업으로 되살리기를 한 번 해 봤는지 (백업은 복구해 봐야 백업입니다)
+      — 2026-09-24 훈련함. 아래 '복구 훈련하는 법' 참고. **첨부파일이 아직 없어 그쪽은
+      확인하지 못했다. 글과 첨부가 쌓인 뒤 한 번 더 해 볼 것**
 - [ ] 밖에서 사이트를 지켜보는 감시(UptimeRobot 등)에 `https://cccr.kr/api/health/live` 를 걸었는지
       (`/api/health` 는 관리자만 볼 수 있어 감시가 404 를 받는다)
 - [ ] `/etc/nginx/conf.d/c3r-limits.conf` 가 있는지 (없으면 nginx 가 뜨지 않습니다)
