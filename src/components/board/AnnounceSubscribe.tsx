@@ -12,7 +12,7 @@ import { IconArrow } from "@/components/Icons";
 */
 export default function AnnounceSubscribe() {
   return (
-    <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line bg-surface px-6 py-5">
+    <div className="-mt-6 mb-12 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line bg-surface px-6 py-5">
       <p className="text-md leading-relaxed text-ink-600">
         <b className="font-bold text-navy-900">새 공고를 메일로 받아보시겠어요?</b>
         <br className="sm:hidden" />
