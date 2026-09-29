@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BoardListView from "@/components/board/BoardListView";
+import AnnounceSubscribe from "@/components/board/AnnounceSubscribe";
 import { BOARDS, getBoardAt } from "@/lib/boards";
 import { pageMeta } from "@/lib/page-meta";
 
@@ -34,5 +35,10 @@ export default async function Page({
   const board = getBoardAt(`/board/${slug}`);
   if (!board) notFound();
 
-  return <BoardListView board={board} searchParams={searchParams} />;
+  return <BoardListView
+      board={board}
+      searchParams={searchParams}
+      /* 공고를 보러 온 사람이 지금 이 자리에 있을 때 구독을 권한다 */
+      intro={board.slug === "announce" ? <AnnounceSubscribe /> : null}
+    />;
 }

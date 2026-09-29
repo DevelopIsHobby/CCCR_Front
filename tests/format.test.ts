@@ -8,6 +8,7 @@ import {
   formatEventPeriod,
   kstDate,
   iga,
+  noticeStatus,
   ro,
   toKst,
 } from "../src/lib/format.ts";
@@ -114,4 +115,24 @@ test("한글이 아니면 괄호 형태로 물러선다", () => {
   assert.equal(ro("Archive"), "(으)로");
   assert.equal(iga("2026"), "이(가)");
   assert.equal(ro(""), "(으)로");
+});
+
+/*
+  사업공고 상태.
+
+  마감이 지난 공고가 '접수중'으로 남아 있으면 신청하려다 헛걸음한다.
+  반대로 아직 받는 공고를 '마감'으로 적으면 기회를 놓친다. 둘 다 사람 손해다.
+*/
+test("마감일 당일까지는 접수중이다", () => {
+  /* 관공서 공고는 보통 마감일 그날 자정까지 받는다 */
+  assert.equal(noticeStatus("2026-10-15", "2026-10-14"), "접수중");
+  assert.equal(noticeStatus("2026-10-15", "2026-10-15"), "접수중");
+  assert.equal(noticeStatus("2026-10-15", "2026-10-16"), "마감");
+});
+
+test("마감일이 없으면 아무 표시도 하지 않는다", () => {
+  /* 상시 접수·예산 소진 시 마감처럼 날짜가 없는 공고가 있다.
+     모르는 것을 '접수중'이라 단정하면 헛걸음하는 분이 생긴다 */
+  assert.equal(noticeStatus(null, "2026-10-14"), null);
+  assert.equal(noticeStatus("", "2026-10-14"), null);
 });

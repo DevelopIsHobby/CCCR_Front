@@ -13,6 +13,7 @@ type Props = {
   listPath: string;
   /** 행사정보처럼 주최·장소·일시를 함께 받는 게시판인가 */
   hasEventFields?: boolean;
+  hasDeadlineFields?: boolean;
   /** 산업뉴스처럼 원문 기사로 보내는 게시판인가. 링크 칸이 '기사 주소(필수)'가 된다 */
   linkRequired?: boolean;
   post?: {
@@ -34,6 +35,7 @@ export default function PostForm({
   board,
   listPath,
   hasEventFields = false,
+  hasDeadlineFields = false,
   linkRequired = false,
   post,
 }: Props) {
@@ -188,6 +190,53 @@ export default function PostForm({
                 />
                 <p className="mt-2 text-sm text-ink-400">
                   이 날짜까지는 목록에 접수중으로 표시됩니다.
+                </p>
+              </div>
+            </div>
+          </fieldset>
+        )}
+
+        {hasDeadlineFields && (
+          <fieldset className="rounded-xl bg-surface px-6 py-6">
+            <legend className="px-1 text-base font-bold text-navy-900">공고 정보</legend>
+            <p className="mt-1 text-sm text-ink-400">
+              목록에서 접수중·마감을 가려 주는 값입니다. 공고 원문 주소는 위 링크 칸에 넣습니다.
+            </p>
+
+            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="announce-host"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
+                  주관기관
+                </label>
+                <input
+                  id="announce-host"
+                  name="eventHost"
+                  type="text"
+                  defaultValue={post?.event?.host ?? ""}
+                  placeholder="예: 정보통신산업진흥원"
+                  className={fieldClass}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="announce-apply"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
+                  접수 마감일
+                </label>
+                <input
+                  id="announce-apply"
+                  name="eventApplyBy"
+                  type="date"
+                  defaultValue={post?.event?.applyBy ?? ""}
+                  className={fieldClass}
+                />
+                <p className="mt-2 text-sm text-ink-400">
+                  이 날짜까지 접수중으로 보입니다. 상시 접수라면 비워 두세요.
                 </p>
               </div>
             </div>

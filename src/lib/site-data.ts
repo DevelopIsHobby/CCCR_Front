@@ -39,6 +39,7 @@ export const NAV: NavItem[] = [
     href: "/board",
     children: [
       { label: "공지사항", href: "/board/notice" },
+      { label: "사업공고", href: "/board/announce" },
       { label: "행사정보", href: "/board/events" },
     ],
   },

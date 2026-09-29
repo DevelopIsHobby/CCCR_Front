@@ -63,6 +63,21 @@ export function eventStatus(
   return "예정";
 }
 
+export type NoticeStatus = "접수중" | "마감";
+
+/*
+  사업공고 상태. 행사와 달리 여는 날이 없고 마감만 있다.
+
+  마감일이 없는 공고도 있다(상시 접수, 예산 소진 시 마감 등). 그때는 아무 표시도
+  하지 않는다. 모르는 것을 '접수중'이라고 단정하면 헛걸음하는 분이 생긴다.
+
+  마감일 당일까지는 접수중으로 본다. 관공서 공고는 보통 그날 자정까지 받는다.
+*/
+export function noticeStatus(applyBy: string | null, now: string = today()): NoticeStatus | null {
+  if (!applyBy) return null;
+  return now <= applyBy ? "접수중" : "마감";
+}
+
 /** '2026-09-09' + '2026-09-11' → '2026.09.09 – 09.11' */
 export function formatEventPeriod(startsOn: string | null, endsOn: string | null): string {
   if (!startsOn) return "";

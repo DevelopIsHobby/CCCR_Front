@@ -9,19 +9,23 @@ import { getSession } from "@/lib/auth/session";
 import type { BoardConfig } from "@/lib/boards";
 import {
   eventStatus,
+  noticeStatus,
   formatBytes,
   formatDate,
   formatEventPeriod,
   type EventStatus,
+  type NoticeStatus,
 } from "@/lib/format";
 
 /** 편집기 도입 전 글은 순수 텍스트다. */
 const isHtml = (body: string) => /<\/?[a-z][\s\S]*>/i.test(body);
 
-const STATUS_TONE: Record<EventStatus, string> = {
+/* 행사(접수중·예정·종료)와 사업공고(접수중·마감)가 같은 딱지를 쓴다 */
+const STATUS_TONE: Record<EventStatus | NoticeStatus, string> = {
   접수중: "bg-flame-500 text-white",
   예정: "bg-brand-600 text-white",
   종료: "bg-surface text-ink-400",
+  마감: "bg-surface text-ink-400",
 };
 
 /** 글 상세 화면. 게시판 종류와 무관하게 같은 구성을 쓴다. */
@@ -42,10 +46,19 @@ export default async function PostDetailView({
   const { prev, next } = await getNeighbors(board.slug, post.id);
 
   const base = board.basePath;
-  const status = board.hasEventFields ? eventStatus(post.event) : null;
+  /*
+    머리에 붙는 상태 딱지.
+    행사는 여는 날이 있어 접수중·예정·종료로 나뉘고, 사업공고는 마감만 있어
+    접수중·마감 둘뿐이다. 계산이 다르므로 각자 함수를 쓴다.
+  */
+  const status = board.hasEventFields
+    ? eventStatus(post.event)
+    : board.hasDeadlineFields
+      ? noticeStatus(post.event.applyBy)
+      : null;
   const period = formatEventPeriod(post.event.startsOn, post.event.endsOn);
 
-  /* 행사 정보는 값이 있는 항목만 줄로 만든다. */
+  /* 행사·공고 정보는 값이 있는 항목만 줄로 만든다. */
   const eventRows = board.hasEventFields
     ? [
         { label: "일시", value: period },
@@ -56,7 +69,15 @@ export default async function PostDetailView({
           value: post.event.applyBy ? formatDate(post.event.applyBy) : "",
         },
       ].filter((row) => row.value)
-    : [];
+    : board.hasDeadlineFields
+      ? [
+          { label: "주관기관", value: post.event.host ?? "" },
+          {
+            label: "접수 마감",
+            value: post.event.applyBy ? formatDate(post.event.applyBy) : "상시 접수",
+          },
+        ].filter((row) => row.value)
+      : [];
 
   return (
     /* 글 제목이 이 화면의 h1 이다. 머리의 게시판 이름까지 h1 이면 한 화면에 제목이 둘이 된다 */

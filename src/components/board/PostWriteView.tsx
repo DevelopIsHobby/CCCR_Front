@@ -16,6 +16,7 @@ export default async function PostWriteView({ board }: { board: BoardConfig }) {
         board={board.slug}
         listPath={base}
         hasEventFields={board.hasEventFields}
+        hasDeadlineFields={board.hasDeadlineFields ?? false}
         linkRequired={board.layout === "links"}
       />
     </PageShell>

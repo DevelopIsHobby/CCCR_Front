@@ -32,17 +32,25 @@ function linkFields(formData: FormData) {
 }
 
 /*
-  행사 관련 입력. 행사정보 게시판이 아니면 전부 null 로 저장한다.
+  행사·공고 관련 입력. 그 게시판이 아니면 전부 null 로 저장한다.
   빈 문자열은 "값 없음"이므로 null 로 눕힌다.
+
+  사업공고는 여는 날이 없고 마감만 있다. 장소·행사일 칸을 보여 주지 않으므로
+  받지도 않는다. 받으면 화면에 없는 칸 때문에 기존 값이 지워진다.
 */
 function eventFields(board: string, formData: FormData) {
   const empty = [null, null, null, null, null] as const;
-  if (!getBoard(board)?.hasEventFields) return empty;
+  const config = getBoard(board);
+  if (!config?.hasEventFields && !config?.hasDeadlineFields) return empty;
 
   const value = (key: string) => {
     const raw = String(formData.get(key) ?? "").trim();
     return raw === "" ? null : raw;
   };
+
+  if (config.hasDeadlineFields) {
+    return [value("eventHost"), null, null, null, value("eventApplyBy")] as const;
+  }
 
   return [
     value("eventHost"),

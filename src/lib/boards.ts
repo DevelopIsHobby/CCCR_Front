@@ -21,10 +21,17 @@ export type BoardConfig = {
    * issues — 뉴스레터처럼 표지가 곧 제목인 게시판. 표지를 그리드로 늘어놓는다
    * links  — 산업뉴스처럼 바깥 기사를 모으는 게시판. 제목·출처·날짜만 한 줄로 두고
    *          제목을 누르면 원문 기사가 새 창으로 열린다. 글쓰기에서 기사 주소가 필수다
+   * notices — 사업공고처럼 마감이 있는 공고를 모으는 게시판. 목록에 접수중·마감과
+   *          주관기관·마감일을 함께 두어, 훑으면서 아직 넣을 수 있는 것을 가려낸다
    */
-  layout: "table" | "cards" | "issues" | "links";
+  layout: "table" | "cards" | "issues" | "links" | "notices";
   /** 주최·장소·행사일 같은 행사 전용 입력을 쓰는가 */
   hasEventFields: boolean;
+  /**
+   * 주관기관·접수 마감일 입력을 쓰는가(사업공고).
+   * 행사와 달리 여는 날이 없고 마감만 있다. 장소·행사일 칸은 쓰지 않는다.
+   */
+  hasDeadlineFields?: boolean;
   /**
    * 메인 "새소식"에 탭으로 노출할지 여부.
    * 게시판이 여섯이라 전부 걸면 탭이 한 줄을 넘겨 읽기 어렵다.
@@ -49,6 +56,17 @@ export const BOARDS: BoardConfig[] = [
     basePath: "/board/events",
     layout: "cards",
     hasEventFields: true,
+    showOnHome: true,
+  },
+  {
+    slug: "announce",
+    name: "사업공고",
+    desc: "정부·유관기관의 사업 공고 가운데 조합 사업과 관련된 것을 사무국이 모아 정리합니다.",
+    basePath: "/board/announce",
+    /* 마감이 지난 공고가 섞이므로 목록에서 접수중·마감을 가려 준다 */
+    layout: "notices",
+    hasEventFields: false,
+    hasDeadlineFields: true,
     showOnHome: true,
   },
   {
