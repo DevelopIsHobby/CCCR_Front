@@ -24,7 +24,7 @@ export default function Loading() {
         />
         <span className="absolute inset-x-0 bottom-0 h-1 bg-flame-500" aria-hidden />
 
-        <div className="relative mx-auto max-w-[1280px] animate-pulse px-6 py-10 lg:py-12">
+        <div className="relative mx-auto max-w-[1280px] animate-pulse px-6 py-12 lg:py-16">
           <div className="h-3.5 w-40 rounded bg-white/15" />
           <div className="mt-7 h-8 w-64 rounded bg-white/25 lg:h-9" />
           <div className="mt-4 h-4 w-full max-w-2xl rounded bg-white/10" />
