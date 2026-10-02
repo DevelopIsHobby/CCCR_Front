@@ -16,6 +16,8 @@ type Props = {
   hasDeadlineFields?: boolean;
   /** 산업뉴스처럼 원문 기사로 보내는 게시판인가. 링크 칸이 '기사 주소(필수)'가 된다 */
   linkRequired?: boolean;
+  /** 분류를 쓰는 게시판이면 고를 수 있는 이름들. 없으면 분류 칸을 두지 않는다 */
+  categories?: string[];
   post?: {
     id: number;
     title: string;
@@ -25,6 +27,7 @@ type Props = {
     attachments: Attachment[];
     event?: EventInfo;
     link?: PostLink | null;
+    category?: string;
   };
 };
 
@@ -37,6 +40,7 @@ export default function PostForm({
   hasEventFields = false,
   hasDeadlineFields = false,
   linkRequired = false,
+  categories,
   post,
 }: Props) {
   const isEdit = Boolean(post);
@@ -66,6 +70,39 @@ export default function PostForm({
             className={fieldClass}
           />
         </div>
+
+        {/*
+          분류. 목록 위 탭(전체·클라우드·AI …)이 이 값으로 걸러진다.
+          고르지 않으면 '전체'에서만 보이므로 필수로 받는다.
+        */}
+        {categories && categories.length > 0 && (
+          <div>
+            <label htmlFor="post-category" className="mb-2 block text-base font-bold text-navy-900">
+              분류
+              <span className="ml-1.5 text-xs font-bold text-flame-600">필수</span>
+            </label>
+            <select
+              id="post-category"
+              name="category"
+              required
+              defaultValue={post?.category ?? ""}
+              className={`${fieldClass} bg-white`}
+            >
+              <option value="" disabled>
+                고르세요
+              </option>
+              {categories.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+            <p className="mt-2 text-sm text-ink-400">
+              목록 위 분류 탭에서 이 이름으로 묶입니다. 맨 앞 &lsquo;전체&rsquo; 탭에는 분류와
+              상관없이 모두 나옵니다.
+            </p>
+          </div>
+        )}
 
         {/* 산업뉴스는 원문 기사로 바로 보내므로 본문·첨부·회원 전용 칸이 필요 없다 */}
         {!linkRequired && (

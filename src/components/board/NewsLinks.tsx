@@ -107,6 +107,12 @@ export default function NewsLinks({
             </div>
 
             <p className="flex shrink-0 items-center gap-3 text-sm text-ink-400 sm:justify-end">
+              {/* 분류. '전체' 탭에서 어느 갈래 기사인지 바로 보이게 한다 */}
+              {post.category && (
+                <span className="shrink-0 rounded-full bg-surface px-2.5 py-0.5 text-xs font-semibold text-ink-600">
+                  {post.category}
+                </span>
+              )}
               {source && <span className="max-w-[12rem] truncate">{source}</span>}
               <span className="label-mono tabular-nums">{formatDate(post.createdAt)}</span>
               {isAdmin && (

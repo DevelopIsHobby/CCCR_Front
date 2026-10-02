@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { ready } from "./migrate";
+import type { SqlValue } from "./driver";
 import { likeContains } from "@/lib/like";
 
 export type PostRow = {
@@ -17,6 +18,8 @@ export type PostRow = {
   attachmentCount: number;
   /** 본문과 별개로 게시글에 걸어 두는 링크. 없으면 null. */
   link: PostLink | null;
+  /** 분류를 쓰는 게시판(산업뉴스)에서만 채운다. 나머지는 빈 문자열이다. */
+  category: string;
   /** 행사정보 게시판에서만 채운다. 나머지 게시판은 전부 null 이다. */
   event: EventInfo;
   /** 본문 맨 앞의 그림. 카드형 목록의 대표 그림으로 쓴다. 없으면 null. */
@@ -77,6 +80,7 @@ type RawRow = {
   event_apply_by: string | null;
   link_url: string | null;
   link_label: string | null;
+  category: string | null;
   /* NUMBERED 가 p.* 를 그대로 넘기므로 본문도 함께 온다 */
   body: string | null;
 };
@@ -131,6 +135,7 @@ function toPost(r: RawRow): PostRow {
     createdAt: r.created_at,
     attachmentCount: Number(r.attachment_count),
     link: r.link_url ? { url: r.link_url, label: r.link_label ?? null } : null,
+    category: r.category ?? "",
     /*
       회원 전용 글은 대표 그림을 내지 않는다.
 
@@ -196,16 +201,41 @@ const PLAIN = `
   WHERE p.deleted_at = '' AND p.board = ?
 `;
 
-export async function listPosts(opts: { board: string; page?: number; q?: string }) {
+export async function listPosts(opts: {
+  board: string;
+  page?: number;
+  q?: string;
+  /** 분류 탭. 빈 값이면 전체 */
+  category?: string;
+}) {
   const db = await ready();
   const page = Math.max(1, opts.page ?? 1);
   const q = opts.q?.trim() ?? "";
   /* %·_ 를 글자 그대로 찾는다(like.ts) */
   const like = likeContains(q);
+  const category = opts.category?.trim() ?? "";
+
+  /*
+    제목 검색과 분류 탭은 함께 걸 수 있다. 조건과 값을 같은 차례로 모아 둔다.
+    (쿼리의 첫 물음표는 늘 게시판이다 — NUMBERED 주석 참고)
+  */
+  const where: string[] = [];
+  const filters: SqlValue[] = [];
+  if (q) {
+    where.push("LOWER(title) LIKE ? ESCAPE '\\'");
+    filters.push(like);
+  }
+  if (category) {
+    where.push("category = ?");
+    filters.push(category);
+  }
+  const clause = where.length ? ` WHERE ${where.join(" AND ")}` : "";
 
   const countRow = await db.get<{ n: number }>(
-    `SELECT COUNT(*) AS n FROM posts WHERE deleted_at = '' AND board = ?${q ? " AND LOWER(title) LIKE ? ESCAPE '\\'" : ""}`,
-    q ? [opts.board, like] : [opts.board],
+    `SELECT COUNT(*) AS n FROM posts WHERE deleted_at = '' AND board = ?${
+      where.length ? ` AND ${where.join(" AND ")}` : ""
+    }`,
+    [opts.board, ...filters],
   );
   const total = Number(countRow?.n ?? 0);
 
@@ -213,19 +243,22 @@ export async function listPosts(opts: { board: string; page?: number; q?: string
   const current = Math.min(page, totalPages);
 
   const rows = await db.all<RawRow>(
-    `SELECT * FROM (${NUMBERED}) numbered${q ? " WHERE LOWER(title) LIKE ? ESCAPE '\\'" : ""}
+    `SELECT * FROM (${NUMBERED}) numbered${clause}
      ORDER BY id DESC LIMIT ? OFFSET ?`,
-    q
-      ? [opts.board, like, PER_PAGE, (current - 1) * PER_PAGE]
-      : [opts.board, PER_PAGE, (current - 1) * PER_PAGE],
+    [opts.board, ...filters, PER_PAGE, (current - 1) * PER_PAGE],
   );
 
-  /* 검색 중에는 고정 공지를 띄우지 않는다. 검색 결과만 보이는 편이 낫다. */
+  /*
+    검색 중에는 고정 공지를 띄우지 않는다. 검색 결과만 보이는 편이 낫다.
+    분류 탭에서는 그 분류의 고정 글만 올린다. 다른 분류 글이 끼면 탭이 무색해진다.
+  */
   const pinned = q
     ? []
     : await db.all<RawRow>(
-        `SELECT * FROM (${NUMBERED}) numbered WHERE is_pinned = 1 ORDER BY id DESC`,
-        [opts.board],
+        `SELECT * FROM (${NUMBERED}) numbered WHERE is_pinned = 1${
+          category ? " AND category = ?" : ""
+        } ORDER BY id DESC`,
+        category ? [opts.board, category] : [opts.board],
       );
 
   return {

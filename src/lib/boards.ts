@@ -37,7 +37,21 @@ export type BoardConfig = {
    * 게시판이 여섯이라 전부 걸면 탭이 한 줄을 넘겨 읽기 어렵다.
    */
   showOnHome: boolean;
+  /**
+   * 목록 위에 탭으로 거를 분류. 없으면 탭을 두지 않는다.
+   * 글 하나는 분류 하나를 갖고, 맨 앞 '전체' 탭에서는 모두 보인다.
+   * 여기 이름을 고치면 이미 올린 글의 분류와 어긋나므로, 바꿀 때는 DB 값도 함께 고친다.
+   */
+  categories?: string[];
 };
+
+/** 분류 탭 맨 앞에 두는 '전체'. 주소에는 넣지 않는다(?cat 이 없으면 전체다). */
+export const ALL_CATEGORY = "전체";
+
+/** 그 게시판에서 쓸 수 있는 분류인지. 주소로 들어온 값을 그대로 믿지 않는다. */
+export function isCategoryOf(board: BoardConfig, value: string): boolean {
+  return Boolean(value) && (board.categories ?? []).includes(value);
+}
 
 export const BOARDS: BoardConfig[] = [
   {
@@ -78,6 +92,8 @@ export const BOARDS: BoardConfig[] = [
     layout: "links",
     hasEventFields: false,
     showOnHome: true,
+    /* 사무국이 기사를 모을 때 쓰는 갈래. 늘리거나 이름을 바꾸면 올린 글의 분류도 함께 고친다 */
+    categories: ["클라우드", "데이터센터", "AI", "통신", "양자", "자율주행", "로봇"],
   },
   {
     slug: "trends",

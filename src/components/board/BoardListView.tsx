@@ -8,7 +8,7 @@ import NewsLinks from "@/components/board/NewsLinks";
 import NewsletterIssues from "@/components/board/NewsletterIssues";
 import { listPosts } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
-import type { BoardConfig } from "@/lib/boards";
+import { ALL_CATEGORY, isCategoryOf, type BoardConfig } from "@/lib/boards";
 
 /*
   게시판 목록 화면.
@@ -22,16 +22,20 @@ export default async function BoardListView({
   intro,
 }: {
   board: BoardConfig;
-  searchParams: Promise<{ page?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; cat?: string }>;
   /** 목록 위에 얹을 내용. 뉴스레터 구독 신청처럼 게시판마다 다른 부분에 쓴다. */
   intro?: React.ReactNode;
 }) {
   const sp = await searchParams;
   const q = sp.q?.trim() ?? "";
+  /* 주소로 들어온 분류는 그 게시판이 쓰는 것만 받는다. 아니면 전체로 본다 */
+  const rawCat = sp.cat?.trim() ?? "";
+  const category = isCategoryOf(board, rawCat) ? rawCat : "";
   const { pinned, rows, total, page, totalPages } = await listPosts({
     board: board.slug,
     page: Number(sp.page) || 1,
     q,
+    category,
   });
   const session = await getSession();
   const isAdmin = session?.role === "admin";
@@ -44,7 +48,32 @@ export default async function BoardListView({
     <PageShell href={base} title={board.name} desc={board.desc}>
       {intro}
 
-      <BoardSearch total={total} action={base} q={q} />
+      {/* 분류 탭. 맨 앞은 전체(주소에 cat 이 없는 상태) */}
+      {board.categories && board.categories.length > 0 && (
+        <nav className="mt-2 flex flex-wrap gap-2" aria-label="분류">
+          {[ALL_CATEGORY, ...board.categories].map((name) => {
+            const isAll = name === ALL_CATEGORY;
+            const active = isAll ? !category : category === name;
+            const href = isAll ? base : `${base}?cat=${encodeURIComponent(name)}`;
+            return (
+              <Link
+                key={name}
+                href={href}
+                aria-current={active ? "page" : undefined}
+                className={`rounded-full px-4 py-2 text-base font-semibold transition-colors ${
+                  active
+                    ? "bg-navy-900 text-white"
+                    : "border border-line text-ink-600 hover:border-brand-500 hover:text-brand-600"
+                }`}
+              >
+                {name}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
+
+      <BoardSearch total={total} action={base} q={q} cat={category} />
 
       {q && (
         <p className="mt-4 text-base text-ink-600">
@@ -75,7 +104,13 @@ export default async function BoardListView({
         </div>
       )}
 
-      <Pagination basePath={base} page={page} totalPages={totalPages} q={q} />
+      <Pagination
+        basePath={base}
+        page={page}
+        totalPages={totalPages}
+        q={q}
+        params={{ cat: category || undefined }}
+      />
     </PageShell>
   );
 }

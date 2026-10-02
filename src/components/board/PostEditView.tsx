@@ -28,6 +28,7 @@ export default async function PostEditView({
         hasEventFields={board.hasEventFields}
         hasDeadlineFields={board.hasDeadlineFields ?? false}
         linkRequired={board.layout === "links"}
+        categories={board.categories}
         post={{
           id: post.id,
           title: post.title,
@@ -37,6 +38,7 @@ export default async function PostEditView({
           attachments: post.attachments,
           event: post.event,
           link: post.link,
+          category: post.category,
         }}
       />
     </PageShell>

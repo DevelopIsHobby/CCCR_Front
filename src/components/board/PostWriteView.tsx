@@ -18,6 +18,7 @@ export default async function PostWriteView({ board }: { board: BoardConfig }) {
         hasEventFields={board.hasEventFields}
         hasDeadlineFields={board.hasDeadlineFields ?? false}
         linkRequired={board.layout === "links"}
+        categories={board.categories}
       />
     </PageShell>
   );

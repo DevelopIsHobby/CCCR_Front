@@ -29,7 +29,7 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ board: string }>;
-  searchParams: Promise<{ page?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; cat?: string }>;
 }) {
   const { board: slug } = await params;
   const board = getBoardAt(`/board/${slug}`);

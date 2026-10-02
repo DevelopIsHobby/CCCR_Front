@@ -8,7 +8,7 @@ import { requireAdmin, getSession } from "@/lib/auth/session";
 import { saveUpload, deleteUpload } from "@/lib/uploads";
 import { deletePostsWithFiles } from "@/lib/db/post-delete";
 import { isEmptyHtml, sanitizePostBody } from "@/lib/html";
-import { boardPath as pathOf, getBoard } from "@/lib/boards";
+import { boardPath as pathOf, getBoard, isCategoryOf } from "@/lib/boards";
 
 export type PostFormState = { error?: string };
 
@@ -61,6 +61,16 @@ function eventFields(board: string, formData: FormData) {
   ] as const;
 }
 
+/*
+  분류(산업뉴스의 클라우드·AI 등). 그 게시판이 쓰는 분류가 아니면 빈 값으로 둔다.
+  주소나 폼으로 아무 글자나 들어와도 목록 탭에 없는 분류가 생기지 않게 한다.
+*/
+function categoryField(board: string, formData: FormData): string {
+  const config = getBoard(board);
+  const value = String(formData.get("category") ?? "").trim();
+  return config && isCategoryOf(config, value) ? value : "";
+}
+
 /** 목록·상세 어디서 글이 바뀌든 관련 경로를 함께 새로 고친다. */
 function refreshBoard(board: string, id?: number) {
   const base = boardPath(board);
@@ -102,8 +112,8 @@ export async function createPost(
     `INSERT INTO posts (board, title, body, author_id, author_name, is_pinned, is_locked,
                         created_at, updated_at,
                         event_host, event_place, event_starts_on, event_ends_on, event_apply_by,
-                        link_url, link_label)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+                        link_url, link_label, category)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
     [
       board,
       title,
@@ -116,6 +126,7 @@ export async function createPost(
       stamp,
       ...eventFields(board, formData),
       ...linkFields(formData),
+      categoryField(board, formData),
     ],
   );
 
@@ -165,16 +176,24 @@ export async function updatePost(
   if (linkOnly) {
     await db.run(
       `UPDATE posts
-          SET title = ?, is_pinned = ?, updated_at = ?, link_url = ?, link_label = ?
+          SET title = ?, is_pinned = ?, updated_at = ?, link_url = ?, link_label = ?, category = ?
         WHERE id = ? AND board = ?`,
-      [title, formData.get("isPinned") ? 1 : 0, now(), ...linkFields(formData), id, board],
+      [
+        title,
+        formData.get("isPinned") ? 1 : 0,
+        now(),
+        ...linkFields(formData),
+        categoryField(board, formData),
+        id,
+        board,
+      ],
     );
   } else {
     await db.run(
       `UPDATE posts
           SET title = ?, body = ?, is_pinned = ?, is_locked = ?, updated_at = ?,
               event_host = ?, event_place = ?, event_starts_on = ?, event_ends_on = ?,
-              event_apply_by = ?, link_url = ?, link_label = ?
+              event_apply_by = ?, link_url = ?, link_label = ?, category = ?
         WHERE id = ? AND board = ?`,
       [
         title,
@@ -184,6 +203,7 @@ export async function updatePost(
         now(),
         ...eventFields(board, formData),
         ...linkFields(formData),
+        categoryField(board, formData),
         id,
         board,
       ],
