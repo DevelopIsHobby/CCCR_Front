@@ -103,11 +103,9 @@ sudo systemctl restart nginx      # 그룹은 다시 켜야 반영된다
 
 ### 1-5. PostgreSQL 설치와 준비
 
-지금 쓰는 DB 를 옮겨 오므로(1-11) **새 서버의 PostgreSQL 판이 옛 DB 판보다 낮으면 안 됩니다.**
-낮으면 옛 DB 덤프를 되살리지 못합니다. 우분투 기본 저장소의 판(22.04 는 14, 24.04 는 16)은
-옛 DB 보다 낮을 수 있어 PostgreSQL 공식 저장소에서 설치합니다.
-
-먼저 옛 DB 판을 확인합니다. 접속 주소는 Vercel 프로젝트 Settings > Environment Variables 의 `DATABASE_URL` 입니다.
+옛 DB 덤프를 되살릴 수 있어야 하므로(1-11) **PostgreSQL 판이 덤프를 만든 DB 보다 낮으면 안 됩니다.**
+우분투 기본 저장소의 판(22.04 는 14, 24.04 는 16)은 낮을 수 있어 공식 저장소에서 설치합니다.
+2026-09 에 세운 서버는 **17** 을 썼습니다.
 
 ```bash
 sudo apt install -y postgresql-common
@@ -144,7 +142,7 @@ SITE_URL=https://cccr.kr
 # 정식 공개 전까지 검색에 잡히지 않게 막는다. 공개하는 날 이 줄을 지우고 재시작한다.
 SITE_NOINDEX=1
 
-# 메일 (6장) — 지금 Vercel 에 넣어 둔 값을 그대로 옮긴다
+# 메일 (6장)
 SMTP_HOST=smtp.cafe24.com
 SMTP_PORT=587
 SMTP_USER=rnd@cccr.or.kr
@@ -325,24 +323,17 @@ sudo MIN_FREE_MB=99999999 /srv/c3r/app/scripts/backup.sh
 첨부파일은 날마다 `backup/uploads/<날짜>/` 폴더로 남습니다. 바뀌지 않은 파일은 어제 것과
 이어 붙여(하드링크) 두므로, 30일치를 두어도 자리는 늘어난 만큼만 먹습니다.
 
-### 1-11. 지금 쓰던 DB 옮겨 오기 (한 번만)
+### 1-11. 옛 DB 덤프를 되살리기 (가지고 있을 때만)
 
-그동안은 Vercel 에 연결된 PostgreSQL 을 써 왔습니다. 회원사 주소·소개 문구·관리자 계정·
-신청 기록이 거기 들어 있으므로 새 서버를 열기 전에 한 번 옮깁니다.
-첨부·이미지는 Vercel 에서 올릴 수 없었으므로 옮길 파일이 없습니다.
+**2026-10 현재 Vercel 은 지웠습니다.** 그때 쓰던 PostgreSQL 에 회원사 주소·소개 문구·
+신청 기록이 들어 있었는데, 덤프 파일을 받아 두었다면 아래처럼 되살립니다.
+덤프가 없으면 이 단계는 건너뛰고, 회원사·연혁·문구는 관리자 화면에서 새로 넣습니다.
 
-1) 옛 DB 를 덤프합니다. 접속 주소는 Vercel 프로젝트 **Settings > Environment Variables** 의
-   `DATABASE_URL` 입니다. 이 주소에는 비밀번호가 들어 있으니 명령 기록에 남지 않게 조심하세요.
-
-```bash
-pg_dump "옛_DATABASE_URL" -Fc --no-owner --no-privileges -f c3r-from-vercel.dump
-```
-
-2) 새 서버에서 되살립니다. `1-7` 을 마친 뒤(표가 만들어진 뒤)에 합니다.
+덤프 파일을 서버로 올린 뒤(`scp` 또는 FTP), `1-7` 을 마친 상태에서 합니다.
 
 ```bash
 sudo systemctl stop c3r
-sudo cat c3r-from-vercel.dump | sudo -u postgres pg_restore --no-owner --role=c3r -d c3r --clean --if-exists
+sudo cat 덤프파일.dump | sudo -u postgres pg_restore --no-owner --role=c3r -d c3r --clean --if-exists
 sudo systemctl start c3r
 ```
 
@@ -394,6 +385,27 @@ cd /srv/c3r/app
 
 ---
 
+### 자동 배포 (깃허브에 올리면 서버가 받아 간다)
+
+`scripts/auto-deploy.sh` 가 5분마다 깃허브를 보고, 새 커밋이 있으면 스스로 `deploy.sh` 를 돌립니다.
+Vercel 을 쓰던 때처럼 **올리기만 하면 반영**됩니다.
+
+```bash
+sudo crontab -e
+# 아래 한 줄 추가
+*/5 * * * * /srv/c3r/app/scripts/auto-deploy.sh >> /var/log/c3r-auto-deploy.log 2>&1
+```
+
+- **깃허브 검사(CI)가 통과한 커밋만** 배포합니다. 빨간불이면 그대로 두고 사무국 메일로 알립니다
+- 검사가 아직 돌고 있으면 다음 차례(5분 뒤)에 다시 봅니다
+- 배포가 실패하면 `deploy.sh` 가 이전 판으로 되돌리고, 그 사실을 메일로 알립니다
+- 빌드가 5분을 넘겨도 잠금이 걸려 있어 두 번 돌지 않습니다
+- 급할 때는 서버에서 `./scripts/deploy.sh` 를 직접 돌리면 됩니다(자동 배포와 같은 일을 합니다)
+
+기록은 `/var/log/c3r-auto-deploy.log` 에 쌓입니다.
+
+---
+
 ## 3. 자주 쓰는 명령
 
 | 하고 싶은 일 | 명령 |
@@ -404,6 +416,7 @@ cd /srv/c3r/app
 | 관리자 비밀번호 변경 | `1-7`의 create-admin 명령을 같은 이메일로 다시 실행 |
 | 수동 백업 | `/srv/c3r/app/scripts/backup.sh` |
 | 직전 판으로 되돌리기 | `/srv/c3r/app/scripts/rollback.sh` |
+| 자동 배포 기록 보기 | `tail -f /var/log/c3r-auto-deploy.log` |
 | 백업 알림이 오는지 확인 | `sudo MIN_FREE_MB=99999999 /srv/c3r/app/scripts/backup.sh` |
 | 사이트가 살아 있는지 | `curl -s localhost:3000/api/health/live` (ok 가 나와야 함) |
 | 설정을 한눈에 보기 | 관리자로 로그인한 브라우저에서 `/api/health` |
@@ -562,17 +575,16 @@ sudo systemctl restart c3r
 Gmail 에서 받은 메일의 ⋮ > **원본 보기** 맨 위에 `DKIM: 'PASS'` 가 나오면 됩니다.
 공개키를 DNS 에 넣기 전에 비밀키부터 넣으면 서명이 맞지 않아 오히려 실패로 찍히니 순서를 지킵니다.
 
-**3) 링크 주소** — 보내는 도메인과 다른 주소(`*.vercel.app`)의 링크가 들어 있으면 점수가 깎입니다.
-`SITE_URL` 을 정식 주소로 바꾸면 저절로 풀립니다.
+**3) 링크 주소** — 보내는 도메인과 동떨어진 주소의 링크가 본문에 들어 있으면 점수가 깎입니다.
+`SITE_URL` 이 정식 주소면 메일 속 링크도 그 주소로 나갑니다.
 
 ---
 
 ### 정식 공개 전 미리보기
 
-사이트 주소(`SITE_URL`)가 `*.vercel.app` 이면 따로 정하지 않아도 검색에 잡히지 않게
-막습니다. 검색엔진이 임시 주소를 색인하면 나중에 진짜 주소와 내용이 겹쳐 검색 순위에
-손해이기 때문입니다. `SITE_URL` 을 정식 도메인으로 바꾸면 저절로 풀립니다.
-주소와 상관없이 막으려면 `SITE_NOINDEX=1`, 열려면 `SITE_NOINDEX=0` 을 넣으세요.
+`.env.production` 에 `SITE_NOINDEX=1` 이 있으면 검색에 잡히지 않습니다.
+정식 공개하는 날 그 줄을 지우고 `sudo systemctl restart c3r` 하면 열립니다
+(robots.txt 는 요청마다 만들어지므로 다시 빌드하지 않아도 됩니다).
 관리자 화면은 이 값과 상관없이 늘 색인에서 빠집니다.
 
 ### 임시 주소에서 정식 주소로 넘길 때
@@ -697,15 +709,14 @@ cron 에 하루 한 번 등록합니다.
 ```bash
 sudo crontab -e
 # 매일 새벽 4시 30분 — 백업(4시) 다음에 돈다 (서버 시간대가 KST 여야 한다. 1-2a)
-30 4 * * * curl -fsS -H "Authorization: Bearer 비밀값" https://cccr.kr/api/cleanup >> /var/log/c3r-cleanup.log 2>&1
+30 4 * * * /srv/c3r/app/scripts/cleanup-cron.sh >> /var/log/c3r-cleanup.log 2>&1
 ```
 
 지운 개수가 로그에 남습니다. 기간을 바꾸려면 `src/lib/retention.ts` 와
 개인정보처리방침 제4조를 **함께** 고쳐야 합니다.
 
-Vercel 에 올린 경우에는 `vercel.json` 의 `crons` 가 대신 부릅니다.
-환경변수에 `CRON_SECRET` 을 정해 두면 Vercel 이 그 값을 헤더에 붙여 보냅니다.
-`CLEANUP_SECRET` 과 `CRON_SECRET` 중 하나만 맞으면 실행됩니다.
+`scripts/cleanup-cron.sh` 가 `.env.production` 에서 `CLEANUP_SECRET` 을 읽어 앱에 직접 부릅니다.
+비밀값을 crontab 에 적지 않아도 되고, Nginx 요청량 제한에도 걸리지 않습니다.
 
 ---
 

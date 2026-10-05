@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   /*
     미리보기 배포는 검색에 잡히면 안 된다. 정식 공개 전 주소가 색인되면
     나중에 진짜 주소와 내용이 겹쳐 검색 순위에도 손해다.
-    주소가 vercel.app 이거나 SITE_NOINDEX=1 이면 막는다(isNoindex 참고).
+    SITE_NOINDEX=1 이면 막는다(isNoindex 참고).
   */
   robots:
     isNoindex() ? { index: false, follow: false } : undefined,

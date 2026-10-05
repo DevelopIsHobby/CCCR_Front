@@ -16,7 +16,7 @@ import { UPLOAD_DIR } from "@/lib/uploads";
 
   그래도 발신 메일 계정·서버 설정 일부가 보이므로 관리자만 본다. 그 밖에는 없는 주소처럼
   404 로 답해 점검 주소가 있다는 것조차 드러내지 않는다.
-  DB 가 죽어 로그인부터 안 될 때는 서버 로그(VPS: journalctl -u c3r, Vercel: 함수 로그)로 원인을 본다.
+  DB 가 죽어 로그인부터 안 될 때는 서버 로그(journalctl -u c3r)로 원인을 본다.
 */
 export const dynamic = "force-dynamic";
 
@@ -65,10 +65,9 @@ export async function GET() {
         : "(없음 → 서명하지 않음)",
     SITE_URL: process.env.SITE_URL ?? "(없음)",
     자동파기비밀값:
-      process.env.CLEANUP_SECRET || process.env.CRON_SECRET ? "설정됨" : "(없음 → 자동 파기를 부를 수 없음)",
+      process.env.CLEANUP_SECRET ? "설정됨" : "(없음 → 자동 파기를 부를 수 없음)",
     소셜로그인: enabledProviders().join(", ") || "(없음)",
     첨부폴더: await uploadDirStatus(),
-    VERCEL_REGION: process.env.VERCEL_REGION ?? "(없음)",
   };
 
   try {

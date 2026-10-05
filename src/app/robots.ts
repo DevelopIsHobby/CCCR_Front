@@ -4,7 +4,7 @@ import { isNoindex, siteUrl } from "@/lib/site-url";
 /*
   검색 로봇 안내.
 
-  미리보기 주소(vercel.app, 또는 SITE_NOINDEX=1)에서는 검색에 잡히지 않게 한다.
+  정식 공개 전(SITE_NOINDEX=1)에는 검색에 잡히지 않게 한다.
   정식 주소가 생기기 전에 색인되면 나중에 같은 내용이 두 주소에 있게 되어 검색 순위에 손해다.
 
   이때도 robots.txt 로 통째로 막지는 않는다. 로봇이 화면을 못 읽으면 화면에 달린

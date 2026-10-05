@@ -53,7 +53,7 @@ if (!siteUrl) {
   problems.push("SITE_URL 이 없습니다. 메일 속 링크와 사이트맵이 http://localhost:3000 이 됩니다");
 } else if (!/^https:\/\//i.test(siteUrl)) {
   warnings.push(`SITE_URL 이 https 가 아닙니다: ${siteUrl}`);
-} else if (/localhost|127\.0\.0\.1|vercel\.app/i.test(siteUrl)) {
+} else if (/localhost|127\.0\.0\.1/i.test(siteUrl)) {
   problems.push(`SITE_URL 이 운영 주소가 아닙니다: ${siteUrl}`);
 } else {
   notes.push(`사이트 주소: ${siteUrl}`);
@@ -130,7 +130,7 @@ if (smtpHost.includes("cafe24") && process.env.SMTP_LEGACY_TLS?.trim() !== "1") 
 }
 
 /* 5) 보관기간 자동 파기 */
-if (!process.env.CLEANUP_SECRET?.trim() && !process.env.CRON_SECRET?.trim()) {
+if (!process.env.CLEANUP_SECRET?.trim()) {
   problems.push(
     "CLEANUP_SECRET 이 없습니다. 보관기간이 지난 개인정보를 자동으로 지우지 못합니다(방침 위반)",
   );
