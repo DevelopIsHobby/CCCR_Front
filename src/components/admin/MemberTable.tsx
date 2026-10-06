@@ -1,8 +1,17 @@
 "use client";
 
+import { Fragment } from "react";
+
 import { deleteUser, setUserRole, setUserStatus } from "@/lib/db/user-actions";
-import { USER_STATUS_LABEL, type UserRow } from "@/lib/user-types";
+import {
+  USER_STATUS_LABEL,
+  type DuplicateField,
+  type DuplicateHint,
+  type UserRow,
+} from "@/lib/user-types";
 import { formatDate } from "@/lib/format";
+import { formatPhone } from "@/lib/phone";
+import { formatBizNumber } from "@/lib/biz-number";
 import { SOCIAL_LABEL } from "@/lib/auth/social-profile";
 
 const STATUS_TONE: Record<UserRow["status"], string> = {
@@ -51,7 +60,8 @@ export default function MemberTable({ users }: { users: UserRow[] }) {
         </thead>
         <tbody>
           {users.map((user) => (
-            <tr key={user.id} className="border-b border-line align-top">
+            <Fragment key={user.id}>
+            <tr className={`align-top ${user.dupes?.length ? "" : "border-b border-line"}`}>
               <td className="px-4 py-4">
                 <p className="flex flex-wrap items-center gap-2">
                   <span className="text-md font-bold text-navy-900">{user.name}</span>
@@ -74,12 +84,17 @@ export default function MemberTable({ users }: { users: UserRow[] }) {
                     ))}
                   </p>
                 )}
-                {user.phone && <p className="mt-1 text-base text-ink-600">{user.phone}</p>}
+                {user.phone && (
+                  <p className="mt-1 text-base text-ink-600">{formatPhone(user.phone)}</p>
+                )}
               </td>
 
               <td className="px-4 py-4 text-base text-ink-600">
                 <p>{user.company ?? "—"}</p>
                 {user.department && <p className="mt-1 text-ink-400">{user.department}</p>}
+                {user.bizNumber && (
+                  <p className="label-mono mt-1 text-ink-400">{formatBizNumber(user.bizNumber)}</p>
+                )}
               </td>
 
               <td className="px-4 py-4 text-center">
@@ -140,9 +155,60 @@ export default function MemberTable({ users }: { users: UserRow[] }) {
                 </div>
               </td>
             </tr>
+
+            {user.dupes && user.dupes.length > 0 && (
+              <tr className="border-b border-line">
+                <td colSpan={5} className="px-4 pb-4">
+                  <DuplicateNotice hints={user.dupes} />
+                </td>
+              </tr>
+            )}
+            </Fragment>
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+const DUPE_LABEL: Record<DuplicateField, string> = {
+  name: "이름이 같음",
+  bizNumber: "사업자등록번호가 같음",
+};
+
+/*
+  중복 의심 알림.
+
+  막지 않고 보여 주기만 한다. 같은 회사에 담당자가 둘인 것은 정당하고 동명이인도 있다.
+  휴대전화번호가 같은 계정은 가입 때 이미 막으므로 여기 오지 않는다.
+  승인을 누르기 전에 눈에 들어와야 뜻이 있어서, 그 줄 바로 아래에 붙인다.
+*/
+function DuplicateNotice({ hints }: { hints: DuplicateHint[] }) {
+  return (
+    <div className="rounded-lg bg-flame-50 px-4 py-3 ring-1 ring-flame-500/30">
+      <p className="text-sm font-bold text-flame-700">
+        이미 있는 계정과 겹칩니다 ({hints.length}건) — 같은 사람인지 확인해 주세요
+      </p>
+      <ul className="mt-2 space-y-1">
+        {hints.map((h) => (
+          <li key={h.id} className="text-sm text-ink-600">
+            {h.fields.map((f) => (
+              <span
+                key={f}
+                className="mr-1.5 rounded bg-white px-1.5 py-0.5 text-2xs font-bold text-flame-700"
+              >
+                {DUPE_LABEL[f]}
+              </span>
+            ))}
+            <b className="font-bold text-navy-900">{h.name}</b>
+            {h.company && <span className="text-ink-400"> · {h.company}</span>}
+            <span className="label-mono ml-1.5 text-ink-400">{h.email}</span>
+            <span className="ml-1.5 text-ink-400">
+              ({USER_STATUS_LABEL[h.status]} · {formatDate(h.createdAt)} 가입)
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

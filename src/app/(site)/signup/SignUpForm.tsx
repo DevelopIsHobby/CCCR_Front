@@ -22,7 +22,24 @@ const FIELDS = [
   { id: "name", label: "담당자 이름", type: "text", full: false, ac: "name", required: true },
   { id: "department", label: "부서·직위", type: "text", full: false, ac: "organization-title", required: false },
   { id: "email", label: "이메일 (로그인 아이디)", type: "email", full: false, ac: "email", required: true },
-  { id: "phone", label: "연락처", type: "tel", full: false, ac: "tel", required: false },
+  {
+    id: "phone",
+    label: "휴대전화번호",
+    type: "tel",
+    full: false,
+    ac: "tel",
+    required: true,
+    hint: "예: 010-1234-5678",
+  },
+  {
+    id: "bizNumber",
+    label: "사업자등록번호",
+    type: "text",
+    full: false,
+    ac: "off",
+    required: false,
+    hint: "예: 123-45-67890",
+  },
 ];
 
 export default function SignUpForm() {
@@ -109,6 +126,7 @@ export default function SignUpForm() {
                 autoComplete={f.ac}
                 required={f.required}
                 maxLength={SIGNUP_MAX[f.id as keyof typeof SIGNUP_MAX]}
+                placeholder={"hint" in f ? f.hint : undefined}
                 className={input}
               />
             </div>

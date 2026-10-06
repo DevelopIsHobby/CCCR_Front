@@ -24,7 +24,11 @@ test("최대 길이까지는 통과하고 한 글자라도 넘으면 막는다",
 
 test("어느 칸이 넘었는지 알려 준다", () => {
   assert.match(checkSignupLengths({ ...ok, name: "가".repeat(51) }) ?? "", /담당자 이름/);
-  assert.match(checkSignupLengths({ ...ok, phone: "0".repeat(31) }) ?? "", /연락처/);
+  assert.match(checkSignupLengths({ ...ok, phone: "0".repeat(31) }) ?? "", /휴대전화번호/);
+  assert.match(
+    checkSignupLengths({ ...ok, bizNumber: "0".repeat(21) }) ?? "",
+    /사업자등록번호/,
+  );
 });
 
 test("선택 칸을 비워 두거나 아예 보내지 않아도 된다", () => {

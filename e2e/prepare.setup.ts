@@ -15,6 +15,11 @@ setup("확인용 계정과 글을 넣는다", async ({ page }) => {
 
   /* 지난번에 넣은 확인용 자료를 지운다. 매번 같은 상태에서 시작하기 위해서다. */
   conn.prepare("DELETE FROM users WHERE email LIKE 'e2e-%'").run();
+  /*
+    횟수 제한 기록도 지운다. 가입은 한 시간에 다섯 번까지라, 지우지 않으면
+    한 시간 안에 시험을 여러 번 돌릴 때 가입 시험이 제한에 걸려 깨진다.
+  */
+  conn.prepare("DELETE FROM rate_events").run();
   conn.prepare("DELETE FROM posts WHERE title LIKE ?").run(`${MARK}%`);
 
   const insertUser = conn.prepare(

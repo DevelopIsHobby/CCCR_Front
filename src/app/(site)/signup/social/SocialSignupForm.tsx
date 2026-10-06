@@ -11,6 +11,7 @@ import {
   completeSocialSignup,
   type SocialSignUpState,
 } from "@/lib/auth/social-signup-actions";
+import { SIGNUP_MAX } from "@/lib/auth/signup-limits";
 
 const input =
   "w-full rounded-md border border-line px-4 py-3.5 text-md outline-none transition-colors focus:border-brand-500";
@@ -260,10 +261,33 @@ export default function SocialSignupForm({
             </div>
             <div>
               <label htmlFor="social-phone" className="mb-2 block text-base font-bold text-navy-900">
-                연락처
+                휴대전화번호
+              </label>
+              <input
+                id="social-phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                required
+                maxLength={SIGNUP_MAX.phone}
+                placeholder="예: 010-1234-5678"
+                className={input}
+              />
+            </div>
+            <div>
+              <label htmlFor="social-biz" className="mb-2 block text-base font-bold text-navy-900">
+                사업자등록번호
                 <span className="ml-1.5 text-xs font-medium text-ink-400">선택</span>
               </label>
-              <input id="social-phone" name="phone" type="tel" autoComplete="tel" className={input} />
+              <input
+                id="social-biz"
+                name="bizNumber"
+                type="text"
+                autoComplete="off"
+                maxLength={SIGNUP_MAX.bizNumber}
+                placeholder="예: 123-45-67890"
+                className={input}
+              />
             </div>
           </div>
         </fieldset>

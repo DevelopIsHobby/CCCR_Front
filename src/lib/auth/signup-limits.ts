@@ -13,6 +13,8 @@ export const SIGNUP_MAX = {
   company: 100,
   department: 100,
   phone: 30,
+  /* 줄표·빈칸까지 넉넉히. 올바른지는 검증식이 따로 본다(lib/biz-number.ts) */
+  bizNumber: 20,
 } as const;
 
 const MESSAGE: Record<keyof typeof SIGNUP_MAX, string> = {
@@ -20,7 +22,8 @@ const MESSAGE: Record<keyof typeof SIGNUP_MAX, string> = {
   name: `담당자 이름은 ${SIGNUP_MAX.name}자`,
   company: `기관·회사명은 ${SIGNUP_MAX.company}자`,
   department: `부서·직위는 ${SIGNUP_MAX.department}자`,
-  phone: `연락처는 ${SIGNUP_MAX.phone}자`,
+  phone: `휴대전화번호는 ${SIGNUP_MAX.phone}자`,
+  bizNumber: `사업자등록번호는 ${SIGNUP_MAX.bizNumber}자`,
 };
 
 /** 너무 긴 칸이 있으면 안내 문구를, 없으면 null 을 돌려준다. */

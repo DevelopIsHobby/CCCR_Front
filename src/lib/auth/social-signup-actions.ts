@@ -11,6 +11,8 @@ import { officeTo } from "@/lib/mail/address";
 import { memberSignupOffice } from "@/lib/mail/templates";
 import { SOCIAL_LABEL } from "./social-profile";
 import { checkSignupLengths } from "./signup-limits";
+import { isMobilePhone, normalizePhone } from "@/lib/phone";
+import { isBizNumber, normalizeBizNumber } from "@/lib/biz-number";
 
 export type SocialSignUpState = { error?: string; ok?: boolean };
 
@@ -44,14 +46,27 @@ export async function completeSocialSignup(
   const name = value("name");
   const company = value("company");
   const department = value("department");
-  const phone = value("phone");
+  const phone = normalizePhone(value("phone"));
+  const bizNumber = normalizeBizNumber(value("bizNumber"));
   /* 서비스가 확인해 준 이메일은 그대로 쓰고, 없거나 확인되지 않았으면 적어 준 주소를 쓴다 */
   const email = (pending.emailVerified && pending.email ? pending.email : value("email")).toLowerCase();
 
   if (!company || !name || !email) {
     return { error: "기관·회사명, 담당자 이름, 이메일은 반드시 입력해 주세요." };
   }
-  const tooLong = checkSignupLengths({ email, name, company, department, phone });
+  /*
+    이메일 가입과 같은 기준을 건다. 한쪽만 느슨하면 그쪽이 중복 계정을 만드는 길이 된다.
+  */
+  if (!phone) {
+    return { error: "휴대전화번호를 입력해 주세요." };
+  }
+  if (!isMobilePhone(phone)) {
+    return { error: "휴대전화번호를 다시 확인해 주세요. 일반전화는 쓸 수 없습니다." };
+  }
+  if (bizNumber && !isBizNumber(bizNumber)) {
+    return { error: "사업자등록번호를 다시 확인해 주세요." };
+  }
+  const tooLong = checkSignupLengths({ email, name, company, department, phone, bizNumber });
   if (tooLong) {
     return { error: tooLong };
   }
@@ -67,6 +82,10 @@ export async function completeSocialSignup(
       그 주소의 주인이라면 이메일·비밀번호로 로그인하면 된다.
     */
     return { error: "이미 가입된 이메일입니다. 그 이메일과 비밀번호로 로그인해 주세요." };
+  }
+  if (await db.get("SELECT id FROM users WHERE phone = ?", [phone])) {
+    /* 어느 이메일로 가입했는지는 알려 주지 않는다(signup-actions.ts 와 같은 까닭) */
+    return { error: "이미 가입 신청된 휴대전화번호입니다. 사무국으로 문의해 주세요." };
   }
   if (
     await db.get("SELECT id FROM user_identities WHERE provider = ? AND subject = ?", [
@@ -84,9 +103,9 @@ export async function completeSocialSignup(
     소셜 로그인으로만 들어온다. 비밀번호가 필요하면 '비밀번호 찾기'로 새로 만든다.
   */
   const created = await db.get<{ id: number }>(
-    `INSERT INTO users (email, password_hash, name, company, department, phone, role, status, created_at)
-     VALUES (?, '', ?, ?, ?, ?, 'member', 'pending', ?) RETURNING id`,
-    [email, name, company, department || null, phone || null, stamp],
+    `INSERT INTO users (email, password_hash, name, company, department, phone, biz_number, role, status, created_at)
+     VALUES (?, '', ?, ?, ?, ?, ?, 'member', 'pending', ?) RETURNING id`,
+    [email, name, company, department || null, phone, bizNumber || null, stamp],
   );
   if (!created) return { error: "가입을 마치지 못했습니다. 다시 시도해 주세요." };
 

@@ -12,6 +12,7 @@ test("가입 신청을 넣으면 접수 안내가 보이고 승인 대기 상태
   await page.locator("#signup-company").fill("확인용회사");
   await page.locator("#signup-name").fill("확인용담당자");
   await page.locator("#signup-email").fill(email);
+  await page.locator("#signup-phone").fill(`010-${String(Date.now()).slice(-8)}`);
   await page.locator("#signup-password").fill("e2e-Test-Passw0rd");
   await page.locator("#signup-password-confirm").fill("e2e-Test-Passw0rd");
   await page.getByRole("button", { name: "가입 신청" }).click();

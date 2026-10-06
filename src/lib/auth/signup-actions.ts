@@ -10,6 +10,9 @@ import { sendMail } from "@/lib/mail/send";
 import { officeTo } from "@/lib/mail/address";
 import { memberSignupOffice } from "@/lib/mail/templates";
 import { checkSignupLengths } from "./signup-limits";
+import { weakPasswordReason } from "./weak-password";
+import { isMobilePhone, normalizePhone } from "@/lib/phone";
+import { isBizNumber, normalizeBizNumber } from "@/lib/biz-number";
 
 export type SignUpState = { error?: string; ok?: boolean };
 
@@ -34,7 +37,8 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   const name = value("name");
   const company = value("company");
   const department = value("department");
-  const phone = value("phone");
+  const phone = normalizePhone(value("phone"));
+  const bizNumber = normalizeBizNumber(value("bizNumber"));
   const password = String(formData.get("password") ?? "");
   const passwordConfirm = String(formData.get("passwordConfirm") ?? "");
 
@@ -44,7 +48,20 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   if (!email || !name || !company) {
     return { error: "기관·회사명, 담당자 이름, 이메일은 반드시 입력해 주세요." };
   }
-  const tooLong = checkSignupLengths({ email, name, company, department, phone });
+  /*
+    휴대전화번호로 한 사람이 계정을 여러 개 만드는 것을 막는다(migrations/037).
+    일반전화를 받으면 사무실 대표번호를 적게 되어, 같은 회사의 두 번째 담당자가 막힌다.
+  */
+  if (!phone) {
+    return { error: "휴대전화번호를 입력해 주세요." };
+  }
+  if (!isMobilePhone(phone)) {
+    return { error: "휴대전화번호를 다시 확인해 주세요. 일반전화는 쓸 수 없습니다." };
+  }
+  if (bizNumber && !isBizNumber(bizNumber)) {
+    return { error: "사업자등록번호를 다시 확인해 주세요." };
+  }
+  const tooLong = checkSignupLengths({ email, name, company, department, phone, bizNumber });
   if (tooLong) {
     return { error: tooLong };
   }
@@ -57,17 +74,39 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   if (password !== passwordConfirm) {
     return { error: "비밀번호가 서로 다릅니다." };
   }
+  /* 조합 규칙은 두지 않는다. 먼저 뚫리는 값만 막는다(weak-password.ts) */
+  const weak = weakPasswordReason(password, { email, name });
+  if (weak) {
+    return { error: weak };
+  }
 
   const db = await ready();
   const exists = await db.get<{ id: number }>("SELECT id FROM users WHERE email = ?", [email]);
   if (exists) {
     return { error: "이미 가입 신청된 이메일입니다. 승인 상태는 사무국으로 문의해 주세요." };
   }
+  /*
+    한 번호에 한 계정. 어느 이메일로 가입했는지는 알려 주지 않는다.
+    번호를 넣어 보는 것만으로 남의 가입 여부를 알아낼 수 있어서다.
+  */
+  const samePhone = await db.get<{ id: number }>("SELECT id FROM users WHERE phone = ?", [phone]);
+  if (samePhone) {
+    return { error: "이미 가입 신청된 휴대전화번호입니다. 사무국으로 문의해 주세요." };
+  }
 
   await db.run(
-    `INSERT INTO users (email, password_hash, name, company, department, phone, role, status, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, 'member', 'pending', ?)`,
-    [email, await hashPassword(password), name, company, department || null, phone || null, now()],
+    `INSERT INTO users (email, password_hash, name, company, department, phone, biz_number, role, status, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'member', 'pending', ?)`,
+    [
+      email,
+      await hashPassword(password),
+      name,
+      company,
+      department || null,
+      phone,
+      bizNumber || null,
+      now(),
+    ],
   );
 
   /* 뉴스레터 수신에 동의했으면 구독자 명단에도 담는다 */
