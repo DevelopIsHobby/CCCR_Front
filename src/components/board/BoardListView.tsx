@@ -48,9 +48,9 @@ export default async function BoardListView({
     <PageShell href={base} title={board.name} desc={board.desc}>
       {intro}
 
-      {/* 분류 탭. 맨 앞은 전체(주소에 cat 이 없는 상태) */}
+      {/* 분류 탭. 맨 앞은 전체(주소에 cat 이 없는 상태). 휴대폰에서는 두 줄로 넘어가므로 아래 건수 줄과 띄운다 */}
       {board.categories && board.categories.length > 0 && (
-        <nav className="mt-2 flex flex-wrap gap-2" aria-label="분류">
+        <nav className="mb-6 flex flex-wrap gap-2" aria-label="분류">
           {[ALL_CATEGORY, ...board.categories].map((name) => {
             const isAll = name === ALL_CATEGORY;
             const active = isAll ? !category : category === name;
