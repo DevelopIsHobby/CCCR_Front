@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   PageHead,
   StatCard,
@@ -9,8 +10,8 @@ import {
 } from "@/components/admin/AdminUi";
 import MemberTable from "@/components/admin/MemberTable";
 import NewAdminForm from "@/components/admin/NewAdminForm";
-import { countUsersByStatus, listUsers } from "@/lib/db/users";
-import { USER_STATUS_LABEL, type UserStatus } from "@/lib/user-types";
+import { countUnclassified, countUsersByStatus, listUsers, type MemberTypeFilter } from "@/lib/db/users";
+import { MEMBER_TYPES, USER_STATUS_LABEL, type UserStatus } from "@/lib/user-types";
 
 export const metadata: Metadata = { title: "회원 관리" };
 
@@ -21,18 +22,40 @@ const FILTERS: { value: UserStatus | "all"; label: string }[] = [
   { value: "blocked", label: USER_STATUS_LABEL.blocked },
 ];
 
+/* 회원 구분 거르기. '구분 없음'으로 걸러 옛 회원을 차례로 정한다 */
+const TYPE_FILTERS: { value: MemberTypeFilter; label: string }[] = [
+  { value: "all", label: "구분 전체" },
+  ...MEMBER_TYPES.map((t) => ({ value: t, label: t })),
+  { value: "none", label: "구분 없음" },
+];
+
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; type?: string }>;
 }) {
   const sp = await searchParams;
   const q = sp.q?.trim() ?? "";
   const status = (FILTERS.find((f) => f.value === sp.status)?.value ?? "all") as
     | UserStatus
     | "all";
+  const type = TYPE_FILTERS.find((f) => f.value === sp.type)?.value ?? "all";
 
-  const [users, counts] = await Promise.all([listUsers({ q, status }), countUsersByStatus()]);
+  const [users, counts, unclassified] = await Promise.all([
+    listUsers({ q, status, memberType: type }),
+    countUsersByStatus(),
+    countUnclassified(),
+  ]);
+
+  /* 지금 걸어 둔 조건(상태·검색어)을 지키며 구분만 바꾸는 주소 */
+  const typeHref = (value: MemberTypeFilter) => {
+    const p = new URLSearchParams();
+    if (status !== "all") p.set("status", status);
+    if (q) p.set("q", q);
+    if (value !== "all") p.set("type", value);
+    const qs = p.toString();
+    return qs ? `/admin/members?${qs}` : "/admin/members";
+  };
 
   return (
     <div className="space-y-6">
@@ -54,8 +77,20 @@ export default async function Page({
         <StatCard label={USER_STATUS_LABEL.blocked} value={counts.blocked} unit="명" />
       </div>
 
+      {unclassified > 0 && type !== "none" && (
+        <p className="rounded-xl border border-dashed border-flame-500 bg-white px-5 py-4 text-base text-ink-600">
+          회원 구분이 비어 있는 회원이 <b className="font-bold text-flame-700">{unclassified}</b>명 있습니다.
+          회원 구분을 받기 전에 가입한 분들입니다.{" "}
+          <Link href={typeHref("none")} className="font-semibold text-brand-600 underline underline-offset-2">
+            구분 없는 회원만 보기
+          </Link>
+        </p>
+      )}
+
       {/* 검색 · 필터 */}
       <form method="get" className="flex flex-wrap items-center gap-3">
+        {/* 상태를 바꿔도 보던 구분 거르기는 그대로 둔다 */}
+        {type !== "all" && <input type="hidden" name="type" value={type} />}
         <div className={pillGroup}>
           {FILTERS.map((f) => (
             <button
@@ -88,6 +123,19 @@ export default async function Page({
           </button>
         </div>
       </form>
+
+      <nav className={pillGroup} aria-label="회원 구분">
+        {TYPE_FILTERS.map((f) => (
+          <Link
+            key={f.value}
+            href={typeHref(f.value)}
+            aria-current={type === f.value ? "page" : undefined}
+            className={pillClass(type === f.value)}
+          >
+            {f.label}
+          </Link>
+        ))}
+      </nav>
 
       {q && (
         <p className="text-base text-ink-600">

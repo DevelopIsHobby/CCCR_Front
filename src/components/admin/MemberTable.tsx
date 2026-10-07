@@ -2,8 +2,9 @@
 
 import { Fragment } from "react";
 
-import { deleteUser, setUserRole, setUserStatus } from "@/lib/db/user-actions";
+import { deleteUser, setMemberType, setUserRole, setUserStatus } from "@/lib/db/user-actions";
 import {
+  MEMBER_TYPES,
   USER_STATUS_LABEL,
   type DuplicateField,
   type DuplicateHint,
@@ -31,6 +32,44 @@ function StatusButton({ id, status, label }: { id: number; status: string; label
       <button type="submit" className={btn}>
         {label}
       </button>
+    </form>
+  );
+}
+
+/*
+  회원 구분 고르기. 고르는 즉시 저장한다(단추를 한 번 더 누르게 하면 바꾼 줄 알고 넘어간다).
+  가입 때 스스로 고른 값을 명단과 견주어 바로잡거나, 구분이 비어 있는 옛 회원에게 정해 준다.
+  회원사는 눈에 띄는 색으로 둔다 — 명단에 있는지 먼저 봐야 할 사람이다.
+*/
+function MemberTypeSelect({ user }: { user: UserRow }) {
+  const value = user.memberType ?? "";
+  const tone =
+    value === "회원사"
+      ? "border-brand-500 bg-brand-50 text-brand-700"
+      : value
+        ? "border-line bg-white text-ink-700"
+        : "border-dashed border-flame-500 bg-white text-flame-700";
+
+  return (
+    <form action={setMemberType} className="mb-1.5">
+      <input type="hidden" name="id" value={user.id} />
+      <label htmlFor={`member-type-${user.id}`} className="sr-only">
+        {user.name} 회원 구분
+      </label>
+      <select
+        id={`member-type-${user.id}`}
+        name="memberType"
+        defaultValue={value}
+        onChange={(e) => e.currentTarget.form?.requestSubmit()}
+        className={`rounded border px-2 py-1 text-sm font-semibold outline-none focus:border-brand-500 ${tone}`}
+      >
+        <option value="">구분 없음</option>
+        {MEMBER_TYPES.map((t) => (
+          <option key={t} value={t}>
+            {t}
+          </option>
+        ))}
+      </select>
     </form>
   );
 }
@@ -90,19 +129,8 @@ export default function MemberTable({ users }: { users: UserRow[] }) {
               </td>
 
               <td className="px-4 py-4 text-base text-ink-600">
-                {/*
-                  회원 구분. 가입한 사람이 스스로 고른 값이라 회원사 명단과 견주어 승인한다.
-                  회원사라고 고른 것은 눈에 띄게 둔다 — 명단에 있는지 먼저 봐야 할 사람이다.
-                */}
-                {user.memberType && (
-                  <span
-                    className={`mb-1 inline-flex rounded px-2 py-0.5 text-2xs font-bold ${
-                      user.memberType === "회원사" ? "bg-brand-50 text-brand-700" : "bg-surface text-ink-600"
-                    }`}
-                  >
-                    {user.memberType}
-                  </span>
-                )}
+                {/* 회원 구분. 관리자 계정은 구분이 의미 없어 두지 않는다 */}
+                {user.role !== "admin" && <MemberTypeSelect user={user} />}
                 <p>{user.company ?? "—"}</p>
                 {user.department && <p className="mt-1 text-ink-400">{user.department}</p>}
                 {user.bizNumber && (

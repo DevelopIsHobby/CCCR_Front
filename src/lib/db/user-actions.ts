@@ -5,7 +5,7 @@ import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
 import { hashPassword } from "@/lib/auth/password";
-import type { UserStatus } from "@/lib/user-types";
+import { isMemberType, type UserStatus } from "@/lib/user-types";
 import { after } from "next/server";
 import { sendMail } from "@/lib/mail/send";
 import { memberApproved } from "@/lib/mail/templates";
@@ -83,6 +83,24 @@ export async function setUserRole(formData: FormData): Promise<void> {
 
   const db = await ready();
   await db.run("UPDATE users SET role = ? WHERE id = ?", [role, id]);
+  revalidatePath("/admin/members");
+}
+
+/*
+  회원 구분 바꾸기(회원사 · 비회원사 · 유관기관 · 미지정).
+
+  가입 때 스스로 고른 값을 사무국이 명단과 견주어 바로잡거나, 이 칸이 생기기 전에
+  가입한 회원(빈 값)에게 정해 준다. 빈 값으로 되돌리는 것도 받는다.
+*/
+export async function setMemberType(formData: FormData): Promise<void> {
+  const id = Number(formData.get("id"));
+  const value = String(formData.get("memberType") ?? "").trim();
+  await requireAdmin(`회원 #${id} 구분 → ${value || "미지정"}`);
+  if (!id) return;
+  if (value && !isMemberType(value)) return;
+
+  const db = await ready();
+  await db.run("UPDATE users SET member_type = ? WHERE id = ?", [value || null, id]);
   revalidatePath("/admin/members");
 }
 

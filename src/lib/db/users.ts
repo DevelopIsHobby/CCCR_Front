@@ -4,7 +4,7 @@ import { likeContains } from "@/lib/like";
 
 export type { UserRole, UserRow, UserStatus } from "@/lib/user-types";
 export { USER_STATUS_LABEL } from "@/lib/user-types";
-import { isMemberType } from "@/lib/user-types";
+import { isMemberType, type MemberType } from "@/lib/user-types";
 
 import type { DuplicateField, DuplicateHint, UserRow, UserStatus } from "@/lib/user-types";
 import type { SocialProvider } from "@/lib/auth/social-profile";
@@ -41,10 +41,16 @@ const SELECT = `SELECT id, email, name, company, department, phone, biz_number, 
                 FROM users`;
 
 /** 관리자 화면 목록. 승인 대기를 먼저 보여준다. */
-export async function listUsers(opts: { q?: string; status?: UserStatus | "all" } = {}) {
+/** 회원 구분 거르기. none 은 구분이 비어 있는 회원(이 칸이 생기기 전 계정) */
+export type MemberTypeFilter = MemberType | "none" | "all";
+
+export async function listUsers(
+  opts: { q?: string; status?: UserStatus | "all"; memberType?: MemberTypeFilter } = {},
+) {
   const db = await ready();
   const q = opts.q?.trim() ?? "";
   const status = opts.status ?? "all";
+  const memberType = opts.memberType ?? "all";
 
   const where: string[] = [];
   const params: (string | number)[] = [];
@@ -52,6 +58,12 @@ export async function listUsers(opts: { q?: string; status?: UserStatus | "all" 
   if (status !== "all") {
     where.push("status = ?");
     params.push(status);
+  }
+  if (memberType === "none") {
+    where.push("(member_type IS NULL OR member_type = '')");
+  } else if (memberType !== "all") {
+    where.push("member_type = ?");
+    params.push(memberType);
   }
   if (q) {
     /* LOWER + likeContains 짝. 한쪽만 낮추면 아무것도 안 걸린다(lib/like.ts) */
@@ -160,6 +172,14 @@ async function findDuplicates(users: UserRow[]): Promise<Map<number, DuplicateHi
 }
 
 /** 상태별 인원수. 관리자 화면 요약에 쓴다. */
+export async function countUnclassified(): Promise<number> {
+  const db = await ready();
+  const row = await db.get<{ n: number }>(
+    "SELECT COUNT(*) AS n FROM users WHERE role = 'member' AND (member_type IS NULL OR member_type = '')",
+  );
+  return Number(row?.n ?? 0);
+}
+
 export async function countUsersByStatus(): Promise<Record<UserStatus | "total", number>> {
   const db = await ready();
   const rows = await db.all<{ status: string; n: number }>(
