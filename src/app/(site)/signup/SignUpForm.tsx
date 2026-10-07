@@ -7,6 +7,9 @@ import LegalDialog, { type LegalTab } from "@/components/LegalDialog";
 import ScrollToTopOnShow from "@/components/ScrollToTopOnShow";
 import { SIGNUP_MAX } from "@/lib/auth/signup-limits";
 import SignupPrivacyNotice from "@/components/SignupPrivacyNotice";
+import PasswordRuleHint from "@/components/PasswordRuleHint";
+import { PASSWORD_MIN, PASSWORD_RULE_TEXT } from "@/lib/auth/password-rule";
+import MemberTypeField from "@/components/MemberTypeField";
 
 const input =
   "w-full rounded-md border border-line px-4 py-3.5 text-md outline-none transition-colors focus:border-brand-500";
@@ -46,6 +49,8 @@ export default function SignUpForm() {
   const [state, action, pending] = useActionState<SignUpState, FormData>(signUp, {});
   /* 전문은 새 페이지로 나가지 않고 팝업으로 본다. 쓰던 입력이 사라지지 않게. */
   const [doc, setDoc] = useState<LegalTab | null>(null);
+  /* 입력하는 동안 비밀번호 규칙을 맞췄는지 보여 주려고 값을 들고 있는다 */
+  const [password, setPassword] = useState("");
 
   if (state.ok) {
     return (
@@ -112,6 +117,12 @@ export default function SignUpForm() {
 
       <fieldset className="mt-10">
         <legend className="text-lg font-bold text-navy-900">회원 정보</legend>
+
+        {/* 회원 구분. 사무국이 승인할 때 회원사인지 바로 알 수 있게 한다 */}
+        <div className="mt-5">
+          <MemberTypeField id="signup-member-type" />
+        </div>
+
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           {FIELDS.map((f) => (
             <div key={f.id} className={f.full ? "sm:col-span-2" : ""}>
@@ -139,7 +150,7 @@ export default function SignUpForm() {
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <div>
             <label htmlFor="signup-password" className="mb-2 block text-base font-bold text-navy-900">
-              비밀번호 (8자 이상)
+              비밀번호 ({PASSWORD_RULE_TEXT})
             </label>
             <input
               id="signup-password"
@@ -147,9 +158,12 @@ export default function SignUpForm() {
               type="password"
               autoComplete="new-password"
               required
-              minLength={8}
+              minLength={PASSWORD_MIN}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className={input}
             />
+            <PasswordRuleHint value={password} />
           </div>
           <div>
             <label
@@ -164,7 +178,7 @@ export default function SignUpForm() {
               type="password"
               autoComplete="new-password"
               required
-              minLength={8}
+              minLength={PASSWORD_MIN}
               className={input}
             />
           </div>

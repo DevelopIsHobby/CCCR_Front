@@ -7,6 +7,25 @@ import type { SocialProvider } from "@/lib/auth/social-profile";
 export type UserStatus = "pending" | "active" | "blocked";
 export type UserRole = "admin" | "member";
 
+/*
+  회원 구분. 가입할 때 스스로 고른다.
+  사무국이 승인할 때 회원사인지 바로 알 수 있게 하려는 것이라, 고른 값을 그대로 믿지 않고
+  회원사 명단과 견주어 승인한다. 이 칸이 생기기 전 계정은 null 이다.
+*/
+export type MemberType = "회원사" | "비회원사" | "유관기관";
+export const MEMBER_TYPES: MemberType[] = ["회원사", "비회원사", "유관기관"];
+
+/** 가입 화면에서 고를 때 돕는 설명 */
+export const MEMBER_TYPE_HINT: Record<MemberType, string> = {
+  회원사: "조합에 가입한 기관·기업",
+  비회원사: "조합 회원이 아닌 기관·기업",
+  유관기관: "정부·공공기관, 협회·단체",
+};
+
+export function isMemberType(value: string): value is MemberType {
+  return (MEMBER_TYPES as string[]).includes(value);
+}
+
 export type UserRow = {
   id: number;
   email: string;
@@ -15,6 +34,8 @@ export type UserRow = {
   department: string | null;
   phone: string | null;
   bizNumber: string | null;
+  /** 회원 구분. 이 칸이 생기기 전에 가입한 계정은 null */
+  memberType: MemberType | null;
   role: UserRole;
   status: UserStatus;
   createdAt: string;

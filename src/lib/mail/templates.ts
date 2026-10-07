@@ -184,18 +184,22 @@ export function memberSignupOffice({
   company,
   email,
   method,
+  memberType,
 }: {
   name: string;
   company: string;
   email: string;
   /** 가입 방식. 예) "이메일", "카카오 로그인" */
   method: string;
+  /** 회원 구분. 승인할 때 회원사 명단과 견주어 본다 */
+  memberType?: string;
 }): MailBody {
   return {
     subject: `[신청] 홈페이지 회원가입 · ${company}`,
     text:
       "홈페이지 회원가입 신청이 들어왔습니다.\n\n" +
       `신청자  ${company} ${name}\n` +
+      (memberType ? `회원 구분  ${memberType}\n` : "") +
       `연락처  ${email}\n` +
       `가입 방식  ${method}\n` +
       "승인해야 로그인할 수 있습니다.\n" +

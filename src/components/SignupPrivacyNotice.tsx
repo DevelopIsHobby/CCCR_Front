@@ -19,7 +19,7 @@ export default function SignupPrivacyNotice({ social = false }: { social?: boole
         <p className="font-bold text-navy-900">개인정보 수집·이용 동의 (필수)</p>
         <ul className="mt-1.5 space-y-0.5">
           <li>
-            수집 항목 : 기관·회사명, 담당자 이름, 이메일주소, 휴대전화번호
+            수집 항목 : 회원 구분, 기관·회사명, 담당자 이름, 이메일주소, 휴대전화번호
             {social ? ", 소셜 로그인 서비스의 회원 식별값" : ", 비밀번호"} (선택: 부서·직위,
             사업자등록번호)
           </li>

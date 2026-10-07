@@ -9,6 +9,8 @@ test("가입 신청을 넣으면 접수 안내가 보이고 승인 대기 상태
   await page.goto("/signup");
   await page.locator('input[name="agreeTerms"]').first().check();
   await page.locator('input[name="agreePrivacy"]').first().check();
+  /* 회원 구분은 필수다 */
+  await page.locator('input[name="memberType"][value="회원사"]').check();
   await page.locator("#signup-company").fill("확인용회사");
   await page.locator("#signup-name").fill("확인용담당자");
   await page.locator("#signup-email").fill(email);
@@ -20,14 +22,16 @@ test("가입 신청을 넣으면 접수 안내가 보이고 승인 대기 상태
   await expect(page.getByText("가입 신청이 접수되었습니다")).toBeVisible();
 
   const conn = db();
-  const row = conn.prepare("SELECT status, role FROM users WHERE email = ?").get(email) as
-    | { status: string; role: string }
+  const row = conn.prepare("SELECT status, role, member_type FROM users WHERE email = ?").get(email) as
+    | { status: string; role: string; member_type: string }
     | undefined;
   conn.close();
 
   /* 사무국이 승인하기 전까지는 대기 상태여야 한다 */
   expect(row?.status).toBe("pending");
   expect(row?.role).toBe("member");
+  /* 고른 회원 구분이 그대로 남는다 */
+  expect(row?.member_type).toBe("회원사");
 });
 
 test("승인 전 계정은 로그인할 수 없다", async ({ page }) => {
@@ -71,4 +75,29 @@ test("관리자로 로그인하면 관리자 화면이 열린다", async ({ page
   await login(page, ADMIN);
   await page.goto("/admin");
   await expect(page.getByRole("link", { name: "대시보드" }).first()).toBeVisible();
+});
+
+test("영문만 있는 비밀번호로는 가입할 수 없다", async ({ page }) => {
+  const email = `e2e-signup-weak-${Date.now()}@example.test`;
+
+  await page.goto("/signup");
+  await page.locator('input[name="agreeTerms"]').first().check();
+  await page.locator('input[name="agreePrivacy"]').first().check();
+  await page.locator('input[name="memberType"][value="비회원사"]').check();
+  await page.locator("#signup-company").fill("확인용회사");
+  await page.locator("#signup-name").fill("확인용담당자");
+  await page.locator("#signup-email").fill(email);
+  await page.locator("#signup-phone").fill(`010-${String(Date.now()).slice(-8)}`);
+
+  /* 입력하는 동안 규칙을 맞췄는지 보여 준다 — 숫자 포함이 아직 안 맞는다 */
+  await page.locator("#signup-password").fill("onlyletters");
+  await expect(page.getByText("숫자 포함 (아직)")).toHaveCount(1);
+  await page.locator("#signup-password-confirm").fill("onlyletters");
+  await page.getByRole("button", { name: "가입 신청" }).click();
+
+  await expect(page.locator('p[role="alert"]')).toContainText("영문과 숫자");
+  const conn = db();
+  const row = conn.prepare("SELECT id FROM users WHERE email = ?").get(email);
+  conn.close();
+  expect(row).toBeUndefined();
 });

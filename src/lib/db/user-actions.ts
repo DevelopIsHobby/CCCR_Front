@@ -10,6 +10,7 @@ import { after } from "next/server";
 import { sendMail } from "@/lib/mail/send";
 import { memberApproved } from "@/lib/mail/templates";
 import { SOCIAL_LABEL, isSocialProvider } from "@/lib/auth/social-profile";
+import { passwordProblem } from "@/lib/auth/password-rule";
 
 const STATUSES: UserStatus[] = ["pending", "active", "blocked"];
 
@@ -110,7 +111,9 @@ export async function createAdminAccount(
   const confirm = String(formData.get("confirmPassword") ?? "");
 
   if (!email || !name || !password) return { error: "이메일·이름·비밀번호를 모두 입력해 주세요." };
-  if (password.length < 8) return { error: "비밀번호는 8자 이상으로 정해 주세요." };
+  /* 관리자 계정이 가장 지켜야 할 계정이다. 가입과 같은 규칙을 건다 */
+  const weak = passwordProblem(password, { email, name });
+  if (weak) return { error: weak };
   if (password !== confirm) return { error: "비밀번호가 서로 다릅니다." };
 
   const db = await ready();

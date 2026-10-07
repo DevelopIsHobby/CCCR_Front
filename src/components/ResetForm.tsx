@@ -16,7 +16,7 @@ export default function ResetForm({ token }: { token: string }) {
 
       <label className="block">
         <span className="mb-1.5 block text-base font-bold text-navy-900">
-          새 비밀번호 <span className="font-medium text-ink-400">(8자 이상)</span>
+          새 비밀번호 <span className="font-medium text-ink-400">(8자 이상, 영문과 숫자를 함께)</span>
         </span>
         <input
           name="password"

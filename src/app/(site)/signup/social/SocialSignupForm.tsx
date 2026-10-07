@@ -7,6 +7,7 @@ import ScrollToTopOnShow from "@/components/ScrollToTopOnShow";
 import { SocialIcon } from "@/components/SocialIcons";
 import { SOCIAL_LABEL, type SocialProvider } from "@/lib/auth/social-profile";
 import SignupPrivacyNotice from "@/components/SignupPrivacyNotice";
+import MemberTypeField from "@/components/MemberTypeField";
 import {
   completeSocialSignup,
   type SocialSignUpState,
@@ -208,6 +209,10 @@ export default function SocialSignupForm({
 
         <fieldset className="mt-11">
           <SectionTitle n={2}>회원 정보</SectionTitle>
+          {/* 회원 구분. 사무국이 승인할 때 회원사인지 바로 알 수 있게 한다 */}
+          <div className="mt-5">
+            <MemberTypeField id="social-member-type" />
+          </div>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="social-company" className="mb-2 block text-base font-bold text-navy-900">

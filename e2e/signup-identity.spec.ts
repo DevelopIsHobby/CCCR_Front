@@ -22,6 +22,8 @@ async function fill(
   await page.goto("/signup");
   await page.locator('input[name="agreeTerms"]').first().check();
   await page.locator('input[name="agreePrivacy"]').first().check();
+  /* 회원 구분은 필수다(2026-10) */
+  await page.locator('input[name="memberType"][value="비회원사"]').check();
   await page.locator("#signup-company").fill("확인용회사");
   await page.locator("#signup-name").fill(v.name ?? "확인용담당자");
   await page.locator("#signup-email").fill(v.email);

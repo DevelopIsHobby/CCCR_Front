@@ -4,6 +4,7 @@ import { likeContains } from "@/lib/like";
 
 export type { UserRole, UserRow, UserStatus } from "@/lib/user-types";
 export { USER_STATUS_LABEL } from "@/lib/user-types";
+import { isMemberType } from "@/lib/user-types";
 
 import type { DuplicateField, DuplicateHint, UserRow, UserStatus } from "@/lib/user-types";
 import type { SocialProvider } from "@/lib/auth/social-profile";
@@ -16,6 +17,7 @@ type RawUser = {
   department: string | null;
   phone: string | null;
   biz_number: string | null;
+  member_type: string | null;
   role: string;
   status: string;
   created_at: string;
@@ -29,12 +31,13 @@ const toUser = (r: RawUser): UserRow => ({
   department: r.department,
   phone: r.phone,
   bizNumber: r.biz_number,
+  memberType: r.member_type && isMemberType(r.member_type) ? r.member_type : null,
   role: r.role === "admin" ? "admin" : "member",
   status: (["pending", "active", "blocked"].includes(r.status) ? r.status : "pending") as UserStatus,
   createdAt: r.created_at,
 });
 
-const SELECT = `SELECT id, email, name, company, department, phone, biz_number, role, status, created_at
+const SELECT = `SELECT id, email, name, company, department, phone, biz_number, member_type, role, status, created_at
                 FROM users`;
 
 /** 관리자 화면 목록. 승인 대기를 먼저 보여준다. */

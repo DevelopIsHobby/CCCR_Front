@@ -13,6 +13,7 @@ import { SOCIAL_LABEL } from "./social-profile";
 import { checkSignupLengths } from "./signup-limits";
 import { isMobilePhone, normalizePhone } from "@/lib/phone";
 import { isBizNumber, normalizeBizNumber } from "@/lib/biz-number";
+import { isMemberType } from "@/lib/user-types";
 
 export type SocialSignUpState = { error?: string; ok?: boolean };
 
@@ -48,6 +49,10 @@ export async function completeSocialSignup(
   const department = value("department");
   const phone = normalizePhone(value("phone"));
   const bizNumber = normalizeBizNumber(value("bizNumber"));
+  const memberType = value("memberType");
+  if (!isMemberType(memberType)) {
+    return { error: "회원 구분(회원사·비회원사·유관기관)을 골라 주세요." };
+  }
   /* 서비스가 확인해 준 이메일은 그대로 쓰고, 없거나 확인되지 않았으면 적어 준 주소를 쓴다 */
   const email = (pending.emailVerified && pending.email ? pending.email : value("email")).toLowerCase();
 
@@ -103,9 +108,9 @@ export async function completeSocialSignup(
     소셜 로그인으로만 들어온다. 비밀번호가 필요하면 '비밀번호 찾기'로 새로 만든다.
   */
   const created = await db.get<{ id: number }>(
-    `INSERT INTO users (email, password_hash, name, company, department, phone, biz_number, role, status, created_at)
-     VALUES (?, '', ?, ?, ?, ?, ?, 'member', 'pending', ?) RETURNING id`,
-    [email, name, company, department || null, phone, bizNumber || null, stamp],
+    `INSERT INTO users (email, password_hash, name, company, department, phone, biz_number, member_type, role, status, created_at)
+     VALUES (?, '', ?, ?, ?, ?, ?, ?, 'member', 'pending', ?) RETURNING id`,
+    [email, name, company, department || null, phone, bizNumber || null, memberType, stamp],
   );
   if (!created) return { error: "가입을 마치지 못했습니다. 다시 시도해 주세요." };
 
@@ -136,6 +141,7 @@ export async function completeSocialSignup(
         company,
         email,
         method: `${SOCIAL_LABEL[pending.provider]} 로그인`,
+        memberType,
       }),
     }),
   );

@@ -47,7 +47,7 @@ export default function NewAdminForm() {
             </label>
             <label className="block">
               <span className="mb-1.5 block text-base font-bold text-navy-900">
-                비밀번호 (8자 이상)
+                비밀번호 (8자 이상, 영문과 숫자를 함께)
               </span>
               <input
                 name="password"

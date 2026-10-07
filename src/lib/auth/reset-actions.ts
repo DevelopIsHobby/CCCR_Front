@@ -10,6 +10,7 @@ import { clientKey, record, RESET, tooMany } from "@/lib/db/rate-limit";
 import { sendMail } from "@/lib/mail/send";
 import { passwordReset } from "@/lib/mail/templates";
 import { siteUrl } from "@/lib/site-url";
+import { passwordProblem } from "./password-rule";
 
 /*
   비밀번호 재설정.
@@ -101,7 +102,9 @@ export async function applyReset(_prev: ResetState, formData: FormData): Promise
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("passwordConfirm") ?? "");
 
-  if (password.length < 8) return { error: "비밀번호는 8자 이상으로 정해 주세요." };
+  /* 가입과 같은 규칙(password-rule.ts). 재설정으로 약한 비밀번호가 들어오지 않게 한다 */
+  const weak = passwordProblem(password);
+  if (weak) return { error: weak };
   if (password !== confirm) return { error: "새 비밀번호가 서로 다릅니다." };
 
   const db = await ready();

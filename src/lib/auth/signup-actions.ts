@@ -10,9 +10,10 @@ import { sendMail } from "@/lib/mail/send";
 import { officeTo } from "@/lib/mail/address";
 import { memberSignupOffice } from "@/lib/mail/templates";
 import { checkSignupLengths } from "./signup-limits";
-import { weakPasswordReason } from "./weak-password";
+import { passwordProblem } from "./password-rule";
 import { isMobilePhone, normalizePhone } from "@/lib/phone";
 import { isBizNumber, normalizeBizNumber } from "@/lib/biz-number";
+import { isMemberType } from "@/lib/user-types";
 
 export type SignUpState = { error?: string; ok?: boolean };
 
@@ -39,6 +40,7 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   const department = value("department");
   const phone = normalizePhone(value("phone"));
   const bizNumber = normalizeBizNumber(value("bizNumber"));
+  const memberType = value("memberType");
   const password = String(formData.get("password") ?? "");
   const passwordConfirm = String(formData.get("passwordConfirm") ?? "");
 
@@ -47,6 +49,9 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   }
   if (!email || !name || !company) {
     return { error: "기관·회사명, 담당자 이름, 이메일은 반드시 입력해 주세요." };
+  }
+  if (!isMemberType(memberType)) {
+    return { error: "회원 구분(회원사·비회원사·유관기관)을 골라 주세요." };
   }
   /*
     휴대전화번호로 한 사람이 계정을 여러 개 만드는 것을 막는다(migrations/037).
@@ -68,16 +73,13 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { error: "이메일 주소를 다시 확인해 주세요." };
   }
-  if (password.length < 8) {
-    return { error: "비밀번호는 8자 이상으로 정해 주세요." };
+  /* 8자 이상 + 영문과 숫자 + 흔한 비밀번호 거르기(password-rule.ts) */
+  const weak = passwordProblem(password, { email, name });
+  if (weak) {
+    return { error: weak };
   }
   if (password !== passwordConfirm) {
     return { error: "비밀번호가 서로 다릅니다." };
-  }
-  /* 조합 규칙은 두지 않는다. 먼저 뚫리는 값만 막는다(weak-password.ts) */
-  const weak = weakPasswordReason(password, { email, name });
-  if (weak) {
-    return { error: weak };
   }
 
   const db = await ready();
@@ -95,8 +97,8 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   }
 
   await db.run(
-    `INSERT INTO users (email, password_hash, name, company, department, phone, biz_number, role, status, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'member', 'pending', ?)`,
+    `INSERT INTO users (email, password_hash, name, company, department, phone, biz_number, member_type, role, status, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'member', 'pending', ?)`,
     [
       email,
       await hashPassword(password),
@@ -105,6 +107,7 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
       department || null,
       phone,
       bizNumber || null,
+      memberType,
       now(),
     ],
   );
@@ -122,7 +125,7 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
     sendMail({
       kind: "member.office",
       to: officeTo(),
-      ...memberSignupOffice({ name, company, email, method: "이메일" }),
+      ...memberSignupOffice({ name, company, email, method: "이메일", memberType }),
     }),
   );
 

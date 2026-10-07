@@ -90,6 +90,19 @@ export default function MemberTable({ users }: { users: UserRow[] }) {
               </td>
 
               <td className="px-4 py-4 text-base text-ink-600">
+                {/*
+                  회원 구분. 가입한 사람이 스스로 고른 값이라 회원사 명단과 견주어 승인한다.
+                  회원사라고 고른 것은 눈에 띄게 둔다 — 명단에 있는지 먼저 봐야 할 사람이다.
+                */}
+                {user.memberType && (
+                  <span
+                    className={`mb-1 inline-flex rounded px-2 py-0.5 text-2xs font-bold ${
+                      user.memberType === "회원사" ? "bg-brand-50 text-brand-700" : "bg-surface text-ink-600"
+                    }`}
+                  >
+                    {user.memberType}
+                  </span>
+                )}
                 <p>{user.company ?? "—"}</p>
                 {user.department && <p className="mt-1 text-ink-400">{user.department}</p>}
                 {user.bizNumber && (

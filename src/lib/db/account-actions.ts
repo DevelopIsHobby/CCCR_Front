@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { ready } from "@/lib/db/migrate";
 import { getSession, requireUser } from "@/lib/auth/session";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { passwordProblem } from "@/lib/auth/password-rule";
 
 export type AccountState = { error?: string; ok?: string };
 
@@ -26,7 +27,8 @@ export async function changeMyPassword(
   const confirm = String(formData.get("confirmPassword") ?? "");
 
   if (!current || !next) return { error: "현재 비밀번호와 새 비밀번호를 입력해 주세요." };
-  if (next.length < 8) return { error: "새 비밀번호는 8자 이상으로 정해 주세요." };
+  const weak = passwordProblem(next, { email: session.email, name: session.name });
+  if (weak) return { error: weak };
   if (next !== confirm) return { error: "새 비밀번호가 서로 다릅니다." };
   if (next === current) return { error: "지금 쓰는 비밀번호와 다르게 정해 주세요." };
 
