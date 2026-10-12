@@ -117,3 +117,56 @@ test("둘째 단계의 안내는 고른 유형이 실제로 내는 항목만 적
   await page.goto("/signup?type=company");
   await expect(page.getByText(/기관·회사명, 담당자 이름/).first()).toBeVisible();
 });
+
+/*
+  소셜 단추.
+
+  처음에는 동의 폼의 제출 단추로 만들었는데, 사이트 보안 정책(CSP form-action 'self')이
+  폼 제출이 바깥 사이트로 넘어가는 것을 막아 카카오로 가는 길에서 끊겼다. 눌러도 아무 반응이
+  없었고, 개발 화면에는 소셜 키가 없어 단추가 안 나와 배포 전에 못 봤다.
+  시험 서버에는 운영과 같은 정책이 걸리고 가짜 카카오 키가 있다(playwright.config.ts).
+  카카오 주소는 가로채서 진짜 카카오에는 요청이 가지 않는다.
+*/
+test("동의하고 카카오를 누르면 고른 유형·동의를 들고 카카오 로그인으로 간다", async ({ page, context }) => {
+  await page.route("https://kauth.kakao.com/**", (route) =>
+    route.fulfill({ status: 200, contentType: "text/html", body: "<p>kakao</p>" }),
+  );
+
+  await page.goto("/signup?type=company");
+  const agree = page.locator('form[action="/signup"]');
+  await agree.locator('input[name="agreeTerms"]').check();
+  await agree.locator('input[name="agreePrivacy"]').check();
+
+  /* 단추 모양(링크·제출 단추)과 상관없이 글자로 찾는다. 정말 카카오까지 가는지만 본다 */
+  const toKakao = page.waitForRequest(/kauth\.kakao\.com\/oauth\/authorize/, { timeout: 10_000 });
+  await agree.getByText("카카오로 가입").click();
+  await toKakao;
+
+  /* 다녀온 뒤 또 묻지 않도록 고른 유형과 동의를 적어 두었다(signup-intent.ts) */
+  const intent = (await context.cookies()).find((c) => c.name === "c3r_signup_intent");
+  expect(intent?.value).toBe("company.0");
+});
+
+test("동의 없이 소셜 단추를 누르면 그 자리에서 동의하라고 알린다", async ({ page }) => {
+  await page.goto("/signup?type=personal");
+  await page.locator('form[action="/signup"]').getByText("카카오로 가입").click();
+
+  /* 화면 밖 동의 칸에 기본 경고만 뜨면 아무 반응이 없는 것처럼 보인다 */
+  await expect(page.locator('form[action="/signup"] [role="alert"]')).toContainText("필수 약관");
+  await expect(page).toHaveURL(/\/signup\?type=personal$/);
+  await expect(page.locator('form[action="/signup"] input[name="agreeTerms"]')).toBeInViewport();
+});
+
+test("동의 없이 이메일로 가입하기를 눌러도 같은 안내가 나온다", async ({ page }) => {
+  await page.goto("/signup?type=personal");
+  await page.getByRole("button", { name: "이메일로 가입하기" }).click();
+
+  await expect(page.locator('form[action="/signup"] [role="alert"]')).toContainText("필수 약관");
+  await expect(page.locator("#signup-phone")).toHaveCount(0);
+
+  /* 동의를 켜면 안내가 사라진다 */
+  const agree = page.locator('form[action="/signup"]');
+  await agree.locator('input[name="agreeTerms"]').check();
+  await agree.locator('input[name="agreePrivacy"]').check();
+  await expect(page.locator('form[action="/signup"] [role="alert"]')).toHaveCount(0);
+});

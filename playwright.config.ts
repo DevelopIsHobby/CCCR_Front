@@ -57,6 +57,13 @@ export default defineConfig({
       SITE_URL: baseURL,
       /* 보관기간 자동 파기(/api/cleanup)를 테스트에서 부르기 위한 값. 확인용 서버에만 쓴다 */
       CLEANUP_SECRET: "e2e-cleanup-secret",
+      /*
+        가짜 카카오 키. 키가 있어야 소셜 단추가 화면에 나와서, 단추가 실제로
+        카카오 로그인까지 가는지 확인할 수 있다. 시험은 카카오 주소를 가로채므로
+        진짜 카카오에는 아무 요청도 가지 않는다(signup-flow.spec.ts).
+      */
+      KAKAO_CLIENT_ID: "e2e-kakao",
+      KAKAO_CLIENT_SECRET: "e2e-kakao-secret",
     },
   },
 });
