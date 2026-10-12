@@ -1,16 +1,13 @@
 import { test, expect } from "@playwright/test";
-import { ADMIN, MEMBER, db, login } from "./fixtures";
+import { ADMIN, MEMBER, db, login, openSignupForm } from "./fixtures";
 
 /* 가입 신청 · 로그인 · 권한 */
 
 test("가입 신청을 넣으면 접수 안내가 보이고 승인 대기 상태가 된다", async ({ page }) => {
   const email = `e2e-signup-${Date.now()}@example.test`;
 
-  await page.goto("/signup");
-  await page.locator('input[name="agreeTerms"]').first().check();
-  await page.locator('input[name="agreePrivacy"]').first().check();
-  /* 회원 구분은 필수다 */
-  await page.locator('input[name="memberType"][value="회원사"]').check();
+  /* 회원 유형 → 약관 동의 → 정보 입력 */
+  await openSignupForm(page, "기업");
   await page.locator("#signup-company").fill("확인용회사");
   await page.locator("#signup-name").fill("확인용담당자");
   await page.locator("#signup-email").fill(email);
@@ -30,8 +27,8 @@ test("가입 신청을 넣으면 접수 안내가 보이고 승인 대기 상태
   /* 사무국이 승인하기 전까지는 대기 상태여야 한다 */
   expect(row?.status).toBe("pending");
   expect(row?.role).toBe("member");
-  /* 고른 회원 구분이 그대로 남는다 */
-  expect(row?.member_type).toBe("회원사");
+  /* 첫 단계에서 고른 회원 유형이 그대로 남는다 */
+  expect(row?.member_type).toBe("기업");
 });
 
 test("승인 전 계정은 로그인할 수 없다", async ({ page }) => {
@@ -80,10 +77,7 @@ test("관리자로 로그인하면 관리자 화면이 열린다", async ({ page
 test("영문만 있는 비밀번호로는 가입할 수 없다", async ({ page }) => {
   const email = `e2e-signup-weak-${Date.now()}@example.test`;
 
-  await page.goto("/signup");
-  await page.locator('input[name="agreeTerms"]').first().check();
-  await page.locator('input[name="agreePrivacy"]').first().check();
-  await page.locator('input[name="memberType"][value="비회원사"]').check();
+  await openSignupForm(page, "기업");
   await page.locator("#signup-company").fill("확인용회사");
   await page.locator("#signup-name").fill("확인용담당자");
   await page.locator("#signup-email").fill(email);
@@ -122,7 +116,7 @@ test("관리자가 기존 회원의 구분을 정하고, 구분별로 거를 수
   await expect(page.getByText(email)).toBeVisible();
 
   /* 고르는 즉시 저장된다 */
-  await page.locator(`#member-type-${id}`).selectOption("회원사");
+  await page.locator(`#member-type-${id}`).selectOption("기업");
   await expect
     .poll(() => {
       const c = db();
@@ -130,15 +124,15 @@ test("관리자가 기존 회원의 구분을 정하고, 구분별로 거를 수
       c.close();
       return row.member_type;
     })
-    .toBe("회원사");
+    .toBe("기업");
 
-  /* 이제 '회원사'로 거르면 보이고, '구분 없음'에서는 빠진다 */
-  await page.goto("/admin/members?type=회원사");
+  /* 이제 '기업회원'으로 거르면 보이고, '구분 없음'에서는 빠진다 */
+  await page.goto("/admin/members?type=기업");
   await expect(page.getByText(email)).toBeVisible();
   await page.goto("/admin/members?type=none");
   await expect(page.getByText(email)).toHaveCount(0);
 
   /* 관리자 접속 기록에 누구를 어떻게 바꿨는지 남는다 */
   await page.goto("/admin/access-log?action=처리");
-  await expect(page.getByRole("cell", { name: new RegExp(`회원 #${id} 구분 → 회원사`) }).first()).toBeVisible();
+  await expect(page.getByRole("cell", { name: new RegExp(`회원 #${id} 구분 → 기업`) }).first()).toBeVisible();
 });

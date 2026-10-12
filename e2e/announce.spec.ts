@@ -82,6 +82,11 @@ test("상세 화면에 주관기관과 접수 마감이 나온다", async ({ pag
 
   await page.goto("/board/announce");
   await page.getByRole("link", { name: new RegExp(title.slice(-12)) }).click();
+  /*
+    상세 화면이 뜬 뒤에 본다. 누르자마자 보면 아직 목록이라, 표에 있는 같은 기관명을
+    여럿 집어 시험이 가끔 깨졌다.
+  */
+  await expect(page.getByRole("heading", { name: title })).toBeVisible();
 
   await expect(page.getByText("주관기관")).toBeVisible();
   await expect(page.getByText("정보통신산업진흥원")).toBeVisible();

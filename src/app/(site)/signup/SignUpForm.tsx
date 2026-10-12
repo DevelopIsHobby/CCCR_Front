@@ -3,145 +3,97 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { signUp, type SignUpState } from "@/lib/auth/signup-actions";
-import LegalDialog, { type LegalTab } from "@/components/LegalDialog";
 import ScrollToTopOnShow from "@/components/ScrollToTopOnShow";
 import { SIGNUP_MAX } from "@/lib/auth/signup-limits";
-import SignupPrivacyNotice from "@/components/SignupPrivacyNotice";
 import PasswordRuleHint from "@/components/PasswordRuleHint";
-import { PASSWORD_MIN, PASSWORD_RULE_TEXT } from "@/lib/auth/password-rule";
-import MemberTypeField from "@/components/MemberTypeField";
+import { PASSWORD_MIN } from "@/lib/auth/password-rule";
+import ProfileFields, { fieldInput } from "@/components/signup/ProfileFields";
+import { MEMBER_TYPE_LABEL, memberTypeSlug, type MemberType } from "@/lib/user-types";
 
-const input =
-  "w-full rounded-md border border-line px-4 py-3.5 text-md outline-none transition-colors focus:border-brand-500";
+/*
+  가입 3단계 — 정보 입력(이메일 가입).
 
-const AGREEMENTS: { id: string; label: string; doc: LegalTab | null; required: boolean }[] = [
-  { id: "agreeTerms", label: "이용약관 동의", doc: "terms", required: true },
-  { id: "agreePrivacy", label: "개인정보 수집·이용 동의", doc: "privacy", required: true },
-  { id: "agreeNewsletter", label: "뉴스레터 수신 동의", doc: null, required: false },
-];
+  앞 단계에서 고른 회원 유형과 약관 동의는 숨은 칸으로 함께 보낸다. 서버는 이 값을
+  다시 확인한다(signup-actions.ts). 주소를 고쳐 이 화면에 바로 와도 동의가 없으면
+  페이지가 둘째 단계로 돌려보내고, 요청을 직접 만들어 보내도 서버가 막는다.
+*/
+export function SignupDone() {
+  return (
+    <div className="mx-auto max-w-2xl rounded-2xl border border-line bg-white p-10 text-center">
+      <ScrollToTopOnShow />
+      <p className="text-xl font-bold text-navy-900">가입 신청이 접수되었습니다</p>
+      <p className="mt-4 text-md leading-relaxed text-ink-600">
+        사무국 확인 후 이용할 수 있습니다. 승인되면 입력하신 이메일로 로그인해 주세요.
+        <br />
+        문의는 02-2052-0156 또는 admin@cccr.or.kr 로 연락 주시기 바랍니다.
+      </p>
+      <Link
+        href="/"
+        className="mt-8 inline-flex rounded-full bg-navy-900 px-7 py-3 text-md font-bold text-white transition-colors hover:bg-brand-600"
+      >
+        홈으로
+      </Link>
+    </div>
+  );
+}
 
-const FIELDS = [
-  { id: "company", label: "기관·회사명", type: "text", full: true, ac: "organization", required: true },
-  { id: "name", label: "담당자 이름", type: "text", full: false, ac: "name", required: true },
-  { id: "department", label: "부서·직위", type: "text", full: false, ac: "organization-title", required: false },
-  { id: "email", label: "이메일 (로그인 아이디)", type: "email", full: false, ac: "email", required: true },
-  {
-    id: "phone",
-    label: "휴대전화번호",
-    type: "tel",
-    full: false,
-    ac: "tel",
-    required: true,
-    hint: "예: 010-1234-5678",
-  },
-  {
-    id: "bizNumber",
-    label: "사업자등록번호",
-    type: "text",
-    full: false,
-    ac: "off",
-    required: false,
-    hint: "예: 123-45-67890",
-  },
-];
-
-export default function SignUpForm() {
+export default function SignUpForm({
+  memberType,
+  newsletter,
+}: {
+  memberType: MemberType;
+  newsletter: boolean;
+}) {
   const [state, action, pending] = useActionState<SignUpState, FormData>(signUp, {});
-  /* 전문은 새 페이지로 나가지 않고 팝업으로 본다. 쓰던 입력이 사라지지 않게. */
-  const [doc, setDoc] = useState<LegalTab | null>(null);
   /* 입력하는 동안 비밀번호 규칙을 맞췄는지 보여 주려고 값을 들고 있는다 */
   const [password, setPassword] = useState("");
 
-  if (state.ok) {
-    return (
-      <div className="mx-auto mt-11 max-w-2xl rounded-2xl border border-line bg-white p-10 text-center">
-        <ScrollToTopOnShow />
-        <p className="text-xl font-bold text-navy-900">가입 신청이 접수되었습니다</p>
-        <p className="mt-4 text-md leading-relaxed text-ink-600">
-          사무국 확인 후 이용할 수 있습니다. 승인되면 입력하신 이메일로 로그인해 주세요.
-          <br />
-          문의는 02-2052-0156 또는 admin@cccr.or.kr 로 연락 주시기 바랍니다.
-        </p>
-        <Link
-          href="/"
-          className="mt-8 inline-flex rounded-full bg-navy-900 px-7 py-3 text-md font-bold text-white transition-colors hover:bg-brand-600"
-        >
-          홈으로
-        </Link>
-      </div>
-    );
-  }
+  if (state.ok) return <SignupDone />;
+
+  /* 약관 동의 단계로 돌아가는 주소. 고른 유형은 그대로 둔다 */
+  const back = `/signup?type=${memberTypeSlug(memberType)}`;
 
   return (
-    <>
-      <form action={action} className="mx-auto mt-11 max-w-2xl rounded-2xl border border-line bg-white p-8 lg:p-10">
-      <fieldset>
-        <legend className="text-lg font-bold text-navy-900">약관 동의</legend>
-        <div className="mt-5 space-y-3">
-          {/* 전문보기는 라벨 밖에 둔다. 라벨 안에 있으면 눌렀을 때 동의 체크가 함께 켜진다. */}
-          {AGREEMENTS.map((t) => (
-            <div
-              key={t.id}
-              className="flex items-center gap-3 rounded-lg bg-surface px-5 py-4 text-md text-ink-700"
-            >
-              <label className="flex flex-1 items-center gap-3">
-                <input
-                  type="checkbox"
-                  name={t.id}
-                  required={t.required}
-                  className="size-4 shrink-0 rounded border-line accent-brand-600"
-                />
-                <span>
-                  {t.label}
-                  <span
-                    className={`ml-2 text-xs font-bold ${t.required ? "text-flame-600" : "text-ink-400"}`}
-                  >
-                    {t.required ? "필수" : "선택"}
-                  </span>
-                </span>
-              </label>
-              {t.doc && (
-                <button
-                  type="button"
-                  onClick={() => setDoc(t.doc)}
-                  className="shrink-0 text-sm text-brand-600 underline underline-offset-2"
-                >
-                  전문보기
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-        <SignupPrivacyNotice />
-      </fieldset>
+    <form action={action} className="mx-auto max-w-2xl rounded-2xl border border-line bg-white p-8 lg:p-10">
+      <input type="hidden" name="memberType" value={memberType} />
+      <input type="hidden" name="agreeTerms" value="on" />
+      <input type="hidden" name="agreePrivacy" value="on" />
+      {newsletter && <input type="hidden" name="agreeNewsletter" value="on" />}
 
-      <fieldset className="mt-10">
+      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-surface px-4 py-3 text-sm text-ink-600">
+        <span>
+          <b className="font-bold text-navy-900">{MEMBER_TYPE_LABEL[memberType]}</b>
+        </span>
+        <span aria-hidden className="text-line">|</span>
+        <span>약관 동의 완료{newsletter ? " · 뉴스레터 받음" : ""}</span>
+        <Link href={back} className="ml-auto text-brand-600 underline underline-offset-2">
+          동의 다시 보기
+        </Link>
+      </p>
+
+      <fieldset className="mt-8">
         <legend className="text-lg font-bold text-navy-900">회원 정보</legend>
-
-        {/* 회원 구분. 사무국이 승인할 때 회원사인지 바로 알 수 있게 한다 */}
         <div className="mt-5">
-          <MemberTypeField id="signup-member-type" />
-        </div>
-
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
-          {FIELDS.map((f) => (
-            <div key={f.id} className={f.full ? "sm:col-span-2" : ""}>
-              <label htmlFor={`signup-${f.id}`} className="mb-2 block text-base font-bold text-navy-900">
-                {f.label}
-                {!f.required && <span className="ml-1.5 text-xs font-medium text-ink-400">선택</span>}
-              </label>
-              <input
-                id={`signup-${f.id}`}
-                name={f.id}
-                type={f.type}
-                autoComplete={f.ac}
-                required={f.required}
-                maxLength={SIGNUP_MAX[f.id as keyof typeof SIGNUP_MAX]}
-                placeholder={"hint" in f ? f.hint : undefined}
-                className={input}
-              />
-            </div>
-          ))}
+          <ProfileFields
+            memberType={memberType}
+            idPrefix="signup"
+            email={
+              <div>
+                <label htmlFor="signup-email" className="mb-2 block text-base font-bold text-navy-900">
+                  이메일 <span className="text-sm font-medium text-ink-400">(로그인 아이디)</span>
+                </label>
+                <input
+                  id="signup-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  maxLength={SIGNUP_MAX.email}
+                  className={fieldInput}
+                />
+              </div>
+            }
+          />
         </div>
       </fieldset>
 
@@ -150,7 +102,7 @@ export default function SignUpForm() {
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <div>
             <label htmlFor="signup-password" className="mb-2 block text-base font-bold text-navy-900">
-              비밀번호 ({PASSWORD_RULE_TEXT})
+              비밀번호
             </label>
             <input
               id="signup-password"
@@ -161,9 +113,12 @@ export default function SignUpForm() {
               minLength={PASSWORD_MIN}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={input}
+              aria-describedby="signup-password-rule"
+              className={fieldInput}
             />
-            <PasswordRuleHint value={password} />
+            <div id="signup-password-rule">
+              <PasswordRuleHint value={password} />
+            </div>
           </div>
           <div>
             <label
@@ -179,7 +134,7 @@ export default function SignUpForm() {
               autoComplete="new-password"
               required
               minLength={PASSWORD_MIN}
-              className={input}
+              className={fieldInput}
             />
           </div>
         </div>
@@ -209,15 +164,9 @@ export default function SignUpForm() {
           취소
         </Link>
       </div>
-      </form>
-
-      <LegalDialog
-        open={doc !== null}
-        tab={doc ?? "terms"}
-        tabs={["terms", "privacy"]}
-        onTabChange={setDoc}
-        onClose={() => setDoc(null)}
-      />
-    </>
+      <p className="mt-3 text-center text-sm text-ink-400">
+        신청하시면 사무국 확인을 거쳐 이용하실 수 있습니다.
+      </p>
+    </form>
   );
 }

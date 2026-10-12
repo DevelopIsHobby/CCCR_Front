@@ -11,9 +11,7 @@ import { officeTo } from "@/lib/mail/address";
 import { memberSignupOffice } from "@/lib/mail/templates";
 import { checkSignupLengths } from "./signup-limits";
 import { passwordProblem } from "./password-rule";
-import { isMobilePhone, normalizePhone } from "@/lib/phone";
-import { isBizNumber, normalizeBizNumber } from "@/lib/biz-number";
-import { isMemberType } from "@/lib/user-types";
+import { readSignupProfile } from "./signup-profile";
 
 export type SignUpState = { error?: string; ok?: boolean };
 
@@ -32,41 +30,24 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
     return { error: "가입 시도가 너무 잦습니다. 잠시 뒤에 다시 시도해 주세요." };
   }
 
-  const value = (key: string) => String(formData.get(key) ?? "").trim();
-
-  const email = value("email").toLowerCase();
-  const name = value("name");
-  const company = value("company");
-  const department = value("department");
-  const phone = normalizePhone(value("phone"));
-  const bizNumber = normalizeBizNumber(value("bizNumber"));
-  const memberType = value("memberType");
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const passwordConfirm = String(formData.get("passwordConfirm") ?? "");
 
   if (!formData.get("agreeTerms") || !formData.get("agreePrivacy")) {
     return { error: "필수 약관에 동의해 주세요." };
   }
-  if (!email || !name || !company) {
-    return { error: "기관·회사명, 담당자 이름, 이메일은 반드시 입력해 주세요." };
+  /* 회원 유형에 따라 받는 칸이 다르다. 소셜 가입과 같은 규칙(signup-profile.ts) */
+  const read = readSignupProfile((key) => String(formData.get(key) ?? ""));
+  if ("error" in read) {
+    return { error: read.error };
   }
-  if (!isMemberType(memberType)) {
-    return { error: "회원 구분(회원사·비회원사·유관기관)을 골라 주세요." };
+  const { memberType, name, company, department, phone, bizNumber } = read.profile;
+
+  if (!email) {
+    return { error: "이메일을 입력해 주세요." };
   }
-  /*
-    휴대전화번호로 한 사람이 계정을 여러 개 만드는 것을 막는다(migrations/037).
-    일반전화를 받으면 사무실 대표번호를 적게 되어, 같은 회사의 두 번째 담당자가 막힌다.
-  */
-  if (!phone) {
-    return { error: "휴대전화번호를 입력해 주세요." };
-  }
-  if (!isMobilePhone(phone)) {
-    return { error: "휴대전화번호를 다시 확인해 주세요. 일반전화는 쓸 수 없습니다." };
-  }
-  if (bizNumber && !isBizNumber(bizNumber)) {
-    return { error: "사업자등록번호를 다시 확인해 주세요." };
-  }
-  const tooLong = checkSignupLengths({ email, name, company, department, phone, bizNumber });
+  const tooLong = checkSignupLengths({ email });
   if (tooLong) {
     return { error: tooLong };
   }
@@ -104,9 +85,9 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
       await hashPassword(password),
       name,
       company,
-      department || null,
+      department,
       phone,
-      bizNumber || null,
+      bizNumber,
       memberType,
       now(),
     ],

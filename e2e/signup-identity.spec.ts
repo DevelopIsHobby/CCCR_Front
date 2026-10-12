@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { ADMIN, db, hashPassword, login, now } from "./fixtures";
+import { ADMIN, db, hashPassword, login, now, openSignupForm } from "./fixtures";
 
 /*
   한 사람이 계정을 여러 개 만들지 못하게 막는 장치.
@@ -19,11 +19,7 @@ async function fill(
 ) {
   const password = v.password ?? "e2e-Test-Passw0rd";
 
-  await page.goto("/signup");
-  await page.locator('input[name="agreeTerms"]').first().check();
-  await page.locator('input[name="agreePrivacy"]').first().check();
-  /* 회원 구분은 필수다(2026-10) */
-  await page.locator('input[name="memberType"][value="비회원사"]').check();
+  await openSignupForm(page, "기업");
   await page.locator("#signup-company").fill("확인용회사");
   await page.locator("#signup-name").fill(v.name ?? "확인용담당자");
   await page.locator("#signup-email").fill(v.email);

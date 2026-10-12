@@ -187,19 +187,22 @@ export function memberSignupOffice({
   memberType,
 }: {
   name: string;
-  company: string;
+  /** 개인회원은 소속을 적지 않을 수 있다 */
+  company: string | null;
   email: string;
   /** 가입 방식. 예) "이메일", "카카오 로그인" */
   method: string;
-  /** 회원 구분. 승인할 때 회원사 명단과 견주어 본다 */
+  /** 회원 구분(개인·기업). 승인할 때 참고한다 */
   memberType?: string;
 }): MailBody {
+  /* 소속이 없으면 이름만 적는다. 'null' 이나 빈 칸이 제목에 실리지 않게 */
+  const who = company ? `${company} ${name}` : name;
   return {
-    subject: `[신청] 홈페이지 회원가입 · ${company}`,
+    subject: `[신청] 홈페이지 회원가입 · ${company ?? name}`,
     text:
       "홈페이지 회원가입 신청이 들어왔습니다.\n\n" +
-      `신청자  ${company} ${name}\n` +
-      (memberType ? `회원 구분  ${memberType}\n` : "") +
+      `신청자  ${who}\n` +
+      (memberType ? `회원 구분  ${memberType}회원\n` : "") +
       `연락처  ${email}\n` +
       `가입 방식  ${method}\n` +
       "승인해야 로그인할 수 있습니다.\n" +

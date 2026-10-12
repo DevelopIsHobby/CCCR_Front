@@ -11,9 +11,7 @@ import { officeTo } from "@/lib/mail/address";
 import { memberSignupOffice } from "@/lib/mail/templates";
 import { SOCIAL_LABEL } from "./social-profile";
 import { checkSignupLengths } from "./signup-limits";
-import { isMobilePhone, normalizePhone } from "@/lib/phone";
-import { isBizNumber, normalizeBizNumber } from "@/lib/biz-number";
-import { isMemberType } from "@/lib/user-types";
+import { readSignupProfile } from "./signup-profile";
 
 export type SocialSignUpState = { error?: string; ok?: boolean };
 
@@ -44,34 +42,19 @@ export async function completeSocialSignup(
     return { error: "필수 약관에 동의해 주세요." };
   }
 
-  const name = value("name");
-  const company = value("company");
-  const department = value("department");
-  const phone = normalizePhone(value("phone"));
-  const bizNumber = normalizeBizNumber(value("bizNumber"));
-  const memberType = value("memberType");
-  if (!isMemberType(memberType)) {
-    return { error: "회원 구분(회원사·비회원사·유관기관)을 골라 주세요." };
+  /* 회원 유형에 따라 받는 칸이 다르다. 이메일 가입과 같은 규칙(signup-profile.ts) */
+  const read = readSignupProfile((key) => String(formData.get(key) ?? ""));
+  if ("error" in read) {
+    return { error: read.error };
   }
+  const { memberType, name, company, department, phone, bizNumber } = read.profile;
+
   /* 서비스가 확인해 준 이메일은 그대로 쓰고, 없거나 확인되지 않았으면 적어 준 주소를 쓴다 */
   const email = (pending.emailVerified && pending.email ? pending.email : value("email")).toLowerCase();
-
-  if (!company || !name || !email) {
-    return { error: "기관·회사명, 담당자 이름, 이메일은 반드시 입력해 주세요." };
+  if (!email) {
+    return { error: "이메일을 입력해 주세요." };
   }
-  /*
-    이메일 가입과 같은 기준을 건다. 한쪽만 느슨하면 그쪽이 중복 계정을 만드는 길이 된다.
-  */
-  if (!phone) {
-    return { error: "휴대전화번호를 입력해 주세요." };
-  }
-  if (!isMobilePhone(phone)) {
-    return { error: "휴대전화번호를 다시 확인해 주세요. 일반전화는 쓸 수 없습니다." };
-  }
-  if (bizNumber && !isBizNumber(bizNumber)) {
-    return { error: "사업자등록번호를 다시 확인해 주세요." };
-  }
-  const tooLong = checkSignupLengths({ email, name, company, department, phone, bizNumber });
+  const tooLong = checkSignupLengths({ email });
   if (tooLong) {
     return { error: tooLong };
   }
@@ -110,7 +93,7 @@ export async function completeSocialSignup(
   const created = await db.get<{ id: number }>(
     `INSERT INTO users (email, password_hash, name, company, department, phone, biz_number, member_type, role, status, created_at)
      VALUES (?, '', ?, ?, ?, ?, ?, ?, 'member', 'pending', ?) RETURNING id`,
-    [email, name, company, department || null, phone, bizNumber || null, memberType, stamp],
+    [email, name, company, department, phone, bizNumber, memberType, stamp],
   );
   if (!created) return { error: "가입을 마치지 못했습니다. 다시 시도해 주세요." };
 

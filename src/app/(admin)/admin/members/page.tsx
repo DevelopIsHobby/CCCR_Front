@@ -11,7 +11,7 @@ import {
 import MemberTable from "@/components/admin/MemberTable";
 import NewAdminForm from "@/components/admin/NewAdminForm";
 import { countUnclassified, countUsersByStatus, listUsers, type MemberTypeFilter } from "@/lib/db/users";
-import { MEMBER_TYPES, USER_STATUS_LABEL, type UserStatus } from "@/lib/user-types";
+import { MEMBER_TYPES, MEMBER_TYPE_LABEL, USER_STATUS_LABEL, type UserStatus } from "@/lib/user-types";
 
 export const metadata: Metadata = { title: "회원 관리" };
 
@@ -25,7 +25,7 @@ const FILTERS: { value: UserStatus | "all"; label: string }[] = [
 /* 회원 구분 거르기. '구분 없음'으로 걸러 옛 회원을 차례로 정한다 */
 const TYPE_FILTERS: { value: MemberTypeFilter; label: string }[] = [
   { value: "all", label: "구분 전체" },
-  ...MEMBER_TYPES.map((t) => ({ value: t, label: t })),
+  ...MEMBER_TYPES.map((t) => ({ value: t, label: MEMBER_TYPE_LABEL[t] })),
   { value: "none", label: "구분 없음" },
 ];
 

@@ -5,6 +5,7 @@ import { Fragment } from "react";
 import { deleteUser, setMemberType, setUserRole, setUserStatus } from "@/lib/db/user-actions";
 import {
   MEMBER_TYPES,
+  MEMBER_TYPE_LABEL,
   USER_STATUS_LABEL,
   type DuplicateField,
   type DuplicateHint,
@@ -38,17 +39,14 @@ function StatusButton({ id, status, label }: { id: number; status: string; label
 
 /*
   회원 구분 고르기. 고르는 즉시 저장한다(단추를 한 번 더 누르게 하면 바꾼 줄 알고 넘어간다).
-  가입 때 스스로 고른 값을 명단과 견주어 바로잡거나, 구분이 비어 있는 옛 회원에게 정해 준다.
-  회원사는 눈에 띄는 색으로 둔다 — 명단에 있는지 먼저 봐야 할 사람이다.
+  가입 때 스스로 고른 값을 바로잡거나, 구분이 비어 있는 옛 회원에게 정해 준다.
+  비어 있는 것만 눈에 띄게 둔다 — 정해 줘야 할 사람이다.
 */
 function MemberTypeSelect({ user }: { user: UserRow }) {
   const value = user.memberType ?? "";
-  const tone =
-    value === "회원사"
-      ? "border-brand-500 bg-brand-50 text-brand-700"
-      : value
-        ? "border-line bg-white text-ink-700"
-        : "border-dashed border-flame-500 bg-white text-flame-700";
+  const tone = value
+    ? "border-line bg-white text-ink-700"
+    : "border-dashed border-flame-500 bg-white text-flame-700";
 
   return (
     <form action={setMemberType} className="mb-1.5">
@@ -66,7 +64,7 @@ function MemberTypeSelect({ user }: { user: UserRow }) {
         <option value="">구분 없음</option>
         {MEMBER_TYPES.map((t) => (
           <option key={t} value={t}>
-            {t}
+            {MEMBER_TYPE_LABEL[t]}
           </option>
         ))}
       </select>

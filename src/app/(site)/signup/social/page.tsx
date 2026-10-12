@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import PageShell from "@/components/sub/PageShell";
@@ -6,6 +7,7 @@ import SocialSignupForm, { SocialSignupDone } from "./SocialSignupForm";
 import { getSession } from "@/lib/auth/session";
 import { SOCIAL_LABEL } from "@/lib/auth/social-profile";
 import { getPendingSocialSignup } from "@/lib/auth/social-signup";
+import { SIGNUP_INTENT_COOKIE, decodeIntent } from "@/lib/auth/signup-intent";
 
 /* 소셜 로그인에서 처음 온 사람만 들어오는 화면이라 검색에서 뺀다 */
 export const metadata: Metadata = {
@@ -17,6 +19,8 @@ export default async function Page() {
   if (await getSession()) redirect("/");
 
   const pending = await getPendingSocialSignup();
+  /* 가입 화면에서 고른 유형·동의. 로그인 단추로 바로 왔으면 없다(signup-intent.ts) */
+  const intent = decodeIntent((await cookies()).get(SIGNUP_INTENT_COOKIE)?.value);
 
   return (
     <PageShell
@@ -50,6 +54,7 @@ export default async function Page() {
           email={pending.email}
           emailLocked={pending.emailVerified && Boolean(pending.email)}
           name={pending.name}
+          intent={intent}
         />
       )}
     </PageShell>

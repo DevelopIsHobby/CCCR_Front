@@ -51,3 +51,25 @@ export async function login(page: Page, who: typeof ADMIN): Promise<void> {
   /* 로그인하면 원래 가려던 곳으로 보낸다. 로그인 화면을 벗어났는지로 확인한다. */
   await expect(page).not.toHaveURL(/\/login/);
 }
+
+/**
+ * 가입 세 단계(회원 유형 → 약관 동의 → 정보 입력)를 화면으로 거쳐 정보 입력 칸을 연다.
+ * 주소를 바로 치지 않고 단추를 눌러 간다. 그래야 단계 사이가 끊겼을 때 시험이 알아챈다.
+ * 바닥의 뉴스레터 띠에도 동의 상자가 있어 가입 폼 안에서만 찾는다.
+ */
+export async function openSignupForm(
+  page: Page,
+  type: "개인" | "기업" = "기업",
+  opts: { newsletter?: boolean } = {},
+): Promise<void> {
+  await page.goto("/signup");
+  await page.locator(`a[href="/signup?type=${type === "개인" ? "personal" : "company"}"]`).click();
+
+  const agree = page.locator('form[action="/signup"]');
+  await agree.locator('input[name="agreeTerms"]').check();
+  await agree.locator('input[name="agreePrivacy"]').check();
+  if (opts.newsletter) await agree.locator('input[name="agreeNewsletter"]').check();
+  await agree.getByRole("button", { name: "이메일로 가입하기" }).click();
+
+  await expect(page.locator("#signup-phone")).toBeVisible();
+}

@@ -20,7 +20,8 @@ test("이용약관에 제휴사 정보 공유·주민등록번호 조항이 없�
 });
 
 test("회원가입 화면에 수집 항목·목적·보유 기간·거부권 안내가 보인다", async ({ page }) => {
-  await page.goto("/signup");
+  /* 동의를 받는 둘째 단계에 나온다 */
+  await page.goto("/signup?type=personal");
   await expect(page.getByText(/보유 기간 : 회원 탈퇴 시까지/)).toBeVisible();
   await expect(page.getByText("동의를 거부하실 수 있으나, 그 경우 회원가입을 할 수 없습니다.")).toBeVisible();
 });

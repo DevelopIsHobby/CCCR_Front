@@ -2,27 +2,20 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import LegalDialog, { type LegalTab } from "@/components/LegalDialog";
 import ScrollToTopOnShow from "@/components/ScrollToTopOnShow";
 import { SocialIcon } from "@/components/SocialIcons";
 import { SOCIAL_LABEL, type SocialProvider } from "@/lib/auth/social-profile";
-import SignupPrivacyNotice from "@/components/SignupPrivacyNotice";
 import MemberTypeField from "@/components/MemberTypeField";
 import {
   completeSocialSignup,
   type SocialSignUpState,
 } from "@/lib/auth/social-signup-actions";
 import { SIGNUP_MAX } from "@/lib/auth/signup-limits";
-
-const input =
-  "w-full rounded-md border border-line px-4 py-3.5 text-md outline-none transition-colors focus:border-brand-500";
-
-/* 이메일 가입(SignUpForm)과 같은 동의 항목 */
-const AGREEMENTS: { id: string; label: string; doc: LegalTab | null; required: boolean }[] = [
-  { id: "agreeTerms", label: "이용약관 동의", doc: "terms", required: true },
-  { id: "agreePrivacy", label: "개인정보 수집·이용 동의", doc: "privacy", required: true },
-  { id: "agreeNewsletter", label: "뉴스레터 수신 동의", doc: null, required: false },
-];
+import AgreementChecks from "@/components/signup/AgreementChecks";
+import ProfileFields, { fieldInput } from "@/components/signup/ProfileFields";
+import SignupSteps from "@/components/signup/SignupSteps";
+import type { SignupIntent } from "@/lib/auth/signup-intent";
+import { MEMBER_TYPE_LABEL, type MemberType } from "@/lib/user-types";
 
 const BADGE: Record<SocialProvider, string> = {
   kakao: "bg-[#FEE500] text-black",
@@ -121,25 +114,60 @@ export default function SocialSignupForm({
   email,
   emailLocked,
   name,
+  intent,
 }: {
   provider: SocialProvider;
   email: string;
   /** 서비스가 확인해 준 이메일이면 고칠 수 없게 보여만 준다 */
   emailLocked: boolean;
   name: string;
+  /**
+   * 가입 화면에서 고른 회원 유형과 약관 동의(signup-intent.ts).
+   * 로그인 단추로 바로 왔으면 없고, 그때는 여기서 유형과 동의를 받는다.
+   */
+  intent: SignupIntent | null;
 }) {
   const [state, action, pending] = useActionState<SocialSignUpState, FormData>(
     completeSocialSignup,
     {},
   );
-  const [doc, setDoc] = useState<LegalTab | null>(null);
+  /* 유형에 따라 입력칸이 달라지므로 고른 것을 들고 있는다 */
+  const [picked, setPicked] = useState<MemberType | null>(intent?.memberType ?? null);
   const label = SOCIAL_LABEL[provider];
 
   if (state.ok) return <SocialSignupDone provider={provider} />;
 
+  const emailField = (
+    <div>
+      <label htmlFor="social-email" className="mb-2 block text-base font-bold text-navy-900">
+        이메일
+      </label>
+      {emailLocked ? (
+        <>
+          <input id="social-email" value={email} readOnly className={`${fieldInput} bg-surface text-ink-600`} />
+          <p className="mt-1.5 flex items-center gap-1 text-sm text-ink-400">
+            <IconCheck className="size-3.5 text-brand-600" />
+            {label}에서 확인한 주소입니다
+          </p>
+        </>
+      ) : (
+        <input
+          id="social-email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          maxLength={SIGNUP_MAX.email}
+          defaultValue={email}
+          className={fieldInput}
+        />
+      )}
+    </div>
+  );
+
   return (
     <>
-      <SignupProgress provider={provider} current={2} />
+      {intent ? <SignupSteps current={3} /> : <SignupProgress provider={provider} current={2} />}
 
       {/* 로그인은 끝났지만 가입은 아직이라는 것을 가장 먼저 읽히게 */}
       <div className="mx-auto mt-10 flex max-w-2xl gap-4 rounded-2xl bg-navy-900 p-6 text-white lg:p-7">
@@ -149,17 +177,16 @@ export default function SocialSignupForm({
         <div>
           <p className="text-lg font-bold">{label} 로그인이 확인되었습니다</p>
           <p className="mt-2 text-base leading-relaxed text-brand-100/80">
-            아직 가입이 끝나지 않았습니다. 아래 <b className="font-bold text-white">약관 동의</b>와{" "}
+            아직 가입이 끝나지 않았습니다. 아래{" "}
+            {intent ? null : (
+              <>
+                <b className="font-bold text-white">약관 동의</b>와{" "}
+              </>
+            )}
             <b className="font-bold text-white">회원 정보</b>를 마저 작성하고 맨 아래{" "}
             <b className="font-bold text-white">[가입 신청하기]</b>를 눌러 주세요. 사무국이 승인하면
             다음부터 {label}로 바로 로그인됩니다.
           </p>
-          <a
-            href="#social-signup-form"
-            className="mt-4 inline-flex items-center gap-1.5 text-base font-bold text-flame-500 hover:underline"
-          >
-            아래 작성하러 가기 <span aria-hidden>↓</span>
-          </a>
         </div>
       </div>
 
@@ -168,132 +195,55 @@ export default function SocialSignupForm({
         action={action}
         className="mx-auto mt-6 max-w-2xl scroll-mt-28 rounded-2xl border border-line bg-white p-8 lg:p-10"
       >
-        <fieldset>
-          <SectionTitle n={1}>약관 동의</SectionTitle>
-          <div className="mt-5 space-y-3">
-            {AGREEMENTS.map((t) => (
-              <div
-                key={t.id}
-                className="flex items-center gap-3 rounded-lg bg-surface px-5 py-4 text-md text-ink-700"
-              >
-                <label className="flex flex-1 items-center gap-3">
-                  <input
-                    type="checkbox"
-                    name={t.id}
-                    required={t.required}
-                    className="size-4 shrink-0 rounded border-line accent-brand-600"
-                  />
-                  <span>
-                    {t.label}
-                    <span
-                      className={`ml-2 text-xs font-bold ${t.required ? "text-flame-600" : "text-ink-400"}`}
-                    >
-                      {t.required ? "필수" : "선택"}
-                    </span>
-                  </span>
-                </label>
-                {t.doc && (
-                  <button
-                    type="button"
-                    onClick={() => setDoc(t.doc)}
-                    className="shrink-0 text-sm text-brand-600 underline underline-offset-2"
-                  >
-                    전문보기
-                  </button>
-                )}
+        {intent ? (
+          <>
+            {/* 가입 화면에서 이미 고르고 동의했다. 다녀온 뒤 또 묻지 않는다 */}
+            <input type="hidden" name="memberType" value={intent.memberType} />
+            <input type="hidden" name="agreeTerms" value="on" />
+            <input type="hidden" name="agreePrivacy" value="on" />
+            {intent.newsletter && <input type="hidden" name="agreeNewsletter" value="on" />}
+            <p className="rounded-lg bg-surface px-4 py-3 text-sm text-ink-600">
+              <b className="font-bold text-navy-900">{MEMBER_TYPE_LABEL[intent.memberType]}</b>
+              <span aria-hidden className="mx-2 text-line">|</span>
+              약관 동의 완료{intent.newsletter ? " · 뉴스레터 받음" : ""}
+            </p>
+          </>
+        ) : (
+          <>
+            <fieldset>
+              <SectionTitle n={1}>회원 유형</SectionTitle>
+              <div className="mt-5">
+                <MemberTypeField id="social-member-type" value={picked} onChange={setPicked} />
               </div>
-            ))}
-          </div>
-          <SignupPrivacyNotice social />
-        </fieldset>
+            </fieldset>
+            <fieldset className="mt-11">
+              <SectionTitle n={2}>약관 동의</SectionTitle>
+              <div className="mt-5">
+                <AgreementChecks memberType={picked ?? undefined} social />
+              </div>
+            </fieldset>
+          </>
+        )}
 
-        <fieldset className="mt-11">
-          <SectionTitle n={2}>회원 정보</SectionTitle>
-          {/* 회원 구분. 사무국이 승인할 때 회원사인지 바로 알 수 있게 한다 */}
+        <fieldset className={intent ? "mt-8" : "mt-11"}>
+          {intent ? (
+            <legend className="text-lg font-bold text-navy-900">회원 정보</legend>
+          ) : (
+            <SectionTitle n={3}>회원 정보</SectionTitle>
+          )}
           <div className="mt-5">
-            <MemberTypeField id="social-member-type" />
-          </div>
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <label htmlFor="social-company" className="mb-2 block text-base font-bold text-navy-900">
-                기관·회사명
-              </label>
-              <input id="social-company" name="company" autoComplete="organization" required className={input} />
-            </div>
-            <div>
-              <label htmlFor="social-name" className="mb-2 block text-base font-bold text-navy-900">
-                담당자 이름
-              </label>
-              <input
-                id="social-name"
-                name="name"
-                autoComplete="name"
-                required
-                defaultValue={name}
-                className={input}
+            {picked ? (
+              <ProfileFields
+                memberType={picked}
+                idPrefix="social"
+                email={emailField}
+                defaults={{ name }}
               />
-            </div>
-            <div>
-              <label htmlFor="social-department" className="mb-2 block text-base font-bold text-navy-900">
-                부서·직위
-                <span className="ml-1.5 text-xs font-medium text-ink-400">선택</span>
-              </label>
-              <input id="social-department" name="department" autoComplete="organization-title" className={input} />
-            </div>
-            <div>
-              <label htmlFor="social-email" className="mb-2 block text-base font-bold text-navy-900">
-                이메일
-              </label>
-              {emailLocked ? (
-                <>
-                  <input id="social-email" value={email} readOnly className={`${input} bg-surface text-ink-600`} />
-                  <p className="mt-1.5 flex items-center gap-1 text-sm text-ink-400">
-                    <IconCheck className="size-3.5 text-brand-600" />
-                    {label}에서 확인한 주소입니다
-                  </p>
-                </>
-              ) : (
-                <input
-                  id="social-email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  defaultValue={email}
-                  className={input}
-                />
-              )}
-            </div>
-            <div>
-              <label htmlFor="social-phone" className="mb-2 block text-base font-bold text-navy-900">
-                휴대전화번호
-              </label>
-              <input
-                id="social-phone"
-                name="phone"
-                type="tel"
-                autoComplete="tel"
-                required
-                maxLength={SIGNUP_MAX.phone}
-                placeholder="예: 010-1234-5678"
-                className={input}
-              />
-            </div>
-            <div>
-              <label htmlFor="social-biz" className="mb-2 block text-base font-bold text-navy-900">
-                사업자등록번호
-                <span className="ml-1.5 text-xs font-medium text-ink-400">선택</span>
-              </label>
-              <input
-                id="social-biz"
-                name="bizNumber"
-                type="text"
-                autoComplete="off"
-                maxLength={SIGNUP_MAX.bizNumber}
-                placeholder="예: 123-45-67890"
-                className={input}
-              />
-            </div>
+            ) : (
+              <p className="rounded-lg border border-dashed border-line px-5 py-6 text-center text-base text-ink-400">
+                회원 유형을 고르면 입력할 칸이 나옵니다.
+              </p>
+            )}
           </div>
         </fieldset>
 
@@ -327,14 +277,6 @@ export default function SocialSignupForm({
           </p>
         </div>
       </form>
-
-      <LegalDialog
-        open={doc !== null}
-        tab={doc ?? "terms"}
-        tabs={["terms", "privacy"]}
-        onTabChange={setDoc}
-        onClose={() => setDoc(null)}
-      />
     </>
   );
 }
