@@ -47,14 +47,14 @@ export default function NoticeTable({
 
   if (all.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-line bg-white py-16 text-center text-md text-ink-400">
+      <p className="mt-6 rounded-xl border border-dashed border-line bg-white py-16 text-center text-md text-ink-400">
         {emptyMessage(searching)}
       </p>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="mt-6 overflow-x-auto">
       <table className="w-full min-w-[640px] border-collapse text-left">
         <thead>
           <tr className="border-y-2 border-navy-900">
