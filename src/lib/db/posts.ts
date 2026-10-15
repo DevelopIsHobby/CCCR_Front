@@ -3,6 +3,8 @@ import { cache } from "react";
 import { ready } from "./migrate";
 import type { SqlValue } from "./driver";
 import { likeContains } from "@/lib/like";
+import { today } from "@/lib/format";
+import type { DeadlineFilter } from "@/lib/boards";
 
 export type PostRow = {
   id: number;
@@ -207,6 +209,8 @@ export async function listPosts(opts: {
   q?: string;
   /** 분류 탭. 빈 값이면 전체 */
   category?: string;
+  /** 사업공고 접수 상태 탭. 빈 값이면 전체 */
+  deadline?: DeadlineFilter | "";
 }) {
   const db = await ready();
   const page = Math.max(1, opts.page ?? 1);
@@ -214,20 +218,36 @@ export async function listPosts(opts: {
   /* %·_ 를 글자 그대로 찾는다(like.ts) */
   const like = likeContains(q);
   const category = opts.category?.trim() ?? "";
+  const deadline = opts.deadline ?? "";
 
   /*
-    제목 검색과 분류 탭은 함께 걸 수 있다. 조건과 값을 같은 차례로 모아 둔다.
+    탭(분류·접수 상태) 조건. 고정 글에도 똑같이 건다.
+    마감일은 YYYY-MM-DD 글자라 글자 비교가 곧 날짜 비교다. 당일까지 접수중이다(noticeStatus 와 같다).
+    마감일이 비어 있으면('' 이나 NULL) 어느 쪽에도 넣지 않는다.
+  */
+  const tabWhere: string[] = [];
+  const tabFilters: SqlValue[] = [];
+  if (category) {
+    tabWhere.push("category = ?");
+    tabFilters.push(category);
+  }
+  if (deadline === "open") {
+    tabWhere.push("event_apply_by >= ?");
+    tabFilters.push(today());
+  } else if (deadline === "closed") {
+    tabWhere.push("event_apply_by <> '' AND event_apply_by < ?");
+    tabFilters.push(today());
+  }
+
+  /*
+    제목 검색과 탭은 함께 걸 수 있다. 조건과 값을 같은 차례로 모아 둔다.
     (쿼리의 첫 물음표는 늘 게시판이다 — NUMBERED 주석 참고)
   */
-  const where: string[] = [];
-  const filters: SqlValue[] = [];
+  const where: string[] = [...tabWhere];
+  const filters: SqlValue[] = [...tabFilters];
   if (q) {
     where.push("LOWER(title) LIKE ? ESCAPE '\\'");
     filters.push(like);
-  }
-  if (category) {
-    where.push("category = ?");
-    filters.push(category);
   }
   const clause = where.length ? ` WHERE ${where.join(" AND ")}` : "";
 
@@ -242,23 +262,26 @@ export async function listPosts(opts: {
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
   const current = Math.min(page, totalPages);
 
+  /* 접수중 탭은 마감이 가까운 공고부터. 서둘러야 할 것이 위에 와야 한다 */
+  const order = deadline === "open" ? "event_apply_by ASC, id DESC" : "id DESC";
+
   const rows = await db.all<RawRow>(
     `SELECT * FROM (${NUMBERED}) numbered${clause}
-     ORDER BY id DESC LIMIT ? OFFSET ?`,
+     ORDER BY ${order} LIMIT ? OFFSET ?`,
     [opts.board, ...filters, PER_PAGE, (current - 1) * PER_PAGE],
   );
 
   /*
     검색 중에는 고정 공지를 띄우지 않는다. 검색 결과만 보이는 편이 낫다.
-    분류 탭에서는 그 분류의 고정 글만 올린다. 다른 분류 글이 끼면 탭이 무색해진다.
+    탭에서는 그 탭에 드는 고정 글만 올린다. 다른 탭의 글이 끼면 탭이 무색해진다.
   */
   const pinned = q
     ? []
     : await db.all<RawRow>(
-        `SELECT * FROM (${NUMBERED}) numbered WHERE is_pinned = 1${
-          category ? " AND category = ?" : ""
-        } ORDER BY id DESC`,
-        category ? [opts.board, category] : [opts.board],
+        `SELECT * FROM (${NUMBERED}) numbered WHERE is_pinned = 1${tabWhere
+          .map((w) => ` AND ${w}`)
+          .join("")} ORDER BY id DESC`,
+        [opts.board, ...tabFilters],
       );
 
   return {

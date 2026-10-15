@@ -92,19 +92,22 @@ export function BoardSearch({
   total,
   action,
   q = "",
-  cat = "",
+  label = "전체",
+  params: keep,
 }: {
   total: number;
   /** 검색 결과를 받을 경로. 예: /board/notice */
   action: string;
   q?: string;
-  /** 보고 있는 분류 탭. 검색해도 그 탭 안에서 찾도록 함께 넘긴다 */
-  cat?: string;
+  /** 건수 앞에 붙일 이름. 보고 있는 탭 이름이다 */
+  label?: string;
+  /** 보고 있는 탭 조건(분류·접수 상태). 검색해도 그 탭 안에서 찾도록 함께 넘긴다 */
+  params?: Record<string, string | undefined>;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <p className="text-base text-ink-600">
-        {cat ? cat : "전체"} <b className="font-bold text-brand-600">{total}</b>건
+        {label} <b className="font-bold text-brand-600">{total}</b>건
       </p>
       <form
         className="flex w-full max-w-md gap-2 sm:w-auto"
@@ -113,7 +116,9 @@ export function BoardSearch({
         role="search"
         aria-label="게시물 검색"
       >
-        {cat && <input type="hidden" name="cat" value={cat} />}
+        {Object.entries(keep ?? {}).map(([name, value]) =>
+          value ? <input key={name} type="hidden" name={name} value={value} /> : null,
+        )}
         <label htmlFor="board-q" className="sr-only">
           검색어
         </label>

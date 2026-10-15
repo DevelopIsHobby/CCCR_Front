@@ -120,3 +120,43 @@ test("알림마당 차림표에 사업공고가 들어 있다", async ({ page })
   await expect(page).toHaveURL(/\/board\/announce/);
   await expect(page.getByRole("heading", { name: "사업공고" })).toBeVisible();
 });
+
+test("접수중·접수마감 탭으로 공고를 나눠 본다", async ({ page }) => {
+  const soon = await write(page, "곧 마감 공고", dayFromToday(3));
+  const later = await write(page, "넉넉한 공고", dayFromToday(40));
+  const closed = await write(page, "지난 공고", dayFromToday(-3));
+  const always = await write(page, "상시 탭 공고", null);
+
+  await page.goto("/board/announce");
+  const tabs = page.getByRole("navigation", { name: "접수 상태" });
+  await expect(tabs.getByRole("link", { name: "전체 사업" })).toHaveAttribute("aria-current", "page");
+
+  /* 접수중: 마감 전 공고만, 마감이 가까운 것부터. 상시 공고는 단정하지 않으므로 빠진다 */
+  await tabs.getByRole("link", { name: "접수중인 사업" }).click();
+  await expect(page).toHaveURL(/status=open/);
+  /* 건수 줄도 탭 이름을 따른다 */
+  await expect(page.getByText(/^접수중인 사업 \d+건$/)).toBeVisible();
+  const body = page.locator("tbody");
+  await expect(body).toContainText(soon);
+  await expect(body).toContainText(later);
+  await expect(body).not.toContainText(closed);
+  await expect(body).not.toContainText(always);
+  const titles = await body.locator("tr").allInnerTexts();
+  const soonAt = titles.findIndex((t) => t.includes(soon));
+  const laterAt = titles.findIndex((t) => t.includes(later));
+  expect(soonAt).toBeLessThan(laterAt);
+
+  /* 검색해도 보던 탭에 머문다 */
+  await page.locator("#board-q").fill(closed.slice(-13));
+  await page.getByRole("button", { name: "검색", exact: true }).click();
+  await expect(page).toHaveURL(/status=open/);
+  await expect(page.getByText("검색 결과가 없습니다.")).toBeVisible();
+
+  /* 접수마감: 지난 공고만 */
+  await page.goto("/board/announce");
+  await page.getByRole("navigation", { name: "접수 상태" }).getByRole("link", { name: "접수마감 사업" }).click();
+  await expect(page).toHaveURL(/status=closed/);
+  await expect(body).toContainText(closed);
+  await expect(body).not.toContainText(soon);
+  await expect(body).not.toContainText(always);
+});

@@ -8,7 +8,15 @@ import NewsLinks from "@/components/board/NewsLinks";
 import NewsletterIssues from "@/components/board/NewsletterIssues";
 import { listPosts } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
-import { ALL_CATEGORY, isCategoryOf, type BoardConfig } from "@/lib/boards";
+import {
+  ALL_CATEGORY,
+  DEADLINE_TABS,
+  deadlineFilterOf,
+  isCategoryOf,
+  type BoardConfig,
+} from "@/lib/boards";
+
+type Tab = { label: string; href: string; active: boolean };
 
 /*
   게시판 목록 화면.
@@ -22,7 +30,7 @@ export default async function BoardListView({
   intro,
 }: {
   board: BoardConfig;
-  searchParams: Promise<{ page?: string; q?: string; cat?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; cat?: string; status?: string }>;
   /** 목록 위에 얹을 내용. 뉴스레터 구독 신청처럼 게시판마다 다른 부분에 쓴다. */
   intro?: React.ReactNode;
 }) {
@@ -31,16 +39,40 @@ export default async function BoardListView({
   /* 주소로 들어온 분류는 그 게시판이 쓰는 것만 받는다. 아니면 전체로 본다 */
   const rawCat = sp.cat?.trim() ?? "";
   const category = isCategoryOf(board, rawCat) ? rawCat : "";
+  /* 사업공고의 접수 상태 탭. 마감일이 없는 게시판에서는 늘 빈 값이다 */
+  const deadline = deadlineFilterOf(board, sp.status?.trim() ?? "");
   const { pinned, rows, total, page, totalPages } = await listPosts({
     board: board.slug,
     page: Number(sp.page) || 1,
     q,
     category,
+    deadline,
   });
   const session = await getSession();
   const isAdmin = session?.role === "admin";
 
   const base = board.basePath;
+
+  /* 탭 줄. 분류가 있는 게시판(산업뉴스)은 분류로, 사업공고는 접수 상태로 나눈다 */
+  const tabs: Tab[] = board.hasDeadlineFields
+    ? DEADLINE_TABS.map(({ value, label }) => ({
+        label,
+        href: value ? `${base}?status=${value}` : base,
+        active: deadline === value,
+      }))
+    : board.categories && board.categories.length > 0
+      ? [ALL_CATEGORY, ...board.categories].map((name) => {
+          const isAll = name === ALL_CATEGORY;
+          return {
+            label: name,
+            href: isAll ? base : `${base}?cat=${encodeURIComponent(name)}`,
+            active: isAll ? !category : category === name,
+          };
+        })
+      : [];
+  const activeTab = tabs.find((t) => t.active);
+  /* 쪽을 넘기거나 검색해도 보던 탭에 머문다 */
+  const keep = { cat: category || undefined, status: deadline || undefined };
 
   /* 게시판 이름은 NAV 가 아니라 게시판 설정에서 가져온다.
      메뉴에서 자리를 옮겨도 제목이 흔들리지 않아야 한다. */
@@ -48,32 +80,27 @@ export default async function BoardListView({
     <PageShell href={base} title={board.name} desc={board.desc}>
       {intro}
 
-      {/* 분류 탭. 맨 앞은 전체(주소에 cat 이 없는 상태). 휴대폰에서는 두 줄로 넘어가므로 아래 건수 줄과 띄운다 */}
-      {board.categories && board.categories.length > 0 && (
-        <nav className="mb-6 flex flex-wrap gap-2" aria-label="분류">
-          {[ALL_CATEGORY, ...board.categories].map((name) => {
-            const isAll = name === ALL_CATEGORY;
-            const active = isAll ? !category : category === name;
-            const href = isAll ? base : `${base}?cat=${encodeURIComponent(name)}`;
-            return (
-              <Link
-                key={name}
-                href={href}
-                aria-current={active ? "page" : undefined}
-                className={`rounded-full px-4 py-2 text-base font-semibold transition-colors ${
-                  active
-                    ? "bg-navy-900 text-white"
-                    : "border border-line text-ink-600 hover:border-brand-500 hover:text-brand-600"
-                }`}
-              >
-                {name}
-              </Link>
-            );
-          })}
+      {/* 탭. 맨 앞은 전체(주소에 조건이 없는 상태). 휴대폰에서는 두 줄로 넘어가므로 아래 건수 줄과 띄운다 */}
+      {tabs.length > 0 && (
+        <nav className="mb-6 flex flex-wrap gap-2" aria-label={board.hasDeadlineFields ? "접수 상태" : "분류"}>
+          {tabs.map(({ label, href, active }) => (
+            <Link
+              key={label}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              className={`rounded-full px-4 py-2 text-base font-semibold transition-colors ${
+                active
+                  ? "bg-navy-900 text-white"
+                  : "border border-line text-ink-600 hover:border-brand-500 hover:text-brand-600"
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
         </nav>
       )}
 
-      <BoardSearch total={total} action={base} q={q} cat={category} />
+      <BoardSearch total={total} action={base} q={q} label={activeTab?.label} params={keep} />
 
       {q && (
         <p className="mt-4 text-base text-ink-600">
@@ -109,7 +136,7 @@ export default async function BoardListView({
         page={page}
         totalPages={totalPages}
         q={q}
-        params={{ cat: category || undefined }}
+        params={keep}
       />
     </PageShell>
   );

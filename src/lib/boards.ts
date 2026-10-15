@@ -53,6 +53,26 @@ export function isCategoryOf(board: BoardConfig, value: string): boolean {
   return Boolean(value) && (board.categories ?? []).includes(value);
 }
 
+/*
+  사업공고의 접수 상태 탭. 주소에는 ?status=open|closed 로 싣고, 없으면 전체다.
+
+  마감일이 없는 공고(상시 접수 등)는 전체에서만 보인다. 목록 배지와 같은 이유로,
+  모르는 것을 접수중이라고 단정하지 않는다(format.ts noticeStatus).
+*/
+export type DeadlineFilter = "open" | "closed";
+
+export const DEADLINE_TABS: { value: DeadlineFilter | ""; label: string }[] = [
+  { value: "", label: "전체 사업" },
+  { value: "open", label: "접수중인 사업" },
+  { value: "closed", label: "접수마감 사업" },
+];
+
+/** 마감일이 있는 게시판에서 주소로 들어온 상태 값을 고른다. 아니면 빈 값(전체) */
+export function deadlineFilterOf(board: BoardConfig, value: string): DeadlineFilter | "" {
+  if (!board.hasDeadlineFields) return "";
+  return value === "open" || value === "closed" ? value : "";
+}
+
 export const BOARDS: BoardConfig[] = [
   {
     slug: "notice",
