@@ -257,7 +257,8 @@ export default function PostForm({
           <fieldset className="rounded-xl bg-surface px-6 py-6">
             <legend className="px-1 text-base font-bold text-navy-900">공고 정보</legend>
             <p className="mt-1 text-sm text-ink-400">
-              목록에서 주관기관과 접수중·마감을 보여 주는 값입니다.
+              목록에서 주관·전문기관과 접수중·마감을 보여 주는 값입니다. 전문기관이 따로 없으면
+              비워 두세요.
             </p>
 
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -273,7 +274,7 @@ export default function PostForm({
                   name="eventHost"
                   type="text"
                   defaultValue={post?.event?.host ?? ""}
-                  placeholder="예: 정보통신산업진흥원"
+                  placeholder="예: 과학기술정보통신부"
                   className={fieldClass}
                 />
               </div>
@@ -294,6 +295,46 @@ export default function PostForm({
                 />
                 <p className="mt-2 text-sm text-ink-400">
                   이 날짜까지 접수중으로 보입니다. 상시 접수라면 비워 두세요.
+                </p>
+              </div>
+
+              {/* 부처가 주관하고 접수·관리는 전문기관이 맡는 공고가 많다 */}
+              <div>
+                <label
+                  htmlFor="announce-agency"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
+                  전문기관
+                </label>
+                <input
+                  id="announce-agency"
+                  name="eventAgency"
+                  type="text"
+                  maxLength={100}
+                  defaultValue={post?.event?.agency ?? ""}
+                  placeholder="예: 정보통신산업진흥원"
+                  className={fieldClass}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="announce-agency-abbr"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
+                  전문기관 약어
+                </label>
+                <input
+                  id="announce-agency-abbr"
+                  name="eventAgencyAbbr"
+                  type="text"
+                  maxLength={20}
+                  defaultValue={post?.event?.agencyAbbr ?? ""}
+                  placeholder="예: NIPA"
+                  className={fieldClass}
+                />
+                <p className="mt-2 text-sm text-ink-400">
+                  목록에는 칸이 좁아 약어로 보입니다. 약어에 마우스를 올리면 전체 이름이 나옵니다.
                 </p>
               </div>
             </div>

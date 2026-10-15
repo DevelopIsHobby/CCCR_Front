@@ -78,6 +78,12 @@ export function noticeStatus(applyBy: string | null, now: string = today()): Not
   return now <= applyBy ? "접수중" : "마감";
 }
 
+/** 전문기관 이름과 약어를 한 줄로. '정보통신산업진흥원' + 'NIPA' → '정보통신산업진흥원(NIPA)' */
+export function agencyName(agency: string | null, abbr: string | null): string {
+  if (agency && abbr) return `${agency}(${abbr})`;
+  return agency || abbr || "";
+}
+
 /** '2026-09-09' + '2026-09-11' → '2026.09.09 – 09.11' */
 export function formatEventPeriod(startsOn: string | null, endsOn: string | null): string {
   if (!startsOn) return "";

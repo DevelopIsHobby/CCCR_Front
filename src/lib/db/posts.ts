@@ -41,11 +41,15 @@ export type PostLink = {
 };
 
 export type EventInfo = {
+  /** 행사는 주최, 사업공고는 주관기관 */
   host: string | null;
   place: string | null;
   startsOn: string | null;
   endsOn: string | null;
   applyBy: string | null;
+  /** 사업공고의 전문기관(실제 접수·관리 기관)과 약어. 예: 정보통신산업진흥원 / NIPA */
+  agency: string | null;
+  agencyAbbr: string | null;
 };
 
 export type PostDetail = PostRow & {
@@ -80,6 +84,8 @@ type RawRow = {
   event_starts_on: string | null;
   event_ends_on: string | null;
   event_apply_by: string | null;
+  event_agency: string | null;
+  event_agency_abbr: string | null;
   link_url: string | null;
   link_label: string | null;
   category: string | null;
@@ -155,6 +161,8 @@ function toPost(r: RawRow): PostRow {
       startsOn: r.event_starts_on ?? null,
       endsOn: r.event_ends_on ?? null,
       applyBy: r.event_apply_by ?? null,
+      agency: r.event_agency ?? null,
+      agencyAbbr: r.event_agency_abbr ?? null,
     },
   };
 }

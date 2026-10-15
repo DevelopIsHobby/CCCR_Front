@@ -41,7 +41,10 @@ async function write(
   await page.goto("/board/announce/write");
   await page.locator("#post-title").fill(title);
   await page.locator("#post-link").fill(urlOf(title));
-  await page.locator("#announce-host").fill("정보통신산업진흥원");
+  /* 부처 주관·전문기관 접수인 흔한 공고 꼴로 올린다 */
+  await page.locator("#announce-host").fill("과학기술정보통신부");
+  await page.locator("#announce-agency").fill("정보통신산업진흥원");
+  await page.locator("#announce-agency-abbr").fill("NIPA");
   if (applyBy) await page.locator("#announce-apply").fill(applyBy);
   await page.getByRole("button", { name: "등록" }).click();
   await expect(page).toHaveURL(/\/board\/announce$/);
@@ -66,7 +69,11 @@ test("마감일이 남은 공고는 접수중으로, 지난 공고는 마감으�
 
   const openRow = page.locator("tr", { hasText: open });
   await expect(openRow).toContainText("접수중");
-  await expect(openRow).toContainText("정보통신산업진흥원");
+  /* 주관기관은 이름 그대로, 전문기관은 좁은 칸이라 약어로 보이고 이름은 마우스를 올리면 나온다 */
+  await expect(openRow).toContainText("과학기술정보통신부");
+  const agency = openRow.getByText("전문 · NIPA");
+  await expect(agency).toBeVisible();
+  await expect(agency).toHaveAttribute("title", "정보통신산업진흥원(NIPA)");
 
   const closedRow = page.locator("tr", { hasText: closed });
   await expect(closedRow).toContainText("마감");
@@ -113,13 +120,16 @@ test("고쳐도 마감일과 원문 주소가 그대로 남는다", async ({ pag
     .click();
   await expect(page.locator("#announce-apply")).toHaveValue(applyBy);
   await expect(page.locator("#post-link")).toHaveValue(urlOf(title));
+  await expect(page.locator("#announce-agency")).toHaveValue("정보통신산업진흥원");
+  await expect(page.locator("#announce-agency-abbr")).toHaveValue("NIPA");
   await page.locator("#post-title").fill(`${title} (수정)`);
   await page.getByRole("button", { name: "수정", exact: true }).click();
   await expect(page).toHaveURL(/\/board\/announce$/);
 
   const row = page.locator("tr", { hasText: `${title} (수정)` });
   await expect(row).toContainText("접수중");
-  await expect(row).toContainText("정보통신산업진흥원");
+  await expect(row).toContainText("과학기술정보통신부");
+  await expect(row).toContainText("전문 · NIPA");
   await expect(row.getByRole("link", { name: /공고 원문, 새 창/ })).toHaveAttribute(
     "href",
     urlOf(title),

@@ -10,6 +10,7 @@ import type { BoardConfig } from "@/lib/boards";
 import {
   eventStatus,
   noticeStatus,
+  agencyName,
   formatBytes,
   formatDate,
   formatEventPeriod,
@@ -72,6 +73,7 @@ export default async function PostDetailView({
     : board.hasDeadlineFields
       ? [
           { label: "주관기관", value: post.event.host ?? "" },
+          { label: "전문기관", value: agencyName(post.event.agency, post.event.agencyAbbr) },
           {
             label: "접수 마감",
             value: post.event.applyBy ? formatDate(post.event.applyBy) : "상시 접수",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { PostRow } from "@/lib/db/posts";
-import { formatDate, noticeStatus } from "@/lib/format";
+import { agencyName, formatDate, noticeStatus } from "@/lib/format";
 import { PinnedBadge, TitleCell, emptyMessage, withPinned } from "./BoardTable";
 import { IconExternal } from "./NewsLinks";
 
@@ -33,6 +33,36 @@ function StatusBadge({ applyBy }: { applyBy: string | null }) {
   );
 }
 
+/*
+  주관기관과 전문기관. 부처가 주관하고 전문기관이 접수하는 공고가 많아 둘을 함께 둔다.
+  칸이 좁아 전문기관은 약어가 있으면 약어로 쓰고, 마우스를 올리면 이름이 보인다.
+*/
+function AgencyCell({
+  host,
+  agency,
+  abbr,
+}: {
+  host: string | null;
+  agency: string | null;
+  abbr: string | null;
+}) {
+  const short = abbr || agency;
+  if (!host && !short) return <>—</>;
+  return (
+    <>
+      {host && <span className="block">{host}</span>}
+      {short && (
+        <span
+          className="mt-0.5 block text-sm text-ink-400"
+          title={abbr && agency ? agencyName(agency, abbr) : undefined}
+        >
+          전문 · {short}
+        </span>
+      )}
+    </>
+  );
+}
+
 export default function NoticeTable({
   base,
   pinned,
@@ -62,7 +92,7 @@ export default function NoticeTable({
         <thead>
           <tr className="border-y-2 border-navy-900">
             <th className="w-24 px-3 py-4 text-center text-base font-bold text-navy-900">상태</th>
-            <th className="w-40 px-3 py-4 text-base font-bold text-navy-900">주관기관</th>
+            <th className="w-44 px-3 py-4 text-base font-bold text-navy-900">주관·전문기관</th>
             <th className="px-3 py-4 text-base font-bold text-navy-900">공고명</th>
             <th className="w-32 px-3 py-4 text-center text-base font-bold text-navy-900">
               접수 마감
@@ -82,7 +112,13 @@ export default function NoticeTable({
                 <td className="px-3 py-4 text-center">
                   {isPinned ? <PinnedBadge /> : <StatusBadge applyBy={post.event.applyBy} />}
                 </td>
-                <td className="px-3 py-4 text-base text-ink-600">{post.event.host ?? "—"}</td>
+                <td className="px-3 py-4 text-base text-ink-600">
+                  <AgencyCell
+                    host={post.event.host}
+                    agency={post.event.agency}
+                    abbr={post.event.agencyAbbr}
+                  />
+                </td>
                 <td className="px-3 py-4">
                   <div className="flex items-start justify-between gap-3">
                     {/* 원문 주소가 있으면 주관기관 공고로 바로 보낸다. 원문 없이 올린 옛 글은 사이트 안 글 화면으로 */}

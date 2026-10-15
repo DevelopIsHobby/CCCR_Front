@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  agencyName,
   eventStatus,
   formatBytes,
   formatDate,
@@ -135,4 +136,11 @@ test("마감일이 없으면 아무 표시도 하지 않는다", () => {
      모르는 것을 '접수중'이라 단정하면 헛걸음하는 분이 생긴다 */
   assert.equal(noticeStatus(null, "2026-10-14"), null);
   assert.equal(noticeStatus("", "2026-10-14"), null);
+});
+
+test("전문기관은 이름(약어)로 붙이고, 한쪽만 있으면 그것만 쓴다", () => {
+  assert.equal(agencyName("정보통신산업진흥원", "NIPA"), "정보통신산업진흥원(NIPA)");
+  assert.equal(agencyName("정보통신산업진흥원", null), "정보통신산업진흥원");
+  assert.equal(agencyName(null, "NIPA"), "NIPA");
+  assert.equal(agencyName(null, null), "");
 });

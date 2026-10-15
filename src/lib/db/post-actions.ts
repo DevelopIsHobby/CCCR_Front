@@ -69,6 +69,19 @@ function eventFields(board: string, formData: FormData) {
 }
 
 /*
+  사업공고의 전문기관과 약어. 사업공고가 아니면 null 로 저장한다.
+  약어는 목록의 좁은 칸에 들어가므로 짧게 자른다.
+*/
+function agencyFields(board: string, formData: FormData) {
+  if (!getBoard(board)?.hasDeadlineFields) return [null, null] as const;
+  const value = (key: string, max: number) => {
+    const raw = String(formData.get(key) ?? "").trim().slice(0, max);
+    return raw === "" ? null : raw;
+  };
+  return [value("eventAgency", 100), value("eventAgencyAbbr", 20)] as const;
+}
+
+/*
   분류(산업뉴스의 클라우드·AI 등). 그 게시판이 쓰는 분류가 아니면 빈 값으로 둔다.
   주소나 폼으로 아무 글자나 들어와도 목록 탭에 없는 분류가 생기지 않게 한다.
 */
@@ -119,8 +132,8 @@ export async function createPost(
     `INSERT INTO posts (board, title, body, author_id, author_name, is_pinned, is_locked,
                         created_at, updated_at,
                         event_host, event_place, event_starts_on, event_ends_on, event_apply_by,
-                        link_url, link_label, category)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+                        link_url, link_label, category, event_agency, event_agency_abbr)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
     [
       board,
       title,
@@ -134,6 +147,7 @@ export async function createPost(
       ...eventFields(board, formData),
       ...linkFields(formData),
       categoryField(board, formData),
+      ...agencyFields(board, formData),
     ],
   );
 
@@ -184,7 +198,8 @@ export async function updatePost(
     await db.run(
       `UPDATE posts
           SET title = ?, is_pinned = ?, updated_at = ?, link_url = ?, link_label = ?, category = ?,
-              event_host = ?, event_place = ?, event_starts_on = ?, event_ends_on = ?, event_apply_by = ?
+              event_host = ?, event_place = ?, event_starts_on = ?, event_ends_on = ?, event_apply_by = ?,
+              event_agency = ?, event_agency_abbr = ?
         WHERE id = ? AND board = ?`,
       [
         title,
@@ -192,8 +207,9 @@ export async function updatePost(
         now(),
         ...linkFields(formData),
         categoryField(board, formData),
-        /* 사업공고의 주관기관·마감일. 산업뉴스는 모두 null 이다 */
+        /* 사업공고의 주관기관·마감일·전문기관. 산업뉴스는 모두 null 이다 */
         ...eventFields(board, formData),
+        ...agencyFields(board, formData),
         id,
         board,
       ],
@@ -203,7 +219,8 @@ export async function updatePost(
       `UPDATE posts
           SET title = ?, body = ?, is_pinned = ?, is_locked = ?, updated_at = ?,
               event_host = ?, event_place = ?, event_starts_on = ?, event_ends_on = ?,
-              event_apply_by = ?, link_url = ?, link_label = ?, category = ?
+              event_apply_by = ?, link_url = ?, link_label = ?, category = ?,
+              event_agency = ?, event_agency_abbr = ?
         WHERE id = ? AND board = ?`,
       [
         title,
@@ -214,6 +231,7 @@ export async function updatePost(
         ...eventFields(board, formData),
         ...linkFields(formData),
         categoryField(board, formData),
+        ...agencyFields(board, formData),
         id,
         board,
       ],
