@@ -14,7 +14,7 @@ type Props = {
   /** 행사정보처럼 주최·장소·일시를 함께 받는 게시판인가 */
   hasEventFields?: boolean;
   hasDeadlineFields?: boolean;
-  /** 산업뉴스처럼 원문 기사로 보내는 게시판인가. 링크 칸이 '기사 주소(필수)'가 된다 */
+  /** 산업뉴스·사업공고처럼 원문으로 보내는 게시판인가. 링크 칸이 '원문 주소(필수)'가 되고 본문·첨부가 빠진다 */
   linkRequired?: boolean;
   /** 분류를 쓰는 게시판이면 고를 수 있는 이름들. 없으면 분류 칸을 두지 않는다 */
   categories?: string[];
@@ -104,7 +104,7 @@ export default function PostForm({
           </div>
         )}
 
-        {/* 산업뉴스는 원문 기사로 바로 보내므로 본문·첨부·회원 전용 칸이 필요 없다 */}
+        {/* 산업뉴스·사업공고는 원문으로 바로 보내므로 본문·첨부·회원 전용 칸이 필요 없다 */}
         {!linkRequired && (
           <div>
             <span className="mb-2 block text-base font-bold text-navy-900">내용</span>
@@ -115,10 +115,17 @@ export default function PostForm({
         {/* 본문 안 하이퍼링크와 별개로, 글에 함께 걸어 두는 링크 한 줄 */}
         <div>
           <label htmlFor="post-link" className="mb-2 block text-base font-bold text-navy-900">
-            {linkRequired ? "원문 기사 주소" : "링크"}
+            {linkRequired ? (hasDeadlineFields ? "공고 원문 주소" : "원문 기사 주소") : "링크"}
             {linkRequired && <span className="ml-1.5 text-xs font-bold text-flame-600">필수</span>}
           </label>
-          <div className="grid gap-3 sm:grid-cols-[1fr_240px]">
+          {/* 사업공고는 출처 칸을 두지 않는다. 어디 공고인지는 아래 주관기관이 말해 준다 */}
+          <div
+            className={
+              linkRequired && hasDeadlineFields
+                ? "grid gap-3"
+                : "grid gap-3 sm:grid-cols-[1fr_240px]"
+            }
+          >
             <input
               id="post-link"
               name="linkUrl"
@@ -129,19 +136,23 @@ export default function PostForm({
               placeholder="https://example.com/article"
               className={fieldClass}
             />
-            <input
-              name="linkLabel"
-              type="text"
-              maxLength={40}
-              defaultValue={post?.link?.label ?? ""}
-              placeholder={linkRequired ? "언론사 이름 (예: 전자신문)" : "표시할 이름 (선택)"}
-              className={fieldClass}
-            />
+            {!(linkRequired && hasDeadlineFields) && (
+              <input
+                name="linkLabel"
+                type="text"
+                maxLength={40}
+                defaultValue={post?.link?.label ?? ""}
+                placeholder={linkRequired ? "언론사 이름 (예: 전자신문)" : "표시할 이름 (선택)"}
+                className={fieldClass}
+              />
+            )}
           </div>
           <p className="mt-2 text-sm text-ink-400">
-            {linkRequired
-              ? "목록에서 제목을 누르면 이 기사가 새 창으로 열립니다. 언론사 이름은 제목 옆 출처로 보이고, 비우면 기사 주소의 도메인이 나옵니다."
-              : "입력하면 글 위에 바로가기 단추로 보입니다. 표시할 이름을 비우면 주소가 그대로 나옵니다."}
+            {linkRequired && hasDeadlineFields
+              ? "목록에서 제목을 누르면 이 공고 원문(주관기관 누리집)이 새 창으로 열립니다. 공고 내용과 첨부는 원문에서 봅니다."
+              : linkRequired
+                ? "목록에서 제목을 누르면 이 기사가 새 창으로 열립니다. 언론사 이름은 제목 옆 출처로 보이고, 비우면 기사 주소의 도메인이 나옵니다."
+                : "입력하면 글 위에 바로가기 단추로 보입니다. 표시할 이름을 비우면 주소가 그대로 나옵니다."}
           </p>
         </div>
 
@@ -154,7 +165,10 @@ export default function PostForm({
 
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
               <div>
-                <label htmlFor="event-host" className="mb-2 block text-base font-bold text-navy-900">
+                <label
+                  htmlFor="event-host"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
                   주최
                 </label>
                 <input
@@ -168,7 +182,10 @@ export default function PostForm({
               </div>
 
               <div>
-                <label htmlFor="event-place" className="mb-2 block text-base font-bold text-navy-900">
+                <label
+                  htmlFor="event-place"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
                   장소
                 </label>
                 <input
@@ -198,7 +215,10 @@ export default function PostForm({
               </div>
 
               <div>
-                <label htmlFor="event-ends" className="mb-2 block text-base font-bold text-navy-900">
+                <label
+                  htmlFor="event-ends"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
                   행사 종료일
                 </label>
                 <input
@@ -237,7 +257,7 @@ export default function PostForm({
           <fieldset className="rounded-xl bg-surface px-6 py-6">
             <legend className="px-1 text-base font-bold text-navy-900">공고 정보</legend>
             <p className="mt-1 text-sm text-ink-400">
-              목록에서 접수중·마감을 가려 주는 값입니다. 공고 원문 주소는 위 링크 칸에 넣습니다.
+              목록에서 주관기관과 접수중·마감을 보여 주는 값입니다.
             </p>
 
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -285,7 +305,7 @@ export default function PostForm({
             <label htmlFor="post-files" className="mb-2 block text-base font-bold text-navy-900">
               첨부파일
             </label>
-  
+
             {post && post.attachments.length > 0 && (
               <ul className="mb-3 space-y-2">
                 {post.attachments.map((a) => (
@@ -300,16 +320,16 @@ export default function PostForm({
                     />
                     <label htmlFor={`keep-${a.id}`}>
                       {a.filename}
-                      <span className="label-mono ml-2 text-ink-400">{formatBytes(a.byteSize)}</span>
+                      <span className="label-mono ml-2 text-ink-400">
+                        {formatBytes(a.byteSize)}
+                      </span>
                     </label>
                   </li>
                 ))}
-                <li className="text-sm text-ink-400">
-                  체크를 해제한 파일은 저장할 때 삭제됩니다.
-                </li>
+                <li className="text-sm text-ink-400">체크를 해제한 파일은 저장할 때 삭제됩니다.</li>
               </ul>
             )}
-  
+
             <input
               id="post-files"
               name="files"
@@ -329,7 +349,8 @@ export default function PostForm({
               className="w-full rounded-md border border-line px-4 py-3 text-base file:mr-4 file:rounded file:border-0 file:bg-surface file:px-4 file:py-2 file:text-base file:font-semibold file:text-navy-900"
             />
             <p className="mt-2 text-sm text-ink-400">
-              한 개당 20MB, 한 번에 합쳐 24MB까지 올릴 수 있습니다. 더 많이 저장하기 위해선 나눠서 올려주세요.
+              한 개당 20MB, 한 번에 합쳐 24MB까지 올릴 수 있습니다. 더 많이 저장하기 위해선 나눠서
+              올려주세요.
             </p>
           </div>
         )}

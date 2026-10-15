@@ -8,7 +8,7 @@ import { requireAdmin, getSession } from "@/lib/auth/session";
 import { saveUpload, deleteUpload } from "@/lib/uploads";
 import { deletePostsWithFiles } from "@/lib/db/post-delete";
 import { isEmptyHtml, sanitizePostBody } from "@/lib/html";
-import { boardPath as pathOf, getBoard, isCategoryOf } from "@/lib/boards";
+import { boardPath as pathOf, getBoard, isCategoryOf, isLinkOnly } from "@/lib/boards";
 
 export type PostFormState = { error?: string };
 
@@ -29,6 +29,13 @@ function linkFields(formData: FormData) {
   if (!/^https?:\/\//i.test(url)) return [null, null] as const;
 
   return [url, label || null] as const;
+}
+
+/** 원문 주소를 비웠을 때. 게시판마다 원문이 기사인지 공고인지 다르다 */
+function missingLinkMessage(board: string): string {
+  return getBoard(board)?.hasDeadlineFields
+    ? "공고 원문 주소를 넣어 주세요."
+    : "원문 기사 주소를 넣어 주세요.";
 }
 
 /*
@@ -86,8 +93,8 @@ export async function createPost(
 
   const board = String(formData.get("board") ?? "");
   const title = String(formData.get("title") ?? "").trim();
-  /* 산업뉴스는 제목·원문 주소·출처·상단 고정만 받는다 */
-  const linkOnly = getBoard(board)?.layout === "links";
+  /* 산업뉴스·사업공고는 본문·첨부·회원 전용 없이 원문 주소로 보낸다 */
+  const linkOnly = isLinkOnly(getBoard(board));
   /* 편집기가 보낸 HTML 은 허용 태그만 남긴다 */
   const raw = linkOnly ? "" : String(formData.get("body") ?? "").trim();
   const body = isEmptyHtml(raw) ? "" : sanitizePostBody(raw);
@@ -99,9 +106,9 @@ export async function createPost(
   if (rawLink && !/^https?:\/\//i.test(rawLink)) {
     return { error: "링크는 http:// 또는 https:// 로 시작해야 합니다." };
   }
-  /* 산업뉴스처럼 원문 기사로 보내는 게시판은 기사 주소가 곧 글이다 */
+  /* 원문으로 보내는 게시판은 원문 주소가 곧 글이다 */
   if (linkOnly && !rawLink) {
-    return { error: "원문 기사 주소를 넣어 주세요." };
+    return { error: missingLinkMessage(board) };
   }
 
   boardPath(board); // 알 수 없는 게시판이면 여기서 걸린다
@@ -141,7 +148,7 @@ export async function createPost(
   }
 
   refreshBoard(board, postId);
-  /* 산업뉴스 글 화면은 원문 링크뿐이라 목록으로 돌려보낸다 */
+  /* 원문 링크 게시판의 글 화면은 링크뿐이라 목록으로 돌려보낸다 */
   redirect(linkOnly ? boardPath(board) : `${boardPath(board)}/${postId}`);
 }
 
@@ -154,8 +161,8 @@ export async function updatePost(
   const id = Number(formData.get("id"));
   const board = String(formData.get("board") ?? "");
   const title = String(formData.get("title") ?? "").trim();
-  /* 산업뉴스 글쓰기 화면에는 본문·첨부·회원 전용 칸이 없다. 없는 칸 때문에 기존 값이 지워지지 않게 한다. */
-  const linkOnly = getBoard(board)?.layout === "links";
+  /* 원문 링크 게시판의 글쓰기 화면에는 본문·첨부·회원 전용 칸이 없다. 없는 칸 때문에 기존 값이 지워지지 않게 한다. */
+  const linkOnly = isLinkOnly(getBoard(board));
   const raw = String(formData.get("body") ?? "").trim();
   const body = isEmptyHtml(raw) ? "" : sanitizePostBody(raw);
 
@@ -167,7 +174,7 @@ export async function updatePost(
     return { error: "링크는 http:// 또는 https:// 로 시작해야 합니다." };
   }
   if (linkOnly && !rawLink) {
-    return { error: "원문 기사 주소를 넣어 주세요." };
+    return { error: missingLinkMessage(board) };
   }
 
   boardPath(board);
@@ -176,7 +183,8 @@ export async function updatePost(
   if (linkOnly) {
     await db.run(
       `UPDATE posts
-          SET title = ?, is_pinned = ?, updated_at = ?, link_url = ?, link_label = ?, category = ?
+          SET title = ?, is_pinned = ?, updated_at = ?, link_url = ?, link_label = ?, category = ?,
+              event_host = ?, event_place = ?, event_starts_on = ?, event_ends_on = ?, event_apply_by = ?
         WHERE id = ? AND board = ?`,
       [
         title,
@@ -184,6 +192,8 @@ export async function updatePost(
         now(),
         ...linkFields(formData),
         categoryField(board, formData),
+        /* 사업공고의 주관기관·마감일. 산업뉴스는 모두 null 이다 */
+        ...eventFields(board, formData),
         id,
         board,
       ],
@@ -230,7 +240,7 @@ export async function updatePost(
   }
 
   refreshBoard(board, id);
-  /* 산업뉴스 글 화면은 원문 링크뿐이라 목록으로 돌려보낸다 */
+  /* 원문 링크 게시판의 글 화면은 링크뿐이라 목록으로 돌려보낸다 */
   redirect(linkOnly ? boardPath(board) : `${boardPath(board)}/${id}`);
 }
 

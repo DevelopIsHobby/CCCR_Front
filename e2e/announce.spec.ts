@@ -22,7 +22,15 @@ test.beforeEach(async ({ page }) => {
   await login(page, ADMIN);
 });
 
-/** 사업공고를 한 건 올리고 제목을 돌려준다. applyBy 가 없으면 상시 접수 공고가 된다. */
+/** 공고 원문 주소. 제목에서 만들어, 시험마다 따로 기억해 두지 않아도 되게 한다 */
+function urlOf(title: string): string {
+  return `https://www.example.com/notice/${title.slice(-13)}`;
+}
+
+/**
+ * 사업공고를 한 건 올리고 제목을 돌려준다. applyBy 가 없으면 상시 접수 공고가 된다.
+ * 공고는 내용을 옮겨 적지 않고 원문 주소만 건다(산업뉴스와 같다). 올리면 목록으로 돌아온다.
+ */
 async function write(
   page: import("@playwright/test").Page,
   what: string,
@@ -32,14 +40,23 @@ async function write(
 
   await page.goto("/board/announce/write");
   await page.locator("#post-title").fill(title);
-  await page.locator('[contenteditable="true"]').first().fill("공고 본문입니다.");
+  await page.locator("#post-link").fill(urlOf(title));
   await page.locator("#announce-host").fill("정보통신산업진흥원");
   if (applyBy) await page.locator("#announce-apply").fill(applyBy);
   await page.getByRole("button", { name: "등록" }).click();
-  await expect(page.getByRole("heading", { name: title })).toBeVisible();
+  await expect(page).toHaveURL(/\/board\/announce$/);
+  await expect(page.locator("tr", { hasText: title })).toBeVisible();
 
   return title;
 }
+
+test("공고 글쓰기에는 내용·첨부 칸이 없고 원문 주소가 필수다", async ({ page }) => {
+  await page.goto("/board/announce/write");
+  await expect(page.getByText("공고 원문 주소")).toBeVisible();
+  await expect(page.locator("#post-link")).toHaveAttribute("required", "");
+  await expect(page.locator('[contenteditable="true"]')).toHaveCount(0);
+  await expect(page.locator('input[type="file"]')).toHaveCount(0);
+});
 
 test("마감일이 남은 공고는 접수중으로, 지난 공고는 마감으로 보인다", async ({ page }) => {
   const open = await write(page, "접수중 공고", dayFromToday(30));
@@ -71,41 +88,42 @@ test("마감일을 비우면 상시 접수로 보인다", async ({ page }) => {
   await expect(row).toContainText("상시");
   /* 마감일이 없으면 접수중·마감 어느 쪽도 아니다 */
   await expect(row).not.toContainText("접수중");
-
-  await page.getByRole("link", { name: new RegExp(title.slice(-12)) }).click();
-  await expect(page.getByText("상시 접수")).toBeVisible();
 });
 
-test("상세 화면에 주관기관과 접수 마감이 나온다", async ({ page }) => {
-  const applyBy = dayFromToday(30);
-  const title = await write(page, "상세 확인 공고", applyBy);
+test("제목을 누르면 공고 원문이 새 창으로 열린다", async ({ page }) => {
+  const title = await write(page, "원문 확인 공고", dayFromToday(30));
 
   await page.goto("/board/announce");
-  await page.getByRole("link", { name: new RegExp(title.slice(-12)) }).click();
-  /*
-    상세 화면이 뜬 뒤에 본다. 누르자마자 보면 아직 목록이라, 표에 있는 같은 기관명을
-    여럿 집어 시험이 가끔 깨졌다.
-  */
-  await expect(page.getByRole("heading", { name: title })).toBeVisible();
-
-  await expect(page.getByText("주관기관")).toBeVisible();
-  await expect(page.getByText("정보통신산업진흥원")).toBeVisible();
-  await expect(page.getByText("접수 마감")).toBeVisible();
-  await expect(page.getByText(applyBy.replaceAll("-", "."))).toBeVisible();
+  const link = page
+    .locator("tr", { hasText: title })
+    .getByRole("link", { name: /공고 원문, 새 창/ });
+  await expect(link).toHaveAttribute("href", urlOf(title));
+  await expect(link).toHaveAttribute("target", "_blank");
 });
 
-test("고쳐도 마감일이 그대로 남는다", async ({ page }) => {
-  /* 고치기 화면이 공고 칸을 그리지 않으면 저장할 때 마감일이 조용히 지워진다 */
+test("고쳐도 마감일과 원문 주소가 그대로 남는다", async ({ page }) => {
+  /* 원문 링크 게시판은 고칠 때 따로 저장한다. 공고 칸을 빠뜨리면 마감일이 조용히 지워진다 */
   const applyBy = dayFromToday(30);
   const title = await write(page, "고칠 공고", applyBy);
 
-  await page.getByRole("link", { name: "수정" }).click();
+  /* 제목은 바깥으로 나가므로 관리자 수정 링크는 목록 줄에 있다 */
+  await page
+    .locator("tr", { hasText: title })
+    .getByRole("link", { name: "수정", exact: true })
+    .click();
   await expect(page.locator("#announce-apply")).toHaveValue(applyBy);
+  await expect(page.locator("#post-link")).toHaveValue(urlOf(title));
   await page.locator("#post-title").fill(`${title} (수정)`);
   await page.getByRole("button", { name: "수정", exact: true }).click();
+  await expect(page).toHaveURL(/\/board\/announce$/);
 
-  await page.goto("/board/announce");
-  await expect(page.locator("tr", { hasText: title })).toContainText("접수중");
+  const row = page.locator("tr", { hasText: `${title} (수정)` });
+  await expect(row).toContainText("접수중");
+  await expect(row).toContainText("정보통신산업진흥원");
+  await expect(row.getByRole("link", { name: /공고 원문, 새 창/ })).toHaveAttribute(
+    "href",
+    urlOf(title),
+  );
 });
 
 test("알림마당 차림표에 사업공고가 들어 있다", async ({ page }) => {
@@ -129,7 +147,10 @@ test("접수중·접수마감 탭으로 공고를 나눠 본다", async ({ page 
 
   await page.goto("/board/announce");
   const tabs = page.getByRole("navigation", { name: "접수 상태" });
-  await expect(tabs.getByRole("link", { name: "전체 사업" })).toHaveAttribute("aria-current", "page");
+  await expect(tabs.getByRole("link", { name: "전체 사업" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
 
   /* 접수중: 마감 전 공고만, 마감이 가까운 것부터. 상시 공고는 단정하지 않으므로 빠진다 */
   await tabs.getByRole("link", { name: "접수중인 사업" }).click();
@@ -154,7 +175,10 @@ test("접수중·접수마감 탭으로 공고를 나눠 본다", async ({ page 
 
   /* 접수마감: 지난 공고만 */
   await page.goto("/board/announce");
-  await page.getByRole("navigation", { name: "접수 상태" }).getByRole("link", { name: "접수마감 사업" }).click();
+  await page
+    .getByRole("navigation", { name: "접수 상태" })
+    .getByRole("link", { name: "접수마감 사업" })
+    .click();
   await expect(page).toHaveURL(/status=closed/);
   await expect(body).toContainText(closed);
   await expect(body).not.toContainText(soon);

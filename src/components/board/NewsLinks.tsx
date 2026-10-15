@@ -22,7 +22,7 @@ function sourceOf(url: string, label: string | null): string {
   }
 }
 
-function IconExternal({ className }: { className?: string }) {
+export function IconExternal({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"

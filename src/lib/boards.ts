@@ -33,6 +33,11 @@ export type BoardConfig = {
    */
   hasDeadlineFields?: boolean;
   /**
+   * 원문 주소만 받는 게시판인가. 본문·첨부·회원 전용 칸이 없고, 제목을 누르면 원문이 새 창으로 열린다.
+   * links 배치(산업뉴스)는 늘 그렇다. 사업공고도 공고 원문(기관 누리집)으로 바로 보낸다.
+   */
+  linkOnly?: boolean;
+  /**
    * 메인 "새소식"에 탭으로 노출할지 여부.
    * 게시판이 여섯이라 전부 걸면 탭이 한 줄을 넘겨 읽기 어렵다.
    */
@@ -101,6 +106,8 @@ export const BOARDS: BoardConfig[] = [
     layout: "notices",
     hasEventFields: false,
     hasDeadlineFields: true,
+    /* 공고 내용은 옮겨 적지 않고 주관기관 공고 원문으로 보낸다 */
+    linkOnly: true,
     showOnHome: true,
   },
   {
@@ -165,10 +172,15 @@ export function boardPath(slug: string): string {
 
 /**
  * 글을 눌렀을 때 갈 곳. 목록·메인 새소식·통합검색이 함께 쓴다.
- * 기사 링크 게시판(산업뉴스)은 원문 기사로 바로 보내고, 링크가 없는 글은 사이트 안 글 화면으로 보낸다.
+ * 원문 링크 게시판(산업뉴스·사업공고)은 원문으로 바로 보내고, 링크가 없는 글은 사이트 안 글 화면으로 보낸다.
  */
 export function postHref(board: BoardConfig, id: number, linkUrl?: string | null): string {
-  return board.layout === "links" && linkUrl ? linkUrl : `${board.basePath}/${id}`;
+  return isLinkOnly(board) && linkUrl ? linkUrl : `${board.basePath}/${id}`;
+}
+
+/** 원문 주소만 받는 게시판인가(산업뉴스·사업공고). 글쓰기 칸과 글을 눌렀을 때 갈 곳이 달라진다 */
+export function isLinkOnly(board: BoardConfig | null | undefined): boolean {
+  return Boolean(board && (board.layout === "links" || board.linkOnly));
 }
 
 /** 사이트 밖으로 나가는 주소인지. 새 창으로 열지 가를 때 쓴다. */

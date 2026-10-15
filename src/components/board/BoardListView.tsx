@@ -115,7 +115,13 @@ export default async function BoardListView({
       ) : board.layout === "links" ? (
         <NewsLinks board={board} pinned={pinned} rows={rows} searching={Boolean(q)} isAdmin={isAdmin} />
       ) : board.layout === "notices" ? (
-        <NoticeTable base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
+        <NoticeTable
+          base={base}
+          pinned={pinned}
+          rows={rows}
+          searching={Boolean(q)}
+          isAdmin={isAdmin}
+        />
       ) : (
         <BoardTable base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
       )}

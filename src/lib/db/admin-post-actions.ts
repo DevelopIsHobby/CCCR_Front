@@ -5,7 +5,7 @@ import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
 import { deletePostsWithFiles } from "@/lib/db/post-delete";
-import { BOARDS, getBoard } from "@/lib/boards";
+import { BOARDS, getBoard, isLinkOnly } from "@/lib/boards";
 import { iga, ro } from "@/lib/format";
 
 export type BulkState = { error?: string; ok?: string };
@@ -88,7 +88,7 @@ type MoveRow = {
 /** 옮긴 뒤 그 게시판에서 비어 보일 칸의 이름. 채워져 있으면 null. */
 function missingFor(target: (typeof BOARDS)[number], row: MoveRow): string | null {
   if (target.hasEventFields) return row.event_starts_on ? null : "행사일";
-  if (target.layout === "links") return row.link_url ? null : "원문 주소";
+  if (isLinkOnly(target)) return row.link_url ? null : "원문 주소";
   if (target.layout === "issues") return /<img/i.test(row.body ?? "") ? null : "표지 그림";
   return (row.body ?? "").trim() ? null : "본문";
 }
