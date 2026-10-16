@@ -63,19 +63,37 @@ export function eventStatus(
   return "예정";
 }
 
-export type NoticeStatus = "접수중" | "마감";
+export type NoticeStatus = "접수예정" | "접수중" | "마감";
 
 /*
-  사업공고 상태. 행사와 달리 여는 날이 없고 마감만 있다.
+  사업공고 상태. 접수 시작일·마감일로 가른다.
 
-  마감일이 없는 공고도 있다(상시 접수, 예산 소진 시 마감 등). 그때는 아무 표시도
+  시작일이 아직 오지 않았으면 접수예정이다. 시작일 당일부터 접수중이다.
+
+  마감일이 없는 공고도 있다(상시 접수, 예산 소진 시 마감 등). 시작한 뒤라면 아무 표시도
   하지 않는다. 모르는 것을 '접수중'이라고 단정하면 헛걸음하는 분이 생긴다.
 
   마감일 당일까지는 접수중으로 본다. 관공서 공고는 보통 그날 자정까지 받는다.
 */
-export function noticeStatus(applyBy: string | null, now: string = today()): NoticeStatus | null {
-  if (!applyBy) return null;
-  return now <= applyBy ? "접수중" : "마감";
+export function noticeStatus(
+  event: { applyFrom?: string | null; applyBy: string | null },
+  now: string = today(),
+): NoticeStatus | null {
+  if (event.applyFrom && now < event.applyFrom) return "접수예정";
+  if (!event.applyBy) return null;
+  return now <= event.applyBy ? "접수중" : "마감";
+}
+
+/*
+  접수 기간 한 줄. 공고에 적힌 대로 시작·마감을 다 적는다(해가 같아도 줄이지 않는다).
+  '2026-11-01' + '2026-12-31' → '2026.11.01 ~ 2026.12.31'
+  한쪽만 있으면 그쪽만: '~ 2026.12.31', '2026.11.01 ~'. 둘 다 없으면 빈 글자.
+*/
+export function formatApplyPeriod(applyFrom: string | null, applyBy: string | null): string {
+  if (!applyFrom && !applyBy) return "";
+  const from = applyFrom ? formatDate(applyFrom) : "";
+  const by = applyBy ? formatDate(applyBy) : "";
+  return `${from} ~ ${by}`.trim();
 }
 
 /** 전문기관 이름과 약어를 한 줄로. '정보통신산업진흥원' + 'NIPA' → '정보통신산업진흥원(NIPA)' */

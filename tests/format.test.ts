@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   agencyName,
   eventStatus,
+  formatApplyPeriod,
   formatBytes,
   formatDate,
   formatDateTime,
@@ -126,16 +127,34 @@ test("한글이 아니면 괄호 형태로 물러선다", () => {
 */
 test("마감일 당일까지는 접수중이다", () => {
   /* 관공서 공고는 보통 마감일 그날 자정까지 받는다 */
-  assert.equal(noticeStatus("2026-10-15", "2026-10-14"), "접수중");
-  assert.equal(noticeStatus("2026-10-15", "2026-10-15"), "접수중");
-  assert.equal(noticeStatus("2026-10-15", "2026-10-16"), "마감");
+  assert.equal(noticeStatus({ applyBy: "2026-10-15" }, "2026-10-14"), "접수중");
+  assert.equal(noticeStatus({ applyBy: "2026-10-15" }, "2026-10-15"), "접수중");
+  assert.equal(noticeStatus({ applyBy: "2026-10-15" }, "2026-10-16"), "마감");
 });
 
 test("마감일이 없으면 아무 표시도 하지 않는다", () => {
   /* 상시 접수·예산 소진 시 마감처럼 날짜가 없는 공고가 있다.
      모르는 것을 '접수중'이라 단정하면 헛걸음하는 분이 생긴다 */
-  assert.equal(noticeStatus(null, "2026-10-14"), null);
-  assert.equal(noticeStatus("", "2026-10-14"), null);
+  assert.equal(noticeStatus({ applyBy: null }, "2026-10-14"), null);
+  assert.equal(noticeStatus({ applyBy: "" }, "2026-10-14"), null);
+  /* 시작일이 지났어도 마감을 모르면 마찬가지다 */
+  assert.equal(noticeStatus({ applyFrom: "2026-10-01", applyBy: null }, "2026-10-14"), null);
+});
+
+test("접수 시작일 전에는 접수예정, 시작일 당일부터 접수중이다", () => {
+  const event = { applyFrom: "2026-11-01", applyBy: "2026-12-31" };
+  assert.equal(noticeStatus(event, "2026-10-31"), "접수예정");
+  assert.equal(noticeStatus(event, "2026-11-01"), "접수중");
+  assert.equal(noticeStatus(event, "2027-01-01"), "마감");
+  /* 마감일이 없어도 시작 전이면 접수예정이라고는 말할 수 있다 */
+  assert.equal(noticeStatus({ applyFrom: "2026-11-01", applyBy: null }, "2026-10-31"), "접수예정");
+});
+
+test("접수 기간은 시작·마감을 다 적고, 한쪽만 있으면 그쪽만 적는다", () => {
+  assert.equal(formatApplyPeriod("2026-11-01", "2026-12-31"), "2026.11.01 ~ 2026.12.31");
+  assert.equal(formatApplyPeriod(null, "2026-12-31"), "~ 2026.12.31");
+  assert.equal(formatApplyPeriod("2026-11-01", null), "2026.11.01 ~");
+  assert.equal(formatApplyPeriod(null, null), "");
 });
 
 test("전문기관은 이름(약어)로 붙이고, 한쪽만 있으면 그것만 쓴다", () => {

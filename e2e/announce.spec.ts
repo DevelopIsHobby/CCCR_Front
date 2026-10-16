@@ -35,6 +35,8 @@ async function write(
   page: import("@playwright/test").Page,
   what: string,
   applyBy: string | null,
+  /** 접수 시작일. 없으면 비워 둔다 */
+  applyFrom?: string,
 ): Promise<string> {
   const title = `${MARK} ${what} ${Date.now()}`;
 
@@ -45,6 +47,7 @@ async function write(
   await page.locator("#announce-host").fill("과학기술정보통신부");
   await page.locator("#announce-agency").fill("정보통신산업진흥원");
   await page.locator("#announce-agency-abbr").fill("NIPA");
+  if (applyFrom) await page.locator("#announce-from").fill(applyFrom);
   if (applyBy) await page.locator("#announce-apply").fill(applyBy);
   await page.getByRole("button", { name: "등록" }).click();
   await expect(page).toHaveURL(/\/board\/announce$/);
@@ -193,4 +196,36 @@ test("접수중·접수마감 탭으로 공고를 나눠 본다", async ({ page 
   await expect(body).toContainText(closed);
   await expect(body).not.toContainText(soon);
   await expect(body).not.toContainText(always);
+});
+
+test("접수 기간이 시작일~마감일로 다 나온다", async ({ page }) => {
+  const from = dayFromToday(-5);
+  const by = dayFromToday(20);
+  const title = await write(page, "기간 공고", by, from);
+
+  const row = page.locator("tr", { hasText: title });
+  await expect(row).toContainText(`${from.replaceAll("-", ".")} ~ ${by.replaceAll("-", ".")}`);
+  await expect(row).toContainText("접수중");
+});
+
+test("접수 시작 전 공고는 접수예정이고, 접수중 탭에는 없다", async ({ page }) => {
+  const title = await write(page, "예정 공고", dayFromToday(40), dayFromToday(10));
+
+  await expect(page.locator("tr", { hasText: title })).toContainText("접수예정");
+
+  await page.goto("/board/announce?status=open");
+  await expect(page.locator("tr", { hasText: title })).toHaveCount(0);
+});
+
+test("접수 시작일이 마감일보다 늦으면 저장하지 않는다", async ({ page }) => {
+  const title = `${MARK} 거꾸로 공고 ${Date.now()}`;
+  await page.goto("/board/announce/write");
+  await page.locator("#post-title").fill(title);
+  await page.locator("#post-link").fill(urlOf(title));
+  await page.locator("#announce-from").fill(dayFromToday(30));
+  await page.locator("#announce-apply").fill(dayFromToday(10));
+  await page.getByRole("button", { name: "등록" }).click();
+
+  await expect(page.getByText("접수 시작일이 마감일보다 늦습니다")).toBeVisible();
+  await expect(page).toHaveURL(/\/write$/);
 });

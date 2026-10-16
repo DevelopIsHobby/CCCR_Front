@@ -1,6 +1,6 @@
 import Link from "next/link";
-import type { PostRow } from "@/lib/db/posts";
-import { agencyName, formatDate, noticeStatus } from "@/lib/format";
+import type { EventInfo, PostRow } from "@/lib/db/posts";
+import { agencyName, formatApplyPeriod, noticeStatus, type NoticeStatus } from "@/lib/format";
 import { PinnedBadge, TitleCell, emptyMessage, withPinned } from "./BoardTable";
 import { IconExternal } from "./NewsLinks";
 
@@ -16,19 +16,21 @@ import { IconExternal } from "./NewsLinks";
   접수중인 것이 먼저 눈에 들어오게 한다.
 */
 
-function StatusBadge({ applyBy }: { applyBy: string | null }) {
-  const status = noticeStatus(applyBy);
+const BADGE_TONE: Record<NoticeStatus, string> = {
+  접수예정: "bg-white text-navy-900 ring-1 ring-line",
+  접수중: "bg-brand-50 text-brand-700",
+  마감: "bg-surface text-ink-400",
+};
+
+function StatusBadge({ event }: { event: EventInfo }) {
+  const status = noticeStatus(event);
   if (!status) {
     /* 마감일이 없는 공고(상시 접수 등). 모르는 것을 단정하지 않는다 */
     return <span className="text-2xs text-ink-400">—</span>;
   }
-  return status === "접수중" ? (
-    <span className="inline-flex rounded bg-brand-50 px-2.5 py-1 text-2xs font-bold text-brand-700">
-      접수중
-    </span>
-  ) : (
-    <span className="inline-flex rounded bg-surface px-2.5 py-1 text-2xs font-bold text-ink-400">
-      마감
+  return (
+    <span className={`inline-flex whitespace-nowrap rounded px-2.5 py-1 text-2xs font-bold ${BADGE_TONE[status]}`}>
+      {status}
     </span>
   );
 }
@@ -88,20 +90,20 @@ export default function NoticeTable({
 
   return (
     <div className="mt-6 overflow-x-auto">
-      <table className="w-full min-w-[640px] border-collapse text-left">
+      <table className="w-full min-w-[760px] border-collapse text-left">
         <thead>
           <tr className="border-y-2 border-navy-900">
             <th className="w-24 px-3 py-4 text-center text-base font-bold text-navy-900">상태</th>
             <th className="w-44 px-3 py-4 text-base font-bold text-navy-900">주관·전문기관</th>
             <th className="px-3 py-4 text-base font-bold text-navy-900">공고명</th>
-            <th className="w-32 px-3 py-4 text-center text-base font-bold text-navy-900">
-              접수 마감
+            <th className="w-56 px-3 py-4 text-center text-base font-bold text-navy-900">
+              접수 기간
             </th>
           </tr>
         </thead>
         <tbody>
           {all.map(({ post, pinned: isPinned }) => {
-            const closed = noticeStatus(post.event.applyBy) === "마감";
+            const closed = noticeStatus(post.event) === "마감";
             return (
               <tr
                 key={post.id}
@@ -110,7 +112,7 @@ export default function NoticeTable({
                 }`}
               >
                 <td className="px-3 py-4 text-center">
-                  {isPinned ? <PinnedBadge /> : <StatusBadge applyBy={post.event.applyBy} />}
+                  {isPinned ? <PinnedBadge /> : <StatusBadge event={post.event} />}
                 </td>
                 <td className="px-3 py-4 text-base text-ink-600">
                   <AgencyCell
@@ -150,8 +152,8 @@ export default function NoticeTable({
                   </div>
                 </td>
                 <td className="px-3 py-4 text-center">
-                  <span className="data-line tabular-nums text-ink-600">
-                    {post.event.applyBy ? formatDate(post.event.applyBy) : "상시"}
+                  <span className="data-line whitespace-nowrap tabular-nums text-ink-600">
+                    {formatApplyPeriod(post.event.applyFrom, post.event.applyBy) || "상시"}
                   </span>
                 </td>
               </tr>

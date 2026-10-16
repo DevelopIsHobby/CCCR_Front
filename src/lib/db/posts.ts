@@ -50,6 +50,8 @@ export type EventInfo = {
   /** 사업공고의 전문기관(실제 접수·관리 기관)과 약어. 예: 정보통신산업진흥원 / NIPA */
   agency: string | null;
   agencyAbbr: string | null;
+  /** 사업공고의 접수 시작일. 마감일은 applyBy */
+  applyFrom: string | null;
 };
 
 export type PostDetail = PostRow & {
@@ -86,6 +88,7 @@ type RawRow = {
   event_apply_by: string | null;
   event_agency: string | null;
   event_agency_abbr: string | null;
+  event_apply_from: string | null;
   link_url: string | null;
   link_label: string | null;
   category: string | null;
@@ -163,6 +166,7 @@ function toPost(r: RawRow): PostRow {
       applyBy: r.event_apply_by ?? null,
       agency: r.event_agency ?? null,
       agencyAbbr: r.event_agency_abbr ?? null,
+      applyFrom: r.event_apply_from ?? null,
     },
   };
 }
@@ -240,8 +244,11 @@ export async function listPosts(opts: {
     tabFilters.push(category);
   }
   if (deadline === "open") {
-    tabWhere.push("event_apply_by >= ?");
-    tabFilters.push(today());
+    /* 시작일이 아직 오지 않은 공고(접수예정)는 접수중이 아니다 */
+    tabWhere.push(
+      "event_apply_by >= ? AND (event_apply_from IS NULL OR event_apply_from = '' OR event_apply_from <= ?)",
+    );
+    tabFilters.push(today(), today());
   } else if (deadline === "closed") {
     tabWhere.push("event_apply_by <> '' AND event_apply_by < ?");
     tabFilters.push(today());

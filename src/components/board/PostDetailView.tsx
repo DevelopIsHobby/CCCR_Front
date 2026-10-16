@@ -10,6 +10,7 @@ import type { BoardConfig } from "@/lib/boards";
 import {
   eventStatus,
   noticeStatus,
+  formatApplyPeriod,
   agencyName,
   formatBytes,
   formatDate,
@@ -23,6 +24,7 @@ const isHtml = (body: string) => /<\/?[a-z][\s\S]*>/i.test(body);
 
 /* 행사(접수중·예정·종료)와 사업공고(접수중·마감)가 같은 딱지를 쓴다 */
 const STATUS_TONE: Record<EventStatus | NoticeStatus, string> = {
+  접수예정: "bg-brand-600 text-white",
   접수중: "bg-flame-500 text-white",
   예정: "bg-brand-600 text-white",
   종료: "bg-surface text-ink-400",
@@ -55,7 +57,7 @@ export default async function PostDetailView({
   const status = board.hasEventFields
     ? eventStatus(post.event)
     : board.hasDeadlineFields
-      ? noticeStatus(post.event.applyBy)
+      ? noticeStatus(post.event)
       : null;
   const period = formatEventPeriod(post.event.startsOn, post.event.endsOn);
 
@@ -75,8 +77,10 @@ export default async function PostDetailView({
           { label: "주관기관", value: post.event.host ?? "" },
           { label: "전문기관", value: agencyName(post.event.agency, post.event.agencyAbbr) },
           {
-            label: "접수 마감",
-            value: post.event.applyBy ? formatDate(post.event.applyBy) : "상시 접수",
+            label: "접수 기간",
+            value: post.event.applyBy
+              ? formatApplyPeriod(post.event.applyFrom, post.event.applyBy)
+              : `${formatApplyPeriod(post.event.applyFrom, null)} 상시 접수`.trim(),
           },
         ].filter((row) => row.value)
       : [];

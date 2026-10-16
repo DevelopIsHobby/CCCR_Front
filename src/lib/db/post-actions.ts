@@ -69,16 +69,28 @@ function eventFields(board: string, formData: FormData) {
 }
 
 /*
-  사업공고의 전문기관과 약어. 사업공고가 아니면 null 로 저장한다.
+  사업공고의 전문기관·약어·접수 시작일. 사업공고가 아니면 null 로 저장한다.
   약어는 목록의 좁은 칸에 들어가므로 짧게 자른다.
 */
-function agencyFields(board: string, formData: FormData) {
-  if (!getBoard(board)?.hasDeadlineFields) return [null, null] as const;
+function announceFields(board: string, formData: FormData) {
+  if (!getBoard(board)?.hasDeadlineFields) return [null, null, null] as const;
   const value = (key: string, max: number) => {
     const raw = String(formData.get(key) ?? "").trim().slice(0, max);
     return raw === "" ? null : raw;
   };
-  return [value("eventAgency", 100), value("eventAgencyAbbr", 20)] as const;
+  return [
+    value("eventAgency", 100),
+    value("eventAgencyAbbr", 20),
+    value("eventApplyFrom", 10),
+  ] as const;
+}
+
+/** 접수 시작일이 마감일보다 늦으면 잘못 넣은 것이다. 목록에 거꾸로 된 기간이 걸리지 않게 막는다 */
+function applyPeriodProblem(board: string, formData: FormData): string | null {
+  if (!getBoard(board)?.hasDeadlineFields) return null;
+  const from = String(formData.get("eventApplyFrom") ?? "").trim();
+  const by = String(formData.get("eventApplyBy") ?? "").trim();
+  return from && by && from > by ? "접수 시작일이 마감일보다 늦습니다. 날짜를 확인해 주세요." : null;
 }
 
 /*
@@ -123,6 +135,8 @@ export async function createPost(
   if (linkOnly && !rawLink) {
     return { error: missingLinkMessage(board) };
   }
+  const periodProblem = applyPeriodProblem(board, formData);
+  if (periodProblem) return { error: periodProblem };
 
   boardPath(board); // 알 수 없는 게시판이면 여기서 걸린다
 
@@ -132,8 +146,9 @@ export async function createPost(
     `INSERT INTO posts (board, title, body, author_id, author_name, is_pinned, is_locked,
                         created_at, updated_at,
                         event_host, event_place, event_starts_on, event_ends_on, event_apply_by,
-                        link_url, link_label, category, event_agency, event_agency_abbr)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+                        link_url, link_label, category, event_agency, event_agency_abbr,
+                        event_apply_from)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
     [
       board,
       title,
@@ -147,7 +162,7 @@ export async function createPost(
       ...eventFields(board, formData),
       ...linkFields(formData),
       categoryField(board, formData),
-      ...agencyFields(board, formData),
+      ...announceFields(board, formData),
     ],
   );
 
@@ -190,6 +205,8 @@ export async function updatePost(
   if (linkOnly && !rawLink) {
     return { error: missingLinkMessage(board) };
   }
+  const periodProblem = applyPeriodProblem(board, formData);
+  if (periodProblem) return { error: periodProblem };
 
   boardPath(board);
 
@@ -199,7 +216,7 @@ export async function updatePost(
       `UPDATE posts
           SET title = ?, is_pinned = ?, updated_at = ?, link_url = ?, link_label = ?, category = ?,
               event_host = ?, event_place = ?, event_starts_on = ?, event_ends_on = ?, event_apply_by = ?,
-              event_agency = ?, event_agency_abbr = ?
+              event_agency = ?, event_agency_abbr = ?, event_apply_from = ?
         WHERE id = ? AND board = ?`,
       [
         title,
@@ -207,9 +224,9 @@ export async function updatePost(
         now(),
         ...linkFields(formData),
         categoryField(board, formData),
-        /* 사업공고의 주관기관·마감일·전문기관. 산업뉴스는 모두 null 이다 */
+        /* 사업공고의 주관기관·접수 기간·전문기관. 산업뉴스는 모두 null 이다 */
         ...eventFields(board, formData),
-        ...agencyFields(board, formData),
+        ...announceFields(board, formData),
         id,
         board,
       ],
@@ -220,7 +237,7 @@ export async function updatePost(
           SET title = ?, body = ?, is_pinned = ?, is_locked = ?, updated_at = ?,
               event_host = ?, event_place = ?, event_starts_on = ?, event_ends_on = ?,
               event_apply_by = ?, link_url = ?, link_label = ?, category = ?,
-              event_agency = ?, event_agency_abbr = ?
+              event_agency = ?, event_agency_abbr = ?, event_apply_from = ?
         WHERE id = ? AND board = ?`,
       [
         title,
@@ -231,7 +248,7 @@ export async function updatePost(
         ...eventFields(board, formData),
         ...linkFields(formData),
         categoryField(board, formData),
-        ...agencyFields(board, formData),
+        ...announceFields(board, formData),
         id,
         board,
       ],
