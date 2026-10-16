@@ -60,3 +60,46 @@ test("공지사항 목록에 글 번호가 매겨져 보인다", async ({ page }
   const text = ((await first.innerText()) || "").trim();
   expect(text).toMatch(/^[1-9][0-9]*$|^공지$/);
 });
+
+test("휴대폰 메뉴는 큰 메뉴를 눌러야 소메뉴가 펼쳐진다", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.getByRole("button", { name: "전체 메뉴 열기" }).click();
+
+  const menu = page.getByRole("navigation", { name: "모바일 메뉴" });
+  const about = menu.getByRole("button", { name: "조합소개" });
+  const members = menu.getByRole("button", { name: "회원사안내" });
+
+  /*
+    소메뉴 칸의 높이로 펼침을 본다. 접힌 칸은 높이 0으로 잘라 숨기는데,
+    Playwright 는 잘린 링크도 '보임'으로 친다.
+  */
+  const heightOf = async (button: typeof about) => {
+    const id = await button.getAttribute("aria-controls");
+    return (await page.locator(`#${id}`).boundingBox())?.height ?? 0;
+  };
+
+  /* 처음에는 모두 접혀 있다(메인은 어느 묶음에도 속하지 않는다) */
+  await expect(about).toHaveAttribute("aria-expanded", "false");
+  await expect.poll(() => heightOf(about)).toBeLessThan(1);
+
+  await about.click();
+  await expect(about).toHaveAttribute("aria-expanded", "true");
+  await expect.poll(() => heightOf(about)).toBeGreaterThan(40);
+
+  /* 다른 묶음을 열면 앞의 것은 닫힌다 */
+  await members.click();
+  await expect(about).toHaveAttribute("aria-expanded", "false");
+  await expect.poll(() => heightOf(about)).toBeLessThan(1);
+  await expect.poll(() => heightOf(members)).toBeGreaterThan(40);
+
+  /* 소메뉴를 누르면 그 페이지로 가고, 다시 메뉴를 열면 그 묶음이 펼쳐져 있다 */
+  await menu.getByRole("link", { name: "회원사 현황" }).click();
+  await expect(page).not.toHaveURL(/\/$/);
+  await page.getByRole("button", { name: "전체 메뉴 열기" }).click();
+  await expect(members).toHaveAttribute("aria-expanded", "true");
+  await expect(menu.getByRole("link", { name: "회원사 현황" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+});

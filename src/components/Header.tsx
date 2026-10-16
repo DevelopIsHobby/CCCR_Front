@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import SmartLink from "./SmartLink";
 import Logo from "./Logo";
 import { IconClose, IconMenu, IconSearch, IconChevron } from "./Icons";
@@ -30,6 +31,17 @@ const utilItem =
   "flex h-full items-center text-xs underline-offset-4 transition-colors hover:underline";
 const utilLink = `${utilItem} text-ink-600 hover:text-brand-600 active:text-brand-700`;
 
+/** 지금 주소가 그 메뉴의 페이지(또는 그 아래 글 화면)인지 */
+function isHere(pathname: string, href: string): boolean {
+  if (!href.startsWith("/")) return false;
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** 지금 주소가 속한 큰 메뉴. 모바일 메뉴를 열 때 그 묶음을 펼쳐 둔다 */
+function currentSection(pathname: string): string | null {
+  return NAV.find((item) => item.children.some((c) => isHere(pathname, c.href)))?.label ?? null;
+}
+
 export default function Header({
   session,
   site,
@@ -41,6 +53,9 @@ export default function Header({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  /* 모바일 메뉴에서 펼쳐 둔 큰 메뉴 */
+  const [openSection, setOpenSection] = useState<string | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -179,7 +194,10 @@ export default function Header({
               type="button"
               aria-label="전체 메뉴 열기"
               aria-expanded={drawerOpen}
-              onClick={() => setDrawerOpen(true)}
+              onClick={() => {
+                setOpenSection(currentSection(pathname));
+                setDrawerOpen(true);
+              }}
               className="grid size-10 place-items-center rounded-full text-ink-700 transition-colors hover:bg-brand-50 hover:text-brand-600 lg:hidden"
             >
               <IconMenu className="size-[22px]" />
@@ -288,26 +306,63 @@ export default function Header({
             </button>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-5 py-6" aria-label="모바일 메뉴">
-            {NAV.map((item) => (
-              <div key={item.label} className="border-b border-line py-5 first:pt-0">
-                <p className="text-lg font-bold text-navy-900">{item.label}</p>
-                <ul className="mt-3 space-y-2.5">
-                  {item.children.map((child) => (
-                    <li key={child.label}>
-                      <Link
-                        href={child.href}
-                        onClick={() => setDrawerOpen(false)}
-                        className="flex items-center gap-1 text-md text-ink-600"
-                      >
-                        {child.label}
-                        <IconChevron className="size-3.5 text-ink-400" />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          {/*
+            큰 메뉴를 누르면 그 아래 소메뉴가 펼쳐진다. 한꺼번에 다 펼쳐 두면 휴대폰 한 화면에
+            큰 메뉴 두어 개밖에 들어가지 않아 전체 차림을 훑기 어렵다.
+            한 번에 하나만 열고, 메뉴를 열 때는 지금 보는 페이지의 묶음을 펼쳐 둔다.
+          */}
+          <nav className="flex-1 overflow-y-auto px-5 py-2" aria-label="모바일 메뉴">
+            {NAV.map((item, i) => {
+              const open = openSection === item.label;
+              const panelId = `drawer-section-${i}`;
+              return (
+                <div key={item.label} className="border-b border-line">
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    aria-controls={panelId}
+                    onClick={() => setOpenSection(open ? null : item.label)}
+                    className="flex w-full items-center justify-between py-4 text-left text-lg font-bold text-navy-900"
+                  >
+                    {item.label}
+                    <IconChevron
+                      className={`size-4 text-ink-400 transition-transform duration-200 ${
+                        open ? "-rotate-90" : "rotate-90"
+                      }`}
+                    />
+                  </button>
+                  {/* 높이를 0 ↔ 내용만큼 부드럽게 바꾼다. 닫힌 동안에는 inert 로 탭 이동에서도 뺀다 */}
+                  <div
+                    id={panelId}
+                    inert={!open}
+                    className={`grid transition-[grid-template-rows] duration-200 ${
+                      open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                    }`}
+                  >
+                    <ul className="space-y-1 overflow-hidden">
+                      {item.children.map((child) => {
+                        const here = isHere(pathname, child.href);
+                        return (
+                          <li key={child.label} className="last:pb-4">
+                            <Link
+                              href={child.href}
+                              onClick={() => setDrawerOpen(false)}
+                              aria-current={here ? "page" : undefined}
+                              className={`flex items-center gap-1 py-1.5 pl-3 text-md ${
+                                here ? "font-semibold text-brand-600" : "text-ink-600"
+                              }`}
+                            >
+                              {child.label}
+                              <IconChevron className="size-3.5 text-ink-400" />
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })}
           </nav>
 
           <div className="grid grid-cols-2 gap-2 border-t border-line bg-surface p-5">
