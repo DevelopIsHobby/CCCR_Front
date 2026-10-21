@@ -24,6 +24,9 @@ function readForm(formData: FormData) {
     dateText: value("dateText") || null,
     icon: value("icon"),
     href: value("href"),
+    /* 우리 서버에 올린 그림만 받는다. 슬라이드가 아니면 그림을 두지 않는다 */
+    imageUrl:
+      kind === "slide" && /^\/api\/images\/\d+$/.test(value("imageUrl")) ? value("imageUrl") : "",
   };
 }
 
@@ -54,9 +57,22 @@ export async function saveHomeCard(
   if (id) {
     await db.run(
       `UPDATE home_cards
-          SET label = ?, title = ?, body = ?, caption = ?, date_text = ?, href = ?, icon = ?, updated_at = ?
+          SET label = ?, title = ?, body = ?, caption = ?, date_text = ?, href = ?, icon = ?,
+              image_url = ?, updated_at = ?
         WHERE id = ? AND kind = ?`,
-      [card.label, card.title, card.body, card.caption, card.dateText, card.href, card.icon, stamp, id, card.kind],
+      [
+        card.label,
+        card.title,
+        card.body,
+        card.caption,
+        card.dateText,
+        card.href,
+        card.icon,
+        card.imageUrl,
+        stamp,
+        id,
+        card.kind,
+      ],
     );
   } else {
     /* 새 카드는 맨 뒤에 붙인다 */
@@ -65,8 +81,9 @@ export async function saveHomeCard(
       [card.kind],
     );
     await db.run(
-      `INSERT INTO home_cards (kind, sort_order, label, title, body, caption, date_text, href, icon, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO home_cards (kind, sort_order, label, title, body, caption, date_text, href, icon,
+                               image_url, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         card.kind,
         Number(last?.max_order ?? 0) + 1,
@@ -77,6 +94,7 @@ export async function saveHomeCard(
         card.dateText,
         card.href,
         card.icon,
+        card.imageUrl,
         stamp,
         stamp,
       ],

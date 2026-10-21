@@ -18,6 +18,8 @@ export type HomeCard = {
   dateText: string | null;
   href: string;
   icon: string;
+  /** 히어로 슬라이드의 홍보 그림(/api/images/N). 빈 값이면 글자 슬라이드 */
+  imageUrl: string;
   isVisible: boolean;
 };
 
@@ -42,6 +44,7 @@ type RawCard = {
   date_text: string | null;
   href: string;
   icon: string;
+  image_url: string | null;
   is_visible: number;
 };
 
@@ -56,10 +59,12 @@ const toCard = (r: RawCard): HomeCard => ({
   dateText: r.date_text,
   href: r.href,
   icon: r.icon ?? "",
+  imageUrl: r.image_url ?? "",
   isVisible: Number(r.is_visible) === 1,
 });
 
-const SELECT = `SELECT id, kind, sort_order, label, title, body, caption, date_text, href, icon, is_visible
+const SELECT = `SELECT id, kind, sort_order, label, title, body, caption, date_text, href, icon, image_url,
+                       is_visible
                 FROM home_cards`;
 
 /** 화면에 보여줄 카드. 숨김 처리한 것은 뺀다. */

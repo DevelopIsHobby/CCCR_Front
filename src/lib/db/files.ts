@@ -53,6 +53,8 @@ async function diskFiles(): Promise<Map<string, number>> {
 type RawImageRef = {
   company: string | null;
   page_key: string | null;
+  popup: string | null;
+  slide: string | null;
 };
 
 /** 이미지가 어디에 걸려 있는지 한 곳만 골라 알려 준다. 글 본문이 먼저다. */
@@ -69,6 +71,8 @@ function imageUsedIn(
   }
   if (ref.company) return { title: `회원사 로고 · ${ref.company}`, href: "/admin/companies" };
   if (ref.page_key) return { title: "소개 페이지", href: "/admin/pages" };
+  if (ref.popup) return { title: `팝업 · ${ref.popup}`, href: "/admin/popups" };
+  if (ref.slide) return { title: `메인 슬라이드 · ${ref.slide}`, href: "/admin/home" };
   return null;
 }
 
@@ -103,10 +107,14 @@ export async function getFileReport(): Promise<FileReport> {
       created_at: string;
       company: string | null;
       page_key: string | null;
+      popup: string | null;
+      slide: string | null;
     }>(
       `SELECT i.id, i.filename, i.stored_name, i.byte_size, i.created_at,
               (SELECT c.name FROM companies c WHERE c.logo_url = '/api/images/' || i.id LIMIT 1) AS company,
-              (SELECT t.key FROM page_texts t WHERE t.value = '/api/images/' || i.id LIMIT 1) AS page_key
+              (SELECT t.key FROM page_texts t WHERE t.value = '/api/images/' || i.id LIMIT 1) AS page_key,
+              (SELECT p.title FROM popups p WHERE p.image_url = '/api/images/' || i.id LIMIT 1) AS popup,
+              (SELECT h.title FROM home_cards h WHERE h.image_url = '/api/images/' || i.id LIMIT 1) AS slide
          FROM images i
         ORDER BY i.id DESC`,
     ),

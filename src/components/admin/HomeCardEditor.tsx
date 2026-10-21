@@ -11,6 +11,7 @@ import {
 } from "@/lib/db/home-card-actions";
 import type { HomeCard, HomeCardKind } from "@/lib/db/home-cards";
 import CardIcon from "@/components/CardIcon";
+import ImagePicker from "@/components/admin/ImagePicker";
 import { HOME_CARD_ICONS, normalizeIcon } from "@/lib/home-card-icons";
 
 /*
@@ -143,6 +144,31 @@ function CardForm({
 
       {kind === "banner" && <IconPicker defaultValue={card?.icon ?? ""} />}
 
+      {/*
+        홍보 그림. 행사 포스터처럼 글자가 이미 들어간 그림을 통째로 거는 경우다.
+        그림이 있으면 그 슬라이드는 그림만 보이고, 위 글자 칸은 그림 설명으로만 쓴다.
+      */}
+      {kind === "slide" && (
+        <div>
+          <span className="mb-1.5 block text-base font-bold text-navy-900">홍보 그림 (선택)</span>
+          <p className="mb-3 text-sm leading-relaxed text-ink-400">
+            그림을 넣으면 이 슬라이드에는 그림만 나옵니다. 분류·본문은 화면에 나오지 않고, 제목은
+            그림 설명(화면 낭독기·검색)으로 쓰입니다. &lsquo;자세히 보기&rsquo; 링크를 넣으면 그림을
+            눌러 그 주소로 갑니다.
+            <br />
+            권장 크기 <b className="font-semibold text-ink-600">1500 × 780 px</b> (가로:세로 약
+            2:1). 비율이 달라도 잘리지 않고 남는 곳은 배경색으로 채웁니다.
+          </p>
+          <ImagePicker
+            name="imageUrl"
+            defaultValue={card?.imageUrl ?? ""}
+            alt="슬라이드 그림"
+            ratio="aspect-[1500/780]"
+            width="w-72"
+          />
+        </div>
+      )}
+
       {kind === "slide" && (
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
@@ -236,6 +262,16 @@ function CardRow({
       >
         ⠿
       </span>
+
+      {/* 그림을 건 슬라이드는 목록에서도 작게 보여 준다 */}
+      {card.kind === "slide" && card.imageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={card.imageUrl}
+          alt=""
+          className="h-12 w-[92px] shrink-0 rounded-md bg-navy-950 object-contain ring-1 ring-line"
+        />
+      )}
 
       {/* 배너 띠는 카드에 그림이 붙으므로 목록에서도 함께 보여 준다 */}
       {card.kind === "banner" && (

@@ -3,8 +3,8 @@ import type { Driver } from "./driver";
 
 /*
   이미지가 어딘가에 쓰이고 있는지 보는 기준을 한곳에 모은다.
-  본문 이미지 말고도 이사장 사진(page_texts)과 회원사 로고(companies)가
-  같은 저장소를 쓰므로, 이 셋을 모두 보지 않으면 "안 쓰는 이미지"를 정리할 때
+  본문 이미지 말고도 이사장 사진(page_texts)·회원사 로고(companies)·팝업(popups)·
+  메인 슬라이드 그림(home_cards)이 같은 저장소를 쓰므로, 이것을 모두 보지 않으면 "안 쓰는 이미지"를 정리할 때
   화면에 걸려 있는 그림이 지워진다.
 */
 
@@ -23,6 +23,7 @@ export const imageUsedSql = (idExpr: string) => `(
   OR EXISTS (SELECT 1 FROM page_texts t WHERE t.value = '/api/images/' || ${idExpr})
   OR EXISTS (SELECT 1 FROM companies c WHERE c.logo_url = '/api/images/' || ${idExpr})
   OR EXISTS (SELECT 1 FROM popups pu WHERE pu.image_url = '/api/images/' || ${idExpr})
+  OR EXISTS (SELECT 1 FROM home_cards h WHERE h.image_url = '/api/images/' || ${idExpr})
 )`;
 
 /*
@@ -56,8 +57,9 @@ export async function imageIsMembersOnly(db: Driver, id: number): Promise<boolea
           WHERE deleted_at = '' AND is_locked = 0 AND LOWER(body) LIKE ?)
        + (SELECT COUNT(*) FROM page_texts WHERE value = ?)
        + (SELECT COUNT(*) FROM companies WHERE logo_url = ?)
-       + (SELECT COUNT(*) FROM popups WHERE image_url = ?) AS open`,
-    [like, like, url, url, url],
+       + (SELECT COUNT(*) FROM popups WHERE image_url = ?)
+       + (SELECT COUNT(*) FROM home_cards WHERE image_url = ?) AS open`,
+    [like, like, url, url, url, url],
   );
 
   return Number(row?.locked ?? 0) > 0 && Number(row?.open ?? 0) === 0;
@@ -71,8 +73,9 @@ export async function isImageUsed(db: Driver, id: number): Promise<boolean> {
        (SELECT COUNT(*) FROM posts WHERE body LIKE ?)
        + (SELECT COUNT(*) FROM page_texts WHERE value = ?)
        + (SELECT COUNT(*) FROM companies WHERE logo_url = ?)
-       + (SELECT COUNT(*) FROM popups WHERE image_url = ?) AS n`,
-    [`%${url}%`, url, url, url],
+       + (SELECT COUNT(*) FROM popups WHERE image_url = ?)
+       + (SELECT COUNT(*) FROM home_cards WHERE image_url = ?) AS n`,
+    [`%${url}%`, url, url, url, url],
   );
   return Number(row?.n ?? 0) > 0;
 }

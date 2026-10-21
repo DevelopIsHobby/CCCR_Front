@@ -73,6 +73,19 @@ function NetworkArt() {
   );
 }
 
+/** 홍보 그림 한 장. 제목을 그림 설명으로 쓴다(그림 속 글자를 읽지 못하는 분을 위해) */
+function SlideImage({ slide }: { slide: HomeCard }) {
+  return (
+    /* 크기를 미리 알 수 없는 관리자 그림이라 next/image 대신 img 를 쓴다 */
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={slide.imageUrl}
+      alt={slide.title.replace(/\s+/g, " ")}
+      className="size-full object-contain"
+    />
+  );
+}
+
 export default function Hero({ slides }: { slides: HomeCard[] }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -129,7 +142,29 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
           />
 
           <div className="relative flex flex-1 flex-col justify-center px-8 py-12 lg:px-12">
-            {slides.map((s, i) => (
+            {slides.map((s, i) =>
+              s.imageUrl ? (
+                /*
+                  홍보 그림 슬라이드. 글자 칸 대신 그림 한 장을 슬라이드 자리 가득 띄운다.
+                  포스터처럼 글자가 든 그림이 많아 자르지 않고(object-contain) 남는 곳은 배경이 보인다.
+                */
+                <div
+                  key={s.id}
+                  className={`absolute inset-0 transition-opacity duration-500 ${
+                    i === current ? "opacity-100" : "pointer-events-none opacity-0"
+                  }`}
+                  aria-hidden={i !== current}
+                  inert={i !== current}
+                >
+                  {s.href ? (
+                    <SmartLink href={s.href} className="block size-full">
+                      <SlideImage slide={s} />
+                    </SmartLink>
+                  ) : (
+                    <SlideImage slide={s} />
+                  )}
+                </div>
+              ) : (
               <div
                 key={s.id}
                 className={`transition-all duration-500 ${
@@ -138,6 +173,7 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
                     : "pointer-events-none absolute translate-y-3 opacity-0"
                 }`}
                 aria-hidden={i !== current}
+                inert={i !== current}
               >
                 <p className="flex items-center gap-2.5">
                   <span className="data-line text-flame-500">{s.label}</span>
@@ -165,7 +201,8 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
                   </SmartLink>
                 )}
               </div>
-            ))}
+              ),
+            )}
           </div>
 
           {/* 캡션 + 컨트롤 */}
