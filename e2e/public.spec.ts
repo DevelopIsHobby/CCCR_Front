@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { ADMIN, MARK, db, now } from "./fixtures";
 
 /* 로그인하지 않은 손님이 보는 화면 */
 
@@ -102,4 +103,28 @@ test("휴대폰 메뉴는 큰 메뉴를 눌러야 소메뉴가 펼쳐진다", as
     "aria-current",
     "page",
   );
+});
+
+test("고정 글은 첫 쪽에만 올라온다", async ({ page }) => {
+  /*
+    고정 글을 쪽마다 올리면, 고정 글이 많을 때 2쪽부터도 고정 글만 길게 깔린다.
+    기술동향 게시판에 고정 글 17건을 넣어 2쪽을 만든다(한 쪽 15건).
+  */
+  const conn = db();
+  const insert = conn.prepare(
+    `INSERT INTO posts (board, title, body, author_name, is_pinned, is_locked, views,
+                        created_at, updated_at)
+     VALUES ('trends', ?, '<p>고정 글</p>', ?, 1, 0, 0, ?, ?)`,
+  );
+  for (let i = 1; i <= 17; i++) insert.run(`${MARK} 고정 동향 ${i}`, ADMIN.name, now(), now());
+  conn.close();
+
+  await page.goto("/info/trends");
+  const pinnedRows = (p: typeof page) =>
+    p.locator("table tbody tr").filter({ has: p.getByText("공지", { exact: true }) });
+  await expect(pinnedRows(page)).toHaveCount(17);
+
+  await page.goto("/info/trends?page=2");
+  await expect(page.locator("table tbody tr").first()).toBeVisible();
+  await expect(pinnedRows(page)).toHaveCount(0);
 });

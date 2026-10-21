@@ -289,8 +289,10 @@ export async function listPosts(opts: {
   /*
     검색 중에는 고정 공지를 띄우지 않는다. 검색 결과만 보이는 편이 낫다.
     탭에서는 그 탭에 드는 고정 글만 올린다. 다른 탭의 글이 끼면 탭이 무색해진다.
+    고정 글은 첫 쪽에만 올린다. 쪽마다 올리면 고정 글이 많을 때 2쪽부터도 고정 글만
+    길게 깔려, 쪽을 넘겨도 끝없이 내려가야 하는 것처럼 보인다(공지 16건을 모두 고정했을 때).
   */
-  const pinned = q
+  const pinned = q || current > 1
     ? []
     : await db.all<RawRow>(
         `SELECT * FROM (${NUMBERED}) numbered WHERE is_pinned = 1${tabWhere

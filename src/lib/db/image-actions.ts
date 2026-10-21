@@ -4,6 +4,7 @@ import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
 import { saveUpload } from "@/lib/uploads";
+import { fetchRemoteImage } from "@/lib/remote-image";
 
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"]);
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -31,6 +32,25 @@ export async function uploadImage(formData: FormData): Promise<ImageUploadResult
     return { error: `이미지는 ${MAX_IMAGE_BYTES / 1024 / 1024}MB 이하만 넣을 수 있습니다.` };
   }
 
+  return storeImage(file, session.userId);
+}
+
+/*
+  붙여 넣은 HTML 의 바깥 그림(다른 사이트 주소)을 내려받아 우리 그림으로 저장한다.
+  편집기가 바깥 그림을 찾을 때마다 하나씩 부른다. 까닭과 막는 주소는 remote-image.ts 참고.
+*/
+export async function importRemoteImage(src: string): Promise<ImageUploadResult> {
+  const session = await requireAdmin();
+  try {
+    const file = await fetchRemoteImage(String(src));
+    return storeImage(file, session.userId);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "그림을 가져오지 못했습니다." };
+  }
+}
+
+/** 그림 파일을 저장하고 본문에 넣을 주소를 돌려준다 */
+async function storeImage(file: File, userId: number): Promise<ImageUploadResult> {
   try {
     const saved = await saveUpload(file);
     const db = await ready();
@@ -44,7 +64,7 @@ export async function uploadImage(formData: FormData): Promise<ImageUploadResult
         saved.mimeType,
         saved.width,
         saved.height,
-        session.userId,
+        userId,
         now(),
       ],
     );

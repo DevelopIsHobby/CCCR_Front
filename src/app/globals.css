@@ -262,6 +262,24 @@
     border-radius: 8px;
   }
 
+  /*
+    본문에 바로 놓인 그림(편집기의 그림 칸)은 한 줄씩 세운다. 글줄 안에 두면 줄 간격만큼
+    아래가 떠서, 메일 소식지처럼 한 장을 여러 조각으로 자른 그림 사이에 틈이 생긴다.
+    이어 붙은 조각끼리는 맞닿는 모서리도 각지게 해 한 장처럼 보이게 한다.
+  */
+  & > img {
+    display: block;
+  }
+  & > img:has(+ img) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  & > img + img {
+    margin-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
   & table {
     width: 100%;
     border-collapse: collapse;

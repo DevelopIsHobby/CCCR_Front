@@ -6,8 +6,79 @@ import StarterKit from "@tiptap/starter-kit";
 import { TextStyleKit } from "@tiptap/extension-text-style";
 import TextAlign from "@tiptap/extension-text-align";
 import Image from "@tiptap/extension-image";
-import { TableKit } from "@tiptap/extension-table";
-import { uploadImage } from "@/lib/db/image-actions";
+import { TableCell, TableHeader, TableKit } from "@tiptap/extension-table";
+import { importRemoteImage, uploadImage } from "@/lib/db/image-actions";
+
+/*
+  표 칸 배경색. 기본 표 칸에는 색 속성이 없어 칸을 칠할 수 없었다.
+  style="background-color: …" 로 읽고 써서, 다른 곳에서 붙여 넣은 표의 칸 색도 살린다.
+*/
+const cellColor = {
+  backgroundColor: {
+    default: null as string | null,
+    parseHTML: (el: HTMLElement) => el.style.backgroundColor || null,
+    renderHTML: (attrs: Record<string, unknown>) =>
+      attrs.backgroundColor ? { style: `background-color: ${String(attrs.backgroundColor)}` } : {},
+  },
+};
+const ColorCell = TableCell.extend({
+  addAttributes() {
+    return { ...this.parent?.(), ...cellColor };
+  },
+});
+const ColorHeader = TableHeader.extend({
+  addAttributes() {
+    return { ...this.parent?.(), ...cellColor };
+  },
+});
+
+/** 우리 서버에 올린 그림 주소. 이것만 본문에 남는다(html.ts) */
+const OWN_IMAGE = /^\/api\/images\/\d+$/;
+
+/*
+  그림만 담은 표를 풀어 그림만 남긴다.
+
+  메일 소식지 HTML 은 큰 그림을 여러 조각으로 잘라 테두리 없는 표에 한 칸씩 넣어 둔다.
+  그대로 들이면 우리 표 모양(테두리·칸 여백)이 씌워져 조각 사이에 줄이 생긴다.
+  칸마다 그림 말고 글자가 없을 때만 푼다. 글이 든 표는 그대로 둔다.
+*/
+function unwrapImageTables(html: string): string {
+  if (!/<table/i.test(html)) return html;
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  /* 안쪽 표부터 푼다 */
+  for (const table of [...doc.querySelectorAll("table")].reverse()) {
+    const images = [...table.querySelectorAll("img")];
+    if (images.length === 0) continue;
+    const onlyImages = [...table.querySelectorAll("td, th")].every((cell) => {
+      const copy = cell.cloneNode(true) as HTMLElement;
+      copy.querySelectorAll("img").forEach((img) => img.remove());
+      return (copy.textContent ?? "").replace(/\u00a0/g, "").trim() === "";
+    });
+    if (!onlyImages) continue;
+    table.replaceWith(...images);
+  }
+  return doc.body.innerHTML;
+}
+
+/** data:image/…;base64 그림(워드 등에서 붙여 넣을 때)을 파일로 */
+function dataUrlToFile(src: string): File | null {
+  const match = src.match(/^data:(image\/(png|jpeg|gif|webp));base64,(.+)$/i);
+  if (!match) return null;
+  const bytes = Uint8Array.from(atob(match[3]), (c) => c.charCodeAt(0));
+  return new File([bytes], `pasted.${match[2].replace("jpeg", "jpg")}`, { type: match[1] });
+}
+
+/** 본문 안의 같은 주소 그림을 모두 새 주소로 바꾼다 */
+function replaceImageSrc(editor: Editor, from: string, to: string) {
+  if (editor.isDestroyed) return;
+  const { tr } = editor.state;
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === "image" && node.attrs.src === from) {
+      tr.setNodeMarkup(pos, undefined, { ...node.attrs, src: to });
+    }
+  });
+  if (tr.docChanged) editor.view.dispatch(tr);
+}
 
 /*
   게시글 본문 편집기.
@@ -511,6 +582,16 @@ function Toolbar({
           <ToolbarButton title="셀 합치기·나누기" onClick={() => editor.chain().focus().mergeOrSplit().run()}>
             셀 합치기
           </ToolbarButton>
+          <ColorPicker
+            title="칸 색"
+            swatches={HIGHLIGHTS}
+            current={
+              (editor.getAttributes("tableCell").backgroundColor ??
+                editor.getAttributes("tableHeader").backgroundColor) as string | undefined
+            }
+            onPick={(v) => editor.chain().focus().setCellAttribute("backgroundColor", v).run()}
+            onClear={() => editor.chain().focus().setCellAttribute("backgroundColor", null).run()}
+          />
           <ToolbarButton title="표 삭제" onClick={() => editor.chain().focus().deleteTable().run()}>
             표 삭제
           </ToolbarButton>
@@ -553,8 +634,11 @@ export default function RichTextEditor({
       }),
       TextStyleKit,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
-      Image.configure({ HTMLAttributes: { class: "rich-image" } }),
-      TableKit.configure({ table: { resizable: true } }),
+      /* data: 그림도 일단 받아 두고 곧바로 우리 서버로 옮긴다(importForeignImages) */
+      Image.configure({ allowBase64: true, HTMLAttributes: { class: "rich-image" } }),
+      TableKit.configure({ table: { resizable: true }, tableCell: false, tableHeader: false }),
+      ColorCell,
+      ColorHeader,
     ],
     content: defaultValue,
     onUpdate: ({ editor }) => setHtml(editor.getHTML()),
@@ -563,6 +647,8 @@ export default function RichTextEditor({
         class:
           "rich-text min-h-[360px] rounded-b-md border border-t-0 border-line bg-white px-5 py-4 outline-none focus:border-brand-500",
       },
+      /* 다른 사이트에서 복사한 HTML 의 '그림만 담은 표'를 풀어 들인다 */
+      transformPastedHTML: unwrapImageTables,
       /* 이미지를 붙여넣거나 끌어다 놓으면 바로 올린다 */
       handlePaste: (_view, event) => {
         const file = [...(event.clipboardData?.files ?? [])][0];
@@ -589,6 +675,53 @@ export default function RichTextEditor({
     };
   }, [editor]);
 
+  /*
+    바깥 그림 가져오기.
+
+    붙여 넣은 HTML 의 그림이 다른 사이트 주소이면 사이트 보안 설정이 막아 엑박이 되고,
+    저장할 때도 빠진다(우리 서버 그림만 남긴다). 그래서 들어오는 즉시 서버에 넘겨
+    내려받아 우리 그림으로 바꾼다. 같은 주소는 한 번만 부른다.
+  */
+  const seen = useRef(new Set<string>());
+  const [importing, setImporting] = useState(0);
+  const [importFailed, setImportFailed] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!editor) return;
+    const importForeignImages = () => {
+      const found = new Set<string>();
+      editor.state.doc.descendants((node) => {
+        const src = node.type.name === "image" ? String(node.attrs.src ?? "") : "";
+        if (src && !OWN_IMAGE.test(src) && !seen.current.has(src)) found.add(src);
+      });
+      for (const src of found) {
+        seen.current.add(src);
+        setImporting((n) => n + 1);
+        void (async () => {
+          let result: { url: string } | { error: string };
+          if (/^data:/i.test(src)) {
+            const file = dataUrlToFile(src);
+            const formData = new FormData();
+            if (file) formData.append("image", file);
+            result = file ? await uploadImage(formData) : { error: "읽을 수 없는 그림입니다." };
+          } else if (/^https?:\/\//i.test(src)) {
+            result = await importRemoteImage(src);
+          } else {
+            result = { error: "주소가 없는 그림입니다." };
+          }
+          if ("url" in result) replaceImageSrc(editor, src, result.url);
+          else setImportFailed((list) => [...list, src.startsWith("data:") ? "붙여 넣은 그림" : src]);
+          setImporting((n) => n - 1);
+        })();
+      }
+    };
+    importForeignImages();
+    editor.on("update", importForeignImages);
+    return () => {
+      editor.off("update", importForeignImages);
+    };
+  }, [editor]);
+
   async function uploadPasted(file: File) {
     const formData = new FormData();
     formData.append("image", file);
@@ -601,8 +734,10 @@ export default function RichTextEditor({
   /* HTML 모드에서 돌아올 때 편집기에 반영한다. */
   const toggleHtmlMode = () => {
     if (htmlMode) {
-      editor?.commands.setContent(draft, { emitUpdate: true });
-      setHtml(draft);
+      /* 직접 붙여 넣은 HTML 에도 붙여넣기와 같은 손질을 한다 */
+      const next = unwrapImageTables(draft);
+      editor?.commands.setContent(next, { emitUpdate: true });
+      setHtml(editor?.getHTML() ?? next);
       setHtmlMode(false);
     } else {
       setDraft(html);
@@ -631,6 +766,27 @@ export default function RichTextEditor({
             HTML을 직접 고칠 수 있습니다. 다시 <b className="font-semibold">HTML</b> 버튼을 누르면
             편집 화면에 반영됩니다. 저장할 때 허용되지 않는 태그는 자동으로 제거됩니다.
           </p>
+        </div>
+      )}
+
+      {importing > 0 && (
+        <p role="status" className="mt-2 text-base font-medium text-brand-600">
+          다른 사이트 그림 {importing}개를 우리 서버로 옮기는 중입니다. 끝난 뒤 저장해 주세요.
+        </p>
+      )}
+      {importFailed.length > 0 && (
+        <div role="alert" className="mt-2 text-base text-flame-700">
+          <p className="font-medium">
+            그림 {importFailed.length}개를 가져오지 못했습니다. 저장하면 빠지므로, 그림을 내려받아
+            &lsquo;이미지&rsquo; 단추로 넣어 주세요.
+          </p>
+          <ul className="mt-1 list-disc pl-5 text-sm text-ink-600">
+            {importFailed.map((src) => (
+              <li key={src} className="break-all">
+                {src}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
