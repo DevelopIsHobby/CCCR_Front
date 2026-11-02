@@ -214,6 +214,19 @@
     list-style: disc;
   }
 
+  /*
+    들여 쓴 목록은 단계마다 글머리 모양을 바꾼다(● → ○ → ■). 모두 같은 ● 이면
+    어느 줄이 어느 줄 아래인지 들여쓰기만 보고 가려야 한다. 번호 목록 안에 들어간
+    글머리 목록도 한 단계 들어간 것으로 친다(브라우저 기본과 같다).
+  */
+  & :is(ul, ol) ul {
+    list-style: circle;
+  }
+
+  & :is(ul, ol) :is(ul, ol) ul {
+    list-style: square;
+  }
+
   & ol {
     list-style: decimal;
   }
