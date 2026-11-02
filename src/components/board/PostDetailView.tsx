@@ -18,6 +18,7 @@ import {
   type EventStatus,
   type NoticeStatus,
 } from "@/lib/format";
+import { shortUrl } from "@/lib/url-display";
 
 /** 편집기 도입 전 글은 순수 텍스트다. */
 const isHtml = (body: string) => /<\/?[a-z][\s\S]*>/i.test(body);
@@ -30,6 +31,61 @@ const STATUS_TONE: Record<EventStatus | NoticeStatus, string> = {
   종료: "bg-surface text-ink-400",
   마감: "bg-surface text-ink-400",
 };
+
+/*
+  첨부파일 종류 딱지. 이름 끝까지 읽지 않아도 무슨 파일인지 보이게 한다.
+  긴 파일 이름은 두 줄에서 잘려 확장자가 가려질 수 있는데, 딱지가 그것을 대신한다.
+*/
+function fileKind(filename: string): { label: string; tone: string } {
+  const ext = filename.split(".").pop()?.toLowerCase() ?? "";
+  if (ext === "pdf") return { label: "PDF", tone: "bg-flame-100 text-flame-700" };
+  if (ext === "hwp" || ext === "hwpx") return { label: "HWP", tone: "bg-brand-100 text-brand-700" };
+  if (ext === "doc" || ext === "docx") return { label: "DOC", tone: "bg-brand-100 text-brand-700" };
+  if (["xls", "xlsx", "csv"].includes(ext)) return { label: "XLS", tone: "bg-emerald-50 text-emerald-700" };
+  if (ext === "ppt" || ext === "pptx") return { label: "PPT", tone: "bg-amber-50 text-amber-700" };
+  if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
+    return { label: "IMG", tone: "bg-brand-50 text-brand-600" };
+  }
+  if (["zip", "7z", "alz", "egg"].includes(ext)) return { label: "ZIP", tone: "bg-surface text-ink-600" };
+  return { label: ext ? ext.slice(0, 4).toUpperCase() : "파일", tone: "bg-surface text-ink-600" };
+}
+
+/*
+  링크 글자. 이름(label)이 있으면 이름과 사이트 이름을, 없으면 사이트 이름과 줄인 주소를 보여 준다.
+  넓은 화면에서도 '…' 가 일찍 나오도록 글자 수로 자른다(url-display.ts).
+*/
+function LinkText({ url, label }: { url: string; label: string | null }) {
+  const short = shortUrl(url);
+  return (
+    <span className="min-w-0 flex-1 truncate text-base">
+      <span className="font-semibold text-navy-900 transition-colors group-hover:text-brand-600">
+        {label ?? (short.host || short.rest)}
+      </span>
+      {label
+        ? short.host && <span className="ml-2 text-sm text-ink-400">{short.host}</span>
+        : short.host && short.rest && <span className="ml-1 text-ink-400">{short.rest}</span>}
+    </span>
+  );
+}
+
+function IconDownload({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d="M12 4v11" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M5 20h14" />
+    </svg>
+  );
+}
 
 /** 글 상세 화면. 게시판 종류와 무관하게 같은 구성을 쓴다. */
 export default async function PostDetailView({
@@ -148,21 +204,22 @@ export default async function PostDetailView({
         )}
 
         {post.link && (
+          /*
+            주소를 그대로 보여 주면 한글이 '%ED%81…' 로 인코딩되어 한 줄을 다 채웠다.
+            사이트 이름을 앞에 두고 나머지는 풀어서 짧게 자른다(url-display.ts).
+            전체 주소는 마우스를 올리면 보인다.
+          */
           <a
             href={post.link.url}
             target="_blank"
             rel="noreferrer noopener"
+            title={post.link.url}
             className="group mt-6 flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 transition-colors hover:border-brand-500 hover:bg-brand-50/50"
           >
             <span className="shrink-0 rounded bg-white px-2 py-1 text-2xs font-bold text-flame-600 ring-1 ring-line">
               링크
             </span>
-            <span className="min-w-0 flex-1 truncate text-base text-navy-900 transition-colors group-hover:text-brand-600">
-              {post.link.label ?? post.link.url}
-              {post.link.label && (
-                <span className="label-mono ml-2 text-ink-400">{post.link.url}</span>
-              )}
-            </span>
+            <LinkText url={post.link.url} label={post.link.label} />
             <IconArrow className="size-4 shrink-0 text-ink-400 transition-colors group-hover:text-brand-500" />
           </a>
         )}
@@ -170,22 +227,47 @@ export default async function PostDetailView({
         {canRead ? (
           <>
             {post.attachments.length > 0 && (
-              <ul className="mt-8 border-b border-line pb-5">
-                {post.attachments.map((a) => (
-                  <li key={a.id}>
-                    <a
-                      href={`/api/attachments/${a.id}`}
-                      className="group inline-flex items-center gap-2 py-1.5 text-base text-ink-600 hover:text-brand-600"
-                    >
-                      <IconClip className="size-4 shrink-0 text-ink-400 group-hover:text-brand-500" />
-                      <span className="underline-offset-2 group-hover:underline">
-                        {a.filename}
-                      </span>
-                      <span className="label-mono text-ink-400">{formatBytes(a.byteSize)}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              /*
+                첨부파일. 전에는 클립 아이콘과 이름 한 줄이라 본문 위에서 눈에 잘 띄지 않았다.
+                파일 종류 딱지와 내려받기 단추를 둔 상자로 보여 준다.
+              */
+              <section aria-label="첨부파일" className="mt-8 border-b border-line pb-6">
+                <p className="mb-3 flex items-center gap-1.5 text-base font-bold text-navy-900">
+                  <IconClip className="size-4 text-ink-400" />
+                  첨부파일
+                  <span className="text-brand-600">{post.attachments.length}</span>
+                </p>
+                <ul className="space-y-2">
+                  {post.attachments.map((a) => {
+                    const kind = fileKind(a.filename);
+                    return (
+                      <li key={a.id}>
+                        <a
+                          href={`/api/attachments/${a.id}`}
+                          className="group flex items-center gap-4 rounded-lg border border-line bg-white px-4 py-3 transition-colors hover:border-brand-500 hover:bg-brand-50/40"
+                        >
+                          <span
+                            className={`grid h-10 w-11 shrink-0 place-items-center rounded-md text-xs font-bold ${kind.tone}`}
+                          >
+                            {kind.label}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            {/* 밑줄(_)로 이은 긴 이름은 띄어쓰기가 없어 줄이 안 넘어가므로 아무 데서나 끊는다 */}
+                            <span className="line-clamp-2 text-base font-semibold text-navy-900 [overflow-wrap:anywhere] group-hover:text-brand-600">
+                              {a.filename}
+                            </span>
+                            <span className="label-mono text-sm text-ink-400">{formatBytes(a.byteSize)}</span>
+                          </span>
+                          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand-600 px-3.5 py-2 text-sm font-bold text-white transition-colors group-hover:bg-navy-900">
+                            <IconDownload className="size-4" />
+                            <span className="hidden sm:inline">내려받기</span>
+                          </span>
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
             )}
 
             {post.body ? (
