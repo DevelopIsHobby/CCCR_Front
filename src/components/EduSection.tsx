@@ -1,0 +1,51 @@
+import EduShowcase from "./EduShowcase";
+import SmartLink from "./SmartLink";
+import { IconArrow } from "./Icons";
+import { listVisibleCourses } from "@/lib/db/edu-courses";
+import { homeCourses } from "@/lib/edu-course";
+import { today } from "@/lib/format";
+import { EDUCATION_SCHEDULE_URL } from "@/lib/site-data";
+
+/*
+  메인 'CCCR 아카데미' 영역(남색 띠).
+
+  메인은 흰 바탕(조합 소식) → 회색(주요 정책) → 남색(회원사 참여) 차례라, 그 사이에
+  남색 띠를 하나 더 두어 포스터가 돋보이고 영역이 번갈아 읽히게 한다.
+  접수중·접수예정 과정이 하나도 없으면 영역을 접고 아카데미 일정으로만 이어 준다.
+*/
+export default async function EduSection() {
+  const now = today();
+  const courses = homeCourses(await listVisibleCourses(), now, 4);
+
+  return (
+    <section className="relative overflow-hidden bg-navy-900 py-12 lg:py-16" aria-labelledby="edu-heading">
+      <div className="hex-field absolute inset-0" aria-hidden />
+      <div
+        className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-brand-700/60"
+        aria-hidden
+      />
+
+      <div className="relative mx-auto max-w-[1280px] px-6">
+        <p className="data-line text-flame-500">재직자 교육 · 수강 신청</p>
+        <h2 id="edu-heading" className="mt-3 text-2xl font-bold text-white lg:text-3xl">
+          CCCR 아카데미
+        </h2>
+
+        {courses.length > 0 ? (
+          <EduShowcase courses={courses} today={now} scheduleUrl={EDUCATION_SCHEDULE_URL} />
+        ) : (
+          <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-md text-brand-100/80">
+            지금 접수 중인 과정이 없습니다.
+            <SmartLink
+              href={EDUCATION_SCHEDULE_URL}
+              className="group inline-flex items-center gap-2 font-semibold text-white hover:underline"
+            >
+              아카데미 교육 일정 보기
+              <IconArrow className="size-4 transition-transform group-hover:translate-x-0.5" />
+            </SmartLink>
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}

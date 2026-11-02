@@ -46,7 +46,7 @@ export default function NewsTabs({
     <>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <h2 className="text-2xl font-bold text-navy-900 lg:text-3xl">
-          C3R <span className="text-brand-600">새소식</span>
+          조합 <span className="text-brand-600">소식</span>
         </h2>
 
         {/*

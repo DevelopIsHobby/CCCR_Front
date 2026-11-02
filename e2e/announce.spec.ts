@@ -13,9 +13,11 @@ import { ADMIN, MARK, login } from "./fixtures";
 
 /** 오늘로부터 며칠 뒤(음수면 며칠 전)를 YYYY-MM-DD 로 준다 */
 function dayFromToday(offset: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return d.toISOString().slice(0, 10);
+  /*
+    한국 시각으로 센다. 사이트는 today()(한국 시각)로 접수중·마감을 가르는데, 여기서 UTC 로
+    세면 한국 시각 0시~9시 사이에는 '오늘'이 하루 앞으로 밀려 '오늘 마감' 시험이 깨졌다.
+  */
+  return new Date(Date.now() + 9 * 3_600_000 + offset * 86_400_000).toISOString().slice(0, 10);
 }
 
 test.beforeEach(async ({ page }) => {

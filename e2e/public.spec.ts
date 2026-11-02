@@ -3,9 +3,10 @@ import { ADMIN, MARK, db, now } from "./fixtures";
 
 /* 로그인하지 않은 손님이 보는 화면 */
 
-test("메인 화면이 열리고 새소식이 보인다", async ({ page }) => {
+test("메인 화면이 열리고 조합 소식이 보인다", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "알림판" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "조합 소식" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "지금 모집 중" })).toBeVisible();
   await expect(page.getByRole("contentinfo")).toContainText("한국클라우드컴퓨팅연구조합");
 });
 

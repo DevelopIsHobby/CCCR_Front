@@ -278,9 +278,14 @@ export default function Header({
         </div>
       </div>
 
-      {/* 모바일 드로어 */}
+      {/*
+        모바일 드로어.
+        닫혀 있을 때 서랍은 화면 오른쪽 밖으로 밀려나 있다. 틀이 그것을 자르지 않으면
+        밀려난 서랍만큼 쪽이 넓어져(390px 화면에 473px), 휴대폰에서 옆으로 밀면 화면이
+        흔들리고 서랍 끝이 비쳤다. 틀에서 잘라 낸다(overflow-hidden).
+      */}
       <div
-        className={`fixed inset-0 z-50 lg:hidden ${drawerOpen ? "" : "pointer-events-none"}`}
+        className={`fixed inset-0 z-50 overflow-hidden lg:hidden ${drawerOpen ? "" : "pointer-events-none"}`}
         aria-hidden={!drawerOpen}
       >
         <div

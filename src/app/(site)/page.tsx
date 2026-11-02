@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Hero from "@/components/Hero";
 import NewsSection from "@/components/NewsSection";
+import EduSection from "@/components/EduSection";
 import BannerRail from "@/components/BannerRail";
 import Partners from "@/components/Partners";
 import JoinUsSection from "@/components/JoinUsSection";
@@ -32,6 +33,7 @@ export default async function Home() {
 
       <Hero slides={slides} />
       <NewsSection />
+      <EduSection />
       {banners.length > 0 && <BannerRail banners={banners} updatedAt={bannersUpdatedAt} />}
       <JoinUsSection me={me} />
       <Partners />

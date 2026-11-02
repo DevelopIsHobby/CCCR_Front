@@ -2,7 +2,7 @@ import "server-only";
 import { ready } from "./migrate";
 
 /*
-  메인 화면 카드(히어로 슬라이드 · 배너 띠 · 알림판).
+  메인 화면 카드(히어로 슬라이드 · 배너 띠 · 지금 모집 중).
   사무국이 관리자 화면에서 직접 고친다.
 */
 export type HomeCardKind = "slide" | "banner" | "promo";
@@ -29,8 +29,12 @@ export const HOME_CARD_KINDS: { kind: HomeCardKind; name: string; desc: string }
     name: "히어로 슬라이드",
     desc: "메인 상단에서 차례로 넘어가는 큰 화면입니다.",
   },
-  { kind: "banner", name: "배너 띠", desc: "새소식 아래 가로로 넘기는 카드입니다." },
-  { kind: "promo", name: "알림판", desc: "새소식 오른쪽의 짙은 카드입니다. 2개를 권장합니다." },
+  { kind: "banner", name: "배너 띠", desc: "아카데미 영역 아래 가로로 넘기는 카드입니다." },
+  {
+    kind: "promo",
+    name: "지금 모집 중",
+    desc: "조합 소식 오른쪽의 짙은 칸입니다. 한 번에 하나씩 보이고, 여러 개면 차례로 바뀝니다.",
+  },
 ];
 
 type RawCard = {

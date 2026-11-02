@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { QUICK_LINKS } from "@/lib/site-data";
 import SmartLink from "./SmartLink";
 import type { HomeCard } from "@/lib/db/home-cards";
@@ -130,9 +129,15 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
       {/* 서브페이지 머리와 같은 얇은 액센트 한 줄. 흰 바탕과 만나는 경계를 잡아 준다. */}
       <span className="absolute inset-x-0 bottom-0 z-10 h-1 bg-flame-500" aria-hidden />
 
-      <div className="relative mx-auto grid max-w-[1280px] gap-6 px-6 py-10 lg:grid-cols-[1.55fr_1fr] lg:py-11">
+      {/*
+        슬라이드는 화면 전체 폭, 바로가기는 그 아래 가로 한 줄.
+        전에는 오른쪽에 바로가기 패널(6칸 + 회원사 가입 띠)을 두었는데, 배치와 문구까지
+        KOSA 메인과 거의 같았다. 슬라이드를 넓혀 홍보 그림이 크게 보이게 하고 바로가기는
+        한 줄로 모았다. 회원사 가입은 바로가기 줄과 '지금 모집 중' 칸이 맡는다.
+      */}
+      <div className="relative mx-auto max-w-[1280px] px-6 pb-10 pt-10 lg:pb-11 lg:pt-11">
         {/* 슬라이더 */}
-        <div className="relative flex min-h-[380px] flex-col overflow-hidden rounded-2xl bg-navy-950/60 ring-1 ring-white/10 lg:min-h-[460px]">
+        <div className="relative flex min-h-[380px] flex-col overflow-hidden rounded-2xl bg-navy-950/60 ring-1 ring-white/10 lg:min-h-[440px]">
           <div className="absolute inset-0 opacity-70">
             <NetworkArt />
           </div>
@@ -263,87 +268,29 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
         </div>
 
         {/*
-          바로가기 패널.
-
-          흰 바탕은 그대로 둔다. 어두운 히어로 위에서 '여기서 뭘 할 수 있다'를 가장
-          또렷하게 드러내는 자리이기 때문이다. 대신 왼쪽 슬라이드 패널과 말이 통하도록
-          사이트가 쓰는 세 가지를 들여왔다 — flame 강조, label-mono 머리글, hex-field 무늬.
-
-          칸 사이를 머리카락 선(gap-px)으로 나누던 것을 카드로 바꿨다. 선으로만 가르면
-          표처럼 보여서, 여섯 개가 '누를 수 있는 것'으로 읽히지 않았다.
+          바로가기 한 줄. 슬라이드 바로 아래에 붙여 '여기서 할 수 있는 일'을 먼저 보이게 한다.
+          넓은 화면은 여섯 칸 한 줄, 태블릿은 세 칸 두 줄, 휴대폰은 두 칸 세 줄.
         */}
-        <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_18px_48px_-20px_rgba(4,27,56,0.55)]">
-          <div className="px-7 pt-7">
-            <p className="label-mono text-flame-500">QUICK LINKS</p>
-            <h2 className="mt-2 text-2xl font-bold text-navy-900">
-              신청 · <span className="text-brand-600">바로가기</span>
-            </h2>
-            <p className="mt-1.5 text-base text-ink-600">자주 찾는 서비스를 안내해드립니다.</p>
-            {/* 서브페이지 제목 아래와 같은 짧은 액센트 */}
-            <span className="mt-4 block h-1 w-10 rounded-full bg-flame-500" aria-hidden />
-          </div>
-
-          {/*
-            아이콘을 글자 위가 아니라 옆에 둔다.
-
-            위에 두면 칸 하나가 137px 이 되고, 석 줄이면 이 패널만 694px 이 된다.
-            왼쪽 슬라이드는 460px 이면 충분한데 둘이 같은 줄에 있으니 왼쪽까지 끌려
-            늘어나, 히어로가 화면의 87% 를 먹고 패널은 474x694(세로로 긴 모양)가 됐다.
-            옆에 두면 칸이 84px 로 줄어 패널이 제 높이를 찾는다.
-
-            패널 높이는 칸 내용이 정하게 둔다. 슬라이드 쪽 최소 높이를 칸 합보다 크게
-            잡으면 남는 자리가 생기는데, 그것을 위아래로 몰면(content-center) 여섯 개가
-            가운데 뭉치고, 줄 사이에 나누면(content-between) 칸끼리 멀어져 흩어져 보인다.
-            애초에 남지 않게 두는 편이 낫다. content-between 은 그래도 남을 때를 위한 것이다.
-          */}
-          <div className="grid flex-1 content-between grid-cols-2 gap-2.5 px-7 py-6">
-            {QUICK_LINKS.map((link) => {
-              const Icon = QUICK_ICONS[link.icon];
-              return (
-                <SmartLink
-                  key={link.label}
-                  href={link.href}
-                  className="group flex flex-col gap-2.5 rounded-xl border border-line bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_14px_28px_-16px_rgba(6,42,85,0.4)] sm:flex-row sm:items-center sm:gap-3"
-                >
-                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-flame-500 group-hover:text-white">
-                    <Icon className="size-5" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-md font-bold text-navy-900 sm:truncate">
-                      {link.label}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-ink-400 sm:truncate">
-                      {link.desc}
-                    </span>
-                  </span>
-                  {/*
-                    누를 수 있다는 표시. 평소에는 흐리게 있다가 짚으면 또렷해진다.
-                    좁은 화면에서는 칸 너비가 130px 남짓이라 화살표까지 넣으면
-                    글자가 잘린다. 아이콘을 글자 위로 올리고 화살표는 뺀다.
-                  */}
-                  <IconArrow
-                    className="hidden size-4 shrink-0 text-ink-400 transition-all group-hover:translate-x-0.5 group-hover:text-flame-500 sm:block"
-                    aria-hidden
-                  />
-                </SmartLink>
-              );
-            })}
-          </div>
-
-          {/* 맨 아래 띠는 히어로와 같은 감청 바탕·같은 무늬로 맞춰 카드를 배경에 붙여 준다 */}
-          <Link
-            href="/members/join"
-            className="group relative flex items-center justify-between gap-4 overflow-hidden bg-navy-900 px-7 py-5 transition-colors hover:bg-navy-950"
-          >
-            <span className="hex-field absolute inset-0" aria-hidden />
-            <span className="relative text-md font-medium text-white">
-              <b className="font-bold">C3R 회원사</b>로 가입하고 공동 연구에 참여하세요
-            </span>
-            <span className="relative grid size-9 shrink-0 place-items-center rounded-full bg-flame-500 text-white transition-transform group-hover:translate-x-1">
-              <IconArrow className="size-4" />
-            </span>
-          </Link>
-        </div>
+        <nav aria-label="바로가기" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {QUICK_LINKS.map((link) => {
+            const Icon = QUICK_ICONS[link.icon];
+            return (
+              <SmartLink
+                key={link.label}
+                href={link.href}
+                className="group flex items-center gap-3 rounded-xl bg-white px-4 py-4 transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-14px_rgba(0,0,0,0.55)]"
+              >
+                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-flame-500 group-hover:text-white">
+                  <Icon className="size-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-md font-bold text-navy-900">{link.label}</span>
+                  <span className="mt-0.5 block truncate text-xs text-ink-400">{link.desc}</span>
+                </span>
+              </SmartLink>
+            );
+          })}
+        </nav>
       </div>
     </section>
   );

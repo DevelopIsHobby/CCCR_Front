@@ -31,13 +31,18 @@ export default async function Footer() {
             </span>
             <address className="mt-5 space-y-1 text-sm not-italic leading-relaxed">
               {site.address && <p>{site.address}</p>}
-              {/* 휴대폰 폭에서 'E-' 와 'MAIL' 사이가 끊기지 않게 항목마다 한 덩어리로 묶는다 */}
-              <p>
+              {/*
+                휴대폰 폭에서 'E-' 와 'MAIL' 사이가 끊기지 않게 항목마다 한 덩어리로 묶는다.
+                묶은 덩어리 사이에는 줄을 바꿀 자리가 없어서, 좁은 화면에서 셋이 한 줄로 이어져
+                이메일이 화면 밖으로 나가고 쪽 전체가 옆으로 밀렸다(390px 화면에 473px).
+                flex-wrap 으로 덩어리 사이에서 줄을 바꾸고, 휴대폰에서는 구분선을 감춘다.
+              */}
+              <p className="flex flex-wrap gap-x-2">
                 {site.tel && <span className="whitespace-nowrap">TEL. {site.tel}</span>}
-                {site.tel && site.fax && <span className="mx-2 text-white/20">|</span>}
+                {site.tel && site.fax && <span className="hidden text-white/20 sm:inline">|</span>}
                 {site.fax && <span className="whitespace-nowrap">FAX. {site.fax}</span>}
                 {(site.tel || site.fax) && site.email && (
-                  <span className="mx-2 text-white/20">|</span>
+                  <span className="hidden text-white/20 sm:inline">|</span>
                 )}
                 {site.email && <span className="whitespace-nowrap">E-MAIL. {site.email}</span>}
               </p>

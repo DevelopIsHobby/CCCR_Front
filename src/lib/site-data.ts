@@ -73,6 +73,9 @@ export const NAV: NavItem[] = [
 /** 교육은 조합이 별도 사이트로 운영한다. 사이트 안에 교육 페이지를 두지 않는다. */
 export const EDUCATION_URL = "https://www.cccr-edu.or.kr/main/index.jsp";
 
+/** 아카데미 '운영과정' — 그 해 교육 일정 표. 메인 아카데미 영역의 '전체 일정' 링크가 쓴다 */
+export const EDUCATION_SCHEDULE_URL = "https://www.cccr-edu.or.kr/main/page.jsp?code=schedule";
+
 /*
   옛 홈페이지(그누보드). 새 사이트를 열어도 닫지 않고 그대로 둔다.
 
