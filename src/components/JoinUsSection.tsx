@@ -19,10 +19,10 @@ import ProposalDialog from "./ProposalDialog";
 */
 export default function JoinUsSection({ me = EMPTY_APPLICANT }: { me?: Applicant }) {
   return (
-    <section className="relative overflow-hidden bg-navy-900 py-12 lg:py-14">
+    <section className="relative overflow-hidden bg-navy-950 py-12 lg:py-14">
       <div className="hex-field absolute inset-0" aria-hidden />
       <div
-        className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-brand-700/55"
+        className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-950 to-flame-700/35"
         aria-hidden
       />
       <span className="absolute inset-x-0 top-0 h-1 bg-flame-500" aria-hidden />

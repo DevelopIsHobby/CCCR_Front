@@ -19,7 +19,7 @@ export default async function Page() {
     <div className="space-y-6">
       <PageHead
         title="메인 화면"
-        desc="메인 화면의 슬라이드·배너·지금 모집 중을 직접 고칠 수 있습니다. 교육 과정은 '교육 과정' 메뉴에서 고칩니다."
+        desc="메인 화면의 슬라이드·배너·지금 모집 중을 직접 고칠 수 있습니다."
         actions={
           <Link
             href="/"
@@ -35,6 +35,12 @@ export default async function Page() {
       <Note>
         저장하면 메인 화면에 바로 반영됩니다. 숨기기를 누르면 목록에는 남고 화면에서만 빠집니다.
         게시글은 각 게시판에서 직접 등록하세요.
+        <br />
+        메인의 &lsquo;CCCR 아카데미&rsquo; 과정(포스터·접수 기간·재직자/미취업자)은{" "}
+        <Link href="/admin/education" className="font-semibold text-brand-600 underline underline-offset-2">
+          교육 과정
+        </Link>{" "}
+        화면에서 넣고 고칩니다.
       </Note>
 
       <div>

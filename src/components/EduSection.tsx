@@ -10,7 +10,8 @@ import { EDUCATION_SCHEDULE_URL } from "@/lib/site-data";
   메인 'CCCR 아카데미' 영역(남색 띠).
 
   메인은 흰 바탕(조합 소식) → 회색(주요 정책) → 남색(회원사 참여) 차례라, 그 사이에
-  남색 띠를 하나 더 두어 포스터가 돋보이고 영역이 번갈아 읽히게 한다.
+  짙은 띠를 하나 더 두어 포스터가 돋보이고 영역이 번갈아 읽히게 한다.
+  슬라이드·참여하기와 같은 남색이면 세 띠가 똑같아 지루하다 — 여기는 한 단계 밝은 파랑.
   접수중·접수예정 과정이 하나도 없으면 영역을 접고 아카데미 일정으로만 이어 준다.
 */
 export default async function EduSection() {
@@ -18,10 +19,10 @@ export default async function EduSection() {
   const courses = homeCourses(await listVisibleCourses(), now, 4);
 
   return (
-    <section className="relative overflow-hidden bg-navy-900 py-12 lg:py-14" aria-labelledby="edu-heading">
+    <section className="relative overflow-hidden bg-brand-700 py-12 lg:py-14" aria-labelledby="edu-heading">
       <div className="hex-field absolute inset-0" aria-hidden />
       <div
-        className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-brand-700/60"
+        className="absolute inset-0 bg-gradient-to-br from-navy-800 via-brand-700 to-brand-600"
         aria-hidden
       />
 

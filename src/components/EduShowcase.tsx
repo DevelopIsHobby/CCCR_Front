@@ -39,10 +39,10 @@ export default function EduShowcase({
 
   return (
     /*
-      큰 칸과 목록을 반씩. 처음에는 큰 칸이 57% 를 차지해 포스터가 지나치게 크고, 목록 카드는
-      작은 채로 위에만 몰려 오른쪽 아래가 비었다. 목록 카드가 큰 칸 높이를 나눠 갖게 한다.
+      큰 칸과 목록을 6:4. 목록 카드는 큰 칸 높이를 나눠 가져 오른쪽 아래가 비지 않는다.
+      (57% 일 때 목록이 위에만 몰렸고, 반반은 포스터가 작아 보였다)
     */
-    <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:gap-8">
+    <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-8">
       {/* 대표 포스터 */}
       <article className="overflow-hidden rounded-2xl bg-white shadow-[0_24px_48px_-24px_rgba(0,0,0,0.6)]">
         {main.href ? (
