@@ -17,6 +17,7 @@ import {
 const course = (id: number, applyFrom: string, applyUntil: string, extra: Partial<EduCourse> = {}): EduCourse => ({
   id,
   title: `과정 ${id}`,
+  audience: "재직자",
   summary: "",
   href: "",
   posterUrl: "",

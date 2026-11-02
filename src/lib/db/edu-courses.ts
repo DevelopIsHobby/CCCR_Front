@@ -1,6 +1,6 @@
 import "server-only";
 import { ready } from "./migrate";
-import type { EduCourse } from "@/lib/edu-course";
+import { isAudience, type EduCourse } from "@/lib/edu-course";
 
 /*
   CCCR 아카데미 교육 과정(migrations/042). 사무국이 관리자 화면에서 고친다.
@@ -9,6 +9,7 @@ import type { EduCourse } from "@/lib/edu-course";
 type RawCourse = {
   id: number;
   title: string;
+  audience: string;
   summary: string;
   href: string;
   poster_url: string;
@@ -22,6 +23,8 @@ type RawCourse = {
 const toCourse = (r: RawCourse): EduCourse => ({
   id: Number(r.id),
   title: r.title,
+  /* 모르는 값은 재직자로 둔다(칸의 기본값과 같다) */
+  audience: isAudience(r.audience ?? "") ? (r.audience as EduCourse["audience"]) : "재직자",
   summary: r.summary ?? "",
   href: r.href ?? "",
   posterUrl: r.poster_url ?? "",
@@ -32,7 +35,7 @@ const toCourse = (r: RawCourse): EduCourse => ({
   isVisible: Number(r.is_visible) === 1,
 });
 
-const SELECT = `SELECT id, title, summary, href, poster_url, apply_from, apply_until, starts_on, ends_on, is_visible
+const SELECT = `SELECT id, title, audience, summary, href, poster_url, apply_from, apply_until, starts_on, ends_on, is_visible
                 FROM edu_courses`;
 
 /** 메인용. 숨긴 것은 뺀다. 어느 것을 어떤 차례로 보일지는 homeCourses() 가 정한다 */

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
-import { isDate } from "@/lib/edu-course";
+import { isAudience, isDate } from "@/lib/edu-course";
 
 export type CourseFormState = { error?: string; ok?: boolean };
 
@@ -27,6 +27,7 @@ export async function saveCourse(_prev: CourseFormState, formData: FormData): Pr
   const id = Number(formData.get("id")) || 0;
   const course = {
     title: value("title"),
+    audience: value("audience"),
     summary: value("summary"),
     href: value("href"),
     /* 우리 서버에 올린 그림만 받는다 */
@@ -38,6 +39,7 @@ export async function saveCourse(_prev: CourseFormState, formData: FormData): Pr
   };
 
   if (!course.title) return { error: "과정명을 입력해 주세요." };
+  if (!isAudience(course.audience)) return { error: "과정 구분(재직자·미취업자)을 골라 주세요." };
   if (course.title.length > 120) return { error: "과정명은 120자 이내로 적어 주세요." };
   if (course.summary.length > 60) return { error: "요약은 60자 이내로 적어 주세요." };
   const hrefError = checkHref(course.href);
@@ -61,6 +63,7 @@ export async function saveCourse(_prev: CourseFormState, formData: FormData): Pr
   const stamp = now();
   const values = [
     course.title,
+    course.audience,
     course.summary,
     course.href,
     course.posterUrl,
@@ -73,7 +76,7 @@ export async function saveCourse(_prev: CourseFormState, formData: FormData): Pr
   if (id) {
     await db.run(
       `UPDATE edu_courses
-          SET title = ?, summary = ?, href = ?, poster_url = ?, apply_from = ?, apply_until = ?,
+          SET title = ?, audience = ?, summary = ?, href = ?, poster_url = ?, apply_from = ?, apply_until = ?,
               starts_on = ?, ends_on = ?, updated_at = ?
         WHERE id = ?`,
       [...values, stamp, id],
@@ -81,8 +84,9 @@ export async function saveCourse(_prev: CourseFormState, formData: FormData): Pr
   } else {
     await db.run(
       `INSERT INTO edu_courses
-         (title, summary, href, poster_url, apply_from, apply_until, starts_on, ends_on, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (title, audience, summary, href, poster_url, apply_from, apply_until, starts_on, ends_on,
+          created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [...values, stamp, stamp],
     );
   }

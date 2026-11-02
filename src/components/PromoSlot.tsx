@@ -49,7 +49,7 @@ export default function PromoSlot({ promos }: { promos: HomeCard[] }) {
               둘을 함께 붙이면 relative 가 이겨 숨은 칸이 자리를 나눠 가져, 보이는 칸이
               반 폭으로 줄었다.
             */
-            className={`group flex min-h-[240px] w-full flex-col justify-center overflow-hidden rounded-xl bg-navy-900 p-8 transition-opacity duration-500 hover:bg-navy-800 ${
+            className={`group flex min-h-[200px] w-full flex-col justify-center overflow-hidden rounded-xl bg-navy-900 p-7 transition-opacity duration-500 hover:bg-navy-800 ${
               i === current ? "relative opacity-100" : "pointer-events-none absolute inset-0 opacity-0"
             }`}
           >
@@ -58,7 +58,7 @@ export default function PromoSlot({ promos }: { promos: HomeCard[] }) {
               <span className="label-mono text-flame-500">{item.label}</span>
               <span className="mt-3 block text-xl font-bold leading-snug text-white">{item.title}</span>
               <span className="mt-2 block text-base leading-relaxed text-brand-100/70">{item.body}</span>
-              <span className="mt-7 flex items-center gap-2 text-sm font-semibold text-white">
+              <span className="mt-5 flex items-center gap-2 text-sm font-semibold text-white">
                 바로가기
                 <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
               </span>

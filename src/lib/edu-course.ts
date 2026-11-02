@@ -7,9 +7,18 @@
   DB·서버 전용 코드를 부르지 않아 단위 시험에서 바로 불러 쓸 수 있다.
 */
 
+/** 과정 구분. CCCR 아카데미는 재직자 교육과 미취업자 교육을 함께 연다(migrations/043) */
+export type Audience = "재직자" | "미취업자";
+export const AUDIENCES: Audience[] = ["재직자", "미취업자"];
+
+export function isAudience(value: string): value is Audience {
+  return (AUDIENCES as string[]).includes(value);
+}
+
 export type EduCourse = {
   id: number;
   title: string;
+  audience: Audience;
   /** '집체 · 4일 · 32시간' 처럼 한 줄 요약 */
   summary: string;
   /** 신청 페이지(아카데미). 빈 값이면 누를 곳이 없다 */

@@ -47,7 +47,7 @@ export default function CoursePoster({
         aria-hidden
       />
       {compact ? (
-        <span className="relative line-clamp-3 p-2 text-[10px] font-bold leading-snug text-white">
+        <span className="relative line-clamp-3 p-2.5 text-[11px] font-bold leading-snug text-white">
           {course.title}
         </span>
       ) : (
@@ -56,11 +56,11 @@ export default function CoursePoster({
             CCCR ACADEMY
           </span>
           <span className="relative px-7 pb-7 lg:px-9 lg:pb-9">
-            <span className="block text-xl font-bold leading-snug text-white [word-break:keep-all] lg:text-3xl">
+            <span className="block text-xl font-bold leading-snug text-white [word-break:keep-all] lg:text-2xl">
               {course.title}
             </span>
             <span className="mt-5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-              <span className="font-mono text-2xl font-semibold text-brand-100 lg:text-3xl">
+              <span className="font-mono text-xl font-semibold text-brand-100 lg:text-2xl">
                 {formatRange(course.startsOn, course.endsOn)}
               </span>
               {course.summary && <span className="text-base text-brand-100/70">{course.summary}</span>}

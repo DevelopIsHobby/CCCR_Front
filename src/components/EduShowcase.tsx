@@ -28,19 +28,21 @@ function dueText(c: EduCourse, today: string): { text: string; urgent: boolean }
 export default function EduShowcase({
   courses,
   today,
-  scheduleUrl,
 }: {
   courses: EduCourse[];
   /** 서버가 정한 '오늘'(한국 시각). 화면과 서버가 날짜를 다르게 세지 않게 받아 쓴다 */
   today: string;
-  scheduleUrl: string;
 }) {
   const [picked, setPicked] = useState(0);
   const main = courses[Math.min(picked, courses.length - 1)];
   const due = dueText(main, today);
 
   return (
-    <div className="mt-8 grid gap-6 lg:grid-cols-[1.35fr_1fr] lg:gap-8">
+    /*
+      큰 칸과 목록을 반씩. 처음에는 큰 칸이 57% 를 차지해 포스터가 지나치게 크고, 목록 카드는
+      작은 채로 위에만 몰려 오른쪽 아래가 비었다. 목록 카드가 큰 칸 높이를 나눠 갖게 한다.
+    */
+    <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:gap-8">
       {/* 대표 포스터 */}
       <article className="overflow-hidden rounded-2xl bg-white shadow-[0_24px_48px_-24px_rgba(0,0,0,0.6)]">
         {main.href ? (
@@ -57,7 +59,7 @@ export default function EduShowcase({
                 due.urgent ? "bg-flame-500 text-white" : "bg-brand-50 text-brand-700"
               }`}
             >
-              {courseStatus(main, today)} · {due.text}
+              {main.audience} · {courseStatus(main, today)} · {due.text}
             </p>
             {/*
               포스터가 없으면 자동 포스터에 과정명·기간이 크게 들어가 있다. 아래에 또 적으면
@@ -88,7 +90,7 @@ export default function EduShowcase({
         </div>
       </article>
 
-      {/* 다른 과정 — 누르면 큰 자리가 바뀐다 */}
+      {/* 다른 과정 — 누르면 큰 자리가 바뀐다. 큰 칸 높이를 나눠 가져 아래가 비지 않는다 */}
       <div className="flex flex-col gap-3">
         {courses.map((c, i) => {
           const d = dueText(c, today);
@@ -99,38 +101,39 @@ export default function EduShowcase({
               type="button"
               onClick={() => setPicked(i)}
               aria-pressed={on}
-              className={`grid grid-cols-[104px_minmax(0,1fr)] items-center gap-4 rounded-xl p-3 text-left transition-colors ${
+              className={`grid flex-1 grid-cols-[104px_minmax(0,1fr)] items-center gap-4 sm:gap-5 rounded-xl p-4 text-left transition-colors sm:grid-cols-[168px_minmax(0,1fr)] ${
                 on ? "bg-white" : "bg-white/[0.06] hover:bg-white/[0.12]"
               }`}
             >
-              <span className="overflow-hidden rounded-md">
+              <span className="overflow-hidden rounded-lg">
                 <CoursePoster course={c} compact />
               </span>
               <span className="min-w-0">
+                <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold">
+                  <span
+                    className={`rounded px-1.5 py-0.5 text-2xs font-bold ${
+                      on ? "bg-brand-50 text-brand-700" : "bg-white/10 text-brand-100"
+                    }`}
+                  >
+                    {c.audience}
+                  </span>
+                  <span className={d.urgent ? "text-flame-500" : on ? "text-brand-600" : "text-brand-100/70"}>
+                    {d.text}
+                  </span>
+                </span>
                 <span
-                  className={`line-clamp-2 text-base font-bold leading-snug ${on ? "text-navy-900" : "text-white"}`}
+                  className={`mt-1.5 line-clamp-2 text-md font-bold leading-snug ${on ? "text-navy-900" : "text-white"}`}
                 >
                   {c.title}
                 </span>
-                <span
-                  className={`mt-1 block text-sm font-semibold ${
-                    d.urgent ? "text-flame-500" : on ? "text-brand-600" : "text-brand-100/70"
-                  }`}
-                >
-                  {d.text}
+                <span className={`mt-1 block truncate text-sm ${on ? "text-ink-400" : "text-brand-100/60"}`}>
+                  교육 {formatRange(c.startsOn, c.endsOn)}
+                  {c.summary && ` · ${c.summary}`}
                 </span>
               </span>
             </button>
           );
         })}
-
-        <SmartLink
-          href={scheduleUrl}
-          className="group mt-auto inline-flex items-center gap-2 self-start pt-2 text-base font-semibold text-white/80 hover:text-white"
-        >
-          아카데미 전체 교육 일정
-          <IconArrow className="size-4 transition-transform group-hover:translate-x-0.5" />
-        </SmartLink>
       </div>
     </div>
   );

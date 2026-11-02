@@ -7,7 +7,7 @@ import {
   toggleCourse,
   type CourseFormState,
 } from "@/lib/db/edu-course-actions";
-import { courseStatus, formatRange, type CourseStatus, type EduCourse } from "@/lib/edu-course";
+import { AUDIENCES, courseStatus, formatRange, type CourseStatus, type EduCourse } from "@/lib/edu-course";
 import { today } from "@/lib/format";
 import ImagePicker from "@/components/admin/ImagePicker";
 import CoursePoster from "@/components/CoursePoster";
@@ -52,10 +52,22 @@ function CourseForm({ course, onDone }: { course?: EduCourse; onDone?: () => voi
     <form action={action} className="space-y-4 rounded-xl bg-surface p-6">
       {course && <input type="hidden" name="id" value={course.id} />}
 
-      <label className="block">
-        <span className="mb-1.5 block text-base font-bold text-navy-900">과정명</span>
-        <input name="title" defaultValue={course?.title ?? ""} required maxLength={120} className={input} />
-      </label>
+      <div className="grid gap-4 sm:grid-cols-[160px_minmax(0,1fr)]">
+        <label className="block">
+          <span className="mb-1.5 block text-base font-bold text-navy-900">과정 구분</span>
+          <select name="audience" defaultValue={course?.audience ?? "재직자"} className={input}>
+            {AUDIENCES.map((a) => (
+              <option key={a} value={a}>
+                {a} 교육
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block">
+          <span className="mb-1.5 block text-base font-bold text-navy-900">과정명</span>
+          <input name="title" defaultValue={course?.title ?? ""} required maxLength={120} className={input} />
+        </label>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
@@ -152,6 +164,9 @@ function CourseRow({ course, now }: { course: EduCourse; now: string }) {
         <p className="flex flex-wrap items-center gap-2">
           <span className={`inline-flex rounded px-2 py-0.5 text-2xs font-bold ${STATUS_TONE[status]}`}>
             {status}
+          </span>
+          <span className="inline-flex rounded bg-brand-50 px-2 py-0.5 text-2xs font-bold text-brand-700">
+            {course.audience}
           </span>
           {!course.isVisible && (
             <span className="inline-flex rounded bg-surface px-2 py-0.5 text-2xs font-bold text-ink-400">

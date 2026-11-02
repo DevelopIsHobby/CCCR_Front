@@ -22,7 +22,8 @@ const BADGE_STYLE: Record<string, string> = {
   news: "bg-navy-900/8 text-navy-800",
 };
 
-const PER_TAB = 6;
+/* 옆 '지금 모집 중' 칸이 이 목록 높이에 맞춰 늘어나므로, 많이 보이면 그 칸도 길어진다 */
+const PER_TAB = 4;
 
 /*
   메인 새소식 목록. 탭 전환만 클라이언트에서 하고 데이터는 서버에서 받는다.

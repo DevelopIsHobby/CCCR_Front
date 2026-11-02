@@ -18,7 +18,7 @@ export default async function EduSection() {
   const courses = homeCourses(await listVisibleCourses(), now, 4);
 
   return (
-    <section className="relative overflow-hidden bg-navy-900 py-12 lg:py-16" aria-labelledby="edu-heading">
+    <section className="relative overflow-hidden bg-navy-900 py-12 lg:py-14" aria-labelledby="edu-heading">
       <div className="hex-field absolute inset-0" aria-hidden />
       <div
         className="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-brand-700/60"
@@ -26,13 +26,26 @@ export default async function EduSection() {
       />
 
       <div className="relative mx-auto max-w-[1280px] px-6">
-        <p className="data-line text-flame-500">재직자 교육 · 수강 신청</p>
-        <h2 id="edu-heading" className="mt-3 text-2xl font-bold text-white lg:text-3xl">
-          CCCR 아카데미
-        </h2>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="data-line text-flame-500">재직자 교육 · 미취업자 교육</p>
+            <h2 id="edu-heading" className="mt-3 text-2xl font-bold text-white lg:text-3xl">
+              CCCR 아카데미
+            </h2>
+          </div>
+          {courses.length > 0 && (
+            <SmartLink
+              href={EDUCATION_SCHEDULE_URL}
+              className="group inline-flex items-center gap-2 text-base font-semibold text-white/80 hover:text-white"
+            >
+              전체 교육 일정
+              <IconArrow className="size-4 transition-transform group-hover:translate-x-0.5" />
+            </SmartLink>
+          )}
+        </div>
 
         {courses.length > 0 ? (
-          <EduShowcase courses={courses} today={now} scheduleUrl={EDUCATION_SCHEDULE_URL} />
+          <EduShowcase courses={courses} today={now} />
         ) : (
           <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-md text-brand-100/80">
             지금 접수 중인 과정이 없습니다.
