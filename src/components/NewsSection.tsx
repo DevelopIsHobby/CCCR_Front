@@ -1,11 +1,10 @@
 import NewsTabs, { type NewsItem } from "./NewsTabs";
 import CalendarCard from "./CalendarCard";
-import { addMonths, type CalendarEntry } from "@/lib/calendar";
+import { CALENDAR_KINDS, addMonths, applyCalendarSettings } from "@/lib/calendar";
 import { BOARDS, postHref } from "@/lib/boards";
-import { listCalendarPosts, listRecentByBoard } from "@/lib/db/posts";
-import { listVisibleCourses } from "@/lib/db/edu-courses";
+import { listRecentByBoard } from "@/lib/db/posts";
+import { collectCalendar, getCalendarSettings } from "@/lib/db/calendar";
 import { formatDate, noticeStatus, today } from "@/lib/format";
-import { EDUCATION_SCHEDULE_URL } from "@/lib/site-data";
 
 /** 등록 7일 이내면 새 글로 표시한다. 게시판 목록과 같은 기준이다. */
 const isNew = (iso: string) =>
@@ -22,65 +21,21 @@ export default async function NewsSection() {
   /* 메인에는 showOnHome 인 게시판만 모은다. 서로 기다릴 일이 없는 조회다 */
   const homeBoards = BOARDS.filter((b) => b.showOnHome);
   const now = today();
-  /* 달력은 지난달부터 석 달 뒤까지 넘겨 볼 수 있게 그만큼 일정을 실어 보낸다 */
+  /* 달력은 지난달부터 석 달 뒤까지 넘겨 볼 수 있게 그만큼 일정을 실어 보낸다(관리자 화면도 같은 범위) */
   const from = `${addMonths(now.slice(0, 7), -1)}-01`;
   const to = `${addMonths(now.slice(0, 7), 4)}-01`;
-  const [posts, calendarPosts, courses] = await Promise.all([
+  const [posts, allCalendar, settings] = await Promise.all([
     listRecentByBoard(
       homeBoards.map((b) => b.slug),
       6,
     ),
-    listCalendarPosts(from, to),
-    listVisibleCourses(),
+    collectCalendar(from, to),
+    getCalendarSettings(),
   ]);
 
-  /*
-    달력에 찍을 일정 = 행사(여는 날~끝나는 날) + 사업공고(접수 마감일) + 아카데미 교육(교육 기간).
-  */
-  const calendar: CalendarEntry[] = [
-    ...calendarPosts.flatMap((post): CalendarEntry[] => {
-      const board = BOARDS.find((b) => b.slug === post.board);
-      if (!board) return [];
-      const href = postHref(board, post.id, post.link?.url);
-      const key = `${post.board}-${post.id}`;
-      if (post.board === "events" && post.event.startsOn) {
-        return [
-          {
-            key,
-            kind: "행사",
-            title: post.title,
-            href,
-            start: post.event.startsOn,
-            end: post.event.endsOn || post.event.startsOn,
-          },
-        ];
-      }
-      if (post.event.applyBy) {
-        return [
-          {
-            key,
-            kind: "공고 마감",
-            title: post.title,
-            href,
-            start: post.event.applyBy,
-            end: post.event.applyBy,
-          },
-        ];
-      }
-      return [];
-    }),
-    ...courses
-      .filter((c) => c.endsOn >= from && c.startsOn < to)
-      .map((c): CalendarEntry => ({
-        key: `course-${c.id}`,
-        kind: "교육",
-        title: c.title,
-        /* 신청 주소가 없는 과정은 아카데미 일정으로 */
-        href: c.href || EDUCATION_SCHEDULE_URL,
-        start: c.startsOn,
-        end: c.endsOn || c.startsOn,
-      })),
-  ];
+  /* 달력 일정(행사·공고 마감·교육·조합 일정)에 관리자 설정(숨김·끈 종류)을 건다 — lib/db/calendar.ts */
+  const calendar = applyCalendarSettings(allCalendar, settings.hidden, settings.off);
+  const calendarKinds = CALENDAR_KINDS.filter((k) => !settings.off.has(k));
 
   const items: NewsItem[] = posts.map((p) => {
     const board = BOARDS.find((b) => b.slug === p.board);
@@ -123,7 +78,7 @@ export default async function NewsSection() {
         */}
         <div className="flex min-w-0 flex-col">
           <h2 className="sr-only">일정 달력</h2>
-          <CalendarCard entries={calendar} today={now} />
+          <CalendarCard entries={calendar} kinds={calendarKinds} today={now} />
         </div>
       </div>
     </section>

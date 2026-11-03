@@ -14,19 +14,20 @@ import {
 
 /*
   종류 색. 사이트 색(남색·파랑·주황) 안에서 고르면 교육(남색)과 공고 마감(파랑)이 작은 점에서
-  구별되지 않았다. 셋이 색상부터 다르게 주황·초록(청록)·파랑으로 둔다.
+  구별되지 않았다. 색상부터 다르게 주황·초록(청록)·파랑, 직접 넣는 조합 일정은 보라로 둔다.
 */
 const KIND_DOT: Record<CalendarKind, string> = {
   행사: "bg-flame-500",
   교육: "bg-teal-600",
   "공고 마감": "bg-brand-500",
+  "조합 일정": "bg-violet-500",
 };
 const KIND_TEXT: Record<CalendarKind, string> = {
   행사: "text-flame-600",
   교육: "text-teal-700",
   "공고 마감": "text-brand-600",
+  "조합 일정": "text-violet-700",
 };
-const KINDS: CalendarKind[] = ["행사", "교육", "공고 마감"];
 const WEEK = ["일", "월", "화", "수", "목", "금", "토"];
 
 const navButton =
@@ -45,9 +46,12 @@ const navButton =
 */
 export default function CalendarCard({
   entries,
+  kinds,
   today,
 }: {
   entries: CalendarEntry[];
+  /** 보이는 종류(관리자가 끈 종류는 빠진다). 점 차례와 색 안내가 이것을 따른다 */
+  kinds: CalendarKind[];
   /** 서버가 정한 '오늘'(한국 시각). 화면과 서버가 날짜를 다르게 세지 않게 받아 쓴다 */
   today: string;
 }) {
@@ -108,7 +112,7 @@ export default function CalendarCard({
           {cells.map((date, i) => {
             if (!date) return <span key={`blank-${i}`} />;
             const on = entriesOn(entries, date);
-            const kinds = KINDS.filter((k) => on.some((e) => e.kind === k));
+            const dayKinds = kinds.filter((k) => on.some((e) => e.kind === k));
             const isPicked = date === picked;
             const isToday = date === today;
             return (
@@ -133,7 +137,7 @@ export default function CalendarCard({
                 <span className="leading-none">{Number(date.slice(8, 10))}</span>
                 {/* 일정 종류마다 점 하나 */}
                 <span className="mt-1 flex h-1.5 gap-0.5" aria-hidden>
-                  {kinds.map((k) => (
+                  {dayKinds.map((k) => (
                     <span
                       key={k}
                       className={`size-1.5 rounded-full ${isPicked ? "bg-white" : KIND_DOT[k]}`}
@@ -147,7 +151,7 @@ export default function CalendarCard({
 
         {/* 점 색 안내 — 달력 바로 아래 */}
         <p className="mt-3 flex justify-center gap-4 text-2xs text-ink-400" aria-hidden>
-          {KINDS.map((k) => (
+          {kinds.map((k) => (
             <span key={k} className="flex items-center gap-1.5">
               <span className={`size-1.5 rounded-full ${KIND_DOT[k]}`} />
               {k}

@@ -4,7 +4,14 @@
   날짜는 모두 'YYYY-MM-DD', 달은 'YYYY-MM' 글자로 다룬다. 글자 비교가 곧 날짜 비교이고,
   Date 를 쓸 때는 UTC 자정으로 읽어 시간대·서머타임 때문에 하루가 밀리지 않게 한다.
 */
-export type CalendarKind = "행사" | "교육" | "공고 마감";
+/** '조합 일정'은 게시글 없이 관리자 화면(달력 일정)에서 직접 넣는 일정이다 */
+export type CalendarKind = "행사" | "교육" | "공고 마감" | "조합 일정";
+
+export const CALENDAR_KINDS: CalendarKind[] = ["행사", "교육", "공고 마감", "조합 일정"];
+
+export function isCalendarKind(value: string): value is CalendarKind {
+  return (CALENDAR_KINDS as string[]).includes(value);
+}
 
 export type CalendarEntry = {
   key: string;
@@ -43,6 +50,17 @@ export function monthGrid(month: string): (string | null)[] {
 /** 그날 걸친 일정. 여러 날 이어지는 행사·교육은 기간 안의 모든 날에 걸친다 */
 export function entriesOn(entries: CalendarEntry[], date: string): CalendarEntry[] {
   return entries.filter((e) => e.start <= date && date <= e.end);
+}
+
+/**
+ * 관리자 설정을 건다. 하나씩 숨긴 일정(hidden: 항목 이름)과 꺼 둔 종류(off)를 뺀다.
+ */
+export function applyCalendarSettings(
+  entries: CalendarEntry[],
+  hidden: ReadonlySet<string>,
+  off: ReadonlySet<CalendarKind>,
+): CalendarEntry[] {
+  return entries.filter((e) => !hidden.has(e.key) && !off.has(e.kind));
 }
 
 /**

@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   addMonths,
+  applyCalendarSettings,
   entriesOn,
   firstPick,
   monthGrid,
@@ -53,4 +54,20 @@ test("처음 골라 둘 날: 오늘 일정이 있으면 오늘, 없으면 가장
   assert.equal(firstPick(list, "2026-11-03"), "2026-11-10");
   assert.equal(firstPick([...list, entry("now", "2026-11-01", "2026-11-05")], "2026-11-03"), "2026-11-03");
   assert.equal(firstPick([entry("old", "2026-10-01")], "2026-11-03"), "2026-11-03");
+});
+
+test("관리자 설정: 하나씩 숨긴 일정과 꺼 둔 종류는 빠진다", () => {
+  const list: CalendarEntry[] = [
+    entry("events-1", "2026-11-10"),
+    { ...entry("course-2", "2026-11-12"), kind: "교육" },
+    { ...entry("custom-3", "2026-11-14"), kind: "조합 일정" },
+  ];
+  assert.deepEqual(
+    applyCalendarSettings(list, new Set(["events-1"]), new Set()).map((e) => e.key),
+    ["course-2", "custom-3"],
+  );
+  assert.deepEqual(
+    applyCalendarSettings(list, new Set(), new Set(["교육"])).map((e) => e.key),
+    ["events-1", "custom-3"],
+  );
 });
