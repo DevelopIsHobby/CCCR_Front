@@ -1,14 +1,11 @@
 import NewsTabs, { type NewsItem } from "./NewsTabs";
-import UpcomingCard from "./UpcomingCard";
-import { pickUpcoming, type UpcomingEntry } from "@/lib/upcoming";
+import CalendarCard from "./CalendarCard";
+import { addMonths, type CalendarEntry } from "@/lib/calendar";
 import { BOARDS, postHref } from "@/lib/boards";
-import { listRecentByBoard, listUpcoming } from "@/lib/db/posts";
+import { listCalendarPosts, listRecentByBoard } from "@/lib/db/posts";
 import { listVisibleCourses } from "@/lib/db/edu-courses";
 import { formatDate, noticeStatus, today } from "@/lib/format";
 import { EDUCATION_SCHEDULE_URL } from "@/lib/site-data";
-
-/* 다가오는 일정 건수. 왼쪽 목록 다섯 줄과 높이가 맞는 수 */
-const UPCOMING = 3;
 
 /** 등록 7일 이내면 새 글로 표시한다. 게시판 목록과 같은 기준이다. */
 const isNew = (iso: string) =>
@@ -18,50 +15,72 @@ const isNew = (iso: string) =>
 const shortDate = (iso: string) => formatDate(iso).slice(5);
 
 /*
-  메인 '조합 소식'(왼쪽 탭 목록)과 '다가오는 일정'(오른쪽 칸).
-  오른쪽은 전에 '지금 모집 중' 홍보 알림판 자리였다. 바뀐 까닭은 NewsTabs·UpcomingCard 참고.
+  메인 '조합 소식'(왼쪽 탭 목록)과 '일정 달력'(오른쪽 칸).
+  오른쪽은 전에 '지금 모집 중' 홍보 알림판 자리였다. 바뀐 까닭은 NewsTabs·CalendarCard 참고.
 */
 export default async function NewsSection() {
   /* 메인에는 showOnHome 인 게시판만 모은다. 서로 기다릴 일이 없는 조회다 */
   const homeBoards = BOARDS.filter((b) => b.showOnHome);
   const now = today();
-  const [posts, upcomingPosts, courses] = await Promise.all([
+  /* 달력은 지난달부터 석 달 뒤까지 넘겨 볼 수 있게 그만큼 일정을 실어 보낸다 */
+  const from = `${addMonths(now.slice(0, 7), -1)}-01`;
+  const to = `${addMonths(now.slice(0, 7), 4)}-01`;
+  const [posts, calendarPosts, courses] = await Promise.all([
     listRecentByBoard(
       homeBoards.map((b) => b.slug),
       5,
     ),
-    listUpcoming(now, UPCOMING),
+    listCalendarPosts(from, to),
     listVisibleCourses(),
   ]);
 
   /*
-    다가오는 일정 = 행사(여는 날) + 사업공고(접수 마감일) + 아카데미 교육(교육 시작일).
-    셋을 날짜 순으로 섞어 가까운 것부터 UPCOMING 건만 둔다(lib/upcoming.ts).
+    달력에 찍을 일정 = 행사(여는 날~끝나는 날) + 사업공고(접수 마감일) + 아카데미 교육(교육 기간).
   */
-  const entries: UpcomingEntry[] = [
-    ...upcomingPosts.flatMap(({ post, date, kind }): UpcomingEntry[] => {
+  const calendar: CalendarEntry[] = [
+    ...calendarPosts.flatMap((post): CalendarEntry[] => {
       const board = BOARDS.find((b) => b.slug === post.board);
       if (!board) return [];
-      return [
-        {
-          key: `${post.board}-${post.id}`,
-          date,
-          kind,
-          title: post.title,
-          href: postHref(board, post.id, post.link?.url),
-        },
-      ];
+      const href = postHref(board, post.id, post.link?.url);
+      const key = `${post.board}-${post.id}`;
+      if (post.board === "events" && post.event.startsOn) {
+        return [
+          {
+            key,
+            kind: "행사",
+            title: post.title,
+            href,
+            start: post.event.startsOn,
+            end: post.event.endsOn || post.event.startsOn,
+          },
+        ];
+      }
+      if (post.event.applyBy) {
+        return [
+          {
+            key,
+            kind: "공고 마감",
+            title: post.title,
+            href,
+            start: post.event.applyBy,
+            end: post.event.applyBy,
+          },
+        ];
+      }
+      return [];
     }),
-    ...courses.map((c): UpcomingEntry => ({
-      key: `course-${c.id}`,
-      date: c.startsOn,
-      kind: "교육",
-      title: c.title,
-      /* 신청 주소가 없는 과정은 아카데미 일정으로 */
-      href: c.href || EDUCATION_SCHEDULE_URL,
-    })),
+    ...courses
+      .filter((c) => c.endsOn >= from && c.startsOn < to)
+      .map((c): CalendarEntry => ({
+        key: `course-${c.id}`,
+        kind: "교육",
+        title: c.title,
+        /* 신청 주소가 없는 과정은 아카데미 일정으로 */
+        href: c.href || EDUCATION_SCHEDULE_URL,
+        start: c.startsOn,
+        end: c.endsOn || c.startsOn,
+      })),
   ];
-  const upcoming = pickUpcoming(entries, now, UPCOMING);
 
   const items: NewsItem[] = posts.map((p) => {
     const board = BOARDS.find((b) => b.slug === p.board);
@@ -100,11 +119,11 @@ export default async function NewsSection() {
 
         <div className="flex min-w-0 flex-col">
           <h2 className="text-2xl font-bold text-navy-900 lg:text-3xl">
-            다가오는 <span className="text-flame-500">일정</span>
+            일정 <span className="text-flame-500">달력</span>
           </h2>
           {/* 왼쪽 목록 윗선과 높이를 맞춘다(탭 줄 높이만큼) */}
           <div className="mt-6 flex flex-1 flex-col lg:mt-[1.875rem]">
-            <UpcomingCard items={upcoming} today={now} />
+            <CalendarCard entries={calendar} today={now} />
           </div>
         </div>
       </div>

@@ -389,35 +389,21 @@ export async function listRecentByBoard(boards: string[], perBoard = 6): Promise
     .sort((a, b) => (a.createdAt === b.createdAt ? b.id - a.id : a.createdAt < b.createdAt ? 1 : -1));
 }
 
-export type UpcomingItem = {
-  post: PostRow;
-  /** 일정 날짜 'YYYY-MM-DD'. 행사는 여는 날, 사업공고는 접수 마감일 */
-  date: string;
-  kind: "행사" | "공고 마감";
-};
-
 /**
- * 메인 '다가오는 일정'. 오늘부터 앞으로 열릴 행사와 마감이 남은 사업공고를 날짜 순으로.
- * 날짜는 YYYY-MM-DD 글자라 글자 비교가 곧 날짜 비교다. 마감 당일까지 남긴다(noticeStatus 와 같다).
+ * 메인 '일정 달력'에 찍을 글. from~to('YYYY-MM-DD') 안에 걸친 행사(여는 날~끝나는 날)와
+ * 그 안에 마감이 있는 사업공고. 날짜는 글자 비교가 곧 날짜 비교다.
+ * 끝나는 날이 없는 행사는 하루짜리로 본다.
  */
-export async function listUpcoming(today: string, limit = 4): Promise<UpcomingItem[]> {
+export async function listCalendarPosts(from: string, to: string): Promise<PostRow[]> {
   const db = await ready();
   const rows = await db.all<RawRow>(
     `SELECT p.*, 0 AS attachment_count
        FROM posts p
       WHERE p.deleted_at = ''
-        AND ((p.board = 'events' AND p.event_starts_on >= ?)
-          OR (p.board = 'announce' AND p.event_apply_by >= ?))`,
-    [today, today],
+        AND ((p.board = 'events' AND p.event_starts_on <> '' AND p.event_starts_on <= ?
+              AND COALESCE(NULLIF(p.event_ends_on, ''), p.event_starts_on) >= ?)
+          OR (p.board = 'announce' AND p.event_apply_by >= ? AND p.event_apply_by <= ?))`,
+    [to, from, from, to],
   );
-
-  return rows
-    .map(toPost)
-    .map((post): UpcomingItem =>
-      post.board === "events"
-        ? { post, date: post.event.startsOn ?? "", kind: "행사" }
-        : { post, date: post.event.applyBy ?? "", kind: "공고 마감" },
-    )
-    .sort((a, b) => (a.date === b.date ? b.post.id - a.post.id : a.date < b.date ? -1 : 1))
-    .slice(0, limit);
+  return rows.map(toPost);
 }

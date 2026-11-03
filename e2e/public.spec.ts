@@ -146,10 +146,10 @@ test("고정 글은 첫 쪽에만 올라온다", async ({ page }) => {
   await expect(pinnedRows(page)).toHaveCount(0);
 });
 
-test("메인 '다가오는 일정'에 앞으로 열릴 행사와 마감 전 공고가 날짜 순으로 나온다", async ({ page }) => {
+test("메인 '일정 달력'에서 날을 누르면 그날 행사·교육·공고 마감이 나온다", async ({ page }) => {
   /*
-    홍보 알림판 대신 둔 칸. 행사정보의 행사일·사업공고의 마감일에서 저절로 채워진다.
-    아주 먼 날짜로 넣어도 다른 일정보다 뒤로 밀려 3건 밖으로 나갈 수 있으므로, 가까운 날로 넣는다.
+    홍보 알림판 대신 둔 칸. 행사정보·사업공고 글과 아카데미 교육 과정에서 저절로 채워진다.
+    날짜 칸이 하루씩 밀리지 않는지는 단위 시험(tests/calendar.test.ts)이 본다.
   */
   const day = (n: number) => {
     const d = new Date();
@@ -157,39 +157,52 @@ test("메인 '다가오는 일정'에 앞으로 열릴 행사와 마감 전 공�
     return d.toISOString().slice(0, 10);
   };
   const stamp = Date.now();
+  /* 다른 시험이 넣는 일정(대개 한두 주 안)과 겹치지 않게 멀리 잡는다. 달력이 싣는 범위(넉 달 뒤까지) 안이다 */
+  const target = day(60);
   const conn = db();
   conn
     .prepare(
       `INSERT INTO posts (board, title, body, author_name, is_pinned, is_locked, views,
-                          created_at, updated_at, event_starts_on)
-       VALUES ('events', ?, '<p>행사</p>', ?, 0, 0, 0, ?, ?, ?)`,
+                          created_at, updated_at, event_starts_on, event_ends_on)
+       VALUES ('events', ?, '<p>행사</p>', ?, 0, 0, 0, ?, ?, ?, ?)`,
     )
-    .run(`${MARK} 다가오는 세미나 ${stamp}`, ADMIN.name, now(), now(), day(1));
+    .run(`${MARK} 달력 세미나 ${stamp}`, ADMIN.name, now(), now(), target, target);
   conn
     .prepare(
       `INSERT INTO posts (board, title, body, author_name, is_pinned, is_locked, views,
                           created_at, updated_at, link_url, event_apply_by)
-       VALUES ('announce', ?, '', ?, 0, 0, 0, ?, ?, 'https://example.com/n', ?)`,
+       VALUES ('announce', ?, '', ?, 0, 0, 0, ?, ?, 'https://example.com/cal', ?)`,
     )
-    .run(`${MARK} 곧 마감 공고 ${stamp}`, ADMIN.name, now(), now(), day(1));
-  /* 지난 행사는 나오지 않는다 */
+    .run(`${MARK} 달력 마감 공고 ${stamp}`, ADMIN.name, now(), now(), target);
   conn
     .prepare(
-      `INSERT INTO posts (board, title, body, author_name, is_pinned, is_locked, views,
-                          created_at, updated_at, event_starts_on)
-       VALUES ('events', ?, '<p>행사</p>', ?, 0, 0, 0, ?, ?, ?)`,
+      `INSERT INTO edu_courses (title, summary, href, apply_from, apply_until, starts_on, ends_on,
+                                sort_order, created_at, updated_at)
+       VALUES (?, '집체', 'https://example.com/course', ?, ?, ?, ?, 99, ?, ?)`,
     )
-    .run(`${MARK} 지난 세미나 ${stamp}`, ADMIN.name, now(), now(), day(-3));
+    .run(`${MARK} 달력 교육 ${stamp}`, day(30), day(55), day(58), day(62), now(), now());
   conn.close();
 
-  /*
-    칸은 3건뿐이라, 다른 시험이 먼저 넣은 가까운 일정에 밀려 위 두 건이 안 보일 수 있다.
-    어떤 일정이 뽑히는지(날짜 순·교육 포함)는 단위 시험(tests/upcoming.test.ts)이 본다.
-    여기서는 칸에 일정이 걸리고, 지난 행사는 빠지는 것만 본다.
-  */
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "다가오는 일정" })).toBeVisible();
-  const card = page.getByRole("list", { name: "다가오는 일정" });
-  await expect(card.getByRole("link").first()).toBeVisible();
-  await expect(card.getByRole("link", { name: new RegExp(`지난 세미나 ${stamp}`) })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "일정 달력" })).toBeVisible();
+
+  /* 그 날이 있는 달로 넘긴다(처음 보이는 달은 가장 가까운 일정에 따라 다르다) */
+  const [y, m, d] = target.split("-").map(Number);
+  const header = page.getByText(/^\d{4}년 \d{1,2}월$/);
+  for (let i = 0; i < 6; i++) {
+    const [hy, hm] = ((await header.innerText()).match(/\d+/g) ?? []).map(Number);
+    if (hy === y && hm === m) break;
+    const later = hy < y || (hy === y && hm < m);
+    await page.getByRole("button", { name: later ? "다음 달" : "이전 달" }).click();
+  }
+
+  await page.getByRole("button", { name: new RegExp(`^${m}월 ${d}일, 일정 \\d+건`) }).click();
+  const list = page.getByRole("list", { name: "고른 날의 일정" });
+  await expect(list.getByRole("link", { name: new RegExp(`달력 세미나 ${stamp}`) })).toBeVisible();
+  /* 교육은 기간 내내 걸친다 */
+  await expect(list.getByRole("link", { name: new RegExp(`달력 교육 ${stamp}`) })).toBeVisible();
+  /* 사업공고는 원문으로 간다 */
+  await expect(
+    list.getByRole("link", { name: new RegExp(`달력 마감 공고 ${stamp}`) }),
+  ).toHaveAttribute("href", "https://example.com/cal");
 });
