@@ -21,7 +21,8 @@ Type=simple
 User=c3r
 WorkingDirectory=/srv/c3r/app
 EnvironmentFile=/srv/c3r/app/.env.production
-ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000
+# -H 127.0.0.1: 방화벽(ufw)이 3000 을 막고 있지만, 앱도 서버 안에서만 듣게 해 두 겹으로 막는다
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3000
 Restart=always
 RestartSec=5
 

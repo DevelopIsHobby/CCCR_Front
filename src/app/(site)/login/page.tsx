@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import PageShell from "@/components/sub/PageShell";
 import LoginForm from "./LoginForm";
 import { getSession } from "@/lib/auth/session";
+import { safeNext } from "@/lib/auth/social-profile";
 import { pageMeta } from "@/lib/page-meta";
 import SocialLoginButtons from "@/components/SocialLoginButtons";
 
@@ -33,7 +34,7 @@ export default async function Page({
   if (await getSession()) redirect("/");
 
   const { next, reset, social } = await searchParams;
-  const target = next?.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const target = safeNext(next);
 
   return (
     <PageShell

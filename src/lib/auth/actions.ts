@@ -5,6 +5,7 @@ import { ready } from "@/lib/db/migrate";
 import { burnPasswordTime, verifyPassword } from "@/lib/auth/password";
 import { createSession, destroySession } from "@/lib/auth/session";
 import { clear, clientKey, keyOf, LOGIN, record, tooMany } from "@/lib/db/rate-limit";
+import { safeNext } from "@/lib/auth/social-profile";
 
 export type LoginState = { error?: string };
 
@@ -63,8 +64,11 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   await clear("login", `ip:${from}`);
 
   await createSession(user.id);
-  /* 열린 리다이렉트를 막기 위해 사이트 내부 경로만 허용한다. */
-  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/");
+  /*
+    열린 리다이렉트를 막기 위해 사이트 내부 경로만 허용한다. 소셜 로그인과 같은 검사를 쓴다.
+    전에는 '//' 만 막아 '/\evil.com' 이 빠져나갔다 — 브라우저는 \ 를 / 로 읽어 남의 사이트로 간다.
+  */
+  redirect(safeNext(next));
 }
 
 export async function logout(): Promise<void> {

@@ -61,5 +61,9 @@ test("돌아갈 곳은 사이트 안의 경로만", () => {
   assert.equal(safeNext("//evil.com"), "/");
   assert.equal(safeNext("/\\evil.com"), "/");
   assert.equal(safeNext("https://evil.com"), "/");
+  assert.equal(safeNext("/\t/evil.com"), "/");
+  assert.equal(safeNext("/\n/evil.com"), "/");
+  assert.equal(safeNext("/board\\..\\..\\evil.com"), "/");
+  assert.equal(safeNext("/board/notice?page=2"), "/board/notice?page=2");
   assert.equal(safeNext(null), "/");
 });

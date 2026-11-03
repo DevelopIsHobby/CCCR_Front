@@ -122,8 +122,18 @@ export function decideSocialLogin(
   return { kind: "signup" };
 }
 
-/** 로그인 뒤 돌아갈 곳. 우리 사이트 안의 경로만 받는다(//evil.com 같은 것은 막는다). */
+/**
+ * 로그인 뒤 돌아갈 곳. 우리 사이트 안의 경로만 받는다(//evil.com 같은 것은 막는다).
+ * 브라우저는 주소 속 탭·줄바꿈을 지우고 \ 를 / 로 읽는다. '/(탭)/evil.com' 도 '//evil.com' 이
+ * 되므로, 글자를 하나씩 막는 대신 실제로 풀어 보아 다른 곳으로 가면 버린다.
+ */
 export function safeNext(next: string | null | undefined): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) return "/";
+  if (!next || !next.startsWith("/") || /[\u0000-\u001f\\]/.test(next)) return "/";
+  const base = "https://same.invalid";
+  try {
+    if (new URL(next, base).origin !== base) return "/";
+  } catch {
+    return "/";
+  }
   return next;
 }

@@ -75,6 +75,8 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   // 상위 폴더의 package-lock.json을 루트로 오인하지 않도록 고정
   turbopack: { root: __dirname },
+  /* 'X-Powered-By: Next.js' 를 보내지 않는다. 무엇으로 만들었는지 알려 줄 까닭이 없다 */
+  poweredByHeader: false,
 
   experimental: {
     serverActions: {
