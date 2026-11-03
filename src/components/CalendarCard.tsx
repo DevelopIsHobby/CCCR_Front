@@ -66,6 +66,8 @@ export default function CalendarCard({
       {/* 머리: 메인 위·아래 띠와 같은 남색 */}
       <div className="relative flex items-center justify-between gap-3 bg-navy-900 px-5 py-4">
         <div className="hex-field absolute inset-0 opacity-60" aria-hidden />
+        {/* 메인 슬라이드 아래와 같은 주황 띠 한 줄. 남색 머리와 흰 몸의 경계를 잡는다 */}
+        <span className="absolute inset-x-0 bottom-0 h-1 bg-flame-500" aria-hidden />
         <div className="relative">
           <p className="label-mono text-flame-500">SCHEDULE</p>
           <p className="mt-0.5 text-lg font-bold text-white" aria-live="polite">
