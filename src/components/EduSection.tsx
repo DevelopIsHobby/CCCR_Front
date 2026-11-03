@@ -7,12 +7,12 @@ import { today } from "@/lib/format";
 import { EDUCATION_SCHEDULE_URL } from "@/lib/site-data";
 
 /*
-  메인 'CCCR 아카데미' 영역(옅은 하늘빛 띠).
+  메인 'CCCR 아카데미' 영역(연회색 띠).
 
-  메인의 짙은 띠는 위(슬라이드)와 아래(참여하기) 둘만 같은 남색으로 맞춘다.
-  가운데까지 짙게 두니 남색·파랑·검정에 가까운 띠 셋이 저마다 따로 놀았다.
-  여기는 흰색에 가까운 바탕으로 두고, 바로 아래 '주요 정책'(회색 surface)과
-  붙어 보이지 않게 아주 옅은 파랑을 쓴다.
+  메인 띠는 세 가지 색만 쓴다. 남색은 위(슬라이드)와 아래(참여하기) 둘뿐이고,
+  그 사이는 흰색 → 연회색(아카데미) → 흰색(주요 정책)으로 번갈아 둔다.
+  가운데 띠마다 다른 파랑·회색에 무늬·번짐까지 얹었더니 저마다 따로 놀았다(2026-11-03,
+  시안 셋 중 사무국이 고름). 무늬 없이 평평한 바탕으로 둔다.
   접수중·접수예정 과정이 하나도 없으면 영역을 접고 아카데미 일정으로만 이어 준다.
 */
 export default async function EduSection() {
@@ -20,11 +20,7 @@ export default async function EduSection() {
   const courses = homeCourses(await listVisibleCourses(), now, 4);
 
   return (
-    <section
-      className="relative overflow-hidden bg-gradient-to-b from-brand-50 to-brand-100/70 py-12 lg:py-14"
-      aria-labelledby="edu-heading"
-    >
-      <div className="hex-soft absolute inset-0" aria-hidden />
+    <section className="relative overflow-hidden bg-surface py-12 lg:py-14" aria-labelledby="edu-heading">
 
       <div className="relative mx-auto max-w-[1280px] px-6">
         <div className="flex flex-wrap items-end justify-between gap-4">

@@ -23,17 +23,11 @@ export default function BannerRail({
   };
 
   return (
-    <section className="relative overflow-hidden border-y border-line bg-surface py-12 lg:py-14">
-      {/* 히어로와 같은 육각 무늬를 옅게 깔아 밋밋한 회색 띠가 되지 않게 한다 */}
-      <div className="hex-soft absolute inset-0" aria-hidden />
-      <div
-        className="absolute inset-0 bg-[radial-gradient(70%_90%_at_12%_0%,rgba(29,111,204,0.13),transparent_62%)]"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 bg-[radial-gradient(45%_70%_at_92%_100%,rgba(240,90,40,0.07),transparent_60%)]"
-        aria-hidden
-      />
+    /*
+      흰 띠. 위의 아카데미(연회색)와 번갈아 읽히게 무늬·번짐 없이 평평하게 두고,
+      경계는 가는 선 하나로 잡는다(메인 띠 색 차례는 EduSection.tsx 주석 참고).
+    */
+    <section className="relative overflow-hidden border-t border-line bg-white py-12 lg:py-14">
 
       <div className="relative mx-auto max-w-[1280px] px-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
