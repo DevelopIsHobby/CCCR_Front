@@ -19,7 +19,7 @@ export default async function Page() {
     <div className="space-y-6">
       <PageHead
         title="메인 화면"
-        desc="메인 화면의 슬라이드·배너·지금 모집 중을 직접 고칠 수 있습니다."
+        desc="메인 화면의 슬라이드·배너를 직접 고칠 수 있습니다."
         actions={
           <Link
             href="/"

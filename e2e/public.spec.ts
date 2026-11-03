@@ -3,10 +3,17 @@ import { ADMIN, MARK, db, now } from "./fixtures";
 
 /* 로그인하지 않은 손님이 보는 화면 */
 
-test("메인 화면이 열리고 조합 소식이 보인다", async ({ page }) => {
+test("메인 화면에 공지사항과 사업공고가 나란히 보인다", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "조합 소식" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "지금 모집 중" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "공지사항", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "사업공고", exact: true })).toBeVisible();
+  /* 홍보 칸이 너무 많아 '지금 모집 중' 알림판은 뺐다 */
+  await expect(page.getByRole("heading", { name: "지금 모집 중" })).toHaveCount(0);
+  /*
+    공지사항 칸에 글이 나온다. 어떤 글인지는 보지 않는다 — 다른 시험이 먼저 공지를 올리면
+    시험 준비에서 넣은 공지가 최근 5건 밖으로 밀린다.
+  */
+  await expect(page.getByRole("list", { name: "공지사항" }).getByRole("link").first()).toBeVisible();
   await expect(page.getByRole("contentinfo")).toContainText("한국클라우드컴퓨팅연구조합");
 });
 

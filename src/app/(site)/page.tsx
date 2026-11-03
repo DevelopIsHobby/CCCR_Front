@@ -13,7 +13,7 @@ import { listLivePopups } from "@/lib/db/popups";
 /* 제목·설명은 사이트 기본값을 쓰고, 정식 주소만 알린다 */
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-/* 슬라이드·배너·알림판은 관리자 화면(/admin)에서 고친다. */
+/* 슬라이드·배너는 관리자 화면(/admin)에서 고친다. */
 export default async function Home() {
   const [slides, banners, bannersUpdatedAt, me, popups] = await Promise.all([
     listHomeCards("slide"),

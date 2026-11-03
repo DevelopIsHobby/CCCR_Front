@@ -30,11 +30,10 @@ export const HOME_CARD_KINDS: { kind: HomeCardKind; name: string; desc: string }
     desc: "메인 상단에서 차례로 넘어가는 큰 화면입니다.",
   },
   { kind: "banner", name: "배너 띠", desc: "아카데미 영역 아래 가로로 넘기는 카드입니다." },
-  {
-    kind: "promo",
-    name: "지금 모집 중",
-    desc: "조합 소식 오른쪽의 짙은 칸입니다. 한 번에 하나씩 보이고, 여러 개면 차례로 바뀝니다.",
-  },
+  /*
+    'promo'(지금 모집 중)는 2026-11-03 메인에서 뺐다. 홍보 칸이 너무 많아 그 자리에
+    공지사항·사업공고를 나란히 둔다(NewsSection). 넣어 둔 카드는 DB 에 남지만 보이지 않는다.
+  */
 ];
 
 type RawCard = {
