@@ -12,21 +12,19 @@ import {
   type CalendarKind,
 } from "@/lib/calendar";
 
+/*
+  종류 색. 사이트 색(남색·파랑·주황) 안에서 고르면 교육(남색)과 공고 마감(파랑)이 작은 점에서
+  구별되지 않았다. 셋이 색상부터 다르게 주황·초록(청록)·파랑으로 둔다.
+*/
 const KIND_DOT: Record<CalendarKind, string> = {
   행사: "bg-flame-500",
-  교육: "bg-navy-700",
+  교육: "bg-teal-600",
   "공고 마감": "bg-brand-500",
 };
 const KIND_TEXT: Record<CalendarKind, string> = {
   행사: "text-flame-600",
-  교육: "text-navy-800",
+  교육: "text-teal-700",
   "공고 마감": "text-brand-600",
-};
-/* 고른 날 일정의 왼쪽 막대 */
-const KIND_BAR: Record<CalendarKind, string> = {
-  행사: "border-flame-500",
-  교육: "border-navy-700",
-  "공고 마감": "border-brand-500",
 };
 const KINDS: CalendarKind[] = ["행사", "교육", "공고 마감"];
 const WEEK = ["일", "월", "화", "수", "목", "금", "토"];
@@ -132,11 +130,11 @@ export default function CalendarCard({
               >
                 <span className="leading-none">{Number(date.slice(8, 10))}</span>
                 {/* 일정 종류마다 점 하나 */}
-                <span className="mt-1 flex h-1 gap-0.5" aria-hidden>
+                <span className="mt-1 flex h-1.5 gap-0.5" aria-hidden>
                   {kinds.map((k) => (
                     <span
                       key={k}
-                      className={`size-1 rounded-full ${isPicked ? "bg-white" : KIND_DOT[k]}`}
+                      className={`size-1.5 rounded-full ${isPicked ? "bg-white" : KIND_DOT[k]}`}
                     />
                   ))}
                 </span>
@@ -145,40 +143,40 @@ export default function CalendarCard({
           })}
         </div>
 
-        {/* 고른 날의 일정 */}
-        <div className="mt-4 flex-1 rounded-xl bg-surface px-4 py-3.5">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-bold text-navy-900">{pickedLabel}</p>
-            {/* 점 색 안내 */}
-            <p className="flex gap-2.5 text-2xs text-ink-400" aria-hidden>
-              {KINDS.map((k) => (
-                <span key={k} className="flex items-center gap-1">
-                  <span className={`size-1.5 rounded-full ${KIND_DOT[k]}`} />
-                  {k}
-                </span>
-              ))}
-            </p>
-          </div>
+        {/* 점 색 안내 — 달력 바로 아래 */}
+        <p className="mt-3 flex justify-center gap-4 text-2xs text-ink-400" aria-hidden>
+          {KINDS.map((k) => (
+            <span key={k} className="flex items-center gap-1.5">
+              <span className={`size-1.5 rounded-full ${KIND_DOT[k]}`} />
+              {k}
+            </span>
+          ))}
+        </p>
+
+        {/*
+          고른 날의 일정. 색 칸·세로 막대를 얹었더니 지저분해 보여서, 가는 줄 아래에
+          날짜 한 줄과 '색 점 · 종류 · 제목' 한 줄씩만 둔다.
+        */}
+        <div className="mt-4 flex-1 border-t border-line pt-4">
+          <p className="text-xs font-bold text-navy-900">{pickedLabel}</p>
           {pickedEntries.length === 0 ? (
-            <p className="mt-2.5 text-sm text-ink-400">일정이 없습니다.</p>
+            <p className="mt-2 text-sm text-ink-400">일정이 없습니다.</p>
           ) : (
-            <ul className="mt-2.5 space-y-2" aria-label="고른 날의 일정">
+            <ul className="mt-2 space-y-1.5" aria-label="고른 날의 일정">
               {pickedEntries.slice(0, 3).map((e) => (
                 <li key={e.key}>
-                  <SmartLink
-                    href={e.href}
-                    className={`group block border-l-2 pl-2.5 ${KIND_BAR[e.kind]}`}
-                  >
-                    <span className={`block text-2xs font-bold ${KIND_TEXT[e.kind]}`}>{e.kind}</span>
-                    <span className="block truncate text-sm font-medium text-ink-900 group-hover:text-brand-600">
-                      {e.title}
+                  <SmartLink href={e.href} className="group flex items-center gap-2 text-sm">
+                    <span className={`size-1.5 shrink-0 rounded-full ${KIND_DOT[e.kind]}`} aria-hidden />
+                    <span className={`shrink-0 text-xs font-semibold ${KIND_TEXT[e.kind]}`}>
+                      {e.kind}
                     </span>
+                    <span className="truncate text-ink-900 group-hover:text-brand-600">{e.title}</span>
                   </SmartLink>
                 </li>
               ))}
               {/* 칸 높이를 지키려 세 건까지만 적고, 나머지는 수만 알린다 */}
               {pickedEntries.length > 3 && (
-                <li className="text-2xs text-ink-400">외 {pickedEntries.length - 3}건</li>
+                <li className="pl-3.5 text-2xs text-ink-400">외 {pickedEntries.length - 3}건</li>
               )}
             </ul>
           )}
