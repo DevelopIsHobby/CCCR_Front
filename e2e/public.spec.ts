@@ -145,3 +145,50 @@ test("고정 글은 첫 쪽에만 올라온다", async ({ page }) => {
   await expect(page.locator("table tbody tr").first()).toBeVisible();
   await expect(pinnedRows(page)).toHaveCount(0);
 });
+
+test("메인 '다가오는 일정'에 앞으로 열릴 행사와 마감 전 공고가 날짜 순으로 나온다", async ({ page }) => {
+  /*
+    홍보 알림판 대신 둔 칸. 행사정보의 행사일·사업공고의 마감일에서 저절로 채워진다.
+    아주 먼 날짜로 넣어도 다른 일정보다 뒤로 밀려 3건 밖으로 나갈 수 있으므로, 가까운 날로 넣는다.
+  */
+  const day = (n: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0, 10);
+  };
+  const stamp = Date.now();
+  const conn = db();
+  conn
+    .prepare(
+      `INSERT INTO posts (board, title, body, author_name, is_pinned, is_locked, views,
+                          created_at, updated_at, event_starts_on)
+       VALUES ('events', ?, '<p>행사</p>', ?, 0, 0, 0, ?, ?, ?)`,
+    )
+    .run(`${MARK} 다가오는 세미나 ${stamp}`, ADMIN.name, now(), now(), day(1));
+  conn
+    .prepare(
+      `INSERT INTO posts (board, title, body, author_name, is_pinned, is_locked, views,
+                          created_at, updated_at, link_url, event_apply_by)
+       VALUES ('announce', ?, '', ?, 0, 0, 0, ?, ?, 'https://example.com/n', ?)`,
+    )
+    .run(`${MARK} 곧 마감 공고 ${stamp}`, ADMIN.name, now(), now(), day(1));
+  /* 지난 행사는 나오지 않는다 */
+  conn
+    .prepare(
+      `INSERT INTO posts (board, title, body, author_name, is_pinned, is_locked, views,
+                          created_at, updated_at, event_starts_on)
+       VALUES ('events', ?, '<p>행사</p>', ?, 0, 0, 0, ?, ?, ?)`,
+    )
+    .run(`${MARK} 지난 세미나 ${stamp}`, ADMIN.name, now(), now(), day(-3));
+  conn.close();
+
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "다가오는 일정" })).toBeVisible();
+  const card = page.getByRole("list", { name: "다가오는 일정" });
+  await expect(card.getByRole("link", { name: new RegExp(`다가오는 세미나 ${stamp}`) })).toBeVisible();
+  const notice = card.getByRole("link", { name: new RegExp(`곧 마감 공고 ${stamp}`) });
+  await expect(notice).toBeVisible();
+  /* 사업공고는 원문으로 간다 */
+  await expect(notice).toHaveAttribute("href", "https://example.com/n");
+  await expect(card.getByRole("link", { name: new RegExp(`지난 세미나 ${stamp}`) })).toHaveCount(0);
+});

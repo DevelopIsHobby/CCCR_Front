@@ -37,20 +37,19 @@ const STATUS_TONE: Record<NoticeStatus, string> = {
   마감: "bg-surface text-ink-400",
 };
 
-/* 넓은 화면은 두 줄에 5건씩, 휴대폰은 한 줄에 앞의 5건만 */
-const PER_TAB = 10;
-const PER_COLUMN = 5;
+/* 옆 '다가오는 일정' 칸과 높이가 맞도록 다섯 줄 */
+const PER_TAB = 5;
 
 /*
-  메인 '조합 소식'. 탭 하나에 목록을 두 줄로 편다.
+  메인 '조합 소식'. 탭으로 게시판을 고르는 목록 하나.
 
-  알림판을 뺀 자리에 공지사항·사업공고 두 칸을 탭 없이 나란히 둬 봤는데, 행사정보·산업뉴스가
-  메인에서 사라지고 줄마다 제목이 잘려 읽기 어려웠다(2026-11-03). 탭은 되살리고 폭을 다 쓴다.
+  2026-11-03 에 여러 번 고쳤다. 알림판을 빼고 공지사항·사업공고를 탭 없이 나란히 → 탭이 없어
+  행사정보·산업뉴스가 빠지고 제목이 잘려 읽기 어려움 → 탭 하나에 목록 두 줄(10건) → 읽기는
+  나아졌지만 같은 줄만 늘어서 밋밋함 → 지금: 왼쪽 목록 5건, 오른쪽 '다가오는 일정'(UpcomingCard).
   읽기 쉽게 한 것:
     - 날짜는 연도를 뺀 MM.DD (제목 자리를 넓힌다)
     - 사업공고는 등록일 대신 마감일(~MM.DD), 마감된 공고는 흐리게
     - 사업공고 탭에서는 게시판 이름 대신 접수 상태를 앞에 붙인다
-    - 왼쪽 1~5, 오른쪽 6~10 차례(위에서 아래로 읽는다)
 */
 export default function NewsTabs({ items, tabs }: { items: NewsItem[]; tabs: NewsTab[] }) {
   const [tab, setTab] = useState<string>("all");
@@ -99,28 +98,21 @@ export default function NewsTabs({ items, tabs }: { items: NewsItem[]; tabs: New
         </div>
       </div>
 
-      {/*
-        넓은 화면은 세로로 먼저 채우는 2열(grid-flow-col). 칸 사이 세로줄 대신 넉넉한 간격을 둔다.
-        글이 5건 이하이면 왼쪽 열만 찬다.
-      */}
-      <ul className="mt-6 grid border-t-2 border-navy-900 lg:grid-flow-col lg:grid-cols-2 lg:grid-rows-5 lg:gap-x-12">
+      <ul className="mt-6 border-t-2 border-navy-900">
         {list.length === 0 && (
-          <li className="border-b border-line py-11 text-center text-md text-ink-400 lg:col-span-2">
+          <li className="border-b border-line py-11 text-center text-md text-ink-400">
             등록된 소식이 없습니다.
           </li>
         )}
 
-        {list.map((post, i) => {
+        {list.map((post) => {
           const closed = post.status === "마감";
           const badge =
             tab === "announce" && post.status
               ? { text: post.status, tone: STATUS_TONE[post.status] }
               : { text: post.boardName, tone: BOARD_TONE[post.board] ?? BOARD_TONE.news };
           return (
-            <li
-              key={`${post.board}-${post.id}`}
-              className={`border-b border-line ${i >= PER_COLUMN ? "hidden lg:block" : ""}`}
-            >
+            <li key={`${post.board}-${post.id}`} className="border-b border-line">
               {/*
                 산업뉴스·사업공고는 원문 주소라 새 창으로 열린다(SmartLink).
                 휴대폰에서는 윗줄에 게시판·날짜, 아랫줄에 제목을 폭 가득 둔다(한 줄에 몰면 제목이

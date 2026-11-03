@@ -1,7 +1,8 @@
 import NewsTabs, { type NewsItem } from "./NewsTabs";
+import UpcomingCard from "./UpcomingCard";
 import { BOARDS, postHref } from "@/lib/boards";
-import { listRecentByBoard } from "@/lib/db/posts";
-import { formatDate, noticeStatus } from "@/lib/format";
+import { listRecentByBoard, listUpcoming } from "@/lib/db/posts";
+import { formatDate, noticeStatus, today } from "@/lib/format";
 
 /** 등록 7일 이내면 새 글로 표시한다. 게시판 목록과 같은 기준이다. */
 const isNew = (iso: string) =>
@@ -11,16 +12,21 @@ const isNew = (iso: string) =>
 const shortDate = (iso: string) => formatDate(iso).slice(5);
 
 /*
-  메인 '조합 소식'. 홍보 칸이 많다는 의견으로 오른쪽 '지금 모집 중' 알림판을 빼고(2026-11-03)
-  소식 목록이 폭을 다 쓴다. 탭·두 줄 배치는 NewsTabs 참고.
+  메인 '조합 소식'(왼쪽 탭 목록)과 '다가오는 일정'(오른쪽 칸).
+  오른쪽은 전에 '지금 모집 중' 홍보 알림판 자리였다. 바뀐 까닭은 NewsTabs·UpcomingCard 참고.
 */
 export default async function NewsSection() {
-  /* 메인에는 showOnHome 인 게시판만 모은다. 탭 하나에 10건까지 보이므로 게시판마다 10건 */
+  /* 메인에는 showOnHome 인 게시판만 모은다. 서로 기다릴 일이 없는 조회다 */
   const homeBoards = BOARDS.filter((b) => b.showOnHome);
-  const posts = await listRecentByBoard(
-    homeBoards.map((b) => b.slug),
-    10,
-  );
+  const now = today();
+  const [posts, upcoming] = await Promise.all([
+    listRecentByBoard(
+      homeBoards.map((b) => b.slug),
+      5,
+    ),
+    /* 왼쪽 목록 다섯 줄과 높이가 맞는 수 */
+    listUpcoming(now, 3),
+  ]);
 
   const items: NewsItem[] = posts.map((p) => {
     const board = BOARDS.find((b) => b.slug === p.board);
@@ -45,10 +51,28 @@ export default async function NewsSection() {
 
   return (
     <section className="mx-auto max-w-[1280px] px-6 py-10 lg:py-12">
-      <NewsTabs
-        items={items}
-        tabs={homeBoards.map((b) => ({ slug: b.slug, name: b.name, href: b.basePath }))}
-      />
+      {/*
+        격자 칸은 기본이 min-width:auto 라 속 내용보다 좁아지기를 거부한다. 탭 줄이 길어지면
+        칸이 밀려 화면이 가로로 흔들리므로 min-w-0 을 준다.
+      */}
+      <div className="grid gap-12 lg:grid-cols-[1.7fr_1fr] lg:gap-14">
+        <div className="min-w-0">
+          <NewsTabs
+            items={items}
+            tabs={homeBoards.map((b) => ({ slug: b.slug, name: b.name, href: b.basePath }))}
+          />
+        </div>
+
+        <div className="flex min-w-0 flex-col">
+          <h2 className="text-2xl font-bold text-navy-900 lg:text-3xl">
+            다가오는 <span className="text-flame-500">일정</span>
+          </h2>
+          {/* 왼쪽 목록 윗선과 높이를 맞춘다(탭 줄 높이만큼) */}
+          <div className="mt-6 flex flex-1 flex-col lg:mt-[1.875rem]">
+            <UpcomingCard items={upcoming} today={now} />
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
