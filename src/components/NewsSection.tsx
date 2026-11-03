@@ -1,8 +1,14 @@
 import NewsTabs, { type NewsItem } from "./NewsTabs";
 import UpcomingCard from "./UpcomingCard";
+import { pickUpcoming, type UpcomingEntry } from "@/lib/upcoming";
 import { BOARDS, postHref } from "@/lib/boards";
 import { listRecentByBoard, listUpcoming } from "@/lib/db/posts";
+import { listVisibleCourses } from "@/lib/db/edu-courses";
 import { formatDate, noticeStatus, today } from "@/lib/format";
+import { EDUCATION_SCHEDULE_URL } from "@/lib/site-data";
+
+/* 다가오는 일정 건수. 왼쪽 목록 다섯 줄과 높이가 맞는 수 */
+const UPCOMING = 3;
 
 /** 등록 7일 이내면 새 글로 표시한다. 게시판 목록과 같은 기준이다. */
 const isNew = (iso: string) =>
@@ -19,14 +25,43 @@ export default async function NewsSection() {
   /* 메인에는 showOnHome 인 게시판만 모은다. 서로 기다릴 일이 없는 조회다 */
   const homeBoards = BOARDS.filter((b) => b.showOnHome);
   const now = today();
-  const [posts, upcoming] = await Promise.all([
+  const [posts, upcomingPosts, courses] = await Promise.all([
     listRecentByBoard(
       homeBoards.map((b) => b.slug),
       5,
     ),
-    /* 왼쪽 목록 다섯 줄과 높이가 맞는 수 */
-    listUpcoming(now, 3),
+    listUpcoming(now, UPCOMING),
+    listVisibleCourses(),
   ]);
+
+  /*
+    다가오는 일정 = 행사(여는 날) + 사업공고(접수 마감일) + 아카데미 교육(교육 시작일).
+    셋을 날짜 순으로 섞어 가까운 것부터 UPCOMING 건만 둔다(lib/upcoming.ts).
+  */
+  const entries: UpcomingEntry[] = [
+    ...upcomingPosts.flatMap(({ post, date, kind }): UpcomingEntry[] => {
+      const board = BOARDS.find((b) => b.slug === post.board);
+      if (!board) return [];
+      return [
+        {
+          key: `${post.board}-${post.id}`,
+          date,
+          kind,
+          title: post.title,
+          href: postHref(board, post.id, post.link?.url),
+        },
+      ];
+    }),
+    ...courses.map((c): UpcomingEntry => ({
+      key: `course-${c.id}`,
+      date: c.startsOn,
+      kind: "교육",
+      title: c.title,
+      /* 신청 주소가 없는 과정은 아카데미 일정으로 */
+      href: c.href || EDUCATION_SCHEDULE_URL,
+    })),
+  ];
+  const upcoming = pickUpcoming(entries, now, UPCOMING);
 
   const items: NewsItem[] = posts.map((p) => {
     const board = BOARDS.find((b) => b.slug === p.board);
