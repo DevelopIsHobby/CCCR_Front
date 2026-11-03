@@ -28,7 +28,7 @@ export default async function NewsSection() {
   const [posts, calendarPosts, courses] = await Promise.all([
     listRecentByBoard(
       homeBoards.map((b) => b.slug),
-      5,
+      6,
     ),
     listCalendarPosts(from, to),
     listVisibleCourses(),

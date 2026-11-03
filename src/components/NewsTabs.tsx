@@ -37,8 +37,8 @@ const STATUS_TONE: Record<NoticeStatus, string> = {
   마감: "bg-surface text-ink-400",
 };
 
-/* 옆 '다가오는 일정' 칸과 높이가 맞도록 다섯 줄 */
-const PER_TAB = 5;
+/* 옆 '일정 달력' 칸과 높이가 맞도록 여섯 줄(달력이 5주인 달 기준. 4·6주인 달은 조금 어긋난다) */
+const PER_TAB = 6;
 
 /*
   메인 '조합 소식'. 탭으로 게시판을 고르는 목록 하나.
