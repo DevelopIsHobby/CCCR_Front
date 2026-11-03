@@ -39,12 +39,12 @@ export default function EduShowcase({
 
   return (
     /*
-      큰 칸과 목록을 6:4. 목록 카드는 큰 칸 높이를 나눠 가져 오른쪽 아래가 비지 않는다.
-      (57% 일 때 목록이 위에만 몰렸고, 반반은 포스터가 작아 보였다)
+      큰 칸과 목록을 5:5. 목록 카드는 큰 칸 높이를 나눠 가져 오른쪽 아래가 비지 않는다.
+      (57%·6:4 도 해 봤으나 사무국이 반반을 골랐다)
     */
-    <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-8">
+    <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:gap-8">
       {/* 대표 포스터 */}
-      <article className="overflow-hidden rounded-2xl bg-white shadow-[0_24px_48px_-24px_rgba(0,0,0,0.6)]">
+      <article className="overflow-hidden rounded-2xl bg-white shadow-[0_24px_48px_-28px_rgba(6,42,85,0.45)] ring-1 ring-line">
         {main.href ? (
           <SmartLink href={main.href} className="block">
             <CoursePoster course={main} />
@@ -90,7 +90,10 @@ export default function EduShowcase({
         </div>
       </article>
 
-      {/* 다른 과정 — 누르면 큰 자리가 바뀐다. 큰 칸 높이를 나눠 가져 아래가 비지 않는다 */}
+      {/*
+        다른 과정 — 누르면 큰 자리가 바뀐다. 큰 칸 높이를 나눠 가져 아래가 비지 않는다.
+        밝은 바탕이라 모두 흰 카드로 두고, 큰 자리에 올라간 것만 파란 테두리로 가린다.
+      */}
       <div className="flex flex-col gap-3">
         {courses.map((c, i) => {
           const d = dueText(c, today);
@@ -102,7 +105,9 @@ export default function EduShowcase({
               onClick={() => setPicked(i)}
               aria-pressed={on}
               className={`grid flex-1 grid-cols-[104px_minmax(0,1fr)] items-center gap-4 sm:gap-5 rounded-xl p-4 text-left transition-colors sm:grid-cols-[168px_minmax(0,1fr)] ${
-                on ? "bg-white" : "bg-white/[0.06] hover:bg-white/[0.12]"
+                on
+                  ? "bg-white shadow-[0_14px_28px_-18px_rgba(6,42,85,0.45)] ring-2 ring-brand-500"
+                  : "bg-white/70 ring-1 ring-line hover:bg-white hover:ring-brand-500/50"
               }`}
             >
               <span className="overflow-hidden rounded-lg">
@@ -112,21 +117,21 @@ export default function EduShowcase({
                 <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold">
                   <span
                     className={`rounded px-1.5 py-0.5 text-2xs font-bold ${
-                      on ? "bg-brand-50 text-brand-700" : "bg-white/10 text-brand-100"
+                      on ? "bg-brand-50 text-brand-700" : "bg-surface text-ink-600"
                     }`}
                   >
                     {c.audience}
                   </span>
-                  <span className={d.urgent ? "text-flame-500" : on ? "text-brand-600" : "text-brand-100/70"}>
+                  <span className={d.urgent ? "text-flame-600" : "text-brand-600"}>
                     {d.text}
                   </span>
                 </span>
                 <span
-                  className={`mt-1.5 line-clamp-2 text-md font-bold leading-snug ${on ? "text-navy-900" : "text-white"}`}
+                  className="mt-1.5 line-clamp-2 text-md font-bold leading-snug text-navy-900"
                 >
                   {c.title}
                 </span>
-                <span className={`mt-1 block truncate text-sm ${on ? "text-ink-400" : "text-brand-100/60"}`}>
+                <span className="mt-1 block truncate text-sm text-ink-400">
                   교육 {formatRange(c.startsOn, c.endsOn)}
                   {c.summary && ` · ${c.summary}`}
                 </span>
