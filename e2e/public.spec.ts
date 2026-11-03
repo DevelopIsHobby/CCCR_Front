@@ -184,7 +184,8 @@ test("메인 '일정 달력'에서 날을 누르면 그날 행사·교육·공�
   conn.close();
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "일정 달력" })).toBeVisible();
+  /* 제목은 화면에서 뺐지만 화면 낭독기용으로 남아 있다 */
+  await expect(page.getByRole("heading", { name: "일정 달력" })).toHaveCount(1);
 
   /* 그 날이 있는 달로 넘긴다(처음 보이는 달은 가장 가까운 일정에 따라 다르다) */
   const [y, m, d] = target.split("-").map(Number);

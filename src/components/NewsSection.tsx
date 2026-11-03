@@ -117,14 +117,13 @@ export default async function NewsSection() {
           />
         </div>
 
+        {/*
+          제목은 화면에서 빼고(달력 머리의 '2026년 11월'이 제목 노릇을 한다) 화면 낭독기에만 남긴다.
+          카드는 왼쪽 '조합 소식' 제목 줄부터 목록 끝까지 높이를 함께 쓴다.
+        */}
         <div className="flex min-w-0 flex-col">
-          <h2 className="text-2xl font-bold text-navy-900 lg:text-3xl">
-            일정 <span className="text-flame-500">달력</span>
-          </h2>
-          {/* 왼쪽 목록 윗선과 높이를 맞춘다(탭 줄 높이만큼) */}
-          <div className="mt-6 flex flex-1 flex-col lg:mt-[1.875rem]">
-            <CalendarCard entries={calendar} today={now} />
-          </div>
+          <h2 className="sr-only">일정 달력</h2>
+          <CalendarCard entries={calendar} today={now} />
         </div>
       </div>
     </section>
