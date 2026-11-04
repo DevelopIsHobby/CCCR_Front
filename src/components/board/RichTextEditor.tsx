@@ -32,6 +32,19 @@ const ColorHeader = TableHeader.extend({
   },
 });
 
+/*
+  그림 한 장 넣기. 방금 넣은 그림이 골라져 있으면(그림 칸 선택) 그 뒤에 넣는다.
+  그냥 넣으면 골라져 있던 앞 그림을 덮어써, 여러 장을 차례로 넣을 때 한 장만 남았다.
+*/
+function insertImage(editor: Editor, src: string, alt: string) {
+  const { selection } = editor.state;
+  if ("node" in selection && selection.node) {
+    editor.chain().focus().insertContentAt(selection.to, { type: "image", attrs: { src, alt } }).run();
+  } else {
+    editor.chain().focus().setImage({ src, alt }).run();
+  }
+}
+
 /** 우리 서버에 올린 그림 주소. 이것만 본문에 남는다(html.ts) */
 const OWN_IMAGE = /^\/api\/images\/\d+$/;
 
@@ -297,7 +310,7 @@ function Toolbar({
       setError(result.error);
       return;
     }
-    editor.chain().focus().setImage({ src: result.url, alt: file.name }).run();
+    insertImage(editor, result.url, file.name);
   };
 
   const inTable = editor.isActive("table");
@@ -544,15 +557,19 @@ function Toolbar({
           HTML
         </ToolbarButton>
 
+        {/* 여러 장을 한 번에 고를 수 있다(포토갤러리). 고른 차례대로 하나씩 올려 넣는다 */}
         <input
           ref={fileInput}
           type="file"
+          multiple
           accept="image/png,image/jpeg,image/gif,image/webp"
           className="hidden"
           onChange={(e) => {
-            const file = e.target.files?.[0];
+            const files = [...(e.target.files ?? [])];
             e.target.value = "";
-            if (file) void upload(file);
+            void (async () => {
+              for (const file of files) await upload(file);
+            })();
           }}
         />
       </div>
@@ -649,19 +666,21 @@ export default function RichTextEditor({
       },
       /* 다른 사이트에서 복사한 HTML 의 '그림만 담은 표'를 풀어 들인다 */
       transformPastedHTML: unwrapImageTables,
-      /* 이미지를 붙여넣거나 끌어다 놓으면 바로 올린다 */
+      /* 이미지를 붙여넣거나 끌어다 놓으면 바로 올린다. 여러 장이면 차례대로 */
       handlePaste: (_view, event) => {
-        const file = [...(event.clipboardData?.files ?? [])][0];
-        if (!file?.type.startsWith("image/")) return false;
+        const files = [...(event.clipboardData?.files ?? [])].filter((f) => f.type.startsWith("image/"));
+        if (files.length === 0) return false;
         event.preventDefault();
-        void uploadPasted(file);
+        void uploadPastedAll(files);
         return true;
       },
       handleDrop: (_view, event) => {
-        const file = [...((event as DragEvent).dataTransfer?.files ?? [])][0];
-        if (!file?.type.startsWith("image/")) return false;
+        const files = [...((event as DragEvent).dataTransfer?.files ?? [])].filter((f) =>
+          f.type.startsWith("image/"),
+        );
+        if (files.length === 0) return false;
         event.preventDefault();
-        void uploadPasted(file);
+        void uploadPastedAll(files);
         return true;
       },
     },
@@ -722,12 +741,16 @@ export default function RichTextEditor({
     };
   }, [editor]);
 
+  async function uploadPastedAll(files: File[]) {
+    for (const file of files) await uploadPasted(file);
+  }
+
   async function uploadPasted(file: File) {
     const formData = new FormData();
     formData.append("image", file);
     const result = await uploadImage(formData);
     if ("url" in result) {
-      editor?.chain().focus().setImage({ src: result.url, alt: file.name }).run();
+      if (editor) insertImage(editor, result.url, file.name);
     }
   }
 

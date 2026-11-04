@@ -6,7 +6,8 @@ import DeleteButton from "@/components/board/DeleteButton";
 import { IconArrow, IconChevron, IconClip, IconLock } from "@/components/Icons";
 import { getNeighbors, getPostCached } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
-import type { BoardConfig } from "@/lib/boards";
+import { deadlineWords, type BoardConfig } from "@/lib/boards";
+import GalleryBody from "./GalleryBody";
 import {
   eventStatus,
   noticeStatus,
@@ -128,6 +129,14 @@ export default async function PostDetailView({
           value: post.event.applyBy ? formatDate(post.event.applyBy) : "",
         },
       ].filter((row) => row.value)
+    : board.recruit
+      ? [
+          { label: "분야", value: post.category ?? "" },
+          {
+            label: deadlineWords(board).period,
+            value: formatApplyPeriod(post.event.applyFrom, post.event.applyBy) || "상시 모집",
+          },
+        ].filter((row) => row.value)
     : board.hasDeadlineFields
       ? [
           { label: "주관기관", value: post.event.host ?? "" },
@@ -158,7 +167,10 @@ export default async function PostDetailView({
               <span
                 className={`inline-flex rounded px-2.5 py-1 text-2xs font-bold ${STATUS_TONE[status]}`}
               >
-                {status}
+                {/* 사업공고는 '접수', 강사 모집은 '모집'으로 적는다(행사는 그대로) */}
+                {board.hasDeadlineFields && !board.hasEventFields
+                  ? deadlineWords(board).status[status as NoticeStatus]
+                  : status}
               </span>
             )}
             {post.isLocked && (
@@ -276,10 +288,15 @@ export default async function PostDetailView({
                 편집기가 생기기 전에 쓴 글은 태그가 없으므로 줄바꿈만 살려 보여준다.
               */
               isHtml(post.body) ? (
-                <div
-                  className="rich-text py-10"
-                  dangerouslySetInnerHTML={{ __html: post.body }}
-                />
+                /* 포토갤러리는 사진을 눌러 크게 넘겨 본다 */
+                board.layout === "gallery" ? (
+                  <GalleryBody html={post.body} />
+                ) : (
+                  <div
+                    className="rich-text py-10"
+                    dangerouslySetInnerHTML={{ __html: post.body }}
+                  />
+                )
               ) : (
                 <div className="whitespace-pre-wrap py-10 text-md leading-[1.9] text-ink-700">
                   {post.body}

@@ -6,11 +6,14 @@ import NoticeTable from "./NoticeTable";
 import EventCards from "@/components/board/EventCards";
 import NewsLinks from "@/components/board/NewsLinks";
 import NewsletterIssues from "@/components/board/NewsletterIssues";
+import PhotoGallery from "@/components/board/PhotoGallery";
 import { listPosts } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
 import {
   ALL_CATEGORY,
-  DEADLINE_TABS,
+  deadlineTabs,
+  deadlineWords,
+  isLinkOnly,
   deadlineFilterOf,
   isCategoryOf,
   type BoardConfig,
@@ -55,7 +58,7 @@ export default async function BoardListView({
 
   /* 탭 줄. 분류가 있는 게시판(산업뉴스)은 분류로, 사업공고는 접수 상태로 나눈다 */
   const tabs: Tab[] = board.hasDeadlineFields
-    ? DEADLINE_TABS.map(({ value, label }) => ({
+    ? deadlineTabs(board).map(({ value, label }) => ({
         label,
         href: value ? `${base}?status=${value}` : base,
         active: deadline === value,
@@ -82,7 +85,7 @@ export default async function BoardListView({
 
       {/* 탭. 맨 앞은 전체(주소에 조건이 없는 상태). 휴대폰에서는 두 줄로 넘어가므로 아래 건수 줄과 띄운다 */}
       {tabs.length > 0 && (
-        <nav className="mb-6 flex flex-wrap gap-2" aria-label={board.hasDeadlineFields ? "접수 상태" : "분류"}>
+        <nav className="mb-6 flex flex-wrap gap-2" aria-label={board.hasDeadlineFields ? deadlineWords(board).tabsLabel : "분류"}>
           {tabs.map(({ label, href, active }) => (
             <Link
               key={label}
@@ -112,15 +115,18 @@ export default async function BoardListView({
         <EventCards base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
       ) : board.layout === "issues" ? (
         <NewsletterIssues base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
+      ) : board.layout === "gallery" ? (
+        <PhotoGallery base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />
       ) : board.layout === "links" ? (
         <NewsLinks board={board} pinned={pinned} rows={rows} searching={Boolean(q)} isAdmin={isAdmin} />
       ) : board.layout === "notices" ? (
         <NoticeTable
-          base={base}
+          board={board}
           pinned={pinned}
           rows={rows}
           searching={Boolean(q)}
           isAdmin={isAdmin}
+          linkOnly={isLinkOnly(board)}
         />
       ) : (
         <BoardTable base={base} pinned={pinned} rows={rows} searching={Boolean(q)} />

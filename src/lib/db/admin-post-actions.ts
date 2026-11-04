@@ -90,6 +90,7 @@ function missingFor(target: (typeof BOARDS)[number], row: MoveRow): string | nul
   if (target.hasEventFields) return row.event_starts_on ? null : "행사일";
   if (isLinkOnly(target)) return row.link_url ? null : "원문 주소";
   if (target.layout === "issues") return /<img/i.test(row.body ?? "") ? null : "표지 그림";
+  if (target.layout === "gallery") return /<img/i.test(row.body ?? "") ? null : "사진";
   return (row.body ?? "").trim() ? null : "본문";
 }
 

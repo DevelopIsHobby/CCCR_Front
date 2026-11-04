@@ -41,6 +41,7 @@ export const NAV: NavItem[] = [
       { label: "공지사항", href: "/board/notice" },
       { label: "사업공고", href: "/board/announce" },
       { label: "행사정보", href: "/board/events" },
+      { label: "포토갤러리", href: "/board/gallery" },
     ],
   },
   {
@@ -55,6 +56,7 @@ export const NAV: NavItem[] = [
       */
       { label: "참여 안내", href: "/participate" },
       { label: "교육사업 제안", href: "/participate/proposal" },
+      { label: "강사 모집", href: "/participate/instructors" },
       { label: "뉴스레터 신청", href: "/info/newsletter" },
       { label: "신청 현황 조회", href: "/participate/status" },
     ],

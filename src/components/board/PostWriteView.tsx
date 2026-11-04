@@ -17,6 +17,7 @@ export default async function PostWriteView({ board }: { board: BoardConfig }) {
         listPath={base}
         hasEventFields={board.hasEventFields}
         hasDeadlineFields={board.hasDeadlineFields ?? false}
+        recruit={board.recruit ?? false}
         linkRequired={isLinkOnly(board)}
         categories={board.categories}
       />
