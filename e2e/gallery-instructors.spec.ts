@@ -98,14 +98,15 @@ test("포토갤러리: 사진을 여러 장 한 번에 올리고, 글 화면에�
   const title = `${MARK} 정기총회 현장 ${Date.now()}`;
   await page.goto("/board/gallery/write");
   await page.locator("#post-title").fill(title);
-  await page.locator('[contenteditable="true"]').first().click();
-  /* 이미지 단추가 여는 칸. 여러 장을 한 번에 고른다 */
-  await page.locator('input[type="file"][multiple][accept^="image/"]').setInputFiles([
+  /* 편집기·첨부 없이 사진 칸만 있다 */
+  await expect(page.locator('[contenteditable="true"]')).toHaveCount(0);
+  await expect(page.locator("#post-files")).toHaveCount(0);
+  /* 사진 칸. 여러 장을 한 번에 고른다 */
+  await page.locator("#post-photos").setInputFiles([
     { name: "a.png", mimeType: "image/png", buffer: PNG },
     { name: "b.png", mimeType: "image/png", buffer: PNG },
   ]);
-  const editor = page.locator('[contenteditable="true"]').first();
-  await expect(editor.locator('img[src^="/api/images/"]')).toHaveCount(2);
+  await expect(page.getByRole("button", { name: /^사진 \d 빼기$/ })).toHaveCount(2);
   await page.getByRole("button", { name: "등록" }).click();
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
 

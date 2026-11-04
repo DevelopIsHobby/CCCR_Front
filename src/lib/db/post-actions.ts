@@ -8,7 +8,7 @@ import { requireAdmin, getSession } from "@/lib/auth/session";
 import { saveUpload, deleteUpload } from "@/lib/uploads";
 import { deletePostsWithFiles } from "@/lib/db/post-delete";
 import { isEmptyHtml, sanitizePostBody } from "@/lib/html";
-import { boardPath as pathOf, getBoard, isCategoryOf, isLinkOnly } from "@/lib/boards";
+import { boardPath as pathOf, getBoard, isCategoryOf, isLinkOnly, isPhotoOnly } from "@/lib/boards";
 
 export type PostFormState = { error?: string };
 
@@ -120,12 +120,15 @@ export async function createPost(
   const title = String(formData.get("title") ?? "").trim();
   /* 산업뉴스·사업공고는 본문·첨부·회원 전용 없이 원문 주소로 보낸다 */
   const linkOnly = isLinkOnly(getBoard(board));
+  /* 포토갤러리는 사진만 받는다. 첨부·링크 칸이 없다 */
+  const photoOnly = isPhotoOnly(getBoard(board));
   /* 편집기가 보낸 HTML 은 허용 태그만 남긴다 */
   const raw = linkOnly ? "" : String(formData.get("body") ?? "").trim();
   const body = isEmptyHtml(raw) ? "" : sanitizePostBody(raw);
 
   if (!title) return { error: "제목을 입력해 주세요." };
   if (title.length > 200) return { error: "제목은 200자 이내로 입력해 주세요." };
+  if (photoOnly && !/<img\b/i.test(body)) return { error: "사진을 한 장 이상 올려 주세요." };
 
   const rawLink = String(formData.get("linkUrl") ?? "").trim();
   if (rawLink && !/^https?:\/\//i.test(rawLink)) {
@@ -168,7 +171,7 @@ export async function createPost(
 
   const postId = Number(inserted?.id);
 
-  if (!linkOnly) {
+  if (!linkOnly && !photoOnly) {
     try {
       await attachFiles(postId, formData.getAll("files"));
     } catch (err) {
@@ -192,11 +195,13 @@ export async function updatePost(
   const title = String(formData.get("title") ?? "").trim();
   /* 원문 링크 게시판의 글쓰기 화면에는 본문·첨부·회원 전용 칸이 없다. 없는 칸 때문에 기존 값이 지워지지 않게 한다. */
   const linkOnly = isLinkOnly(getBoard(board));
+  const photoOnly = isPhotoOnly(getBoard(board));
   const raw = String(formData.get("body") ?? "").trim();
   const body = isEmptyHtml(raw) ? "" : sanitizePostBody(raw);
 
   if (!id) return { error: "글을 찾을 수 없습니다." };
   if (!title) return { error: "제목을 입력해 주세요." };
+  if (photoOnly && !/<img\b/i.test(body)) return { error: "사진을 한 장 이상 올려 주세요." };
 
   const rawLink = String(formData.get("linkUrl") ?? "").trim();
   if (rawLink && !/^https?:\/\//i.test(rawLink)) {
@@ -254,7 +259,11 @@ export async function updatePost(
       ],
     );
 
-    /* 체크가 풀린 기존 첨부는 지운다. */
+    /* 체크가 풀린 기존 첨부는 지운다. 포토갤러리 글쓰기에는 첨부 칸이 없으니 있던 것을 그대로 둔다. */
+    if (photoOnly) {
+      refreshBoard(board, id);
+      redirect(`${boardPath(board)}/${id}`);
+    }
     const keep = new Set(formData.getAll("keepAttachment").map((v) => Number(v)));
     const current = await db.all<{ id: number; stored_name: string }>(
       "SELECT id, stored_name FROM attachments WHERE post_id = ?",

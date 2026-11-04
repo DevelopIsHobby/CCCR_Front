@@ -3,7 +3,7 @@ import PageShell from "@/components/sub/PageShell";
 import PostForm from "@/components/board/PostForm";
 import { getPost } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
-import { isLinkOnly, type BoardConfig } from "@/lib/boards";
+import { isLinkOnly, isPhotoOnly, type BoardConfig } from "@/lib/boards";
 
 /** 수정 화면. 관리자가 아니면 로그인으로 보낸다. */
 export default async function PostEditView({
@@ -29,6 +29,7 @@ export default async function PostEditView({
         hasDeadlineFields={board.hasDeadlineFields ?? false}
         recruit={board.recruit ?? false}
         linkRequired={isLinkOnly(board)}
+        photosOnly={isPhotoOnly(board)}
         categories={board.categories}
         post={{
           id: post.id,

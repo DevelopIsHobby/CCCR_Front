@@ -262,6 +262,11 @@ export function isLinkOnly(board: BoardConfig | null | undefined): boolean {
   return Boolean(board && (board.layout === "links" || board.linkOnly));
 }
 
+/** 사진만 받는 게시판인가(포토갤러리). 글쓰기에 편집기·링크·첨부·회원 전용 없이 사진 칸만 둔다 */
+export function isPhotoOnly(board: BoardConfig | null | undefined): boolean {
+  return board?.layout === "gallery";
+}
+
 /** 사이트 밖으로 나가는 주소인지. 새 창으로 열지 가를 때 쓴다. */
 export function isExternalHref(href: string): boolean {
   return /^https?:\/\//i.test(href);

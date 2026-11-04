@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import PageShell from "@/components/sub/PageShell";
 import PostForm from "@/components/board/PostForm";
 import { getSession } from "@/lib/auth/session";
-import { isLinkOnly, type BoardConfig } from "@/lib/boards";
+import { isLinkOnly, isPhotoOnly, type BoardConfig } from "@/lib/boards";
 
 /** 글쓰기 화면. 관리자가 아니면 로그인으로 보낸다. */
 export default async function PostWriteView({ board }: { board: BoardConfig }) {
@@ -19,6 +19,7 @@ export default async function PostWriteView({ board }: { board: BoardConfig }) {
         hasDeadlineFields={board.hasDeadlineFields ?? false}
         recruit={board.recruit ?? false}
         linkRequired={isLinkOnly(board)}
+        photosOnly={isPhotoOnly(board)}
         categories={board.categories}
       />
     </PageShell>

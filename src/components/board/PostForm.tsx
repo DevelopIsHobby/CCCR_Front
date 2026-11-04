@@ -6,6 +6,7 @@ import { createPost, updatePost, type PostFormState } from "@/lib/db/post-action
 import { formatBytes } from "@/lib/format";
 import RichTextEditor from "./RichTextEditor";
 import AttachmentPicker from "./AttachmentPicker";
+import PhotoPicker from "./PhotoPicker";
 import type { Attachment, EventInfo, PostLink } from "@/lib/db/posts";
 
 type Props = {
@@ -18,6 +19,8 @@ type Props = {
   recruit?: boolean;
   /** 산업뉴스·사업공고처럼 원문으로 보내는 게시판인가. 링크 칸이 '원문 주소(필수)'가 되고 본문·첨부가 빠진다 */
   linkRequired?: boolean;
+  /** 포토갤러리. 제목과 사진만 받는다(PhotoPicker) */
+  photosOnly?: boolean;
   /** 분류를 쓰는 게시판이면 고를 수 있는 이름들. 없으면 분류 칸을 두지 않는다 */
   categories?: string[];
   post?: {
@@ -43,6 +46,7 @@ export default function PostForm({
   hasDeadlineFields = false,
   recruit = false,
   linkRequired = false,
+  photosOnly = false,
   categories,
   post,
 }: Props) {
@@ -107,8 +111,19 @@ export default function PostForm({
           </div>
         )}
 
+        {/* 포토갤러리는 사진이 곧 글이라 편집기·링크·첨부·회원 전용 대신 사진 칸 하나만 둔다 */}
+        {photosOnly && (
+          <div>
+            <span className="mb-2 block text-base font-bold text-navy-900">
+              사진
+              <span className="ml-1.5 text-xs font-bold text-flame-600">필수</span>
+            </span>
+            <PhotoPicker defaultHtml={post?.body ?? ""} />
+          </div>
+        )}
+
         {/* 산업뉴스·사업공고는 원문으로 바로 보내므로 본문·첨부·회원 전용 칸이 필요 없다 */}
-        {!linkRequired && (
+        {!linkRequired && !photosOnly && (
           <div>
             <span className="mb-2 block text-base font-bold text-navy-900">내용</span>
             <RichTextEditor name="body" defaultValue={post?.body ?? ""} />
@@ -116,48 +131,50 @@ export default function PostForm({
         )}
 
         {/* 본문 안 하이퍼링크와 별개로, 글에 함께 걸어 두는 링크 한 줄 */}
-        <div>
-          <label htmlFor="post-link" className="mb-2 block text-base font-bold text-navy-900">
-            {linkRequired ? (hasDeadlineFields ? "공고 원문 주소" : "원문 기사 주소") : "링크"}
-            {linkRequired && <span className="ml-1.5 text-xs font-bold text-flame-600">필수</span>}
-          </label>
-          {/* 사업공고는 출처 칸을 두지 않는다. 어디 공고인지는 아래 주관기관이 말해 준다 */}
-          <div
-            className={
-              linkRequired && hasDeadlineFields
-                ? "grid gap-3"
-                : "grid gap-3 sm:grid-cols-[1fr_240px]"
-            }
-          >
-            <input
-              id="post-link"
-              name="linkUrl"
-              type="url"
-              inputMode="url"
-              required={linkRequired}
-              defaultValue={post?.link?.url ?? ""}
-              placeholder="https://example.com/article"
-              className={fieldClass}
-            />
-            {!(linkRequired && hasDeadlineFields) && (
+        {!photosOnly && (
+          <div>
+            <label htmlFor="post-link" className="mb-2 block text-base font-bold text-navy-900">
+              {linkRequired ? (hasDeadlineFields ? "공고 원문 주소" : "원문 기사 주소") : "링크"}
+              {linkRequired && <span className="ml-1.5 text-xs font-bold text-flame-600">필수</span>}
+            </label>
+            {/* 사업공고는 출처 칸을 두지 않는다. 어디 공고인지는 아래 주관기관이 말해 준다 */}
+            <div
+              className={
+                linkRequired && hasDeadlineFields
+                  ? "grid gap-3"
+                  : "grid gap-3 sm:grid-cols-[1fr_240px]"
+              }
+            >
               <input
-                name="linkLabel"
-                type="text"
-                maxLength={40}
-                defaultValue={post?.link?.label ?? ""}
-                placeholder={linkRequired ? "언론사 이름 (예: 전자신문)" : "표시할 이름 (선택)"}
+                id="post-link"
+                name="linkUrl"
+                type="url"
+                inputMode="url"
+                required={linkRequired}
+                defaultValue={post?.link?.url ?? ""}
+                placeholder="https://example.com/article"
                 className={fieldClass}
               />
-            )}
+              {!(linkRequired && hasDeadlineFields) && (
+                <input
+                  name="linkLabel"
+                  type="text"
+                  maxLength={40}
+                  defaultValue={post?.link?.label ?? ""}
+                  placeholder={linkRequired ? "언론사 이름 (예: 전자신문)" : "표시할 이름 (선택)"}
+                  className={fieldClass}
+                />
+              )}
+            </div>
+            <p className="mt-2 text-sm text-ink-400">
+              {linkRequired && hasDeadlineFields
+                ? "목록에서 제목을 누르면 이 공고 원문(주관기관 누리집)이 새 창으로 열립니다. 공고 내용과 첨부는 원문에서 봅니다."
+                : linkRequired
+                  ? "목록에서 제목을 누르면 이 기사가 새 창으로 열립니다. 언론사 이름은 제목 옆 출처로 보이고, 비우면 기사 주소의 도메인이 나옵니다."
+                  : "입력하면 글 위에 바로가기 단추로 보입니다. 표시할 이름을 비우면 주소가 그대로 나옵니다."}
+            </p>
           </div>
-          <p className="mt-2 text-sm text-ink-400">
-            {linkRequired && hasDeadlineFields
-              ? "목록에서 제목을 누르면 이 공고 원문(주관기관 누리집)이 새 창으로 열립니다. 공고 내용과 첨부는 원문에서 봅니다."
-              : linkRequired
-                ? "목록에서 제목을 누르면 이 기사가 새 창으로 열립니다. 언론사 이름은 제목 옆 출처로 보이고, 비우면 기사 주소의 도메인이 나옵니다."
-                : "입력하면 글 위에 바로가기 단추로 보입니다. 표시할 이름을 비우면 주소가 그대로 나옵니다."}
-          </p>
-        </div>
+        )}
 
         {hasEventFields && (
           <fieldset className="rounded-xl bg-surface px-6 py-6">
@@ -368,7 +385,7 @@ export default function PostForm({
           </fieldset>
         )}
 
-        {!linkRequired && (
+        {!linkRequired && !photosOnly && (
           <div>
             <label htmlFor="post-files" className="mb-2 block text-base font-bold text-navy-900">
               첨부파일
@@ -417,7 +434,7 @@ export default function PostForm({
             />
             상단 고정 (공지)
           </label>
-          {!linkRequired && (
+          {!linkRequired && !photosOnly && (
             <label className="flex items-center gap-2 text-base text-ink-700">
               <input
                 type="checkbox"
