@@ -22,8 +22,7 @@ export type BoardConfig = {
    * links  — 산업뉴스처럼 바깥 기사를 모으는 게시판. 제목·출처·날짜만 한 줄로 두고
    *          제목을 누르면 원문 기사가 새 창으로 열린다. 글쓰기에서 기사 주소가 필수다
    * notices — 사업공고처럼 마감이 있는 공고를 모으는 게시판. 목록에 접수중·마감과
-   *          주관기관·마감일을 함께 두어, 훑으면서 아직 넣을 수 있는 것을 가려낸다.
-   *          강사 모집도 이 꼴이다(recruit 참고)
+   *          주관기관·마감일을 함께 두어, 훑으면서 아직 넣을 수 있는 것을 가려낸다
    * gallery — 포토갤러리처럼 사진이 곧 글인 게시판. 첫 사진을 가로 4:3 카드로 늘어놓고,
    *          글 화면에서는 사진을 눌러 크게 넘겨 본다
    */
@@ -35,12 +34,6 @@ export type BoardConfig = {
    * 행사와 달리 여는 날이 없고 마감만 있다. 장소·행사일 칸은 쓰지 않는다.
    */
   hasDeadlineFields?: boolean;
-  /**
-   * 강사 모집처럼 마감은 있지만 기관 공고가 아닌 게시판. 사업공고와 같은 목록·탭·상태를 쓰되
-   * 말을 '모집'으로 바꾸고(deadlineWords), 주관·전문기관 칸 대신 분야(categories)를 보인다.
-   * 본문과 첨부(지원서 양식)를 그대로 쓴다.
-   */
-  recruit?: boolean;
   /**
    * 원문 주소만 받는 게시판인가. 본문·첨부·회원 전용 칸이 없고, 제목을 누르면 원문이 새 창으로 열린다.
    * links 배치(산업뉴스)는 늘 그렇다. 사업공고도 공고 원문(기관 누리집)으로 바로 보낸다.
@@ -75,57 +68,11 @@ export function isCategoryOf(board: BoardConfig, value: string): boolean {
 */
 export type DeadlineFilter = "open" | "closed";
 
-/*
-  마감이 있는 게시판의 말. 사업공고는 '접수', 강사 모집은 '모집'.
-  상태 딱지(noticeStatus 값 → 화면 글자)·탭·기간 칸 이름이 이것을 따른다.
-*/
-export type DeadlineWords = {
-  status: Record<"접수예정" | "접수중" | "마감", string>;
-  /** 탭: 전체 · 진행중 · 마감 */
-  tabs: [string, string, string];
-  /** 탭 줄의 이름(화면 낭독기) */
-  tabsLabel: string;
-  /** 목록·글 화면의 기간 칸 이름 */
-  period: string;
-  start: string;
-  end: string;
-  /** 글쓰기의 묶음 이름 */
-  legend: string;
-};
-
-const ANNOUNCE_WORDS: DeadlineWords = {
-  status: { 접수예정: "접수예정", 접수중: "접수중", 마감: "마감" },
-  tabs: ["전체 사업", "접수중인 사업", "접수마감 사업"],
-  tabsLabel: "접수 상태",
-  period: "접수 기간",
-  start: "접수 시작일",
-  end: "접수 마감일",
-  legend: "공고 정보",
-};
-
-const RECRUIT_WORDS: DeadlineWords = {
-  status: { 접수예정: "모집예정", 접수중: "모집중", 마감: "모집마감" },
-  tabs: ["전체", "모집중", "모집마감"],
-  tabsLabel: "모집 상태",
-  period: "모집 기간",
-  start: "모집 시작일",
-  end: "모집 마감일",
-  legend: "모집 정보",
-};
-
-export function deadlineWords(board: BoardConfig): DeadlineWords {
-  return board.recruit ? RECRUIT_WORDS : ANNOUNCE_WORDS;
-}
-
-/** 접수 상태 탭. 이름은 게시판 말(deadlineWords)을 따른다 */
-export function deadlineTabs(board: BoardConfig): { value: DeadlineFilter | ""; label: string }[] {
-  const [all, open, closed] = deadlineWords(board).tabs;
-  return [
-    { value: "", label: all },
-    { value: "open", label: open },
-    { value: "closed", label: closed },
-  ];
-}
+export const DEADLINE_TABS: { value: DeadlineFilter | ""; label: string }[] = [
+  { value: "", label: "전체 사업" },
+  { value: "open", label: "접수중인 사업" },
+  { value: "closed", label: "접수마감 사업" },
+];
 
 /** 마감일이 있는 게시판에서 주소로 들어온 상태 값을 고른다. 아니면 빈 값(전체) */
 export function deadlineFilterOf(board: BoardConfig, value: string): DeadlineFilter | "" {
@@ -174,20 +121,6 @@ export const BOARDS: BoardConfig[] = [
     layout: "gallery",
     hasEventFields: false,
     showOnHome: false,
-  },
-  {
-    slug: "instructors",
-    name: "강사 모집",
-    desc: "조합 교육·세미나에서 강의해 주실 전문가를 모집합니다.",
-    basePath: "/participate/instructors",
-    /* 모집 기간이 있어 사업공고와 같은 표·탭·상태를 쓰고, 말만 '모집'으로 바꾼다 */
-    layout: "notices",
-    hasEventFields: false,
-    hasDeadlineFields: true,
-    recruit: true,
-    showOnHome: false,
-    /* 목록의 분야 칸. 글쓰기에서 고른다 */
-    categories: ["교육", "세미나"],
   },
   {
     slug: "news",

@@ -6,7 +6,7 @@ import DeleteButton from "@/components/board/DeleteButton";
 import { IconArrow, IconChevron, IconClip, IconLock } from "@/components/Icons";
 import { getNeighbors, getPostCached } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
-import { deadlineWords, type BoardConfig } from "@/lib/boards";
+import type { BoardConfig } from "@/lib/boards";
 import GalleryBody from "./GalleryBody";
 import { fileKind, IconDownload, isHtml } from "./post-bits";
 import {
@@ -90,14 +90,6 @@ export default async function PostDetailView({
           value: post.event.applyBy ? formatDate(post.event.applyBy) : "",
         },
       ].filter((row) => row.value)
-    : board.recruit
-      ? [
-          { label: "분야", value: post.category ?? "" },
-          {
-            label: deadlineWords(board).period,
-            value: formatApplyPeriod(post.event.applyFrom, post.event.applyBy) || "상시 모집",
-          },
-        ].filter((row) => row.value)
     : board.hasDeadlineFields
       ? [
           { label: "주관기관", value: post.event.host ?? "" },
@@ -128,10 +120,7 @@ export default async function PostDetailView({
               <span
                 className={`inline-flex rounded px-2.5 py-1 text-2xs font-bold ${STATUS_TONE[status]}`}
               >
-                {/* 사업공고는 '접수', 강사 모집은 '모집'으로 적는다(행사는 그대로) */}
-                {board.hasDeadlineFields && !board.hasEventFields
-                  ? deadlineWords(board).status[status as NoticeStatus]
-                  : status}
+                {status}
               </span>
             )}
             {post.isLocked && (

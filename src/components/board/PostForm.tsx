@@ -15,8 +15,6 @@ type Props = {
   /** 행사정보처럼 주최·장소·일시를 함께 받는 게시판인가 */
   hasEventFields?: boolean;
   hasDeadlineFields?: boolean;
-  /** 강사 모집. 마감 칸은 쓰되 주관·전문기관 없이 '모집' 말로 적는다(boards.ts recruit) */
-  recruit?: boolean;
   /** 산업뉴스·사업공고처럼 원문으로 보내는 게시판인가. 링크 칸이 '원문 주소(필수)'가 되고 본문·첨부가 빠진다 */
   linkRequired?: boolean;
   /** 포토갤러리. 제목과 사진만 받는다(PhotoPicker) */
@@ -44,7 +42,6 @@ export default function PostForm({
   listPath,
   hasEventFields = false,
   hasDeadlineFields = false,
-  recruit = false,
   linkRequired = false,
   photosOnly = false,
   categories,
@@ -275,79 +272,72 @@ export default function PostForm({
 
         {hasDeadlineFields && (
           <fieldset className="rounded-xl bg-surface px-6 py-6">
-            <legend className="px-1 text-base font-bold text-navy-900">
-              {recruit ? "모집 정보" : "공고 정보"}
-            </legend>
+            <legend className="px-1 text-base font-bold text-navy-900">공고 정보</legend>
             <p className="mt-1 text-sm text-ink-400">
-              {recruit
-                ? "목록에 분야와 모집 기간이 나오고, 날짜로 모집예정·모집중·모집마감을 가립니다. 지원 방법(메일 주소 등)은 본문에, 지원서 양식은 첨부파일로 올려 주세요."
-                : "목록에 주관·전문기관과 접수 기간이 나오고, 날짜로 접수예정·접수중·마감을 가립니다. 모르는 칸은 비워 두세요."}
+              목록에 주관·전문기관과 접수 기간이 나오고, 날짜로 접수예정·접수중·마감을 가립니다.
+              모르는 칸은 비워 두세요.
             </p>
 
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              {!recruit && (
-                <>
-                  <div>
-                    <label
-                      htmlFor="announce-host"
-                      className="mb-2 block text-base font-bold text-navy-900"
-                    >
-                      주관기관
-                    </label>
-                    <input
-                      id="announce-host"
-                      name="eventHost"
-                      type="text"
-                      defaultValue={post?.event?.host ?? ""}
-                      placeholder="예: 과학기술정보통신부"
-                      className={fieldClass}
-                    />
-                  </div>
+              <div>
+                <label
+                  htmlFor="announce-host"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
+                  주관기관
+                </label>
+                <input
+                  id="announce-host"
+                  name="eventHost"
+                  type="text"
+                  defaultValue={post?.event?.host ?? ""}
+                  placeholder="예: 과학기술정보통신부"
+                  className={fieldClass}
+                />
+              </div>
 
-                  {/* 부처가 주관하고 접수·관리는 전문기관이 맡는 공고가 많다. 이름과 약어를 한 줄에 */}
-                  <div>
-                    <label
-                      htmlFor="announce-agency"
-                      className="mb-2 block text-base font-bold text-navy-900"
-                    >
-                      전문기관
-                    </label>
-                    <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
-                      <input
-                        id="announce-agency"
-                        name="eventAgency"
-                        type="text"
-                        maxLength={100}
-                        defaultValue={post?.event?.agency ?? ""}
-                        placeholder="예: 정보통신산업진흥원"
-                        className={fieldClass}
-                      />
-                      <label htmlFor="announce-agency-abbr" className="sr-only">
-                        전문기관 약어
-                      </label>
-                      <input
-                        id="announce-agency-abbr"
-                        name="eventAgencyAbbr"
-                        type="text"
-                        maxLength={20}
-                        defaultValue={post?.event?.agencyAbbr ?? ""}
-                        placeholder="약어 (NIPA)"
-                        className={fieldClass}
-                      />
-                    </div>
-                    <p className="mt-2 text-sm text-ink-400">
-                      목록에는 칸이 좁아 약어로 보이고, 마우스를 올리면 전체 이름이 나옵니다.
-                    </p>
-                  </div>
-                </>
-              )}
+              {/* 부처가 주관하고 접수·관리는 전문기관이 맡는 공고가 많다. 이름과 약어를 한 줄에 */}
+              <div>
+                <label
+                  htmlFor="announce-agency"
+                  className="mb-2 block text-base font-bold text-navy-900"
+                >
+                  전문기관
+                </label>
+                <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
+                  <input
+                    id="announce-agency"
+                    name="eventAgency"
+                    type="text"
+                    maxLength={100}
+                    defaultValue={post?.event?.agency ?? ""}
+                    placeholder="예: 정보통신산업진흥원"
+                    className={fieldClass}
+                  />
+                  <label htmlFor="announce-agency-abbr" className="sr-only">
+                    전문기관 약어
+                  </label>
+                  <input
+                    id="announce-agency-abbr"
+                    name="eventAgencyAbbr"
+                    type="text"
+                    maxLength={20}
+                    defaultValue={post?.event?.agencyAbbr ?? ""}
+                    placeholder="약어 (NIPA)"
+                    className={fieldClass}
+                  />
+                </div>
+                <p className="mt-2 text-sm text-ink-400">
+                  목록에는 칸이 좁아 약어로 보이고, 마우스를 올리면 전체 이름이 나옵니다.
+                </p>
+              </div>
 
               <div>
                 <label
                   htmlFor="announce-from"
                   className="mb-2 block text-base font-bold text-navy-900"
                 >
-                  {recruit ? "모집 시작일" : "접수 시작일"}
+                  접수 시작일
                 </label>
                 <input
                   id="announce-from"
@@ -357,7 +347,7 @@ export default function PostForm({
                   className={fieldClass}
                 />
                 <p className="mt-2 text-sm text-ink-400">
-                  이 날짜 전까지는 {recruit ? "모집예정" : "접수예정"}으로 보입니다.
+                  이 날짜 전까지는 접수예정으로 보입니다.
                 </p>
               </div>
 
@@ -366,7 +356,7 @@ export default function PostForm({
                   htmlFor="announce-apply"
                   className="mb-2 block text-base font-bold text-navy-900"
                 >
-                  {recruit ? "모집 마감일" : "접수 마감일"}
+                  접수 마감일
                 </label>
                 <input
                   id="announce-apply"
@@ -376,9 +366,7 @@ export default function PostForm({
                   className={fieldClass}
                 />
                 <p className="mt-2 text-sm text-ink-400">
-                  {recruit
-                    ? "이 날짜까지 모집중으로 보입니다. 상시 모집이라면 비워 두세요."
-                    : "이 날짜까지 접수중으로 보입니다. 상시 접수라면 비워 두세요."}
+                  이 날짜까지 접수중으로 보입니다. 상시 접수라면 비워 두세요.
                 </p>
               </div>
             </div>

@@ -4,8 +4,6 @@ import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
 import { IconArrow } from "./Icons";
 import ProposalDialog from "./ProposalDialog";
 import RecruitDialog from "./RecruitDialog";
-import type { PostDetail } from "@/lib/db/posts";
-import { formatDate } from "@/lib/format";
 
 /*
   메인의 '참여하기' 세 칸 — 사업공고 메일, 교육사업 제안, 강사 모집.
@@ -19,16 +17,7 @@ import { formatDate } from "@/lib/format";
   400px 남짓으로 줄어 글이 너무 좁게 접힌다. 딱지·작은 머리를 위에, 제목·설명을 가운데,
   단추를 맨 아래에 세로로 두고 단추 줄을 칸끼리 맞춘다(mt-auto).
 */
-export default function JoinUsSection({
-  me = EMPTY_APPLICANT,
-  recruits = [],
-}: {
-  me?: Applicant;
-  /** 지금 모집중인 강사 모집 글(본문·첨부까지). 마감이 가까운 차례 */
-  recruits?: PostDetail[];
-}) {
-  const first = recruits[0];
-
+export default function JoinUsSection({ me = EMPTY_APPLICANT }: { me?: Applicant }) {
   return (
     <section className="relative overflow-hidden bg-navy-900 py-12 lg:py-14">
       <div className="hex-field absolute inset-0" aria-hidden />
@@ -87,37 +76,14 @@ export default function JoinUsSection({
             대학·교육기관·회원사와 함께 클라우드·AI 인프라 과정을 운영하고 있습니다.
           </JoinCard>
 
-          {/*
-            강사 모집 — 모집중인 글이 있으면 마감이 가장 가까운 글을 바로 보여 주고,
-            단추를 누르면 메인을 떠나지 않고 팝업으로 모집 글·지원서 양식을 본다(RecruitDialog).
-            모집중인 글이 없으면 강사 모집 목록으로 보낸다.
-          */}
+          {/* 강사 모집 — 모집 글 없이, 단추를 누르면 이력서 보낼 메일을 팝업으로 알린다(RecruitDialog) */}
           <JoinCard
             icon={<IconPresenter className="size-6" />}
-            eyebrow={recruits.length > 0 ? `모집중 ${recruits.length}건` : "교육 · 세미나"}
+            eyebrow="교육 · 세미나"
             title="조합 교육의 강사가 되어 주세요"
-            action={
-              first ? (
-                <RecruitDialog posts={recruits} className={BUTTON} />
-              ) : (
-                <Link href="/participate/instructors" className={BUTTON}>
-                  강사 모집 보기
-                  <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              )
-            }
+            action={<RecruitDialog className={BUTTON} />}
           >
-            {first ? (
-              <>
-                <span className="line-clamp-2 font-semibold text-navy-900">{first.title}</span>
-                <span className="mt-1 block text-sm text-ink-400">
-                  {first.category && `${first.category} · `}
-                  {first.event.applyBy && `${formatDate(first.event.applyBy)} 마감`}
-                </span>
-              </>
-            ) : (
-              "클라우드·AI 교육과정과 세미나에서 강의하실 분을 모집할 때 이곳에 알려 드립니다."
-            )}
+            클라우드·AI 교육과정과 세미나에서 강의하실 분은 이력서를 메일로 보내 주세요.
           </JoinCard>
         </div>
       </div>

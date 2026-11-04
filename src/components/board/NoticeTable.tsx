@@ -3,7 +3,7 @@ import type { EventInfo, PostRow } from "@/lib/db/posts";
 import { agencyName, formatApplyPeriod, noticeStatus, type NoticeStatus } from "@/lib/format";
 import { PinnedBadge, TitleCell, emptyMessage, withPinned } from "./BoardTable";
 import { IconExternal } from "./NewsLinks";
-import { deadlineWords, type BoardConfig } from "@/lib/boards";
+import type { BoardConfig } from "@/lib/boards";
 
 /*
   사업공고 목록.
@@ -15,9 +15,6 @@ import { deadlineWords, type BoardConfig } from "@/lib/boards";
   마감이 지난 공고도 지우지 않고 남긴다. 지난해 공고를 찾아보는 분이 있고,
   같은 사업이 해마다 나오므로 지난 공고가 참고가 된다. 대신 흐리게 두어
   접수중인 것이 먼저 눈에 들어오게 한다.
-
-  강사 모집도 이 표를 쓴다(board.recruit). 말을 '모집'으로 바꾸고(deadlineWords),
-  주관·전문기관 칸 대신 분야(교육·세미나) 칸을 둔다. 제목은 원문이 아니라 글 화면으로 간다.
 */
 
 const BADGE_TONE: Record<NoticeStatus, string> = {
@@ -26,7 +23,7 @@ const BADGE_TONE: Record<NoticeStatus, string> = {
   마감: "bg-surface text-ink-400",
 };
 
-function StatusBadge({ event, label }: { event: EventInfo; label: Record<NoticeStatus, string> }) {
+function StatusBadge({ event }: { event: EventInfo }) {
   const status = noticeStatus(event);
   if (!status) {
     /* 마감일이 없는 공고(상시 접수 등). 모르는 것을 단정하지 않는다 */
@@ -34,7 +31,7 @@ function StatusBadge({ event, label }: { event: EventInfo; label: Record<NoticeS
   }
   return (
     <span className={`inline-flex whitespace-nowrap rounded px-2.5 py-1 text-2xs font-bold ${BADGE_TONE[status]}`}>
-      {label[status]}
+      {status}
     </span>
   );
 }
@@ -87,8 +84,6 @@ export default function NoticeTable({
 }) {
   const all = withPinned(pinned, rows);
   const base = board.basePath;
-  const words = deadlineWords(board);
-  const recruit = Boolean(board.recruit);
 
   if (all.length === 0) {
     return (
@@ -104,14 +99,10 @@ export default function NoticeTable({
         <thead>
           <tr className="border-y-2 border-navy-900">
             <th className="w-24 px-3 py-4 text-center text-base font-bold text-navy-900">상태</th>
-            {recruit ? (
-              <th className="w-24 px-3 py-4 text-center text-base font-bold text-navy-900">분야</th>
-            ) : (
-              <th className="w-44 px-3 py-4 text-base font-bold text-navy-900">주관·전문기관</th>
-            )}
-            <th className="px-3 py-4 text-base font-bold text-navy-900">{recruit ? "제목" : "공고명"}</th>
+            <th className="w-44 px-3 py-4 text-base font-bold text-navy-900">주관·전문기관</th>
+            <th className="px-3 py-4 text-base font-bold text-navy-900">공고명</th>
             <th className="w-56 px-3 py-4 text-center text-base font-bold text-navy-900">
-              {words.period}
+              접수 기간
             </th>
           </tr>
         </thead>
@@ -126,19 +117,15 @@ export default function NoticeTable({
                 }`}
               >
                 <td className="px-3 py-4 text-center">
-                  {isPinned ? <PinnedBadge /> : <StatusBadge event={post.event} label={words.status} />}
+                  {isPinned ? <PinnedBadge /> : <StatusBadge event={post.event} />}
                 </td>
-                {recruit ? (
-                  <td className="px-3 py-4 text-center text-base text-ink-600">{post.category ?? "—"}</td>
-                ) : (
-                  <td className="px-3 py-4 text-base text-ink-600">
-                    <AgencyCell
-                      host={post.event.host}
-                      agency={post.event.agency}
-                      abbr={post.event.agencyAbbr}
-                    />
-                  </td>
-                )}
+                <td className="px-3 py-4 text-base text-ink-600">
+                  <AgencyCell
+                    host={post.event.host}
+                    agency={post.event.agency}
+                    abbr={post.event.agencyAbbr}
+                  />
+                </td>
                 <td className="px-3 py-4">
                   <div className="flex items-start justify-between gap-3">
                     {/* 원문 주소가 있으면 주관기관 공고로 바로 보낸다. 원문 없이 올린 옛 글은 사이트 안 글 화면으로 */}

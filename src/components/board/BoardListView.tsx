@@ -11,8 +11,7 @@ import { listPosts } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
 import {
   ALL_CATEGORY,
-  deadlineTabs,
-  deadlineWords,
+  DEADLINE_TABS,
   isLinkOnly,
   deadlineFilterOf,
   isCategoryOf,
@@ -58,7 +57,7 @@ export default async function BoardListView({
 
   /* 탭 줄. 분류가 있는 게시판(산업뉴스)은 분류로, 사업공고는 접수 상태로 나눈다 */
   const tabs: Tab[] = board.hasDeadlineFields
-    ? deadlineTabs(board).map(({ value, label }) => ({
+    ? DEADLINE_TABS.map(({ value, label }) => ({
         label,
         href: value ? `${base}?status=${value}` : base,
         active: deadline === value,
@@ -85,7 +84,7 @@ export default async function BoardListView({
 
       {/* 탭. 맨 앞은 전체(주소에 조건이 없는 상태). 휴대폰에서는 두 줄로 넘어가므로 아래 건수 줄과 띄운다 */}
       {tabs.length > 0 && (
-        <nav className="mb-6 flex flex-wrap gap-2" aria-label={board.hasDeadlineFields ? deadlineWords(board).tabsLabel : "분류"}>
+        <nav className="mb-6 flex flex-wrap gap-2" aria-label={board.hasDeadlineFields ? "접수 상태" : "분류"}>
           {tabs.map(({ label, href, active }) => (
             <Link
               key={label}
