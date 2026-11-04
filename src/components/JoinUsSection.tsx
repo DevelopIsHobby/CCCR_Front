@@ -3,7 +3,8 @@ import CardIcon from "./CardIcon";
 import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
 import { IconArrow } from "./Icons";
 import ProposalDialog from "./ProposalDialog";
-import type { PostRow } from "@/lib/db/posts";
+import RecruitDialog from "./RecruitDialog";
+import type { PostDetail } from "@/lib/db/posts";
 import { formatDate } from "@/lib/format";
 
 /*
@@ -23,8 +24,8 @@ export default function JoinUsSection({
   recruits = [],
 }: {
   me?: Applicant;
-  /** 지금 모집중인 강사 모집 글. 마감이 가까운 차례 */
-  recruits?: PostRow[];
+  /** 지금 모집중인 강사 모집 글(본문·첨부까지). 마감이 가까운 차례 */
+  recruits?: PostDetail[];
 }) {
   const first = recruits[0];
 
@@ -87,21 +88,23 @@ export default function JoinUsSection({
           </JoinCard>
 
           {/*
-            강사 모집 — 모집중인 글이 있으면 마감이 가장 가까운 글을 바로 보여 준다.
-            지원은 글에 적힌 방법(메일·양식)으로 받으므로 단추는 글·목록으로만 보낸다.
+            강사 모집 — 모집중인 글이 있으면 마감이 가장 가까운 글을 바로 보여 주고,
+            단추를 누르면 메인을 떠나지 않고 팝업으로 모집 글·지원서 양식을 본다(RecruitDialog).
+            모집중인 글이 없으면 강사 모집 목록으로 보낸다.
           */}
           <JoinCard
             icon={<IconPresenter className="size-6" />}
             eyebrow={recruits.length > 0 ? `모집중 ${recruits.length}건` : "교육 · 세미나"}
             title="조합 교육의 강사가 되어 주세요"
             action={
-              <Link
-                href={recruits.length === 1 ? `/participate/instructors/${first.id}` : "/participate/instructors"}
-                className={BUTTON}
-              >
-                {recruits.length === 1 ? "모집 공고 보기" : "강사 모집 보기"}
-                <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
-              </Link>
+              first ? (
+                <RecruitDialog posts={recruits} className={BUTTON} />
+              ) : (
+                <Link href="/participate/instructors" className={BUTTON}>
+                  강사 모집 보기
+                  <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              )
             }
           >
             {first ? (

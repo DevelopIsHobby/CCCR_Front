@@ -27,7 +27,8 @@ test.beforeEach(async ({ page }) => {
 test("강사 모집 글은 모집중·분야·모집 기간으로 보이고, 제목은 글 화면으로 간다", async ({ page }) => {
   const title = `${MARK} 클라우드 보안 교육 강사 모집 ${Date.now()}`;
   const from = dayFromToday(-2);
-  const by = dayFromToday(20);
+  /* 마감을 가깝게 잡는다. 메인 팝업은 마감이 가까운 글부터 다섯 건만 싣는다 */
+  const by = dayFromToday(1);
 
   await page.goto("/participate/instructors/write");
   /* 사업공고와 달리 주관·전문기관 칸이 없고 본문·첨부를 쓴다 */
@@ -59,15 +60,25 @@ test("강사 모집 글은 모집중·분야·모집 기간으로 보이고, 제
   const tabs = page.getByRole("navigation", { name: "모집 상태" });
   await expect(tabs.getByRole("link", { name: "모집중" })).toBeVisible();
 
-  /* 메인 참여하기: 강사 모집 칸에 모집중 건수가 나온다 */
+  /* 메인 참여하기: 강사 모집 칸에 모집중 건수, 단추를 누르면 팝업으로 모집 글을 본다 */
   await page.goto("/");
   const join = page.locator("section", { has: page.getByRole("heading", { name: "참여하기" }) });
   await expect(join.getByText("조합 교육의 강사가 되어 주세요")).toBeVisible();
-  await expect(join.getByText(/모집중 \d+건/)).toBeVisible();
-  await expect(join.getByRole("link", { name: /모집 공고 보기|강사 모집 보기/ })).toHaveAttribute(
+  await expect(join.getByText(/^모집중 \d+건$/)).toBeVisible();
+  await join.getByRole("button", { name: "모집 공고 보기" }).click();
+  const popup = page.getByRole("dialog", { name: "강사 모집" });
+  await expect(popup).toBeVisible();
+  /* 모집중인 글이 여럿이면 위쪽에서 골라 본다 */
+  const pick = popup.getByRole("button", { name: title });
+  if (await pick.count()) await pick.click();
+  await expect(popup.getByRole("heading", { name: title })).toBeVisible();
+  await expect(popup).toContainText("지원서를 사무국 메일로 보내 주세요.");
+  await expect(popup.getByRole("link", { name: "글 화면에서 보기" })).toHaveAttribute(
     "href",
-    /^\/participate\/instructors(\/\d+)?$/,
+    /^\/participate\/instructors\/\d+$/,
   );
+  await page.keyboard.press("Escape");
+  await expect(popup).toBeHidden();
 });
 
 test("참여하기·알림마당 차림표에 강사 모집·포토갤러리가 있다", async ({ page }) => {
@@ -113,13 +124,4 @@ test("포토갤러리: 사진을 여러 장 한 번에 올리고, 글 화면에�
   await page.goto("/board/gallery");
   const card = page.getByRole("link", { name: new RegExp("정기총회 현장") }).first();
   await expect(card.locator('img[src^="/api/images/"]')).toHaveCount(1);
-
-  /* 메인: 포토갤러리 띠에 최근 사진 글로 보인다 */
-  await page.goto("/");
-  const band = page.locator("section", { has: page.getByRole("heading", { name: "포토갤러리" }) });
-  await expect(band.getByRole("link", { name: "사진 더 보기" })).toHaveAttribute("href", "/board/gallery");
-  await expect(band.getByRole("link", { name: new RegExp("정기총회 현장") }).first()).toHaveAttribute(
-    "href",
-    /^\/board\/gallery\/\d+$/,
-  );
 });

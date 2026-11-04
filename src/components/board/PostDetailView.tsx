@@ -8,6 +8,7 @@ import { getNeighbors, getPostCached } from "@/lib/db/posts";
 import { getSession } from "@/lib/auth/session";
 import { deadlineWords, type BoardConfig } from "@/lib/boards";
 import GalleryBody from "./GalleryBody";
+import { fileKind, IconDownload, isHtml } from "./post-bits";
 import {
   eventStatus,
   noticeStatus,
@@ -21,9 +22,6 @@ import {
 } from "@/lib/format";
 import { shortUrl } from "@/lib/url-display";
 
-/** 편집기 도입 전 글은 순수 텍스트다. */
-const isHtml = (body: string) => /<\/?[a-z][\s\S]*>/i.test(body);
-
 /* 행사(접수중·예정·종료)와 사업공고(접수중·마감)가 같은 딱지를 쓴다 */
 const STATUS_TONE: Record<EventStatus | NoticeStatus, string> = {
   접수예정: "bg-brand-600 text-white",
@@ -32,24 +30,6 @@ const STATUS_TONE: Record<EventStatus | NoticeStatus, string> = {
   종료: "bg-surface text-ink-400",
   마감: "bg-surface text-ink-400",
 };
-
-/*
-  첨부파일 종류 딱지. 이름 끝까지 읽지 않아도 무슨 파일인지 보이게 한다.
-  긴 파일 이름은 두 줄에서 잘려 확장자가 가려질 수 있는데, 딱지가 그것을 대신한다.
-*/
-function fileKind(filename: string): { label: string; tone: string } {
-  const ext = filename.split(".").pop()?.toLowerCase() ?? "";
-  if (ext === "pdf") return { label: "PDF", tone: "bg-flame-100 text-flame-700" };
-  if (ext === "hwp" || ext === "hwpx") return { label: "HWP", tone: "bg-brand-100 text-brand-700" };
-  if (ext === "doc" || ext === "docx") return { label: "DOC", tone: "bg-brand-100 text-brand-700" };
-  if (["xls", "xlsx", "csv"].includes(ext)) return { label: "XLS", tone: "bg-emerald-50 text-emerald-700" };
-  if (ext === "ppt" || ext === "pptx") return { label: "PPT", tone: "bg-amber-50 text-amber-700" };
-  if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
-    return { label: "IMG", tone: "bg-brand-50 text-brand-600" };
-  }
-  if (["zip", "7z", "alz", "egg"].includes(ext)) return { label: "ZIP", tone: "bg-surface text-ink-600" };
-  return { label: ext ? ext.slice(0, 4).toUpperCase() : "파일", tone: "bg-surface text-ink-600" };
-}
 
 /*
   링크 글자. 이름(label)이 있으면 이름과 사이트 이름을, 없으면 사이트 이름과 줄인 주소를 보여 준다.
@@ -66,25 +46,6 @@ function LinkText({ url, label }: { url: string; label: string | null }) {
         ? short.host && <span className="ml-2 text-sm text-ink-400">{short.host}</span>
         : short.host && short.rest && <span className="ml-1 text-ink-400">{short.rest}</span>}
     </span>
-  );
-}
-
-function IconDownload({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden
-    >
-      <path d="M12 4v11" />
-      <path d="m7 10 5 5 5-5" />
-      <path d="M5 20h14" />
-    </svg>
   );
 }
 

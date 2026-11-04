@@ -5,8 +5,7 @@ import EduSection from "@/components/EduSection";
 import BannerRail from "@/components/BannerRail";
 import Partners from "@/components/Partners";
 import JoinUsSection from "@/components/JoinUsSection";
-import GallerySection from "@/components/GallerySection";
-import { listPosts } from "@/lib/db/posts";
+import { getPost, listPosts, type PostDetail } from "@/lib/db/posts";
 import { getHomeCardsUpdatedAt, listHomeCards } from "@/lib/db/home-cards";
 import { getApplicant } from "@/lib/db/me";
 import PopupLayer from "@/components/PopupLayer";
@@ -23,8 +22,15 @@ export default async function Home() {
     getHomeCardsUpdatedAt("banner"),
     getApplicant(),
     listLivePopups(),
-    /* 참여하기의 강사 모집 칸. 지금 모집중인 글, 마감이 가까운 차례 */
-    listPosts({ board: "instructors", deadline: "open" }).then((r) => r.rows),
+    /*
+      참여하기의 강사 모집 칸. 지금 모집중인 글을 마감이 가까운 차례로, 팝업에서 바로 읽게 본문까지.
+      잠긴 글은 팝업에 싣지 않는다. 많아야 다섯 건만 — 그보다 많으면 팝업에서 목록으로 보낸다.
+    */
+    listPosts({ board: "instructors", deadline: "open" }).then(async (r) => {
+      const open = r.rows.filter((p) => !p.isLocked).slice(0, 5);
+      const full = await Promise.all(open.map((p) => getPost("instructors", p.id)));
+      return full.filter((p): p is PostDetail => p !== null);
+    }),
   ]);
 
   return (
@@ -39,7 +45,6 @@ export default async function Home() {
       <NewsSection />
       <EduSection />
       {banners.length > 0 && <BannerRail banners={banners} updatedAt={bannersUpdatedAt} />}
-      <GallerySection />
       <JoinUsSection me={me} recruits={recruits} />
       <Partners />
 
