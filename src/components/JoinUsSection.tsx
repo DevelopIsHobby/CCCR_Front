@@ -76,10 +76,10 @@ export default function JoinUsSection({ me = EMPTY_APPLICANT }: { me?: Applicant
             대학·교육기관·회원사와 함께 클라우드·AI 인프라 과정을 운영하고 있습니다.
           </JoinCard>
 
-          {/* 강사 모집 — 모집 글 없이, 단추를 누르면 이력서 보낼 메일을 팝업으로 알린다(RecruitDialog) */}
+          {/* 강사 모집 — 상시 모집. 모집 글 없이, 단추를 누르면 이력서 보낼 메일을 팝업으로 알린다(RecruitDialog) */}
           <JoinCard
             icon={<IconPresenter className="size-6" />}
-            eyebrow="교육 · 세미나"
+            eyebrow="상시 모집"
             title="조합 교육의 강사가 되어 주세요"
             action={<RecruitDialog className={BUTTON} />}
           >

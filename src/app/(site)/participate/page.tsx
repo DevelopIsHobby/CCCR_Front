@@ -8,10 +8,10 @@ import { pageMeta } from "@/lib/page-meta";
 export const metadata: Metadata = pageMeta(
   "참여 안내",
   "/participate",
-  "조합이 회원사·유관기관과 함께 운영하는 창구를 모아 두었습니다. 사업공고 수신신청, 교육사업 제안, 뉴스레터 신청과 신청 현황 조회를 이곳에서 하실 수 있습니다.",
+  "조합이 회원사·유관기관과 함께 운영하는 창구를 모아 두었습니다. 사업공고 수신신청, 교육사업 제안, 강사 모집, 뉴스레터 신청과 신청 현황 조회를 이곳에서 하실 수 있습니다.",
 );
 
-const SERVICES = [
+const SERVICES: { href: string; eyebrow: string; title: string; desc: string; cta?: string }[] = [
   {
     href: "/members/notice",
     eyebrow: "주 1회 발송",
@@ -23,6 +23,13 @@ const SERVICES = [
     eyebrow: "대학 · 교육기관 · 회원사",
     title: "교육사업 제안",
     desc: "대학·교육기관·회원사와 함께 여는 교육과정 협력을 받습니다.",
+  },
+  {
+    href: "/participate/instructors",
+    eyebrow: "상시 모집",
+    title: "강사 모집",
+    desc: "조합 교육·세미나에서 강의해 주실 분을 상시 모집합니다.",
+    cta: "지원 안내 보기",
   },
   {
     href: "/info/newsletter",
@@ -52,7 +59,7 @@ export default function Page() {
             <p className="mt-2.5 text-xl font-bold text-navy-900">{s.title}</p>
             <p className="mt-2 text-md leading-relaxed text-ink-600">{s.desc}</p>
             <span className="mt-auto flex items-center gap-2 pt-6 text-base font-bold text-navy-900 transition-colors group-hover:text-brand-600">
-              신청하러 가기
+              {s.cta ?? "신청하러 가기"}
               <IconArrow className="size-4" />
             </span>
           </Link>
