@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { IconExternal } from "@/components/admin/AdminIcons";
 import { Note, PageHead, Panel } from "@/components/admin/AdminUi";
-import CalendarEventEditor from "@/components/admin/CalendarEventEditor";
-import { collectCalendar, getCalendarSettings, listCustomEvents } from "@/lib/db/calendar";
+import { collectCalendar, getCalendarSettings } from "@/lib/db/calendar";
 import { saveCalendarKinds, toggleCalendarHidden } from "@/lib/db/calendar-actions";
 import { CALENDAR_KINDS, addMonths, type CalendarKind } from "@/lib/calendar";
 import { today } from "@/lib/format";
@@ -14,7 +13,6 @@ const KIND_TONE: Record<CalendarKind, string> = {
   행사: "bg-flame-100 text-flame-700",
   교육: "bg-teal-50 text-teal-700",
   "공고 마감": "bg-brand-50 text-brand-700",
-  "조합 일정": "bg-violet-50 text-violet-700",
 };
 
 /* 각 종류가 어디서 오는지. 고치는 곳을 바로 알려 준다 */
@@ -22,7 +20,6 @@ const KIND_SOURCE: Record<CalendarKind, { text: string; href: string }> = {
   행사: { text: "행사정보 글의 행사일", href: "/board/events" },
   교육: { text: "교육 과정의 교육 기간", href: "/admin/education" },
   "공고 마감": { text: "사업공고 글의 접수 마감일", href: "/board/announce" },
-  "조합 일정": { text: "아래에서 직접 넣는 일정", href: "#custom" },
 };
 
 const fmt = (d: string) => d.slice(5).replace("-", ".");
@@ -32,11 +29,7 @@ export default async function Page() {
   /* 메인 달력이 싣는 범위와 같다(NewsSection) */
   const from = `${addMonths(now.slice(0, 7), -1)}-01`;
   const to = `${addMonths(now.slice(0, 7), 4)}-01`;
-  const [entries, settings, custom] = await Promise.all([
-    collectCalendar(from, to),
-    getCalendarSettings(),
-    listCustomEvents(),
-  ]);
+  const [entries, settings] = await Promise.all([collectCalendar(from, to), getCalendarSettings()]);
 
   return (
     <div className="space-y-6">
@@ -57,8 +50,8 @@ export default async function Page() {
 
       <Note>
         달력은 행사정보·사업공고 글과 교육 과정에서 저절로 채워집니다. 날짜를 고치려면 그 글이나 과정을
-        고치세요. 여기서는 종류를 통째로 켜고 끄거나, 일정 하나만 달력에서 숨기거나(글은 그대로), 글이
-        없는 일정을 직접 넣을 수 있습니다.
+        고치세요. 정기총회·이사회 같은 조합 일정도 행사정보 글로 올리면 “행사”로 찍힙니다. 여기서는 종류를
+        통째로 켜고 끄거나, 일정 하나만 달력에서 숨길 수 있습니다(글은 그대로).
       </Note>
 
       <Panel title="보일 종류" desc="체크를 푼 종류는 메인 달력에서 모두 빠집니다.">
@@ -86,15 +79,6 @@ export default async function Page() {
           </button>
         </form>
       </Panel>
-
-      <div id="custom">
-        <Panel
-          title="직접 넣는 일정 (조합 일정)"
-          desc="게시글이 없는 일정 — 정기총회·이사회·휴무 등. 달력에 보라색 점으로 나옵니다."
-        >
-          <CalendarEventEditor events={custom} />
-        </Panel>
-      </div>
 
       <Panel
         title="달력에 걸린 일정"

@@ -160,6 +160,12 @@ test("메인 '일정 달력'에서 날을 누르면 그날 행사·교육·공�
   /* 다른 시험이 넣는 일정(대개 한두 주 안)과 겹치지 않게 멀리 잡는다. 달력이 싣는 범위(넉 달 뒤까지) 안이다 */
   const target = day(60);
   const conn = db();
+  /*
+    시험 DB 는 돌릴 때마다 쌓인다. 앞서 넣은 '달력' 일정이 같은 날에 겹치면 그날 목록(세 건까지)에서
+    이번 행사가 밀려난다. 지난번 것을 먼저 치운다.
+  */
+  conn.prepare(`DELETE FROM posts WHERE title LIKE '${MARK} 달력 %'`).run();
+  conn.prepare(`DELETE FROM edu_courses WHERE title LIKE '${MARK} 달력 %'`).run();
   conn
     .prepare(
       `INSERT INTO posts (board, title, body, author_name, is_pinned, is_locked, views,

@@ -60,14 +60,14 @@ test("관리자 설정: 하나씩 숨긴 일정과 꺼 둔 종류는 빠진다",
   const list: CalendarEntry[] = [
     entry("events-1", "2026-11-10"),
     { ...entry("course-2", "2026-11-12"), kind: "교육" },
-    { ...entry("custom-3", "2026-11-14"), kind: "조합 일정" },
+    { ...entry("announce-3", "2026-11-14"), kind: "공고 마감" },
   ];
   assert.deepEqual(
     applyCalendarSettings(list, new Set(["events-1"]), new Set()).map((e) => e.key),
-    ["course-2", "custom-3"],
+    ["course-2", "announce-3"],
   );
   assert.deepEqual(
     applyCalendarSettings(list, new Set(), new Set(["교육"])).map((e) => e.key),
-    ["events-1", "custom-3"],
+    ["events-1", "announce-3"],
   );
 });

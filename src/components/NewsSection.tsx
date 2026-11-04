@@ -33,7 +33,7 @@ export default async function NewsSection() {
     getCalendarSettings(),
   ]);
 
-  /* 달력 일정(행사·공고 마감·교육·조합 일정)에 관리자 설정(숨김·끈 종류)을 건다 — lib/db/calendar.ts */
+  /* 달력 일정(행사·공고 마감·교육)에 관리자 설정(숨김·끈 종류)을 건다 — lib/db/calendar.ts */
   const calendar = applyCalendarSettings(allCalendar, settings.hidden, settings.off);
   const calendarKinds = CALENDAR_KINDS.filter((k) => !settings.off.has(k));
 

@@ -14,19 +14,17 @@ import {
 
 /*
   종류 색. 사이트 색(남색·파랑·주황) 안에서 고르면 교육(남색)과 공고 마감(파랑)이 작은 점에서
-  구별되지 않았다. 색상부터 다르게 주황·초록(청록)·파랑, 직접 넣는 조합 일정은 보라로 둔다.
+  구별되지 않았다. 색상부터 다르게 주황·초록(청록)·파랑으로 둔다.
 */
 const KIND_DOT: Record<CalendarKind, string> = {
   행사: "bg-flame-500",
   교육: "bg-teal-600",
   "공고 마감": "bg-brand-500",
-  "조합 일정": "bg-violet-500",
 };
 const KIND_TEXT: Record<CalendarKind, string> = {
   행사: "text-flame-600",
   교육: "text-teal-700",
   "공고 마감": "text-brand-600",
-  "조합 일정": "text-violet-700",
 };
 const WEEK = ["일", "월", "화", "수", "목", "금", "토"];
 
