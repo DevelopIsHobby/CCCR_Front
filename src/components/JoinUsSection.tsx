@@ -4,6 +4,7 @@ import { EMPTY_APPLICANT, type Applicant } from "@/lib/applicant-types";
 import { IconArrow } from "./Icons";
 import ProposalDialog from "./ProposalDialog";
 import RecruitDialog from "./RecruitDialog";
+import { RECRUIT_SUMMARY, RECRUIT_TITLE } from "@/lib/recruit";
 
 /*
   메인의 '참여하기' 세 칸 — 사업공고 메일, 교육사업 제안, 강사 모집.
@@ -79,11 +80,11 @@ export default function JoinUsSection({ me = EMPTY_APPLICANT }: { me?: Applicant
           {/* 강사 모집 — 상시 모집. 모집 글 없이, 단추를 누르면 이력서 보낼 메일을 팝업으로 알린다(RecruitDialog) */}
           <JoinCard
             icon={<IconPresenter className="size-6" />}
-            eyebrow="상시 모집"
-            title="조합 교육의 강사가 되어 주세요"
+            eyebrow="교육 · 세미나"
+            title={RECRUIT_TITLE}
             action={<RecruitDialog className={BUTTON} />}
           >
-            클라우드·AI 교육과정과 세미나에서 강의하실 분은 이력서를 메일로 보내 주세요.
+            {RECRUIT_SUMMARY}
           </JoinCard>
         </div>
       </div>

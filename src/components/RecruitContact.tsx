@@ -5,8 +5,7 @@ import { IconArrow, IconMail } from "./Icons";
 import { RECRUIT_EMAIL, RECRUIT_MAILTO } from "@/lib/recruit";
 
 /*
-  강사 모집 메일 칸 — 주소·주소 복사·메일 보내기.
-  메인 팝업(RecruitDialog)과 참여하기 → 강사 모집 화면이 함께 쓴다.
+  강사 모집 메일 칸 — 주소·주소 복사·메일 보내기. 강사 모집 팝업(RecruitDialog) 안에 놓인다.
 */
 export default function RecruitContact() {
   const [copied, setCopied] = useState(false);

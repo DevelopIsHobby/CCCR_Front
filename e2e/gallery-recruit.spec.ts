@@ -5,7 +5,7 @@ import { ADMIN, MARK, login } from "./fixtures";
   포토갤러리(알림마당)와 메인 참여하기의 강사 모집 팝업.
 
   포토갤러리는 사진 카드로 늘어놓고, 글 화면에서 사진을 눌러 크게 넘겨 본다.
-  강사 모집은 게시판 없이 상시 모집 안내만 — 메인 팝업과 참여하기 → 강사 모집 화면.
+  강사 모집은 게시판·화면 없이 팝업만 — 메인 참여하기와 참여 안내의 강사 모집 칸이 연다.
 */
 
 const PNG = Buffer.from(
@@ -17,16 +17,15 @@ test.beforeEach(async ({ page }) => {
   await login(page, ADMIN);
 });
 
-test("메인 참여하기: 강사 모집 단추를 누르면 상시 모집과 이력서 보낼 메일을 팝업으로 알린다", async ({ page }) => {
+test("메인 참여하기: 강사 모집 단추를 누르면 이력서 받는 메일을 팝업으로 알린다", async ({ page }) => {
   await page.goto("/");
   const join = page.locator("section", { has: page.getByRole("heading", { name: "참여하기" }) });
   /* 팝업도 같은 제목을 쓰므로 첫째(카드)만 본다 */
-  await expect(join.getByText("조합 교육의 강사가 되어 주세요").first()).toBeVisible();
-  await expect(join.getByText("상시 모집").first()).toBeVisible();
+  await expect(join.getByText("강사 상시 모집").first()).toBeVisible();
   await join.getByRole("button", { name: "지원 안내" }).click();
   const popup = page.getByRole("dialog", { name: "강사 모집" });
   await expect(popup).toBeVisible();
-  await expect(popup).toContainText("상시 모집");
+  await expect(popup).toContainText("이력서는 아래 메일로 받습니다.");
   await expect(popup).toContainText("mskim@cccr.or.kr");
   await expect(popup.getByRole("link", { name: "메일 보내기" })).toHaveAttribute(
     "href",
@@ -36,19 +35,17 @@ test("메인 참여하기: 강사 모집 단추를 누르면 상시 모집과 �
   await expect(popup).toBeHidden();
 });
 
-test("참여하기 → 강사 모집 화면에 같은 안내가 있고, 알림마당 차림표에 포토갤러리가 있다", async ({ page }) => {
+test("강사 모집은 따로 화면 없이 참여 안내 칸에서도 같은 팝업을 연다", async ({ page }) => {
   await page.goto("/participate");
-  await expect(page.getByRole("link", { name: "강사 모집", exact: true }).first()).toHaveAttribute(
-    "href",
-    "/participate/instructors",
-  );
-  await page.goto("/participate/instructors");
-  const main = page.locator("main");
-  await expect(main.getByText("상시 모집").first()).toBeVisible();
-  await expect(main.getByRole("link", { name: "메일 보내기" })).toHaveAttribute("href", /^mailto:mskim@cccr\.or\.kr/);
-  /* 옛 게시판 글 주소는 없다 */
-  const old = await page.goto("/participate/instructors/1");
-  expect(old?.status()).toBe(404);
+  /* 차림표·탭 줄에 강사 모집 화면이 없다 */
+  await expect(page.getByRole("link", { name: "강사 모집", exact: true })).toHaveCount(0);
+  await page.locator("main").getByRole("button", { name: /강사 상시 모집/ }).click();
+  const popup = page.getByRole("dialog", { name: "강사 모집" });
+  await expect(popup).toBeVisible();
+  await expect(popup).toContainText("mskim@cccr.or.kr");
+
+  const res = await page.goto("/participate/instructors");
+  expect(res?.status()).toBe(404);
 
   await page.goto("/board/notice");
   await expect(page.getByRole("link", { name: "포토갤러리", exact: true }).first()).toHaveAttribute(

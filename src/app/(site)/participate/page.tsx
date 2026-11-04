@@ -3,7 +3,9 @@ import Link from "next/link";
 import PageShell from "@/components/sub/PageShell";
 import { SectionHeading } from "@/components/sub/Ui";
 import { IconArrow } from "@/components/Icons";
+import RecruitDialog from "@/components/RecruitDialog";
 import { pageMeta } from "@/lib/page-meta";
+import { RECRUIT_SUMMARY, RECRUIT_TITLE } from "@/lib/recruit";
 
 export const metadata: Metadata = pageMeta(
   "참여 안내",
@@ -11,7 +13,7 @@ export const metadata: Metadata = pageMeta(
   "조합이 회원사·유관기관과 함께 운영하는 창구를 모아 두었습니다. 사업공고 수신신청, 교육사업 제안, 강사 모집, 뉴스레터 신청과 신청 현황 조회를 이곳에서 하실 수 있습니다.",
 );
 
-const SERVICES: { href: string; eyebrow: string; title: string; desc: string; cta?: string }[] = [
+const SERVICES = [
   {
     href: "/members/notice",
     eyebrow: "주 1회 발송",
@@ -25,19 +27,15 @@ const SERVICES: { href: string; eyebrow: string; title: string; desc: string; ct
     desc: "대학·교육기관·회원사와 함께 여는 교육과정 협력을 받습니다.",
   },
   {
-    href: "/participate/instructors",
-    eyebrow: "상시 모집",
-    title: "강사 모집",
-    desc: "조합 교육·세미나에서 강의해 주실 분을 상시 모집합니다.",
-    cta: "지원 안내 보기",
-  },
-  {
     href: "/info/newsletter",
     eyebrow: "월 1회",
     title: "뉴스레터 신청",
     desc: "공지·행사·기술동향을 한 달에 한 번 정리해 보내드립니다.",
   },
 ];
+
+const CARD =
+  "group flex flex-col rounded-xl border border-line bg-white p-6 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_16px_32px_-18px_rgba(6,42,85,0.4)]";
 
 export default function Page() {
   return (
@@ -50,20 +48,28 @@ export default function Page() {
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2">
         {SERVICES.map((s) => (
-          <Link
-            key={s.href}
-            href={s.href}
-            className="group flex flex-col rounded-xl border border-line bg-white p-6 transition-all hover:-translate-y-0.5 hover:border-brand-500 hover:shadow-[0_16px_32px_-18px_rgba(6,42,85,0.4)]"
-          >
+          <Link key={s.href} href={s.href} className={CARD}>
             <p className="data-line text-brand-600">{s.eyebrow}</p>
             <p className="mt-2.5 text-xl font-bold text-navy-900">{s.title}</p>
             <p className="mt-2 text-md leading-relaxed text-ink-600">{s.desc}</p>
             <span className="mt-auto flex items-center gap-2 pt-6 text-base font-bold text-navy-900 transition-colors group-hover:text-brand-600">
-              {s.cta ?? "신청하러 가기"}
+              신청하러 가기
               <IconArrow className="size-4" />
             </span>
           </Link>
         ))}
+
+        {/* 강사 모집은 따로 화면이 없다. 메인과 같은 팝업으로 메일 주소를 알린다(RecruitDialog) */}
+        <RecruitDialog className={`${CARD} text-left`}>
+          {/* 단추 안이라 p 대신 span 을 쓴다 */}
+          <span className="data-line block text-brand-600">교육 · 세미나</span>
+          <span className="mt-2.5 block text-xl font-bold text-navy-900">{RECRUIT_TITLE}</span>
+          <span className="mt-2 block text-md leading-relaxed text-ink-600">{RECRUIT_SUMMARY}</span>
+          <span className="mt-auto flex items-center gap-2 pt-6 text-base font-bold text-navy-900 transition-colors group-hover:text-brand-600">
+            지원 안내
+            <IconArrow className="size-4" />
+          </span>
+        </RecruitDialog>
       </div>
 
       <section className="mt-11 rounded-xl border border-line bg-surface p-6 lg:p-8">
