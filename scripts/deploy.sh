@@ -87,6 +87,10 @@ npm ci
 echo "▶ 자리 비우기"
 rm -rf .next.prev .next.new
 rm -f .next.prev.sha
+# 돌고 있는 판의 타입 파일(.next/types)은 지운다. tsconfig 가 .next 와 .next.new 의 types 를
+# 함께 읽어서, 화면을 지운 커밋이면 옛 판의 타입이 없어진 파일을 찾다 빌드가 실패한다
+# (2026-11-04, participate/[board] 를 지운 뒤). 타입 검사에만 쓰는 파일이라 돌고 있는 사이트는 상관없다.
+rm -rf .next/types .next/dev/types
 
 STAGE=build
 echo "▶ 빌드"
