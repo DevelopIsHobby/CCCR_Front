@@ -5,6 +5,8 @@ import EduSection from "@/components/EduSection";
 import BannerRail from "@/components/BannerRail";
 import Partners from "@/components/Partners";
 import JoinUsSection from "@/components/JoinUsSection";
+import GallerySection from "@/components/GallerySection";
+import { listPosts } from "@/lib/db/posts";
 import { getHomeCardsUpdatedAt, listHomeCards } from "@/lib/db/home-cards";
 import { getApplicant } from "@/lib/db/me";
 import PopupLayer from "@/components/PopupLayer";
@@ -15,12 +17,14 @@ export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 /* 슬라이드·배너는 관리자 화면(/admin)에서 고친다. */
 export default async function Home() {
-  const [slides, banners, bannersUpdatedAt, me, popups] = await Promise.all([
+  const [slides, banners, bannersUpdatedAt, me, popups, recruits] = await Promise.all([
     listHomeCards("slide"),
     listHomeCards("banner"),
     getHomeCardsUpdatedAt("banner"),
     getApplicant(),
     listLivePopups(),
+    /* 참여하기의 강사 모집 칸. 지금 모집중인 글, 마감이 가까운 차례 */
+    listPosts({ board: "instructors", deadline: "open" }).then((r) => r.rows),
   ]);
 
   return (
@@ -35,7 +39,8 @@ export default async function Home() {
       <NewsSection />
       <EduSection />
       {banners.length > 0 && <BannerRail banners={banners} updatedAt={bannersUpdatedAt} />}
-      <JoinUsSection me={me} />
+      <GallerySection />
+      <JoinUsSection me={me} recruits={recruits} />
       <Partners />
 
       {/* 공지 팝업. 기간이 지난 것은 저절로 빠진다. */}
