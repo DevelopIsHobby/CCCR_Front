@@ -4,8 +4,10 @@ import type { Driver } from "./driver";
 /*
   이미지가 어딘가에 쓰이고 있는지 보는 기준을 한곳에 모은다.
   본문 이미지 말고도 이사장 사진(page_texts)·회원사 로고(companies)·팝업(popups)·
-  메인 슬라이드 그림(home_cards)이 같은 저장소를 쓰므로, 이것을 모두 보지 않으면 "안 쓰는 이미지"를 정리할 때
-  화면에 걸려 있는 그림이 지워진다.
+  메인 슬라이드 그림(home_cards)·교육 과정 포스터(edu_courses)가 같은 저장소를 쓰므로, 이것을 모두
+  보지 않으면 "안 쓰는 이미지"를 정리할 때 화면에 걸려 있는 그림이 지워진다.
+  실제로 포스터를 빠뜨려 정리 한 번에 메인 아카데미 포스터가 사라졌다(2026-11-06).
+  그림을 쓰는 곳을 새로 만들면 여기 세 곳과 files.ts 를 함께 고칠 것.
 */
 
 /*
@@ -24,6 +26,7 @@ export const imageUsedSql = (idExpr: string) => `(
   OR EXISTS (SELECT 1 FROM companies c WHERE c.logo_url = '/api/images/' || ${idExpr})
   OR EXISTS (SELECT 1 FROM popups pu WHERE pu.image_url = '/api/images/' || ${idExpr})
   OR EXISTS (SELECT 1 FROM home_cards h WHERE h.image_url = '/api/images/' || ${idExpr})
+  OR EXISTS (SELECT 1 FROM edu_courses e WHERE e.poster_url = '/api/images/' || ${idExpr})
 )`;
 
 /*
@@ -58,8 +61,9 @@ export async function imageIsMembersOnly(db: Driver, id: number): Promise<boolea
        + (SELECT COUNT(*) FROM page_texts WHERE value = ?)
        + (SELECT COUNT(*) FROM companies WHERE logo_url = ?)
        + (SELECT COUNT(*) FROM popups WHERE image_url = ?)
-       + (SELECT COUNT(*) FROM home_cards WHERE image_url = ?) AS open`,
-    [like, like, url, url, url, url],
+       + (SELECT COUNT(*) FROM home_cards WHERE image_url = ?)
+       + (SELECT COUNT(*) FROM edu_courses WHERE poster_url = ?) AS open`,
+    [like, like, url, url, url, url, url],
   );
 
   return Number(row?.locked ?? 0) > 0 && Number(row?.open ?? 0) === 0;
@@ -74,8 +78,9 @@ export async function isImageUsed(db: Driver, id: number): Promise<boolean> {
        + (SELECT COUNT(*) FROM page_texts WHERE value = ?)
        + (SELECT COUNT(*) FROM companies WHERE logo_url = ?)
        + (SELECT COUNT(*) FROM popups WHERE image_url = ?)
-       + (SELECT COUNT(*) FROM home_cards WHERE image_url = ?) AS n`,
-    [`%${url}%`, url, url, url, url],
+       + (SELECT COUNT(*) FROM home_cards WHERE image_url = ?)
+       + (SELECT COUNT(*) FROM edu_courses WHERE poster_url = ?) AS n`,
+    [`%${url}%`, url, url, url, url, url],
   );
   return Number(row?.n ?? 0) > 0;
 }
