@@ -54,8 +54,7 @@ test("안 쓰는 이미지를 지워도 교육 과정 포스터는 남는다", a
 
   page.once("dialog", (d) => void d.accept());
   await page.getByRole("button", { name: /안 쓰는 이미지 \d+개 지우기/ }).click();
-  await expect(page.getByText(/이미지 \d+건을 지웠습니다/)).toBeVisible();
-
+  /* 지울 것이 0개가 되면 단추와 안내 글이 함께 사라지므로, 글자 대신 그림이 실제로 지워졌는지 본다 */
+  await expect.poll(async () => (await request.get(`/api/images/${unused}`)).status()).toBe(404);
   expect((await request.get(`/api/images/${poster}`)).status()).toBe(200);
-  expect((await request.get(`/api/images/${unused}`)).status()).toBe(404);
 });
