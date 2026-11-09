@@ -40,7 +40,8 @@ export default async function Page() {
           "검토에는 시간이 걸릴 수 있습니다. 사무국 사업 일정과 함께 보기 때문입니다.",
           "조합이 운영 중인 교육은 별도 사이트(cccr-edu.or.kr)에서 보실 수 있습니다.",
         ]}
-        action={<ProposalDialog me={me} />}
+        /* 단추가 남색 판 위에 놓인다. 남색 단추는 판에 묻혀 보이지 않았다 */
+        action={<ProposalDialog tone="accent" me={me} />}
       />
 
       <p className="mt-11 rounded-xl border border-line bg-surface px-5 py-4 text-base leading-relaxed text-ink-600 lg:px-6">

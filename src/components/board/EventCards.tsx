@@ -2,6 +2,7 @@ import Link from "next/link";
 import { IconArrow, IconClip, IconLock } from "@/components/Icons";
 import type { PostRow } from "@/lib/db/posts";
 import { emptyMessage, PinnedBadge, withPinned } from "./BoardTable";
+import { NewBadge, ViewCount } from "./PostBadges";
 import { eventStatus, formatDate, formatEventPeriod, type EventStatus } from "@/lib/format";
 
 const STATUS_TONE: Record<EventStatus, string> = {
@@ -63,6 +64,7 @@ export default function EventCards({
                       {status}
                     </span>
                   )}
+                  <NewBadge createdAt={post.createdAt} />
                   {post.event.host && (
                     <span className="text-sm text-ink-400">주최 · {post.event.host}</span>
                   )}
@@ -95,6 +97,7 @@ export default function EventCards({
                       신청 마감 {formatDate(post.event.applyBy)}
                     </span>
                   )}
+                  <ViewCount views={post.views} />
                 </div>
               </div>
 

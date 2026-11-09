@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PostRow } from "@/lib/db/posts";
 import { emptyMessage, PinnedBadge, withPinned } from "./BoardTable";
 import { formatDate } from "@/lib/format";
+import { NewBadge, ViewCount } from "./PostBadges";
 
 /*
   포토갤러리 목록.
@@ -70,7 +71,11 @@ export default function PhotoGallery({
               <p className="line-clamp-2 text-md font-bold leading-snug text-navy-900 transition-colors group-hover:text-brand-600">
                 {post.title}
               </p>
-              <p className="label-mono mt-auto tabular-nums text-ink-400">{formatDate(post.createdAt)}</p>
+              <p className="label-mono mt-auto flex items-center gap-3 tabular-nums text-ink-400">
+                {formatDate(post.createdAt)}
+                <ViewCount views={post.views} />
+                <NewBadge createdAt={post.createdAt} />
+              </p>
             </div>
           </Link>
         </li>

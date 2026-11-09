@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/session";
-import { purge, restore } from "@/lib/db/trash";
+import { purge, purgeAll, restore } from "@/lib/db/trash";
 import type { TrashKind } from "@/lib/trash-types";
 
 /*
@@ -47,6 +47,13 @@ export async function restoreItem(formData: FormData): Promise<void> {
   if (!target) return;
 
   await restore(target.kind, target.id);
+  refresh();
+}
+
+/** 휴지통 비우기. 담긴 것을 모두 진짜로 지운다(되돌릴 수 없다) */
+export async function emptyTrash(): Promise<void> {
+  await requireAdmin();
+  await purgeAll();
   refresh();
 }
 

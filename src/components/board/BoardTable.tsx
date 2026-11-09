@@ -2,10 +2,7 @@ import Link from "next/link";
 import { IconClip, IconLock } from "@/components/Icons";
 import type { PostRow } from "@/lib/db/posts";
 import { formatDate } from "@/lib/format";
-
-/** 등록 7일 이내면 새 글로 표시한다. */
-const isNew = (iso: string) =>
-  Date.now() - new Date(`${iso.replace(" ", "T")}Z`).getTime() < 7 * 24 * 60 * 60 * 1000;
+import { NewBadge } from "./PostBadges";
 
 export function TitleCell({ post }: { post: PostRow }) {
   return (
@@ -19,7 +16,7 @@ export function TitleCell({ post }: { post: PostRow }) {
       {post.isLocked && (
         <IconLock className="size-3.5 shrink-0 text-ink-400" aria-label="회원 전용" />
       )}
-      {isNew(post.createdAt) && <span className="label-mono shrink-0 text-flame-500">new</span>}
+      <NewBadge createdAt={post.createdAt} />
     </span>
   );
 }

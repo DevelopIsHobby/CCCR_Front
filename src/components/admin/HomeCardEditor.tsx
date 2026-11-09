@@ -156,8 +156,10 @@ function CardForm({
             그림 설명(화면 낭독기·검색)으로 쓰입니다. &lsquo;자세히 보기&rsquo; 링크를 넣으면 그림을
             눌러 그 주소로 갑니다.
             <br />
-            권장 크기 <b className="font-semibold text-ink-600">1500 × 780 px</b> (가로:세로 약
-            2:1). 비율이 달라도 잘리지 않고 남는 곳은 배경색으로 채웁니다.
+            그림 크기 <b className="font-semibold text-ink-600">1500 × 780 px</b>로 만들어 주세요.
+            메인 슬라이드 자리가 이 비율(약 1.92:1)로 정해져 있어 꽉 차게 들어갑니다. 더 선명하게
+            하려면 같은 비율로 두 배(3000 × 1560 px)도 됩니다. 비율이 다르면 자르지 않고 남는 곳을
+            배경색으로 채웁니다.
           </p>
           <ImagePicker
             name="imageUrl"

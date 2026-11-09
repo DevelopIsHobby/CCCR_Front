@@ -7,27 +7,9 @@ import type { Driver } from "./driver";
   메인 슬라이드 그림(home_cards)·교육 과정 포스터(edu_courses)가 같은 저장소를 쓰므로, 이것을 모두
   보지 않으면 "안 쓰는 이미지"를 정리할 때 화면에 걸려 있는 그림이 지워진다.
   실제로 포스터를 빠뜨려 정리 한 번에 메인 아카데미 포스터가 사라졌다(2026-11-06).
-  그림을 쓰는 곳을 새로 만들면 여기 세 곳과 files.ts 를 함께 고칠 것.
+  그림을 쓰는 곳을 새로 만들면 여기 두 곳과 files.ts 를 함께 고칠 것.
+  (한꺼번에 지우던 '안 쓰는 이미지 지우기'는 2026-11-09 뺐다)
 */
-
-/*
-  SQL 안에서 쓰는 조건. idExpr 은 이미지 id 를 가리키는 식이다.
-
-  여기는 일부러 경계(따옴표)를 두지 않는다. 아래 imageIsMembersOnly 와 다른 점인데,
-  두 검사가 틀렸을 때 가는 방향이 반대이기 때문이다.
-    - 여기(쓰이는지)  : 틀리면 안 쓰는 그림을 남긴다 — 파일이 남을 뿐 해가 없다
-    - 회원 전용 판정  : 틀리면 막아야 할 그림을 열어 준다 — 그래서 경계를 둔다
-  본문에 그림이 아니라 글자로 주소를 적어 둔 경우까지 '쓰인다'고 보려면 느슨한 편이 낫다.
-  합치지 말 것.
-*/
-export const imageUsedSql = (idExpr: string) => `(
-  EXISTS (SELECT 1 FROM posts p WHERE p.deleted_at = '' AND p.body LIKE '%/api/images/' || ${idExpr} || '%')
-  OR EXISTS (SELECT 1 FROM page_texts t WHERE t.value = '/api/images/' || ${idExpr})
-  OR EXISTS (SELECT 1 FROM companies c WHERE c.logo_url = '/api/images/' || ${idExpr})
-  OR EXISTS (SELECT 1 FROM popups pu WHERE pu.image_url = '/api/images/' || ${idExpr})
-  OR EXISTS (SELECT 1 FROM home_cards h WHERE h.image_url = '/api/images/' || ${idExpr})
-  OR EXISTS (SELECT 1 FROM edu_courses e WHERE e.poster_url = '/api/images/' || ${idExpr})
-)`;
 
 /*
   회원 전용 글에서만 쓰이는 그림인지.

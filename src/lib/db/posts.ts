@@ -274,31 +274,56 @@ export async function listPosts(opts: {
   );
   const total = Number(countRow?.n ?? 0);
 
-  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
-  const current = Math.min(page, totalPages);
-
-  /* 접수중 탭은 마감이 가까운 공고부터. 서둘러야 할 것이 위에 와야 한다 */
-  const order = deadline === "open" ? "event_apply_by ASC, id DESC" : "id DESC";
-
-  const rows = await db.all<RawRow>(
-    `SELECT * FROM (${NUMBERED}) numbered${clause}
-     ORDER BY ${order} LIMIT ? OFFSET ?`,
-    [opts.board, ...filters, PER_PAGE, (current - 1) * PER_PAGE],
-  );
-
   /*
     검색 중에는 고정 공지를 띄우지 않는다. 검색 결과만 보이는 편이 낫다.
     탭에서는 그 탭에 드는 고정 글만 올린다. 다른 탭의 글이 끼면 탭이 무색해진다.
     고정 글은 첫 쪽에만 올린다. 쪽마다 올리면 고정 글이 많을 때 2쪽부터도 고정 글만
     길게 깔려, 쪽을 넘겨도 끝없이 내려가야 하는 것처럼 보인다(공지 16건을 모두 고정했을 때).
+
+    한 쪽에는 고정 글까지 합쳐 PER_PAGE(15)건만 보인다(2026-11-09 사무국). 고정 글이
+    3건이면 첫 쪽의 일반 글은 12건이고, 2쪽은 그다음 글부터 15건씩이다.
   */
-  const pinned = q || current > 1
+  const pinnedCount = q
+    ? 0
+    : Math.min(
+        PER_PAGE,
+        Number(
+          (
+            await db.get<{ n: number }>(
+              `SELECT COUNT(*) AS n FROM posts WHERE deleted_at = '' AND board = ? AND is_pinned = 1${tabWhere
+                .map((w) => ` AND ${w}`)
+                .join("")}`,
+              [opts.board, ...tabFilters],
+            )
+          )?.n ?? 0,
+        ),
+      );
+  const firstPageRows = PER_PAGE - pinnedCount;
+
+  const totalPages = Math.max(1, 1 + Math.ceil(Math.max(0, total - firstPageRows) / PER_PAGE));
+  const current = Math.min(page, totalPages);
+
+  /* 접수중 탭은 마감이 가까운 공고부터. 서둘러야 할 것이 위에 와야 한다 */
+  const order = deadline === "open" ? "event_apply_by ASC, id DESC" : "id DESC";
+
+  const limit = current === 1 ? firstPageRows : PER_PAGE;
+  const offset = current === 1 ? 0 : firstPageRows + (current - 2) * PER_PAGE;
+  const rows =
+    limit > 0
+      ? await db.all<RawRow>(
+          `SELECT * FROM (${NUMBERED}) numbered${clause}
+     ORDER BY ${order} LIMIT ? OFFSET ?`,
+          [opts.board, ...filters, limit, offset],
+        )
+      : [];
+
+  const pinned = q || current > 1 || pinnedCount === 0
     ? []
     : await db.all<RawRow>(
         `SELECT * FROM (${NUMBERED}) numbered WHERE is_pinned = 1${tabWhere
           .map((w) => ` AND ${w}`)
-          .join("")} ORDER BY id DESC`,
-        [opts.board, ...tabFilters],
+          .join("")} ORDER BY id DESC LIMIT ?`,
+        [opts.board, ...tabFilters, PER_PAGE],
       );
 
   return {

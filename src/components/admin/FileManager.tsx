@@ -6,7 +6,6 @@ import {
   deleteAttachmentFile,
   deleteImageFile,
   deleteOrphanFiles,
-  deleteUnusedImages,
   type FileActionState,
 } from "@/lib/db/file-actions";
 import type { FileReport } from "@/lib/db/files";
@@ -83,22 +82,19 @@ export default function FileManager({ report }: { report: FileReport }) {
       <section className="mt-6 rounded-xl border border-line bg-white shadow-[0_1px_2px_rgba(6,42,85,0.04)] p-5 lg:p-6">
         <h2 className="text-lg font-bold text-navy-900">정리</h2>
         <p className="mt-1.5 text-base leading-relaxed text-ink-600">
-          어느 글도 쓰지 않는 이미지와, 기록 없이 디스크에만 남은 파일을 지웁니다. 글에 붙어 있는
-          첨부파일은 지워지지 않습니다.
+          기록 없이 디스크에만 남은 파일을 지웁니다. 글에 붙어 있는 첨부파일과 이미지는 지워지지
+          않습니다. 쓰이지 않는 이미지는 아래 목록에서 하나씩 확인하고 지워 주세요.
         </p>
 
         {/* 지울 것이 있을 때만 단추를 내놓는다 */}
-        {totals.unusedImages === 0 && orphanFiles.length === 0 ? (
+        {/*
+          '안 쓰는 이미지 모두 지우기'는 뺐다(2026-11-09 사무국). 쓰는 곳을 하나라도 빠뜨리면
+          화면에 걸린 그림이 한꺼번에 사라진다 — 교육 과정 포스터가 그렇게 지워졌다(11-06).
+        */}
+        {orphanFiles.length === 0 ? (
           <p className="mt-5 text-base font-medium text-brand-700">정리할 파일이 없습니다.</p>
         ) : (
           <div className="mt-5 flex flex-wrap gap-6">
-            {totals.unusedImages > 0 && (
-              <CleanupButton
-                action={deleteUnusedImages}
-                label={`안 쓰는 이미지 ${totals.unusedImages}개 지우기`}
-                confirmText="어느 글도 쓰지 않는 이미지를 모두 지울까요?"
-              />
-            )}
             {orphanFiles.length > 0 && (
               <CleanupButton
                 action={deleteOrphanFiles}

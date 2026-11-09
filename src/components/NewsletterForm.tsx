@@ -38,8 +38,12 @@ export default function NewsletterForm({
       : "min-w-0 rounded-md border border-line bg-white px-4 py-3.5 text-md outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500 sm:w-72";
 
   return (
-    <div className="w-full shrink-0 lg:w-auto">
-      <form onSubmit={keepValues(action)} className="flex w-full flex-col gap-2 sm:flex-row">
+    /*
+      동의 칸도 폼 안에 둔다. 전에는 폼 밖에 있어서 체크해도 서버로 가지 않아,
+      동의했는데도 '동의해 주셔야 신청할 수 있습니다'만 나왔다(2026-11-09).
+    */
+    <form onSubmit={keepValues(action)} className="w-full shrink-0 lg:w-auto">
+      <div className="flex w-full flex-col gap-2 sm:flex-row">
         <input type="hidden" name="source" value={source} />
         <label htmlFor={emailId} className="sr-only">
           이메일 주소
@@ -60,7 +64,7 @@ export default function NewsletterForm({
           {pending ? "신청 중…" : "구독 신청"}
           <IconArrow className="size-4 transition-transform group-hover:translate-x-1" />
         </button>
-        </form>
+      </div>
 
       {/* 좁은 띠에 들어가므로 한 줄로 줄이고, 자세한 내용은 전문에서 본다 */}
       <div className="mt-3">
@@ -87,6 +91,6 @@ export default function NewsletterForm({
           {state.error ?? state.ok}
         </p>
       )}
-    </div>
+    </form>
   );
 }

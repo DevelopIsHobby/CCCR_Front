@@ -55,14 +55,6 @@ export default async function Page() {
       href: "/admin/files",
       cta: "파일 관리",
     },
-    {
-      show: files.totals.unusedImages > 0,
-      label: "안 쓰는 이미지",
-      value: `${files.totals.unusedImages}개`,
-      desc: "어느 글에서도 쓰지 않는 이미지입니다. 지워서 용량을 줄일 수 있습니다.",
-      href: "/admin/files",
-      cta: "정리하기",
-    },
   ].filter((t) => t.show);
 
   const contentCards = [

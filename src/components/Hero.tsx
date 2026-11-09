@@ -119,6 +119,17 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
   /* 관리자가 슬라이드를 모두 지웠을 수도 있다 */
   const slide = slides[current] ?? null;
 
+  /*
+    슬라이드 자리 크기. 그림 자리를 관리자 안내와 같은 1500:780 비율로 못 박는다.
+    전에는 최소 높이만 두어서 글자 슬라이드가 길면 칸이 늘어나 넘길 때마다 크기가 바뀌었고,
+    그림은 자리 비율과 달라 좌우가 비었다(2026-11-09 사무국).
+    휴대폰에서는 1500:780 이면 글자 슬라이드가 들어가지 않으므로, 글자 슬라이드가 하나라도
+    있을 때만 높이를 고정해 두고(그림은 가운데 맞춤) 태블릿부터 비율을 쓴다.
+  */
+  const stage = slides.every((s) => s.imageUrl)
+    ? "aspect-[1500/780]"
+    : "h-[360px] md:h-auto md:aspect-[1500/780]";
+
   return (
     <section className="relative overflow-hidden bg-navy-900">
       <div className="hex-field absolute inset-0" aria-hidden />
@@ -137,7 +148,7 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
       */}
       <div className="relative mx-auto max-w-[1280px] px-6 pb-10 pt-10 lg:pb-11 lg:pt-11">
         {/* 슬라이더 */}
-        <div className="relative flex min-h-[380px] flex-col overflow-hidden rounded-2xl bg-navy-950/60 ring-1 ring-white/10 lg:min-h-[440px]">
+        <div className="relative flex flex-col overflow-hidden rounded-2xl bg-navy-950/60 ring-1 ring-white/10">
           <div className="absolute inset-0 opacity-70">
             <NetworkArt />
           </div>
@@ -146,7 +157,7 @@ export default function Hero({ slides }: { slides: HomeCard[] }) {
             aria-hidden
           />
 
-          <div className="relative flex flex-1 flex-col justify-center px-8 py-12 lg:px-12">
+          <div className={`relative flex flex-col justify-center overflow-hidden px-8 py-10 lg:px-12 ${stage}`}>
             {slides.map((s, i) =>
               s.imageUrl ? (
                 /*

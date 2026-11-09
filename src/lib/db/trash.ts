@@ -133,6 +133,23 @@ export async function purge(kind: TrashKind, id: number): Promise<void> {
   await purgeOne(kind, id);
 }
 
+/** 관리자가 휴지통을 한 번에 비울 때. 지운 개수를 돌려준다. */
+export async function purgeAll(): Promise<number> {
+  await requireAdmin();
+  const db = await ready();
+  let removed = 0;
+  for (const kind of KINDS) {
+    const rows = await db.all<{ id: number }>(
+      `SELECT id FROM ${spec(kind).table} WHERE deleted_at <> ''`,
+    );
+    for (const row of rows) {
+      await purgeOne(kind, Number(row.id));
+      removed += 1;
+    }
+  }
+  return removed;
+}
+
 /** 야간 정리 — 30일이 지난 것을 진짜로 지운다. 지운 개수를 돌려준다. */
 export async function purgeExpired(): Promise<number> {
   const db = await ready();

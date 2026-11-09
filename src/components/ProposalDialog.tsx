@@ -27,8 +27,11 @@ export default function ProposalDialog({
   label = "교육사업 제안하기",
   me = EMPTY_APPLICANT,
 }: {
-  /* light·dark 는 혼자 서 있는 알약 단추, text 는 카드 안에 들어가는 글자 단추다. */
-  tone?: "light" | "dark" | "text";
+  /*
+    light·dark 는 혼자 서 있는 알약 단추, text 는 카드 안에 들어가는 글자 단추다.
+    accent 는 주황 알약 — 남색 판 위에 놓일 때 쓴다(교육사업 제안 화면).
+  */
+  tone?: "light" | "dark" | "text" | "accent";
   label?: string;
   me?: Applicant;
 }) {
@@ -47,7 +50,9 @@ export default function ProposalDialog({
   }, [open]);
 
   const buttonClass =
-    tone === "dark"
+    tone === "accent"
+      ? "inline-flex items-center gap-2 rounded-full bg-flame-500 px-7 py-3 text-base font-bold text-white transition-colors hover:bg-flame-600"
+      : tone === "dark"
       ? "inline-flex items-center gap-2 rounded-full bg-white px-7 py-3 text-base font-bold text-navy-900 transition-colors hover:bg-brand-50"
       : tone === "text"
         ? "group inline-flex items-center gap-2 text-base font-bold text-navy-900 transition-colors hover:text-brand-600"

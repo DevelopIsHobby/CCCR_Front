@@ -122,28 +122,34 @@ test("휴대폰 메뉴는 큰 메뉴를 눌러야 소메뉴가 펼쳐진다", as
   );
 });
 
-test("고정 글은 첫 쪽에만 올라온다", async ({ page }) => {
+test("한 쪽에는 고정 글까지 합쳐 15건만, 고정 글은 첫 쪽에만", async ({ page }) => {
   /*
     고정 글을 쪽마다 올리면, 고정 글이 많을 때 2쪽부터도 고정 글만 길게 깔린다.
-    기술동향 게시판에 고정 글 17건을 넣어 2쪽을 만든다(한 쪽 15건).
+    또 첫 쪽에 고정 글이 일반 글 15건 위에 더 붙어 목록이 길었다(2026-11-09 사무국).
+    기술동향 게시판에 고정 글 3건과 일반 글 20건을 넣는다. 시험 DB 에는 앞서 넣은 글이
+    남아 있을 수 있어 정확한 개수 대신 '한 쪽 15건'과 '2쪽에는 고정 글 없음'을 본다.
   */
   const conn = db();
   const insert = conn.prepare(
     `INSERT INTO posts (board, title, body, author_name, is_pinned, is_locked, views,
                         created_at, updated_at)
-     VALUES ('trends', ?, '<p>고정 글</p>', ?, 1, 0, 0, ?, ?)`,
+     VALUES ('trends', ?, '<p>글</p>', ?, ?, 0, 0, ?, ?)`,
   );
-  for (let i = 1; i <= 17; i++) insert.run(`${MARK} 고정 동향 ${i}`, ADMIN.name, now(), now());
+  for (let i = 1; i <= 3; i++) insert.run(`${MARK} 고정 동향 ${i}`, ADMIN.name, 1, now(), now());
+  for (let i = 1; i <= 20; i++) insert.run(`${MARK} 일반 동향 ${i}`, ADMIN.name, 0, now(), now());
   conn.close();
 
+  const rows = page.locator("table tbody tr");
+  const pinnedRows = rows.filter({ has: page.getByText("공지", { exact: true }) });
+
   await page.goto("/info/trends");
-  const pinnedRows = (p: typeof page) =>
-    p.locator("table tbody tr").filter({ has: p.getByText("공지", { exact: true }) });
-  await expect(pinnedRows(page)).toHaveCount(17);
+  await expect(rows).toHaveCount(15);
+  expect(await pinnedRows.count()).toBeGreaterThanOrEqual(3);
 
   await page.goto("/info/trends?page=2");
-  await expect(page.locator("table tbody tr").first()).toBeVisible();
-  await expect(pinnedRows(page)).toHaveCount(0);
+  await expect(rows.first()).toBeVisible();
+  expect(await rows.count()).toBeLessThanOrEqual(15);
+  await expect(pinnedRows).toHaveCount(0);
 });
 
 test("메인 '일정 달력'에서 날을 누르면 그날 행사·교육·공고 마감이 나온다", async ({ page }) => {

@@ -3,6 +3,7 @@ import type { EventInfo, PostRow } from "@/lib/db/posts";
 import { agencyName, formatApplyPeriod, noticeStatus, type NoticeStatus } from "@/lib/format";
 import { PinnedBadge, TitleCell, emptyMessage, withPinned } from "./BoardTable";
 import { IconExternal } from "./NewsLinks";
+import OutLink from "./OutLink";
 import type { BoardConfig } from "@/lib/boards";
 
 /*
@@ -104,6 +105,7 @@ export default function NoticeTable({
             <th className="w-56 px-3 py-4 text-center text-base font-bold text-navy-900">
               접수 기간
             </th>
+            <th className="w-16 px-3 py-4 text-center text-base font-bold text-navy-900">조회</th>
           </tr>
         </thead>
         <tbody>
@@ -130,16 +132,15 @@ export default function NoticeTable({
                   <div className="flex items-start justify-between gap-3">
                     {/* 원문 주소가 있으면 주관기관 공고로 바로 보낸다. 원문 없이 올린 옛 글은 사이트 안 글 화면으로 */}
                     {linkOnly && post.link?.url ? (
-                      <a
+                      <OutLink
+                        postId={post.id}
                         href={post.link.url}
-                        target="_blank"
-                        rel="noreferrer noopener"
                         className="group flex min-w-0 items-start gap-1.5"
                       >
                         <TitleCell post={post} />
                         <IconExternal className="mt-1.5 size-3.5 shrink-0 text-ink-400 transition-colors group-hover:text-brand-600" />
                         <span className="sr-only"> (공고 원문, 새 창)</span>
-                      </a>
+                      </OutLink>
                     ) : (
                       <Link href={`${base}/${post.id}`} className="group block min-w-0">
                         <TitleCell post={post} />
@@ -160,6 +161,9 @@ export default function NoticeTable({
                   <span className="data-line whitespace-nowrap tabular-nums text-ink-600">
                     {formatApplyPeriod(post.event.applyFrom, post.event.applyBy) || "상시"}
                   </span>
+                </td>
+                <td className="label-mono px-3 py-4 text-center tabular-nums text-ink-400">
+                  {post.views.toLocaleString("ko-KR")}
                 </td>
               </tr>
             );

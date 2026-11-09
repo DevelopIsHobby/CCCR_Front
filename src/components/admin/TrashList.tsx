@@ -1,6 +1,6 @@
 "use client";
 
-import { purgeItem, restoreItem } from "@/lib/db/trash-actions";
+import { emptyTrash, purgeItem, restoreItem } from "@/lib/db/trash-actions";
 import { TRASH_KEEP_DAYS, TRASH_LABEL, type TrashRow } from "@/lib/trash-types";
 import { formatDate } from "@/lib/format";
 
@@ -21,7 +21,34 @@ export default function TrashList({ rows }: { rows: TrashRow[] }) {
   }
 
   return (
-    <div className="mt-8 overflow-x-auto">
+    <>
+      {/* 휴지통 비우기(2026-11-09 사무국). 하나씩 '완전 삭제'를 누르지 않아도 되게 */}
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-base text-ink-600">
+          휴지통에 <b className="font-bold text-navy-900">{rows.length}건</b>이 있습니다.
+        </p>
+        <form
+          action={emptyTrash}
+          onSubmit={(e) => {
+            if (
+              !confirm(
+                `휴지통의 ${rows.length}건을 모두 완전히 지웁니다.\n게시글에 붙은 첨부파일도 함께 지워지며 되돌릴 수 없습니다. 계속할까요?`,
+              )
+            ) {
+              e.preventDefault();
+            }
+          }}
+        >
+          <button
+            type="submit"
+            className="rounded-lg bg-flame-600 px-4 py-2.5 text-base font-bold text-white transition-colors hover:bg-flame-700"
+          >
+            휴지통 비우기
+          </button>
+        </form>
+      </div>
+
+    <div className="mt-4 overflow-x-auto">
       <table className="w-full min-w-[860px] border-collapse text-left">
         <thead>
           <tr className="border-y-2 border-navy-900 bg-surface">
@@ -107,5 +134,6 @@ export default function TrashList({ rows }: { rows: TrashRow[] }) {
         </tbody>
       </table>
     </div>
+    </>
   );
 }

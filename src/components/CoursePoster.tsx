@@ -8,7 +8,8 @@ import { formatRange, type EduCourse } from "@/lib/edu-course";
 
   올린 포스터는 자르지 않는다(object-contain). 포스터에는 글자가 들어 있어 잘리면
   읽을 수 없다. 비율이 맞지 않아 남는 곳은 남색 바탕이 채운다.
-  틀은 16:10 이다(관리자 화면 권장 크기 1200 × 750).
+  틀은 4:3 이다(관리자 화면 안내 크기 1200 × 900). 사무국 포스터가 대개 4:3 언저리(1.25~1.39)라
+  16:10 틀에서는 좌우가 비었다(2026-11-09).
 */
 export default function CoursePoster({
   course,
@@ -20,7 +21,7 @@ export default function CoursePoster({
 }) {
   if (course.posterUrl) {
     return (
-      <div className="aspect-[16/10] bg-navy-950">
+      <div className="aspect-[4/3] bg-navy-950">
         {/* 크기를 미리 알 수 없는 관리자 그림이라 next/image 대신 img 를 쓴다 */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={course.posterUrl} alt={course.title} className="size-full object-contain" />
@@ -33,7 +34,7 @@ export default function CoursePoster({
     <div
       role="img"
       aria-label={course.title}
-      className="relative flex aspect-[16/10] flex-col justify-between overflow-hidden bg-navy-900"
+      className="relative flex aspect-[4/3] flex-col justify-between overflow-hidden bg-navy-900"
     >
       <span className="hex-field absolute inset-0" aria-hidden />
       <span

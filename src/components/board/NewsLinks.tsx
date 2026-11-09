@@ -3,6 +3,8 @@ import type { PostRow } from "@/lib/db/posts";
 import { postHref, type BoardConfig } from "@/lib/boards";
 import { formatDate } from "@/lib/format";
 import { emptyMessage, PinnedBadge, withPinned } from "./BoardTable";
+import { isNewPost, NewBadge, ViewCount } from "./PostBadges";
+import OutLink from "./OutLink";
 
 /*
   산업뉴스 — 바깥 기사로 보내는 목록.
@@ -80,6 +82,11 @@ export default function NewsLinks({
             {external && (
               <IconExternal className="ml-1.5 inline size-3.5 align-[-1px] text-ink-400 transition-colors group-hover:text-brand-600" />
             )}
+            {isNewPost(post.createdAt) && (
+              <span className="ml-2 inline-flex align-[2px]">
+                <NewBadge createdAt={post.createdAt} />
+              </span>
+            )}
           </>
         );
 
@@ -95,10 +102,10 @@ export default function NewsLinks({
                 </span>
               )}
               {external ? (
-                <a href={href} target="_blank" rel="noreferrer noopener" className="group min-w-0">
+                <OutLink postId={post.id} href={href} className="group min-w-0">
                   {title}
                   <span className="sr-only"> (원문 기사, 새 창)</span>
-                </a>
+                </OutLink>
               ) : (
                 <Link href={href} className="group min-w-0">
                   {title}
@@ -115,6 +122,7 @@ export default function NewsLinks({
               )}
               {source && <span className="max-w-[12rem] truncate">{source}</span>}
               <span className="label-mono tabular-nums">{formatDate(post.createdAt)}</span>
+              <ViewCount views={post.views} />
               {isAdmin && (
                 <Link
                   href={`${board.basePath}/${post.id}/edit`}

@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { ready } from "@/lib/db/migrate";
 import { requireAdmin } from "@/lib/auth/session";
 import { deleteUpload, safeStoredName, UPLOAD_DIR } from "@/lib/uploads";
-import { imageUsedSql, isImageUsed } from "@/lib/db/image-usage";
+import { isImageUsed } from "@/lib/db/image-usage";
 
 export type FileActionState = { error?: string; ok?: string };
 
@@ -53,27 +53,6 @@ export async function deleteImageFile(formData: FormData): Promise<void> {
   await db.run("DELETE FROM images WHERE id = ?", [id]);
   await deleteUpload(row.stored_name);
   refresh();
-}
-
-/** 어느 글도 쓰지 않는 이미지를 한꺼번에 지운다. */
-export async function deleteUnusedImages(
-  _prev: FileActionState,
-  _formData: FormData,
-): Promise<FileActionState> {
-  await requireAdmin();
-
-  const db = await ready();
-  const rows = await db.all<{ id: number; stored_name: string }>(
-    `SELECT id, stored_name FROM images i WHERE NOT ${imageUsedSql("i.id")}`,
-  );
-
-  for (const row of rows) {
-    await db.run("DELETE FROM images WHERE id = ?", [row.id]);
-    await deleteUpload(row.stored_name);
-  }
-
-  refresh();
-  return { ok: rows.length ? `이미지 ${rows.length}건을 지웠습니다.` : "지울 이미지가 없습니다." };
 }
 
 /*
