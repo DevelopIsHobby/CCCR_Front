@@ -8,7 +8,7 @@ import { formatBytes, formatDate } from "@/lib/format";
 import { listAdminPosts, countPostsByBoard } from "@/lib/db/admin-posts";
 import { countCompanies } from "@/lib/db/companies";
 import { getFileReport } from "@/lib/db/files";
-import { countSubscribers } from "@/lib/db/newsletter";
+import { countNewSubscribers, countSubscribers } from "@/lib/db/newsletter";
 import { countUsersByStatus } from "@/lib/db/users";
 import { getDailyVisits, getVisitSummary } from "@/lib/db/visits";
 
@@ -18,7 +18,7 @@ export const metadata: Metadata = { title: "대시보드" };
 const shortDay = (day: string) => `${Number(day.slice(5, 7))}.${day.slice(8, 10)}`;
 
 export default async function Page() {
-  const [summary, daily, users, postCounts, companies, subscribers, files, recent] =
+  const [summary, daily, users, postCounts, companies, subscribers, files, recent, newSubscribers] =
     await Promise.all([
       getVisitSummary(),
       getDailyVisits(),
@@ -28,6 +28,7 @@ export default async function Page() {
       countSubscribers(),
       getFileReport(),
       listAdminPosts({ page: 1 }),
+      countNewSubscribers(),
     ]);
 
   const totalPosts = Object.values(postCounts).reduce((n, v) => n + v, 0);
@@ -46,6 +47,14 @@ export default async function Page() {
       desc: "회원가입 신청이 승인을 기다리고 있습니다.",
       href: "/admin/members?status=pending",
       cta: "승인하러 가기",
+    },
+    {
+      show: newSubscribers > 0,
+      label: "새 뉴스레터 구독",
+      value: `${newSubscribers}명`,
+      desc: "구독자 화면을 마지막으로 본 뒤 들어온 구독 신청입니다.",
+      href: "/admin/newsletter",
+      cta: "구독자 보기",
     },
     {
       show: files.totals.missing > 0,

@@ -27,6 +27,11 @@ export type BoardConfig = {
    *          글 화면에서는 사진을 눌러 크게 넘겨 본다
    */
   layout: "table" | "cards" | "issues" | "links" | "notices" | "gallery";
+  /**
+   * 사진만 받는 게시판인가. 글쓰기에 편집기·링크·첨부·회원 전용 없이 사진 칸만 둔다.
+   * gallery 배치(포토갤러리)는 늘 그렇다. 뉴스레터도 그림 파일로 만들어 올린다(2026-11-09 사무국).
+   */
+  photoOnly?: boolean;
   /** 주최·장소·행사일 같은 행사 전용 입력을 쓰는가 */
   hasEventFields: boolean;
   /**
@@ -158,6 +163,7 @@ export const BOARDS: BoardConfig[] = [
     desc: "조합이 월 1회 발행하는 뉴스레터를 모아 두었습니다. 지난 호를 읽어 보실 수 있습니다.",
     basePath: "/info/newsletter",
     layout: "issues",
+    photoOnly: true,
     hasEventFields: false,
     showOnHome: false,
   },
@@ -195,9 +201,9 @@ export function isLinkOnly(board: BoardConfig | null | undefined): boolean {
   return Boolean(board && (board.layout === "links" || board.linkOnly));
 }
 
-/** 사진만 받는 게시판인가(포토갤러리). 글쓰기에 편집기·링크·첨부·회원 전용 없이 사진 칸만 둔다 */
+/** 사진만 받는 게시판인가(포토갤러리·뉴스레터). 글쓰기에 편집기·링크·첨부·회원 전용 없이 사진 칸만 둔다 */
 export function isPhotoOnly(board: BoardConfig | null | undefined): boolean {
-  return board?.layout === "gallery";
+  return Boolean(board && (board.layout === "gallery" || board.photoOnly));
 }
 
 /** 사이트 밖으로 나가는 주소인지. 새 창으로 열지 가를 때 쓴다. */

@@ -8,7 +8,13 @@ import {
   pillGroup,
 } from "@/components/admin/AdminUi";
 import SubscriberTable from "@/components/admin/SubscriberTable";
-import { countSubscribers, listSubscribers, type SubscriberStatus } from "@/lib/db/newsletter";
+import MarkSubscribersSeen from "@/components/admin/MarkSubscribersSeen";
+import {
+  countNewSubscribers,
+  countSubscribers,
+  listSubscribers,
+  type SubscriberStatus,
+} from "@/lib/db/newsletter";
 
 export const metadata: Metadata = { title: "뉴스레터 구독자" };
 
@@ -29,9 +35,10 @@ export default async function Page({
     | SubscriberStatus
     | "all";
 
-  const [subscribers, counts] = await Promise.all([
+  const [subscribers, counts, fresh] = await Promise.all([
     listSubscribers({ q, status }),
     countSubscribers(),
+    countNewSubscribers(),
   ]);
 
   const exportHref =
@@ -48,6 +55,14 @@ export default async function Page({
           </a>
         }
       />
+
+      {/* 이 화면이 열리면 새 신청을 본 것으로 한다(미리 불러오기로는 적지 않는다) */}
+      {fresh > 0 && <MarkSubscribersSeen />}
+      {fresh > 0 && (
+        <p className="rounded-lg bg-flame-100 px-5 py-3 text-base font-semibold text-flame-700">
+          지난번에 보신 뒤 새 구독 신청이 {fresh}건 들어왔습니다. 목록 맨 위부터 최근 신청입니다.
+        </p>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <StatCard label="구독 중" value={counts.active} unit="명" />

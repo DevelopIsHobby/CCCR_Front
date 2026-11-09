@@ -105,16 +105,16 @@ function CourseForm({ course, onDone }: { course?: EduCourse; onDone?: () => voi
       <div>
         <span className="mb-1.5 block text-base font-bold text-navy-900">포스터 (선택)</span>
         <p className="mb-3 text-sm leading-relaxed text-ink-400">
-          포스터 크기 <b className="font-semibold text-ink-600">1200 × 900 px</b>(가로:세로 4:3)로
+          포스터 크기 <b className="font-semibold text-ink-600">1200 × 800 px</b>(가로:세로 3:2)로
           만들어 주세요. 메인 아카데미의 포스터 자리가 이 비율이라 꽉 차게 들어갑니다. 더 선명하게
-          하려면 같은 비율로 두 배(2400 × 1800 px)도 됩니다. 비율이 다르면 자르지 않고 남는 곳을
+          하려면 같은 비율로 두 배(2400 × 1600 px)도 됩니다. 비율이 다르면 자르지 않고 남는 곳을
           배경색으로 채웁니다. 포스터가 없으면 과정명으로 포스터를 그려 보여 줍니다.
         </p>
         <ImagePicker
           name="posterUrl"
           defaultValue={course?.posterUrl ?? ""}
           alt="과정 포스터"
-          ratio="aspect-[4/3]"
+          ratio="aspect-[3/2]"
           width="w-72"
         />
       </div>

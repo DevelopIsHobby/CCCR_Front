@@ -111,3 +111,55 @@ test("관리자: 파일 관리에 '안 쓰는 이미지 지우기'가 없고, �
   conn.close();
   expect(Number(left.n)).toBe(0);
 });
+
+const PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64",
+);
+
+test("뉴스레터 구독이 들어오면 관리자 사이드바에 숫자가 뜨고, 구독자 화면을 열면 사라진다", async ({ page, browser }) => {
+  await login(page, ADMIN);
+  const link = page.getByRole("navigation", { name: "관리자 메뉴" }).getByRole("link", { name: /^뉴스레터/ });
+  /* 먼저 구독자 화면을 열어 지금까지를 본 것으로 둔다(화면이 열리면 숫자가 사라진다) */
+  await page.goto("/admin/newsletter");
+  await expect(link).toHaveText(/^뉴스레터$/);
+
+  /* 다른 사람이 구독 신청(로그인하지 않은 새 창) */
+  const guest = await browser.newPage();
+  await guest.goto("/info/newsletter");
+  const form = guest.locator("section", { hasText: "조합 소식을 메일로 받아보세요" }).locator("form");
+  await form.getByPlaceholder("email@example.com").fill(`e2e-badge-${Date.now()}@example.com`);
+  await form.getByRole("checkbox", { name: /개인정보 수집·이용에 동의합니다/ }).check();
+  await form.getByRole("button", { name: "구독 신청" }).click();
+  await expect(form.getByText("구독 신청이 접수되었습니다.")).toBeVisible();
+  await guest.close();
+
+  await page.goto("/admin");
+  await expect(link).toHaveText(/^뉴스레터\s*1$/);
+  await expect(page.getByText("새 뉴스레터 구독")).toBeVisible();
+
+  await page.goto("/admin/newsletter");
+  await expect(page.getByText(/새 구독 신청이 1건 들어왔습니다/)).toBeVisible();
+  await expect(link).toHaveText(/^뉴스레터$/);
+  /* 대시보드를 미리 불러와도 숫자가 되살아나지 않는다 */
+  await page.goto("/admin");
+  await expect(link).toHaveText(/^뉴스레터$/);
+});
+
+test("뉴스레터 글쓰기는 사진만 올린다", async ({ page }) => {
+  await login(page, ADMIN);
+  const title = `${MARK} 11월 뉴스레터 ${Date.now()}`;
+  await page.goto("/info/newsletter/write");
+  await page.locator("#post-title").fill(title);
+  /* 편집기·첨부 없이 사진 칸만 있다 */
+  await expect(page.locator('[contenteditable="true"]')).toHaveCount(0);
+  await expect(page.locator("#post-files")).toHaveCount(0);
+  await page.locator("#post-photos").setInputFiles([
+    { name: "p1.png", mimeType: "image/png", buffer: PNG },
+    { name: "p2.png", mimeType: "image/png", buffer: PNG },
+  ]);
+  await expect(page.getByRole("button", { name: /^사진 \d 빼기$/ })).toHaveCount(2);
+  await page.getByRole("button", { name: "등록" }).click();
+  await expect(page.getByRole("heading", { name: title })).toBeVisible();
+  await expect(page.locator('img[src^="/api/images/"]')).toHaveCount(2);
+});

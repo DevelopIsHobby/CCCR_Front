@@ -5,6 +5,7 @@ import { ready } from "@/lib/db/migrate";
 import { clientKey, record, SUBMIT, tooMany } from "@/lib/db/rate-limit";
 import { now } from "@/lib/db/driver";
 import { requireAdmin } from "@/lib/auth/session";
+import { markSubscribersSeen } from "@/lib/db/newsletter";
 
 export type SubscribeState = { error?: string; ok?: string };
 
@@ -90,4 +91,10 @@ export async function deleteSubscriber(formData: FormData): Promise<void> {
   const db = await ready();
   await db.run("DELETE FROM newsletter_subscribers WHERE id = ?", [id]);
   revalidatePath("/admin/newsletter");
+}
+
+/** 구독자 화면을 연 관리자가 새 구독을 본 것으로 한다(MarkSubscribersSeen) */
+export async function markSubscribersSeenAction(): Promise<void> {
+  await requireAdmin();
+  await markSubscribersSeen();
 }

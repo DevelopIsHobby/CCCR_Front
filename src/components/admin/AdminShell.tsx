@@ -20,6 +20,8 @@ export type AdminBadges = {
   newProposals: number;
   pendingNotices: number;
   trash: number;
+  /** 구독자 화면을 마지막으로 본 뒤 들어온 뉴스레터 구독 신청 */
+  newSubscribers: number;
   /** 월간 접속 기록 점검이 밀렸으면 1 */
   inspection: number;
 };

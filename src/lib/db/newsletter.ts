@@ -58,6 +58,35 @@ export async function listSubscribers(
   return rows.map(toSubscriber);
 }
 
+/*
+  새 구독 알림. 관리자가 구독자 화면을 마지막으로 연 뒤에 들어온 신청 수를 사이드바·대시보드에 띄운다.
+  전에는 구독 신청이 들어와도 관리자 화면 어디에도 표시가 없었다(2026-11-09 사무국).
+  마지막으로 본 때는 site_settings 에 둔다(처음 값은 047 마이그레이션이 그때로 넣는다).
+*/
+export const NEWSLETTER_SEEN_KEY = "newsletter_seen_at";
+
+export async function countNewSubscribers(): Promise<number> {
+  const db = await ready();
+  const row = await db.get<{ n: number }>(
+    `SELECT COUNT(*) AS n FROM newsletter_subscribers
+      WHERE status = 'active'
+        AND created_at > COALESCE((SELECT value FROM site_settings WHERE key = ?), '')`,
+    [NEWSLETTER_SEEN_KEY],
+  );
+  return Number(row?.n ?? 0);
+}
+
+/** 구독자 화면을 열면 지금까지 들어온 신청을 본 것으로 한다 */
+export async function markSubscribersSeen(): Promise<void> {
+  const db = await ready();
+  const stamp = new Date().toISOString().slice(0, 19).replace("T", " ");
+  await db.run(
+    `INSERT INTO site_settings (key, value, updated_at) VALUES (?, ?, ?)
+     ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+    [NEWSLETTER_SEEN_KEY, stamp, stamp],
+  );
+}
+
 export async function countSubscribers(): Promise<{ active: number; unsubscribed: number }> {
   const db = await ready();
   const rows = await db.all<{ status: string; n: number }>(
