@@ -6,7 +6,8 @@ import SmartLink from "./SmartLink";
 import type { HomeCard } from "@/lib/db/home-cards";
 import { QUICK_ICONS, IconArrow, IconChevron, IconPause, IconPlay } from "./Icons";
 
-const INTERVAL = 6000;
+/* 슬라이드 하나가 머무는 시간. 6초는 그림 속 글을 다 읽기 전에 넘어간다고 해 10초로 늘렸다(2026-11-09 사무국) */
+const INTERVAL = 10_000;
 
 /** 히어로 배경 네트워크 그래픽 — 클라우드/노드 연결 모티브 */
 function NetworkArt() {
